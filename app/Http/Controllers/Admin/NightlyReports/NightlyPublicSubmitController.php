@@ -217,9 +217,35 @@ class NightlyPublicSubmitController extends Controller
             'e_signature' => 'nullable|string',
         ]);
 
+        $location = NrLocation::find($validated['location_id']);
+
+        $mainIncident = \App\Models\Incident::create([
+            'website_id' => $location?->website_id,
+            'location_legal_name' => $location?->name ?? 'Venue',
+            'location_dba_name' => $location?->short_name ?? $location?->name ?? 'Venue',
+            'location_address' => $location?->address ?? '',
+            'incident_calendar_date' => $validated['incident_date'],
+            'date_submitted' => now(),
+            'incident_time' => $validated['time_of_incident'],
+            'incident_type' => $validated['report_type_field'],
+            'reporter_name' => $validated['submitter_name'],
+            'managers_on_duty' => $validated['managers_on_duty'] ?? '',
+            'manager_phone' => $validated['manager_phone'] ?? '',
+            'involved_injured_persons' => $validated['involved_persons'] ?? '',
+            'incident_description' => $validated['incident_description'],
+            'witnesses_statement' => $validated['witnesses'] ?? '',
+            'police_report_number' => $validated['police_report_number'] ?? null,
+            'police_officers_badges' => $validated['police_officers_badges'] ?? null,
+            'camera_angles' => $validated['camera_angles'] ?? null,
+            'camera_timestamp' => $validated['camera_timestamp'] ?? null,
+            'digital_signature_name' => $validated['e_signature'] ?? null,
+            'status' => 'open',
+            'public_witness_token' => (string) \Illuminate\Support\Str::uuid(),
+        ]);
+
         $incident = NrIncident::create($validated);
 
-        return redirect()->route('nightly.submit.success', ['id' => $incident->id, 'type' => 'incident']);
+        return redirect()->route('nightly.submit.success', ['id' => $mainIncident->id, 'type' => 'incident']);
     }
 
     /**

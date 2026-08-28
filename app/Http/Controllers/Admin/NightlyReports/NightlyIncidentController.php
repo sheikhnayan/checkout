@@ -3,25 +3,51 @@
 namespace App\Http\Controllers\Admin\NightlyReports;
 
 use Illuminate\Http\Request;
-use App\Models\NightlyReports\NrIncident;
+use App\Models\Incident;
 use App\Models\NightlyReports\NrLocation;
+use App\Models\Website;
+use Illuminate\Support\Facades\Auth;
 
 class NightlyIncidentController extends BaseNightlyReportsController
 {
+    protected function accessibleWebsiteIds(): array
+    {
+        if ($ambassador = Auth::guard('ambassador')->user()) {
+            return $ambassador->clubs()->pluck('websites.id')->map(fn($id) => (int) $id)->toArray();
+        }
+
+        $user = Auth::user();
+        if (!$user) {
+            return [];
+        }
+
+        if ($user->isAdmin() || $user->isSuperAdmin()) {
+            return Website::pluck('id')->map(fn($id) => (int) $id)->toArray();
+        }
+
+        return array_map('intval', $user->accessibleWebsiteIds());
+    }
+
     public function index(Request $request)
     {
         $locations = $this->accessibleLocations();
-        $allowedLocationIds = $this->accessibleLocationIds();
+        $websiteIds = $this->accessibleWebsiteIds();
 
         $selectedLocationId = $request->input('location_id');
         $status = $request->input('status');
         $search = $request->input('search');
 
-        $query = NrIncident::with(['location', 'witnessStatements'])
-            ->whereIn('location_id', $allowedLocationIds);
+        $filterWebsiteId = null;
+        if ($selectedLocationId) {
+            $loc = NrLocation::find($selectedLocationId);
+            $filterWebsiteId = $loc?->website_id ?? $selectedLocationId;
+        }
 
-        if ($selectedLocationId && in_array((int) $selectedLocationId, $allowedLocationIds, true)) {
-            $query->where('location_id', (int) $selectedLocationId);
+        $query = Incident::with(['website', 'witnessReports', 'attachments'])
+            ->whereIn('website_id', $websiteIds);
+
+        if ($filterWebsiteId && in_array((int) $filterWebsiteId, $websiteIds, true)) {
+            $query->where('website_id', (int) $filterWebsiteId);
         }
 
         if ($status) {
@@ -30,15 +56,16 @@ class NightlyIncidentController extends BaseNightlyReportsController
 
         if ($search) {
             $query->where(function ($q) use ($search) {
-                $q->where('submitter_name', 'like', "%{$search}%")
-                    ->orWhere('report_type_field', 'like', "%{$search}%")
+                $q->where('reporter_name', 'like', "%{$search}%")
+                    ->orWhere('incident_type', 'like', "%{$search}%")
                     ->orWhere('incident_description', 'like', "%{$search}%")
                     ->orWhere('police_report_number', 'like', "%{$search}%")
-                    ->orWhere('involved_persons', 'like', "%{$search}%");
+                    ->orWhere('involved_injured_persons', 'like', "%{$search}%")
+                    ->orWhere('location_legal_name', 'like', "%{$search}%");
             });
         }
 
-        $incidents = $query->orderByDesc('incident_date')
+        $incidents = $query->orderByDesc('incident_calendar_date')
             ->orderByDesc('id')
             ->paginate(20)
             ->withQueryString();
@@ -54,9 +81,9 @@ class NightlyIncidentController extends BaseNightlyReportsController
 
     public function show($id)
     {
-        $allowedLocationIds = $this->accessibleLocationIds();
-        $incident = NrIncident::with(['location', 'witnessStatements'])
-            ->whereIn('location_id', $allowedLocationIds)
+        $websiteIds = $this->accessibleWebsiteIds();
+        $incident = Incident::with(['website', 'witnessReports.attachments', 'attachments', 'auditLogs.user'])
+            ->whereIn('website_id', $websiteIds)
             ->findOrFail($id);
 
         return view('admin.nightly-reports.incidents.show', compact('incident'));
@@ -64,19 +91,19 @@ class NightlyIncidentController extends BaseNightlyReportsController
 
     public function updateStatus(Request $request, $id)
     {
-        $allowedLocationIds = $this->accessibleLocationIds();
-        $incident = NrIncident::whereIn('location_id', $allowedLocationIds)->findOrFail($id);
+        $websiteIds = $this->accessibleWebsiteIds();
+        $incident = Incident::whereIn('website_id', $websiteIds)->findOrFail($id);
 
         $validated = $request->validate([
-            'status' => 'required|in:pending,under_review,legal_hold,resolved',
-            'restricted' => 'nullable|boolean',
+            'status' => 'required|string',
         ]);
 
         $incident->update([
             'status' => $validated['status'],
-            'restricted' => $request->has('restricted') ? (bool) $request->input('restricted') : $incident->restricted,
+            'status_changed_at' => now(),
+            'status_changed_by_user_id' => auth()->id(),
         ]);
 
-        return back()->with('success', 'Incident status updated.');
+        return back()->with('success', 'Incident status updated successfully.');
     }
 }

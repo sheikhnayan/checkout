@@ -65,13 +65,20 @@
         </thead>
         <tbody>
           @forelse($incidents as $inc)
+          @php
+            $incDate = $inc->incident_calendar_date ?? $inc->incident_date;
+            $incTime = $inc->formatted_incident_time ?? $inc->incident_time ?? $inc->time_of_incident;
+            $locationName = $inc->website->name ?? $inc->location_dba_name ?? $inc->location_legal_name ?? $inc->location->name ?? 'Venue';
+            $incType = $inc->incident_type ?? $inc->report_type_field ?? 'Security';
+            $witnessCount = isset($inc->witnessReports) ? $inc->witnessReports->count() : (isset($inc->witnessStatements) ? $inc->witnessStatements->count() : 0);
+          @endphp
           <tr>
             <td>
-              <div class="fw-bold text-white">{{ $inc->incident_date->format('M d, Y') }}</div>
-              <small class="text-muted">{{ $inc->time_of_incident }}</small>
+              <div class="fw-bold text-white">{{ $incDate ? \Carbon\Carbon::parse($incDate)->format('M d, Y') : '—' }}</div>
+              <small class="text-muted">{{ $incTime }}</small>
             </td>
-            <td class="fw-bold text-white">{{ $inc->location->name ?? 'Venue' }}</td>
-            <td><span class="badge bg-danger">{{ $inc->report_type_field }}</span></td>
+            <td class="fw-bold text-white">{{ $locationName }}</td>
+            <td><span class="badge bg-danger">{{ $incType }}</span></td>
             <td>
               <div class="small text-muted" style="max-width: 320px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;">
                 {{ $inc->incident_description }}
@@ -79,19 +86,19 @@
             </td>
             <td><small class="text-white">{{ $inc->police_report_number ?? 'None' }}</small></td>
             <td>
-              <span class="badge bg-secondary">{{ $inc->witnessStatements->count() }} statement(s)</span>
+              <span class="badge bg-secondary">{{ $witnessCount }} statement(s)</span>
             </td>
             <td>
-              @if($inc->status === 'resolved')
+              @if(in_array($inc->status, ['resolved', 'closed'], true))
                 <span class="badge bg-success">Resolved</span>
               @elseif($inc->status === 'legal_hold')
                 <span class="badge bg-warning text-dark">Legal Hold</span>
               @elseif($inc->status === 'under_review')
                 <span class="badge bg-info">Under Review</span>
               @else
-                <span class="badge bg-secondary">Pending</span>
+                <span class="badge bg-secondary">{{ ucwords(str_replace('_', ' ', $inc->status ?? 'Open')) }}</span>
               @endif
-              @if($inc->restricted)
+              @if($inc->restricted ?? false)
                 <span class="badge bg-dark text-danger border border-danger ms-1">Restricted</span>
               @endif
             </td>

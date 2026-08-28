@@ -516,8 +516,8 @@
         </a>
       </li>
 
-      <!-- Group 3: Security, Legal & Compliance -->
-      <li class="nr-menu-header">Risk & Legal Compliance</li>
+      <!-- Group 3: Security & Compliance -->
+      <li class="nr-menu-header">Risk & Security</li>
       <li class="nr-menu-item {{ request()->routeIs('admin.nightly-reports.incidents*') ? 'active' : '' }}">
         <a href="{{ route('admin.nightly-reports.incidents.index') }}" class="nr-menu-link">
           <i class="fas fa-shield-alt"></i>
@@ -530,32 +530,6 @@
           <span>Witness Statements</span>
         </a>
       </li>
-      <li class="nr-menu-item {{ request()->routeIs('admin.nightly-reports.witness-qr*') ? 'active' : '' }}">
-        <a href="{{ route('admin.nightly-reports.witness-qr.index') }}" class="nr-menu-link">
-          <i class="fas fa-qrcode"></i>
-          <span>Witness QR Codes</span>
-        </a>
-      </li>
-      <li class="nr-menu-item {{ request()->routeIs('admin.nightly-reports.model-releases*') ? 'active' : '' }}">
-        <a href="{{ route('admin.nightly-reports.model-releases.index') }}" class="nr-menu-link">
-          <i class="fas fa-id-card"></i>
-          <span>Model Release Vault</span>
-        </a>
-      </li>
-      @if(!$isAmbassador)
-      <li class="nr-menu-item {{ request()->routeIs('admin.nightly-reports.legal*') ? 'active' : '' }}">
-        <a href="{{ route('admin.nightly-reports.legal.index') }}" class="nr-menu-link">
-          <i class="fas fa-balance-scale"></i>
-          <span>Legal Access</span>
-        </a>
-      </li>
-      <li class="nr-menu-item {{ request()->routeIs('admin.nightly-reports.document-requests*') ? 'active' : '' }}">
-        <a href="{{ route('admin.nightly-reports.document-requests.index') }}" class="nr-menu-link">
-          <i class="fas fa-folder-open"></i>
-          <span>Document Requests</span>
-        </a>
-      </li>
-      @endif
 
       @if(!$isAmbassador)
       <!-- Group 4: Administration & Setup -->
