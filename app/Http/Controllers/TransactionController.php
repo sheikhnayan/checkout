@@ -1427,7 +1427,129 @@ class TransactionController extends Controller
         return collect();
     }
 
-    private function getAccessibleTransactionList(Request $request, ?callable $queryMutator = null)
+    public function filterTransactionsAjax(Request $request)
+    {
+        app(CommissionLifecycleRunner::class)->runSafely();
+
+        $user = auth()->user();
+        $isAffiliateOnly = $request->boolean('is_affiliate_only') || $request->input('is_affiliate_only') === '1';
+        $isEntertainerOnly = $request->boolean('is_entertainer_only') || $request->input('is_entertainer_only') === '1';
+        $isPayoutPage = $request->boolean('is_payout_page') || $request->input('is_payout_page') === '1';
+        $canArchive = $this->canManageArchivedTransactions($user);
+        $isArchivedView = $request->boolean('archived') && $canArchive;
+
+        $baseQuery = $this->getAccessibleTransactionQuery($request, function ($query) use ($isAffiliateOnly, $isEntertainerOnly) {
+            if ($isAffiliateOnly) {
+                $query->whereNotNull('affiliate_id');
+            } elseif ($isEntertainerOnly) {
+                $query->whereNotNull('entertainer_id');
+            }
+        });
+
+        $recordsTotal = (clone $baseQuery)->count();
+
+        $filteredQuery = $this->applyTransactionFilters($baseQuery, $request);
+
+        $recordsFiltered = (clone $filteredQuery)->count();
+
+        // Order
+        $columns = [
+            0 => 'id',
+            1 => 'id',
+            2 => 'created_at',
+            3 => 'transaction_id',
+            4 => 'type',
+            5 => 'host_name',
+            6 => 'affiliate_id',
+            7 => 'package_first_name',
+            8 => 'total',
+            9 => 'actual_total',
+            10 => 'payment_card_last4',
+            11 => 'actual_total',
+            12 => 'package_use_date',
+            13 => 'package_use_date',
+            14 => 'checked_in_status',
+            15 => 'affiliate_commission_amount',
+            16 => 'id',
+        ];
+
+        $orderArr = $request->input('order');
+        if (is_array($orderArr) && !empty($orderArr[0])) {
+            $colIdx = (int) ($orderArr[0]['column'] ?? 1);
+            $colDir = strtolower($orderArr[0]['dir'] ?? 'desc') === 'asc' ? 'asc' : 'desc';
+            $colName = $columns[$colIdx] ?? 'created_at';
+            $filteredQuery->orderBy($colName, $colDir);
+        } else {
+            $filteredQuery->latest();
+        }
+
+        $start = max(0, (int) $request->input('start', 0));
+        $length = max(1, min(100, (int) $request->input('length', 25)));
+
+        $transactions = (clone $filteredQuery)
+            ->skip($start)
+            ->take($length)
+            ->with(['event.website', 'package.website', 'website', 'affiliate.user', 'affiliate.parent.user', 'entertainer.user'])
+            ->get();
+
+        // Attach price_breakdown to only these 25 items
+        $transactions->each(function ($transaction) {
+            try {
+                $transaction->price_breakdown = $transaction->website
+                    ? $this->buildPackagePriceBreakdown($transaction, $transaction->website)
+                    : null;
+            } catch (\Throwable $e) {
+                $transaction->price_breakdown = null;
+            }
+        });
+
+        $data = [];
+        foreach ($transactions as $item) {
+            $trHtml = view('admin.transaction.partials.row_cells', [
+                'item' => $item,
+                'isArchivedView' => $isArchivedView,
+                'isPayoutPage' => $isPayoutPage,
+                'canArchiveTransactions' => $canArchive,
+            ])->render();
+
+            preg_match_all('/<td[^>]*>(.*?)<\/td>/s', $trHtml, $matches);
+            $cells = $matches[1] ?? [];
+
+            $rowData = [
+                'DT_RowId' => 'txn-row-' . $item->id,
+                'DT_RowAttr' => [
+                    'data-row-id' => (string) $item->id,
+                    'data-row-error' => '',
+                ],
+            ];
+            foreach ($cells as $idx => $cellHtml) {
+                $rowData[(string) $idx] = $cellHtml;
+            }
+            $data[] = $rowData;
+        }
+
+        $stats = $this->calculateFilteredStats($filteredQuery);
+
+        return response()->json([
+            'draw' => (int) $request->input('draw', 1),
+            'recordsTotal' => $recordsTotal,
+            'recordsFiltered' => $recordsFiltered,
+            'data' => $data,
+            'stats' => $stats,
+        ]);
+    }
+
+    public function getSearchFilterOptions(Request $request)
+    {
+        return response()->json(['success' => true]);
+    }
+
+    public function searchTransactionsAjax(Request $request)
+    {
+        return $this->filterTransactionsAjax($request);
+    }
+
+    private function getAccessibleTransactionQuery(Request $request, ?callable $queryMutator = null)
     {
         $user = auth()->user();
         $showArchivedOnly = $request->boolean('archived') && $this->canManageArchivedTransactions($user);
@@ -1456,51 +1578,139 @@ class TransactionController extends Controller
                     });
             });
         } else {
-            return collect();
+            return Transaction::query()->whereRaw('1 = 0');
         }
 
         if ($queryMutator) {
             $queryMutator($query);
         }
 
-        $websiteName = trim((string) $request->query('website', ''));
-        if ($websiteName !== '') {
-            $query->whereHas('website', function ($websiteQuery) use ($websiteName) {
-                $websiteQuery->where('name', $websiteName);
-            });
-        }
+        return $query;
+    }
 
-        $type = strtolower(trim((string) $request->query('type', '')));
-        if ($type === 'package' || $type === 'reservation') {
-            $query->where('type', $type);
-        }
+    private function getAccessibleTransactionList(Request $request, ?callable $queryMutator = null)
+    {
+        $query = $this->getAccessibleTransactionQuery($request, $queryMutator);
 
-        $statusMap = [
-            'completed' => 1,
-            'canceled' => 0,
-            'refunded' => 2,
-        ];
-        $statusKey = strtolower(trim((string) $request->query('status', '')));
-        if (array_key_exists($statusKey, $statusMap)) {
-            $query->where('status', $statusMap[$statusKey]);
-        } elseif (in_array($statusKey, ['pending', 'approved', 'paid', 'reversed'], true)) {
-            $query->where(function ($statusQuery) use ($statusKey) {
-                $statusQuery->where('affiliate_commission_status', $statusKey)
-                    ->orWhere('entertainer_commission_status', $statusKey);
-            });
-        } elseif (in_array($statusKey, ['n/a', 'na'], true)) {
-            $query->where(function ($statusQuery) {
-                $statusQuery->where(function ($affiliateStatusQuery) {
-                    $affiliateStatusQuery->whereNull('affiliate_commission_status')
-                        ->orWhere('affiliate_commission_status', '');
-                })->where(function ($entertainerStatusQuery) {
-                    $entertainerStatusQuery->whereNull('entertainer_commission_status')
-                        ->orWhere('entertainer_commission_status', '');
+        return $query
+            ->with(['event.website', 'package.website', 'website', 'affiliate.user', 'affiliate.parent.user', 'entertainer.user'])
+            ->latest()
+            ->get();
+    }
+
+    private function applyTransactionFilters($query, Request $request)
+    {
+        // 1. Venue Filter
+        $venues = $request->input('venue');
+        if (!empty($venues)) {
+            if (is_string($venues)) {
+                $venues = explode(',', $venues);
+            }
+            $venues = array_filter(array_map('trim', (array) $venues));
+            if (!empty($venues)) {
+                $query->where(function ($q) use ($venues) {
+                    $q->whereHas('website', function ($wq) use ($venues) {
+                        $wq->whereIn('name', $venues);
+                    })->orWhereHas('event.website', function ($wq) use ($venues) {
+                        $wq->whereIn('name', $venues);
+                    })->orWhereHas('package.website', function ($wq) use ($venues) {
+                        $wq->whereIn('name', $venues);
+                    });
                 });
-            });
+            }
+        } else {
+            $websiteName = trim((string) $request->input('website', $request->query('website', '')));
+            if ($websiteName !== '') {
+                $query->whereHas('website', function ($websiteQuery) use ($websiteName) {
+                    $websiteQuery->where('name', $websiteName);
+                });
+            }
         }
 
-        $affiliateFilter = $request->query('affiliate');
+        // 2. Type Filter
+        $types = $request->input('type');
+        if (!empty($types)) {
+            if (is_string($types)) {
+                $types = explode(',', $types);
+            }
+            $types = array_map('strtolower', array_map('trim', (array) $types));
+            $cleanTypes = [];
+            foreach ($types as $t) {
+                if (str_contains($t, 'package')) $cleanTypes[] = 'package';
+                if (str_contains($t, 'reservation')) $cleanTypes[] = 'reservation';
+            }
+            if (!empty($cleanTypes)) {
+                $query->whereIn('type', array_unique($cleanTypes));
+            }
+        } else {
+            $type = strtolower(trim((string) $request->input('type_single', $request->query('type', ''))));
+            if ($type === 'package' || $type === 'reservation') {
+                $query->where('type', $type);
+            }
+        }
+
+        // 3. Status Filter
+        $statuses = $request->input('status');
+        if (!empty($statuses)) {
+            if (is_string($statuses)) {
+                $statuses = explode(',', $statuses);
+            }
+            $statuses = array_map('strtolower', array_map('trim', (array) $statuses));
+            $statusMap = ['completed' => 1, 'approved' => 1, 'canceled' => 0, 'cancelled' => 0, 'refunded' => 2];
+            $numericStatuses = [];
+            $commissionStatuses = [];
+            $isNa = false;
+
+            foreach ($statuses as $s) {
+                if (isset($statusMap[$s])) {
+                    $numericStatuses[] = $statusMap[$s];
+                } elseif (in_array($s, ['pending', 'approved', 'paid', 'reversed'], true)) {
+                    $commissionStatuses[] = $s;
+                } elseif (in_array($s, ['n/a', 'na'], true)) {
+                    $isNa = true;
+                }
+            }
+
+            $query->where(function ($q) use ($numericStatuses, $commissionStatuses, $isNa) {
+                $hasCondition = false;
+                if (!empty($numericStatuses)) {
+                    $q->whereIn('status', array_unique($numericStatuses));
+                    $hasCondition = true;
+                }
+                if (!empty($commissionStatuses)) {
+                    $method = $hasCondition ? 'orWhere' : 'where';
+                    $q->$method(function ($sq) use ($commissionStatuses) {
+                        $sq->whereIn('affiliate_commission_status', $commissionStatuses)
+                           ->orWhereIn('entertainer_commission_status', $commissionStatuses);
+                    });
+                    $hasCondition = true;
+                }
+                if ($isNa) {
+                    $method = $hasCondition ? 'orWhere' : 'where';
+                    $q->$method(function ($sq) {
+                        $sq->where(function ($a) {
+                            $a->whereNull('affiliate_commission_status')->orWhere('affiliate_commission_status', '');
+                        })->where(function ($e) {
+                            $e->whereNull('entertainer_commission_status')->orWhere('entertainer_commission_status', '');
+                        });
+                    });
+                }
+            });
+        } else {
+            $statusKey = strtolower(trim((string) $request->query('status', '')));
+            $statusMap = ['completed' => 1, 'canceled' => 0, 'refunded' => 2];
+            if (array_key_exists($statusKey, $statusMap)) {
+                $query->where('status', $statusMap[$statusKey]);
+            } elseif (in_array($statusKey, ['pending', 'approved', 'paid', 'reversed'], true)) {
+                $query->where(function ($statusQuery) use ($statusKey) {
+                    $statusQuery->where('affiliate_commission_status', $statusKey)
+                        ->orWhere('entertainer_commission_status', $statusKey);
+                });
+            }
+        }
+
+        // 4. Affiliate / Referral Filter
+        $affiliateFilter = $request->input('affiliate', $request->query('affiliate'));
         if (!empty($affiliateFilter)) {
             $rawFilters = is_array($affiliateFilter) ? $affiliateFilter : explode(',', (string) $affiliateFilter);
             $rawFilters = array_filter(array_map('trim', $rawFilters));
@@ -1558,13 +1768,26 @@ class TransactionController extends Controller
             }
         }
 
-        $dateFrom = trim((string) $request->query('date_from', ''));
-        $dateTo = trim((string) $request->query('date_to', ''));
-        $dateTarget = strtolower(trim((string) $request->query('date_target', 'either')));
+        // 5. Date Range & Target Filter
+        $dateRange = trim((string) ($request->input('date_range') ?: $request->input('date_from', '')));
+        $dateFrom = '';
+        $dateTo = '';
+        if ($dateRange !== '' && str_contains($dateRange, ' - ')) {
+            $parts = explode(' - ', $dateRange);
+            $dateFrom = trim($parts[0]);
+            $dateTo = trim($parts[1]);
+        } else {
+            $dateFrom = trim((string) $request->input('date_from', $request->query('date_from', '')));
+            $dateTo = trim((string) $request->input('date_to', $request->query('date_to', '')));
+        }
+
+        $dateTarget = strtolower(trim((string) $request->input('date_target', $request->query('date_target', 'either'))));
+
         if ($dateFrom !== '' && $dateTo !== '') {
             try {
                 $startUtc = Carbon::parse($dateFrom, 'America/Los_Angeles')->startOfDay()->utc();
                 $endUtc = Carbon::parse($dateTo, 'America/Los_Angeles')->endOfDay()->utc();
+
                 $query->where(function ($dateQuery) use ($dateFrom, $dateTo, $dateTarget, $startUtc, $endUtc) {
                     if ($dateTarget === 'sale') {
                         $dateQuery->whereBetween('created_at', [$startUtc, $endUtc]);
@@ -1580,60 +1803,140 @@ class TransactionController extends Controller
             }
         }
 
-        $reservationFilter = strtolower(trim((string) $request->query('reservation', '')));
-        if ($reservationFilter !== '') {
-            $today = Carbon::now('America/Los_Angeles')->startOfDay();
-            $tomorrow = $today->copy()->addDay();
-            $endOfWeek = $today->copy()->endOfWeek();
+        // 6. Reservation Filter
+        $reservationFilters = $request->input('reservation', $request->query('reservation'));
+        if (!empty($reservationFilters)) {
+            if (is_string($reservationFilters)) {
+                $reservationFilters = explode(',', $reservationFilters);
+            }
+            $reservationFilters = array_filter(array_map('strtolower', array_map('trim', (array) $reservationFilters)));
 
-            if ($reservationFilter === 'upcoming') {
-                $query->whereDate('package_use_date', '>', $today->toDateString())
-                    ->whereNotIn('status', [0, 2]);
-            } elseif ($reservationFilter === 'today') {
-                $query->whereDate('package_use_date', $today->toDateString())
-                    ->whereNotIn('status', [0, 2]);
-            } elseif ($reservationFilter === 'weekend') {
-                $query->whereRaw("DATE(package_use_date) >= ? AND DATE(package_use_date) <= ? AND DAYOFWEEK(package_use_date) IN (6, 7)", [
-                    $tomorrow->toDateString(),
-                    $endOfWeek->toDateString()
-                ])->whereNotIn('status', [0, 2]);
-            } elseif ($reservationFilter === 'past') {
-                $query->whereDate('package_use_date', '<', $today->toDateString());
-            } elseif ($reservationFilter === 'no_show') {
-                $query->whereDate('package_use_date', '<', $today->toDateString())
-                    ->where('status', 1)
-                    ->where(function ($noShowQuery) {
-                        $noShowQuery->whereNull('checked_in_status')
-                            ->orWhere('checked_in_status', 0);
-                    });
-            } elseif ($reservationFilter === 'checked_in') {
-                $query->where('checked_in_status', 1);
-            } elseif ($reservationFilter === 'not_checked_in') {
-                $query->where(function ($q) {
-                    $q->whereNull('checked_in_status')
-                      ->orWhere('checked_in_status', 0);
-                })->whereNotIn('status', [0, 2]);
+            if (!empty($reservationFilters)) {
+                $today = Carbon::now('America/Los_Angeles')->startOfDay();
+                $tomorrow = $today->copy()->addDay();
+                $endOfWeek = $today->copy()->endOfWeek();
+
+                $query->where(function ($resQ) use ($reservationFilters, $today, $tomorrow, $endOfWeek) {
+                    foreach ($reservationFilters as $rf) {
+                        if ($rf === 'upcoming') {
+                            $resQ->orWhere(function ($q) use ($today) {
+                                $q->whereDate('package_use_date', '>', $today->toDateString())
+                                  ->whereNotIn('status', [0, 2]);
+                            });
+                        } elseif ($rf === 'today') {
+                            $resQ->orWhere(function ($q) use ($today) {
+                                $q->whereDate('package_use_date', $today->toDateString())
+                                  ->whereNotIn('status', [0, 2]);
+                            });
+                        } elseif ($rf === 'weekend') {
+                            $resQ->orWhere(function ($q) use ($tomorrow, $endOfWeek) {
+                                $q->whereRaw("DATE(package_use_date) >= ? AND DATE(package_use_date) <= ? AND DAYOFWEEK(package_use_date) IN (6, 7)", [
+                                    $tomorrow->toDateString(),
+                                    $endOfWeek->toDateString()
+                                ])->whereNotIn('status', [0, 2]);
+                            });
+                        } elseif ($rf === 'past') {
+                            $resQ->orWhere(function ($q) use ($today) {
+                                $q->whereDate('package_use_date', '<', $today->toDateString());
+                            });
+                        } elseif ($rf === 'no_show') {
+                            $resQ->orWhere(function ($q) use ($today) {
+                                $q->whereDate('package_use_date', '<', $today->toDateString())
+                                  ->where('status', 1)
+                                  ->where(function ($noShowQuery) {
+                                      $noShowQuery->whereNull('checked_in_status')
+                                                  ->orWhere('checked_in_status', 0);
+                                  });
+                            });
+                        } elseif ($rf === 'checked_in') {
+                            $resQ->orWhere('checked_in_status', 1);
+                        } elseif ($rf === 'not_checked_in') {
+                            $resQ->orWhere(function ($q) {
+                                $q->where(function ($sub) {
+                                    $sub->whereNull('checked_in_status')->orWhere('checked_in_status', 0);
+                                })->whereNotIn('status', [0, 2]);
+                            });
+                        }
+                    }
+                });
             }
         }
 
-        $transactions = $query
-            ->with(['event.website', 'package.website', 'website', 'affiliate.user', 'affiliate.parent.user', 'entertainer.user'])
-            ->latest()
-            ->get();
+        // 7. Custom Search
+        $searchValue = trim((string) ($request->input('search_custom') ?: $request->input('search.value', '')));
+        if ($searchValue !== '') {
+            $query->where(function ($sq) use ($searchValue) {
+                $cleanNum = ltrim($searchValue, '#');
+                if (is_numeric($cleanNum)) {
+                    $sq->orWhere('id', (int) $cleanNum);
+                }
+                $sq->orWhere('transaction_id', 'LIKE', "%{$searchValue}%")
+                   ->orWhere('package_first_name', 'LIKE', "%{$searchValue}%")
+                   ->orWhere('package_last_name', 'LIKE', "%{$searchValue}%")
+                   ->orWhere('package_email', 'LIKE', "%{$searchValue}%")
+                   ->orWhere('package_phone', 'LIKE', "%{$searchValue}%")
+                   ->orWhere('payment_phone', 'LIKE', "%{$searchValue}%")
+                   ->orWhere('host_name', 'LIKE', "%{$searchValue}%")
+                   ->orWhere('payment_card_last4', 'LIKE', "%{$searchValue}%");
+            });
+        }
 
-        // Attach the canonical, accurate price breakdown to each transaction so the
-        // package details modal can show the full charges / total breakdown.
-        $transactions->each(function ($transaction) {
-            try {
-                $transaction->price_breakdown = $transaction->website
-                    ? $this->buildPackagePriceBreakdown($transaction, $transaction->website)
-                    : null;
-            } catch (\Throwable $e) {
-                $transaction->price_breakdown = null;
-            }
-        });
+        return $query;
+    }
 
-        return $transactions;
+    private function calculateFilteredStats($query)
+    {
+        $now = Carbon::now('America/Los_Angeles');
+
+        $reportableQuery = (clone $query)->where('status', 1);
+
+        $totalTxns = (clone $reportableQuery)->count();
+        $totalRevenue = (float) ((clone $reportableQuery)->sum('total') ?? 0);
+        $totalGuests = (int) ((clone $reportableQuery)->selectRaw('SUM(COALESCE(men, 0) + COALESCE(women, 0) + COALESCE(package_number_of_guest, 0)) as aggregate')->value('aggregate') ?? 0);
+
+        $pendingCommission = (float) ((clone $reportableQuery)
+            ->selectRaw('SUM(
+                CASE WHEN affiliate_commission_status = "pending" THEN COALESCE(affiliate_commission_amount, 0) ELSE 0 END +
+                CASE WHEN entertainer_commission_status = "pending" THEN COALESCE(entertainer_commission_amount, 0) ELSE 0 END
+            ) as aggregate')->value('aggregate') ?? 0);
+
+        $pendingPayoutAmount = (float) ((clone $reportableQuery)
+            ->selectRaw('SUM(
+                CASE WHEN affiliate_commission_status = "pending" AND affiliate_commission_hold_until > ? THEN COALESCE(affiliate_commission_amount, 0) ELSE 0 END +
+                CASE WHEN entertainer_commission_status = "pending" AND entertainer_commission_hold_until > ? THEN COALESCE(entertainer_commission_amount, 0) ELSE 0 END
+            ) as aggregate', [$now->toDateTimeString(), $now->toDateTimeString()])->value('aggregate') ?? 0);
+
+        $payoutAmount = (float) ((clone $reportableQuery)
+            ->selectRaw('SUM(
+                CASE WHEN affiliate_commission_status = "paid" THEN COALESCE(affiliate_commission_amount, 0) ELSE 0 END +
+                CASE WHEN entertainer_commission_status = "paid" THEN COALESCE(entertainer_commission_amount, 0) ELSE 0 END
+            ) as aggregate')->value('aggregate') ?? 0);
+
+        $totalEarning = (float) ((clone $reportableQuery)
+            ->selectRaw('SUM(
+                CASE WHEN affiliate_commission_status != "reversed" THEN COALESCE(affiliate_commission_amount, 0) ELSE 0 END +
+                CASE WHEN entertainer_commission_status != "reversed" THEN COALESCE(entertainer_commission_amount, 0) ELSE 0 END
+            ) as aggregate')->value('aggregate') ?? 0);
+
+        $availableNow = (float) ((clone $reportableQuery)
+            ->selectRaw('SUM(
+                CASE WHEN affiliate_commission_status = "pending" AND (affiliate_commission_hold_until IS NULL OR affiliate_commission_hold_until <= ?) THEN COALESCE(affiliate_commission_amount, 0) ELSE 0 END +
+                CASE WHEN entertainer_commission_status = "pending" AND (entertainer_commission_hold_until IS NULL OR entertainer_commission_hold_until <= ?) THEN COALESCE(entertainer_commission_amount, 0) ELSE 0 END
+            ) as aggregate', [$now->toDateTimeString(), $now->toDateTimeString()])->value('aggregate') ?? 0);
+
+        $lifetimeEarned = $payoutAmount;
+
+        return [
+            'totalTxns' => $totalTxns,
+            'totalRevenue' => number_format($totalRevenue, 2),
+            'pendingCommission' => number_format($pendingCommission, 2),
+            'totalGuests' => $totalGuests,
+            'pendingPayoutAmount' => number_format($pendingPayoutAmount, 2),
+            'payoutAmount' => number_format($payoutAmount, 2),
+            'totalEarning' => number_format($totalEarning, 2),
+            'availableNow' => number_format($availableNow, 2),
+            'lifetimeEarned' => number_format($lifetimeEarned, 2),
+        ];
     }
 
     public function reservation_store($slug, Request $request)
