@@ -1890,7 +1890,7 @@ class TransactionController extends Controller
     {
         $now = Carbon::now('America/Los_Angeles');
 
-        $reportableQuery = (clone $query)->where('status', 1);
+        $reportableQuery = (clone $query)->reorder()->where('status', 1);
 
         $totalTxns = (clone $reportableQuery)->count();
         $totalRevenue = (float) ((clone $reportableQuery)->sum('total') ?? 0);
@@ -1945,7 +1945,7 @@ class TransactionController extends Controller
     {
         $now = Carbon::now('America/Los_Angeles');
 
-        $reportableQuery = (clone $filteredQuery)->where('status', 1);
+        $reportableQuery = (clone $filteredQuery)->reorder()->where('status', 1);
 
         $thirtyDaysAgo = $now->copy()->subDays(29)->startOfDay()->utc();
 

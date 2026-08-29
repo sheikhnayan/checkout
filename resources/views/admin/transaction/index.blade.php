@@ -1823,6 +1823,7 @@ body.modal-open .admin-mobile-menu-toggle {
                     pageLength: 25,
                     searching: true,
                     ordering: true,
+                    order: [[1, 'desc']],
                     paging: true,
                     info: true,
                     lengthChange: true,
