@@ -108,6 +108,14 @@ class CustomInvoiceController extends Controller
         $invoice->calculateTotals();
         $invoice->save();
 
+        \App\Services\ActivityLogger::log(
+            'create',
+            "Created custom invoice #{$invoice->invoice_number} for client {$invoice->client_name} (\${$invoice->total_amount}).",
+            'custom_invoices',
+            $invoice,
+            $invoice->website_id
+        );
+
         // Check if we should send immediately
         if ($request->input('action') === 'send') {
             try {

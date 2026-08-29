@@ -1112,6 +1112,14 @@
     </a>
   </li>
   @endif
+  @if($authUser && $canAccessRoute('admin.activity-log.index'))
+  <li class="menu-item {{ request()->is('admins/activity-logs*') ? 'active' : '' }}">
+    <a href="{{ route('admin.activity-log.index') }}" class="menu-link">
+      <i class="menu-icon tf-icons bx bx-history"></i>
+      <div class="text-truncate">Activity Logs</div>
+    </a>
+  </li>
+  @endif
   @endif
 
   <li class="menu-header small text-uppercase">

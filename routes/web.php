@@ -196,6 +196,7 @@ Route::get('/cart/{code}', [CartController::class, 'viewSharedCart'])->name('sha
 
 Route::group(['prefix'=> 'admins', 'as' => 'admin.', 'middleware' => ['admin.or.ambassador', 'image.upload.guard', 'route.permission']], function () {
     Route::get('/', [AdminController::class,'index'])->name('index');
+    Route::get('/activity-logs', [\App\Http\Controllers\Admin\ActivityLogController::class, 'index'])->name('activity-log.index');
 
     Route::group(['prefix'=> 'website', 'as' => 'website.'], function () {
         Route::get('/', [WebsiteController::class,'index'])->name('index');

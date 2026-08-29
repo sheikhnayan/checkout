@@ -1037,7 +1037,7 @@ body.modal-open .admin-mobile-menu-toggle {
                 <div class="txn-chart-card" id="performanceChartCard">
                     <div class="txn-chart-header">
                         <div class="fw-semibold text-white" style="font-size:0.85rem;letter-spacing:0.05em">PERFORMANCE OVER TIME</div>
-                        <select class="txn-period-select" id="chartPeriod">
+                        <select class="txn-period-select" id="chartPeriod" style="display:none !important;">
                             <option value="7">By Day (7d)</option>
                             <option value="14">By Day (14d)</option>
                             <option value="30" selected>By Day (30d)</option>

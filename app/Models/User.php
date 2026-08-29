@@ -202,6 +202,10 @@ class User extends Authenticatable
             return true;
         }
 
+        if ($routeName === 'admin.activity-log.index' && ($this->isWebsiteAdmin() || $this->isManager())) {
+            return true;
+        }
+
         $role = $this->websiteRole;
         if (!$role) {
             return false;

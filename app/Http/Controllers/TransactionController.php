@@ -2555,12 +2555,20 @@ class TransactionController extends Controller
 
         $transaction->save();
 
+        $guestName = trim(($transaction->package_first_name ?? '') . ' ' . ($transaction->package_last_name ?? ''));
+
+        \App\Services\ActivityLogger::log(
+            'check_in',
+            "Checked in ticket #{$transaction->ticket_qr_code} for guest {$guestName}.",
+            'transactions',
+            $transaction,
+            $transaction->event?->website_id
+        );
+
         $photoStatus = '';
         if ($photoPathFront || $photoPathBack) {
             $photoStatus = ' (Both ID photos captured).';
         }
-
-        $guestName = trim(($transaction->package_first_name ?? '') . ' ' . ($transaction->package_last_name ?? ''));
 
         return redirect()->route('admin.transaction.scan')
             ->with('success', 'Check-in completed for ticket #' . $transaction->ticket_qr_code . $photoStatus)

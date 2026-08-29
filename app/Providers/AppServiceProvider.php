@@ -37,5 +37,7 @@ class AppServiceProvider extends ServiceProvider
                 ],
             ]);
         }
+
+        \Illuminate\Support\Facades\Event::subscribe(\App\Listeners\LogAuthenticationActivity::class);
     }
 }

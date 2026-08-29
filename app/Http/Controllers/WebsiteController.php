@@ -420,6 +420,14 @@ class WebsiteController extends Controller
 
         $this->syncWebsitePaymentLogos($add, $request->input('payment_methods', []));
 
+        \App\Services\ActivityLogger::log(
+            'create',
+            "Created new club/venue '{$add->name}' with admin {$request->website_admin_email}.",
+            'settings',
+            $add,
+            $add->id
+        );
+
         return redirect()->route('admin.website.index')->with('success', 'Website created successfully.');
     }
 
