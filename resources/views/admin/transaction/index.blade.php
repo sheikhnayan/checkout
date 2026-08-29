@@ -800,7 +800,7 @@ body.modal-open .admin-mobile-menu-toggle {
             $prevWeekStart = $weekStart->copy()->subWeek();
             $prevWeekEnd   = $prevWeekStart->copy()->endOfWeek();
 
-            $reportableData = $data->where('status', 1);
+            $reportableData = $data->reject(fn($t) => in_array((string)$t->status, ['0', '2'], true));
 
             $guestCountForTransaction = function ($t) {
                 $menGuests = (int) ($t->men ?? 0);
@@ -820,12 +820,12 @@ body.modal-open .admin-mobile-menu-toggle {
             $thisWeekData = $reportableData->filter(fn($t) => $t->created_at->timezone($tz)->between($weekStart, $now));
             $prevWeekData = $reportableData->filter(fn($t) => $t->created_at->timezone($tz)->between($prevWeekStart, $prevWeekEnd));
 
-            $totalTxns         = $reportableData->count();
+            $totalTxns         = $data->count();
             $redeemedTxns      = $reportableData->filter(function ($t) {
                 $status = (string) ($t->checked_in_status ?? $t->checked_in ?? '0');
                 return $status === '1' || strtolower($status) === 'true' || strtolower($status) === 'checked_in';
             })->count();
-            $totalRevenue      = (float) $reportableData->sum('total');
+            $totalRevenue      = (float) ($reportableData->sum('total') ?: $reportableData->sum('actual_total'));
             $totalGuests       = (int) $reportableData->sum($guestCountForTransaction);
             $pendingCommission = $reportableData->filter(fn($t) =>
                 ($t->affiliate_commission_status === 'pending') ||

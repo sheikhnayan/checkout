@@ -1890,37 +1890,49 @@ class TransactionController extends Controller
     {
         $now = Carbon::now('America/Los_Angeles');
 
-        $reportableQuery = (clone $query)->reorder()->where('status', 1);
+        $totalTxns = (clone $query)->count();
 
-        $totalTxns = (clone $reportableQuery)->count();
-        $totalRevenue = (float) ((clone $reportableQuery)->sum('total') ?? 0);
-        $totalGuests = (int) ((clone $reportableQuery)->selectRaw('SUM(COALESCE(men, 0) + COALESCE(women, 0) + COALESCE(package_number_of_guest, 0)) as aggregate')->value('aggregate') ?? 0);
+        $validQuery = (clone $query)->reorder()->where(function ($q) {
+            $q->whereNotIn('status', [0, 2])->orWhereNull('status');
+        });
 
-        $pendingCommission = (float) ((clone $reportableQuery)
+        $totalRevenue = (float) ((clone $validQuery)->sum('total') ?? 0);
+        if ($totalRevenue == 0) {
+            $totalRevenue = (float) ((clone $validQuery)->sum('actual_total') ?? 0);
+        }
+
+        $totalGuests = (int) ((clone $query)->reorder()->selectRaw('SUM(GREATEST(COALESCE(men, 0) + COALESCE(women, 0), COALESCE(package_number_of_guest, 0))) as aggregate')->value('aggregate') ?? 0);
+
+        $pendingCommission = (float) ((clone $query)
+            ->reorder()
             ->selectRaw('SUM(
                 CASE WHEN affiliate_commission_status = "pending" THEN COALESCE(affiliate_commission_amount, 0) ELSE 0 END +
                 CASE WHEN entertainer_commission_status = "pending" THEN COALESCE(entertainer_commission_amount, 0) ELSE 0 END
             ) as aggregate')->value('aggregate') ?? 0);
 
-        $pendingPayoutAmount = (float) ((clone $reportableQuery)
+        $pendingPayoutAmount = (float) ((clone $query)
+            ->reorder()
             ->selectRaw('SUM(
                 CASE WHEN affiliate_commission_status = "pending" AND affiliate_commission_hold_until > ? THEN COALESCE(affiliate_commission_amount, 0) ELSE 0 END +
                 CASE WHEN entertainer_commission_status = "pending" AND entertainer_commission_hold_until > ? THEN COALESCE(entertainer_commission_amount, 0) ELSE 0 END
             ) as aggregate', [$now->toDateTimeString(), $now->toDateTimeString()])->value('aggregate') ?? 0);
 
-        $payoutAmount = (float) ((clone $reportableQuery)
+        $payoutAmount = (float) ((clone $query)
+            ->reorder()
             ->selectRaw('SUM(
                 CASE WHEN affiliate_commission_status = "paid" THEN COALESCE(affiliate_commission_amount, 0) ELSE 0 END +
                 CASE WHEN entertainer_commission_status = "paid" THEN COALESCE(entertainer_commission_amount, 0) ELSE 0 END
             ) as aggregate')->value('aggregate') ?? 0);
 
-        $totalEarning = (float) ((clone $reportableQuery)
+        $totalEarning = (float) ((clone $query)
+            ->reorder()
             ->selectRaw('SUM(
                 CASE WHEN affiliate_commission_status != "reversed" THEN COALESCE(affiliate_commission_amount, 0) ELSE 0 END +
                 CASE WHEN entertainer_commission_status != "reversed" THEN COALESCE(entertainer_commission_amount, 0) ELSE 0 END
             ) as aggregate')->value('aggregate') ?? 0);
 
-        $availableNow = (float) ((clone $reportableQuery)
+        $availableNow = (float) ((clone $query)
+            ->reorder()
             ->selectRaw('SUM(
                 CASE WHEN affiliate_commission_status = "pending" AND (affiliate_commission_hold_until IS NULL OR affiliate_commission_hold_until <= ?) THEN COALESCE(affiliate_commission_amount, 0) ELSE 0 END +
                 CASE WHEN entertainer_commission_status = "pending" AND (entertainer_commission_hold_until IS NULL OR entertainer_commission_hold_until <= ?) THEN COALESCE(entertainer_commission_amount, 0) ELSE 0 END
@@ -1945,13 +1957,15 @@ class TransactionController extends Controller
     {
         $now = Carbon::now('America/Los_Angeles');
 
-        $reportableQuery = (clone $filteredQuery)->reorder()->where('status', 1);
+        $reportableQuery = (clone $filteredQuery)->reorder()->where(function ($q) {
+            $q->whereNotIn('status', [0, 2])->orWhereNull('status');
+        });
 
         $thirtyDaysAgo = $now->copy()->subDays(29)->startOfDay()->utc();
 
         $dailyStats = (clone $reportableQuery)
             ->where('created_at', '>=', $thirtyDaysAgo)
-            ->selectRaw("DATE(CONVERT_TZ(created_at, '+00:00', '-07:00')) as date_str, SUM(total) as daily_revenue, COUNT(*) as daily_completed")
+            ->selectRaw("DATE(CONVERT_TZ(created_at, '+00:00', '-07:00')) as date_str, SUM(COALESCE(total, actual_total, 0)) as daily_revenue, COUNT(*) as daily_completed")
             ->groupBy('date_str')
             ->get()
             ->keyBy('date_str');
