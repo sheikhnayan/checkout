@@ -1426,7 +1426,6 @@ body.modal-open .admin-mobile-menu-toggle {
                         </tr>
                     </thead>
                     <tbody>
-                        @endforelse
                     </tbody>
                     <tfoot>
                         <tr>
