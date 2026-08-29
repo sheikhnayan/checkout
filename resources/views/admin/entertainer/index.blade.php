@@ -7,6 +7,13 @@
             <div class="d-flex justify-content-between align-items-center mb-3 flex-wrap gap-2">
                 <h4 class="mb-0">Entertainer Applications</h4>
                 <div class="d-flex align-items-center gap-2 flex-wrap">
+                    <form id="bulkDeleteForm" action="{{ route('admin.entertainer.bulk-delete') }}" method="POST" class="d-inline" onsubmit="return confirm('Are you sure you want to delete the selected entertainer application(s)? This action cannot be undone.');">
+                        @csrf
+                        <div id="bulkDeleteInputs"></div>
+                        <button type="submit" id="bulkDeleteBtn" class="btn btn-sm btn-danger d-none align-items-center gap-1">
+                            <i class="bx bx-trash"></i> Mass Delete (<span id="selectedCount">0</span>)
+                        </button>
+                    </form>
                     <span class="badge bg-label-info d-inline-flex align-items-center gap-1">
                         <i class="bx bx-sort-alt-2"></i>
                         Sort by status
@@ -43,6 +50,9 @@
             <table class="table table-bordered">
                 <thead>
                     <tr>
+                        <th style="width: 40px;" class="text-center">
+                            <input type="checkbox" id="selectAllEntertainers" class="form-check-input">
+                        </th>
                         <th>Name</th>
                         <th>Email</th>
                         <th>Club</th>
@@ -62,8 +72,11 @@
                 <tbody>
                     @forelse($entertainers as $entertainer)
                         <tr>
-                            <td>{{ $entertainer->display_name ?: $entertainer->user->name }}</td>
-                            <td>{{ $entertainer->user->email }}</td>
+                            <td class="text-center">
+                                <input type="checkbox" class="form-check-input entertainer-cb" value="{{ $entertainer->id }}">
+                            </td>
+                            <td>{{ $entertainer->display_name ?: ($entertainer->user->name ?? 'N/A') }}</td>
+                            <td>{{ $entertainer->user->email ?? 'N/A' }}</td>
                             <td>{{ $entertainer->website->name ?? 'N/A' }}</td>
                             <td><span class="badge bg-{{ $entertainer->status === 'approved' ? 'success' : ($entertainer->status === 'pending' ? 'warning' : 'danger') }}">{{ ucfirst($entertainer->status) }}</span></td>
                             <td style="white-space: nowrap;">
@@ -105,15 +118,75 @@
                             @endif
                             <td>${{ number_format($entertainer->wallet_balance, 2) }}</td>
                             <td>
-                                <a href="{{ route('admin.entertainer.show', $entertainer->id) }}" class="btn btn-sm btn-primary">Manage</a>
+                                <div class="d-flex align-items-center gap-1">
+                                    <a href="{{ route('admin.entertainer.show', $entertainer->id) }}" class="btn btn-sm btn-primary">Manage</a>
+                                    <form action="{{ route('admin.entertainer.destroy', $entertainer->id) }}" method="POST" class="d-inline" onsubmit="return confirm('Are you sure you want to delete this entertainer application?');">
+                                        @csrf
+                                        @method('DELETE')
+                                        <button type="submit" class="btn btn-sm btn-outline-danger" title="Delete Application">
+                                            <i class="bx bx-trash"></i>
+                                        </button>
+                                    </form>
+                                </div>
                             </td>
                         </tr>
                     @empty
-                        <tr><td colspan="6" class="text-center">No entertainer records found.</td></tr>
+                        <tr><td colspan="{{ $status === 'pending' ? 8 : 10 }}" class="text-center">No entertainer records found.</td></tr>
                     @endforelse
                 </tbody>
             </table>
         </div>
     </div>
 </div>
+
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    const selectAll = document.getElementById('selectAllEntertainers');
+    const checkboxes = document.querySelectorAll('.entertainer-cb');
+    const bulkDeleteBtn = document.getElementById('bulkDeleteBtn');
+    const selectedCount = document.getElementById('selectedCount');
+    const bulkDeleteInputs = document.getElementById('bulkDeleteInputs');
+
+    function updateBulkDeleteState() {
+        const checked = document.querySelectorAll('.entertainer-cb:checked');
+        const count = checked.length;
+        if (selectedCount) selectedCount.textContent = count;
+
+        if (count > 0) {
+            bulkDeleteBtn.classList.remove('d-none');
+            bulkDeleteBtn.classList.add('d-inline-flex');
+        } else {
+            bulkDeleteBtn.classList.remove('d-inline-flex');
+            bulkDeleteBtn.classList.add('d-none');
+        }
+
+        if (selectAll) {
+            selectAll.checked = checkboxes.length > 0 && count === checkboxes.length;
+            selectAll.indeterminate = count > 0 && count < checkboxes.length;
+        }
+
+        if (bulkDeleteInputs) {
+            bulkDeleteInputs.innerHTML = '';
+            checked.forEach(cb => {
+                const input = document.createElement('input');
+                input.type = 'hidden';
+                input.name = 'ids[]';
+                input.value = cb.value;
+                bulkDeleteInputs.appendChild(input);
+            });
+        }
+    }
+
+    if (selectAll) {
+        selectAll.addEventListener('change', function() {
+            checkboxes.forEach(cb => cb.checked = selectAll.checked);
+            updateBulkDeleteState();
+        });
+    }
+
+    checkboxes.forEach(cb => {
+        cb.addEventListener('change', updateBulkDeleteState);
+    });
+});
+</script>
 @endsection

@@ -1,10 +1,12 @@
-@extends('admin.main')
+@extends(request()->routeIs('admin.nightly-reports.*') ? 'admin.nightly-reports.layout' : 'admin.main')
 
 @section('content')
 <div class="content-wrapper">
     <div class="container-xxl flex-grow-1 container-p-y">
         
         @php
+            $isNightly = request()->routeIs('admin.nightly-reports.*');
+            $formRoutePrefix = $isNightly ? 'admin.nightly-reports.forms.' : 'admin.forms.';
             $fieldMap = [];
             foreach (($form->fields_schema ?: []) as $f) {
                 $key = $f['name'] ?? $f['id'] ?? null;
@@ -21,13 +23,13 @@
                 <p class="text-muted mb-0 small">Viewing all submitted data records collected through this form.</p>
             </div>
             <div class="d-flex gap-2 flex-wrap align-items-center">
-                <button type="button" id="btnExportSelected" class="btn btn-success d-none" data-base-url="{{ route('admin.forms.submissions.export', $form->id) }}">
+                <button type="button" id="btnExportSelected" class="btn btn-success d-none" data-base-url="{{ route($formRoutePrefix . 'submissions.export', $form->id) }}">
                     <i class="bx bx-download me-1"></i> Export Selected (<span id="selectedCount">0</span>)
                 </button>
-                <a href="{{ route('admin.forms.submissions.export', $form->id) }}" id="btnExportAll" class="btn btn-outline-success">
+                <a href="{{ route($formRoutePrefix . 'submissions.export', $form->id) }}" id="btnExportAll" class="btn btn-outline-success">
                     <i class="bx bx-download me-1"></i> Export All to CSV
                 </a>
-                <a href="{{ route('admin.forms.index') }}" class="btn btn-outline-secondary">
+                <a href="{{ route($formRoutePrefix . 'index') }}" class="btn btn-outline-secondary">
                     <i class="bx bx-left-arrow-alt me-1"></i> Back to Forms
                 </a>
             </div>

@@ -367,6 +367,7 @@ Route::group(['prefix'=> 'admins', 'as' => 'admin.', 'middleware' => ['admin.or.
     Route::group(['prefix'=> 'affiliate', 'as' => 'affiliate.'], function () {
         Route::get('/', [AffiliateAdminController::class, 'index'])->name('index');
         Route::post('/sub-affiliate/store', [AffiliateAdminController::class, 'storeSubAffiliate'])->name('sub-affiliate.store');
+        Route::post('/bulk-delete', [AffiliateAdminController::class, 'bulkDelete'])->name('bulk-delete');
         Route::get('/{affiliate}', [AffiliateAdminController::class, 'show'])->name('show');
         Route::post('/{affiliate}/approve', [AffiliateAdminController::class, 'approve'])->name('approve');
         Route::post('/{affiliate}/unapprove', [AffiliateAdminController::class, 'unapprove'])->name('unapprove');
@@ -374,22 +375,27 @@ Route::group(['prefix'=> 'admins', 'as' => 'admin.', 'middleware' => ['admin.or.
         Route::post('/{affiliate}/commission', [AffiliateAdminController::class, 'updateCommission'])->name('commission.update');
         Route::post('/{affiliate}/packages', [AffiliateAdminController::class, 'updatePackages'])->name('packages.update');
         Route::post('/{affiliate}/sub-permissions', [AffiliateAdminController::class, 'updateSubAffiliatePermissions'])->name('sub-permissions.update');
+        Route::delete('/{affiliate}', [AffiliateAdminController::class, 'destroy'])->name('destroy');
     });
 
     Route::group(['prefix'=> 'entertainer', 'as' => 'entertainer.'], function () {
         Route::get('/', [EntertainerAdminController::class, 'index'])->name('index');
+        Route::post('/bulk-delete', [EntertainerAdminController::class, 'bulkDelete'])->name('bulk-delete');
         Route::get('/{entertainer}', [EntertainerAdminController::class, 'show'])->name('show');
         Route::post('/{entertainer}/approve', [EntertainerAdminController::class, 'approve'])->name('approve');
         Route::post('/{entertainer}/unapprove', [EntertainerAdminController::class, 'unapprove'])->name('unapprove');
         Route::post('/{entertainer}/reject', [EntertainerAdminController::class, 'reject'])->name('reject');
         Route::post('/{entertainer}/commission', [EntertainerAdminController::class, 'updateCommission'])->name('commission.update');
+        Route::delete('/{entertainer}', [EntertainerAdminController::class, 'destroy'])->name('destroy');
     });
 
     Route::group(['prefix' => 'staff', 'as' => 'staff.'], function () {
         Route::get('/', [StaffAdminController::class, 'index'])->name('index');
+        Route::post('/bulk-delete', [StaffAdminController::class, 'bulkDelete'])->name('bulk-delete');
         Route::get('/{type}/{id}', [StaffAdminController::class, 'show'])->name('show');
         Route::post('/{type}/{id}/approve', [StaffAdminController::class, 'approve'])->name('approve');
         Route::post('/{type}/{id}/reject', [StaffAdminController::class, 'reject'])->name('reject');
+        Route::delete('/{type}/{id}', [StaffAdminController::class, 'destroy'])->name('destroy');
     });
 
     Route::group(['prefix' => 'feed-model', 'as' => 'feed-model.'], function () {
@@ -606,6 +612,33 @@ Route::group(['prefix'=> 'admins', 'as' => 'admin.', 'middleware' => ['admin.or.
         Route::post('/ambassadors', [\App\Http\Controllers\Admin\NightlyReports\NightlyAmbassadorController::class, 'store'])->name('ambassadors.store');
         Route::put('/ambassadors/{id}', [\App\Http\Controllers\Admin\NightlyReports\NightlyAmbassadorController::class, 'update'])->name('ambassadors.update');
         Route::get('/ambassadors/{id}/impersonate', [\App\Http\Controllers\Admin\NightlyReports\NightlyAmbassadorController::class, 'impersonate'])->name('ambassadors.impersonate');
+
+        // Job Marketplace
+        Route::group(['prefix' => 'jobs', 'as' => 'jobs.'], function () {
+            Route::get('/', [\App\Http\Controllers\Admin\JobMarketplaceController::class, 'index'])->name('index');
+            Route::get('/create', [\App\Http\Controllers\Admin\JobMarketplaceController::class, 'create'])->name('create');
+            Route::post('/store', [\App\Http\Controllers\Admin\JobMarketplaceController::class, 'store'])->name('store');
+            Route::get('/{job}/edit', [\App\Http\Controllers\Admin\JobMarketplaceController::class, 'edit'])->name('edit');
+            Route::post('/{job}/update', [\App\Http\Controllers\Admin\JobMarketplaceController::class, 'update'])->name('update');
+            Route::get('/applications', [\App\Http\Controllers\Admin\JobMarketplaceController::class, 'applications'])->name('applications');
+            Route::get('/applications/{application}', [\App\Http\Controllers\Admin\JobMarketplaceController::class, 'showApplication'])->name('applications.show');
+            Route::post('/applications/{application}/status', [\App\Http\Controllers\Admin\JobMarketplaceController::class, 'updateApplicationStatus'])->name('applications.status');
+            Route::get('/preference-requests', [\App\Http\Controllers\Admin\JobMarketplaceController::class, 'preferenceRequests'])->name('preference-requests');
+            Route::post('/preference-requests/{preferenceRequest}/status', [\App\Http\Controllers\Admin\JobMarketplaceController::class, 'updatePreferenceStatus'])->name('preference-requests.status');
+        });
+
+        // Drag & Drop Custom Form Builder & Submissions Portal
+        Route::group(['prefix' => 'forms', 'as' => 'forms.'], function () {
+            Route::get('/', [\App\Http\Controllers\Admin\CustomFormController::class, 'index'])->name('index');
+            Route::get('/create', [\App\Http\Controllers\Admin\CustomFormController::class, 'create'])->name('create');
+            Route::post('/', [\App\Http\Controllers\Admin\CustomFormController::class, 'store'])->name('store');
+            Route::get('/{form}/edit', [\App\Http\Controllers\Admin\CustomFormController::class, 'edit'])->name('edit');
+            Route::put('/{form}', [\App\Http\Controllers\Admin\CustomFormController::class, 'update'])->name('update');
+            Route::post('/{form}/toggle', [\App\Http\Controllers\Admin\CustomFormController::class, 'toggleStatus'])->name('toggle');
+            Route::delete('/{form}', [\App\Http\Controllers\Admin\CustomFormController::class, 'destroy'])->name('destroy');
+            Route::get('/{form}/submissions', [\App\Http\Controllers\Admin\CustomFormController::class, 'submissions'])->name('submissions');
+            Route::get('/{form}/submissions/export', [\App\Http\Controllers\Admin\CustomFormController::class, 'exportSubmissions'])->name('submissions.export');
+        });
     });
 });
 

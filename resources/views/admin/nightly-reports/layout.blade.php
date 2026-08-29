@@ -531,8 +531,23 @@
         </a>
       </li>
 
+      <!-- Operations & Forms -->
+      <li class="nr-menu-header">Operations & Forms</li>
+      <li class="nr-menu-item {{ request()->routeIs('admin.nightly-reports.jobs*') ? 'active' : '' }}">
+        <a href="{{ route('admin.nightly-reports.jobs.index') }}" class="nr-menu-link">
+          <i class="fas fa-briefcase"></i>
+          <span>Job Marketplace</span>
+        </a>
+      </li>
+      <li class="nr-menu-item {{ request()->routeIs('admin.nightly-reports.forms*') ? 'active' : '' }}">
+        <a href="{{ route('admin.nightly-reports.forms.index') }}" class="nr-menu-link">
+          <i class="fas fa-wpforms"></i>
+          <span>Form Builder & Portal</span>
+        </a>
+      </li>
+
       @if(!$isAmbassador)
-      <!-- Group 4: Administration & Setup -->
+      <!-- Administration & Setup -->
       <li class="nr-menu-header">Administration & Setup</li>
       <li class="nr-menu-item {{ request()->routeIs('admin.nightly-reports.ambassadors*') ? 'active' : '' }}">
         <a href="{{ route('admin.nightly-reports.ambassadors.index') }}" class="nr-menu-link">

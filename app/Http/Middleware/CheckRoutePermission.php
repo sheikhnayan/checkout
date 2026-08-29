@@ -32,6 +32,8 @@ class CheckRoutePermission
                 'admin.nightly-reports.witness-qr.',
                 'admin.nightly-reports.high-transactions.',
                 'admin.nightly-reports.model-releases.',
+                'admin.nightly-reports.jobs.',
+                'admin.nightly-reports.forms.',
             ];
 
             foreach ($ambassadorRoutes as $allowedRoute) {

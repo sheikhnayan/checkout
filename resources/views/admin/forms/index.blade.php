@@ -1,6 +1,10 @@
-@extends('admin.main')
+@extends(request()->routeIs('admin.nightly-reports.*') ? 'admin.nightly-reports.layout' : 'admin.main')
 
 @section('content')
+@php
+  $isNightly = request()->routeIs('admin.nightly-reports.*');
+  $formRoutePrefix = $isNightly ? 'admin.nightly-reports.forms.' : 'admin.forms.';
+@endphp
 <style>
 /* ─── Forms Dashboard (Matching Transactions Aesthetics) ─────────────── */
 .forms-card {
@@ -345,7 +349,7 @@
                 <h4 class="mb-1 text-white fw-bold"><i class="bx bx-list-check me-2 text-primary"></i>Custom Drag & Drop Form Builder</h4>
                 <p class="text-muted mb-0 small">Create, edit, and manage drag-and-drop web forms with public URLs and audit logs.</p>
             </div>
-            <a href="{{ route('admin.forms.create') }}" class="btn-create-form">
+            <a href="{{ route($formRoutePrefix . 'create') }}" class="btn-create-form">
                 <i class="bx bx-plus"></i> Create New Form
             </a>
         </div>
@@ -360,7 +364,7 @@
         <!-- Main Forms Table Card -->
         <div class="forms-card">
             <!-- Integrated Search & Filter Controls inside Table Card Header -->
-            <form method="GET" action="{{ route('admin.forms.index') }}" class="d-flex align-items-center justify-content-between flex-wrap gap-3 mb-4">
+            <form method="GET" action="{{ route($formRoutePrefix . 'index') }}" class="d-flex align-items-center justify-content-between flex-wrap gap-3 mb-4">
                 <div class="d-flex align-items-center gap-3 flex-wrap">
                     <h5 class="mb-0 text-white fw-bold fs-6"><i class="bx bx-table me-2 text-primary"></i>All Custom Forms</h5>
                     
@@ -420,7 +424,7 @@
                                     @endif
                                 </td>
                                 <td>
-                                    <a href="{{ route('admin.forms.submissions', $form->id) }}" class="txn-submissions-badge">
+                                    <a href="{{ route($formRoutePrefix . 'submissions', $form->id) }}" class="txn-submissions-badge">
                                         <i class="bx bx-receipt"></i>
                                         <span>{{ $form->submissions_count }} {{ Str::plural('Submission', $form->submissions_count) }}</span>
                                     </a>
@@ -437,7 +441,7 @@
                                     @endif
                                 </td>
                                 <td>
-                                    <form method="POST" action="{{ route('admin.forms.toggle', $form->id) }}">
+                                    <form method="POST" action="{{ route($formRoutePrefix . 'toggle', $form->id) }}">
                                         @csrf
                                         <button type="submit" class="txn-status-badge {{ $form->is_active ? 'status-active' : 'status-inactive' }}" title="Click to toggle status">
                                             <i class="bx {{ $form->is_active ? 'bx-check-circle' : 'bx-x-circle' }}"></i>
@@ -447,15 +451,15 @@
                                 </td>
                                 <td class="text-end">
                                     <div class="d-flex align-items-center justify-content-end gap-1.5">
-                                        <a href="{{ route('admin.forms.submissions', $form->id) }}" class="txn-action-btn action-data" title="View Submissions Data">
+                                        <a href="{{ route($formRoutePrefix . 'submissions', $form->id) }}" class="txn-action-btn action-data" title="View Submissions Data">
                                             <i class="bx bx-table"></i>
                                             <span>Data</span>
                                         </a>
-                                        <a href="{{ route('admin.forms.edit', $form->id) }}" class="txn-action-btn action-edit" title="Edit Builder">
+                                        <a href="{{ route($formRoutePrefix . 'edit', $form->id) }}" class="txn-action-btn action-edit" title="Edit Builder">
                                             <i class="bx bx-edit-alt"></i>
                                             <span>Edit</span>
                                         </a>
-                                        <form method="POST" action="{{ route('admin.forms.destroy', $form->id) }}" onsubmit="return confirm('Are you sure you want to delete this form? All submission data will be lost.');" class="d-inline">
+                                        <form method="POST" action="{{ route($formRoutePrefix . 'destroy', $form->id) }}" onsubmit="return confirm('Are you sure you want to delete this form? All submission data will be lost.');" class="d-inline">
                                             @csrf
                                             @method('DELETE')
                                             <button type="submit" class="txn-action-btn action-delete" title="Delete Form">

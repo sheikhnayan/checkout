@@ -90,7 +90,7 @@ class JobMarketplaceController extends Controller
             'is_archived' => false,
         ]);
 
-        return redirect()->route('admin.jobs.index')->with('success', 'Job post created successfully.');
+        return redirect()->route(request()->routeIs('admin.nightly-reports.*') ? 'admin.nightly-reports.jobs.index' : 'admin.jobs.index')->with('success', 'Job post created successfully.');
     }
 
     public function edit(JobPost $job)
@@ -167,7 +167,7 @@ class JobMarketplaceController extends Controller
             'is_archived' => (bool) ($validated['is_archived'] ?? false),
         ]);
 
-        return redirect()->route('admin.jobs.index')->with('success', 'Job post updated successfully.');
+        return redirect()->route(request()->routeIs('admin.nightly-reports.*') ? 'admin.nightly-reports.jobs.index' : 'admin.jobs.index')->with('success', 'Job post updated successfully.');
     }
 
     public function applications(Request $request)
@@ -235,7 +235,20 @@ class JobMarketplaceController extends Controller
 
     private function accessibleWebsiteIds(): array
     {
-        return auth()->user()->accessibleWebsiteIds();
+        if ($ambassador = \Illuminate\Support\Facades\Auth::guard('ambassador')->user()) {
+            return $ambassador->clubs()->pluck('websites.id')->map(fn ($id) => (int) $id)->all();
+        }
+
+        $user = auth()->user();
+        if (!$user) {
+            return [];
+        }
+
+        if ($user->isAdmin() || $user->isSuperAdmin()) {
+            return Website::pluck('id')->map(fn ($id) => (int) $id)->all();
+        }
+
+        return $user->accessibleWebsiteIds();
     }
 
     private function accessibleWebsites()

@@ -442,6 +442,61 @@ class AffiliateAdminController extends Controller
         return redirect()->back()->with('success', 'Sub-promoter dashboard toggles updated successfully by Admin!');
     }
 
+    public function destroy(Affiliate $affiliate)
+    {
+        $this->ensureAdmin();
+
+        \Illuminate\Support\Facades\DB::transaction(function () use ($affiliate) {
+            $userId = $affiliate->user_id;
+
+            Affiliate::where('parent_affiliate_id', $affiliate->id)->update(['parent_affiliate_id' => null]);
+            AffiliateWebsite::where('affiliate_id', $affiliate->id)->delete();
+            AffiliatePackage::where('affiliate_id', $affiliate->id)->delete();
+
+            $affiliate->delete();
+
+            if ($userId) {
+                \App\Models\User::where('id', $userId)->delete();
+            }
+        });
+
+        return redirect()->back()->with('success', 'Promoter application deleted successfully.');
+    }
+
+    public function bulkDelete(Request $request)
+    {
+        $this->ensureAdmin();
+
+        $request->validate([
+            'ids' => 'required|array',
+            'ids.*' => 'integer|exists:affiliates,id',
+        ]);
+
+        $ids = $request->input('ids', []);
+        $count = count($ids);
+
+        \Illuminate\Support\Facades\DB::transaction(function () use ($ids) {
+            foreach ($ids as $id) {
+                $affiliate = Affiliate::find($id);
+                if (!$affiliate) continue;
+
+                $userId = $affiliate->user_id;
+
+                Affiliate::where('parent_affiliate_id', $affiliate->id)->update(['parent_affiliate_id' => null]);
+                AffiliateWebsite::where('affiliate_id', $affiliate->id)->delete();
+                AffiliatePackage::where('affiliate_id', $affiliate->id)->delete();
+
+                $affiliate->delete();
+
+                if ($userId) {
+                    \App\Models\User::where('id', $userId)->delete();
+                }
+            }
+        });
+
+        return redirect()->back()->with('success', "Successfully deleted {$count} promoter application(s).");
+    }
+
     private function applyGlobalSmtp(): void
     {
         $smtp = SMTP::latest()->first();

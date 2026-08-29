@@ -1,11 +1,19 @@
-@extends('admin.main')
+@extends(request()->routeIs('admin.nightly-reports.*') ? 'admin.nightly-reports.layout' : 'admin.main')
 
 @section('content')
+@php
+  $isNightly = request()->routeIs('admin.nightly-reports.*');
+  $indexRoute = $isNightly ? 'admin.nightly-reports.jobs.index' : 'admin.jobs.index';
+  $statusRoute = $isNightly ? 'admin.nightly-reports.jobs.preference-requests.status' : 'admin.jobs.preference-requests.status';
+@endphp
 <div class="content-wrapper">
     <div class="container-xxl flex-grow-1 container-p-y">
         <div class="d-flex flex-wrap justify-content-between align-items-center mb-3 gap-2">
-            <h4 class="mb-0">Preferred-Work Requests</h4>
-            <a href="{{ route('admin.jobs.index') }}" class="btn btn-outline-light">Back to Jobs</a>
+            <div>
+                <h4 class="mb-1 text-white">Preferred-Work Requests</h4>
+                <p class="text-muted mb-0">General interest submissions from candidates.</p>
+            </div>
+            <a href="{{ route($indexRoute) }}" class="btn btn-outline-light">Back to Jobs</a>
         </div>
 
         <div class="card">

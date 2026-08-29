@@ -1,6 +1,10 @@
-@extends('admin.main')
+@extends(request()->routeIs('admin.nightly-reports.*') ? 'admin.nightly-reports.layout' : 'admin.main')
 
 @section('content')
+@php
+  $isNightly = request()->routeIs('admin.nightly-reports.*');
+  $formRoutePrefix = $isNightly ? 'admin.nightly-reports.forms.' : 'admin.forms.';
+@endphp
 <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/flatpickr/dist/flatpickr.min.css">
 <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/flatpickr/dist/themes/dark.css">
 
@@ -608,7 +612,7 @@
 <div class="content-wrapper">
     <div class="container-xxl flex-grow-1 container-p-y">
         
-        <form id="builderForm" method="POST" action="{{ isset($form) ? route('admin.forms.update', $form->id) : route('admin.forms.store') }}">
+        <form id="builderForm" method="POST" action="{{ isset($form) ? route($formRoutePrefix . 'update', $form->id) : route($formRoutePrefix . 'store') }}">
             @csrf
             @if(isset($form))
                 @method('PUT')
@@ -645,7 +649,7 @@
                             <i class="bx bx-history"></i> Audit Logs ({{ $form->activityLogs->count() }})
                         </button>
                     @endif
-                    <a href="{{ route('admin.forms.index') }}" class="txn-header-btn">Cancel</a>
+                    <a href="{{ route($formRoutePrefix . 'index') }}" class="txn-header-btn">Cancel</a>
                     <button type="submit" class="btn-create-form border-0" id="saveFormBtn">
                         <i class="bx bx-save"></i> Save Form
                     </button>

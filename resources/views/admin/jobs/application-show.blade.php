@@ -1,11 +1,15 @@
-@extends('admin.main')
+@extends(request()->routeIs('admin.nightly-reports.*') ? 'admin.nightly-reports.layout' : 'admin.main')
 
 @section('content')
+@php
+  $isNightly = request()->routeIs('admin.nightly-reports.*');
+  $appsRoute = $isNightly ? 'admin.nightly-reports.jobs.applications' : 'admin.jobs.applications';
+@endphp
 <div class="content-wrapper">
     <div class="container-xxl flex-grow-1 container-p-y">
         <div class="d-flex justify-content-between align-items-center mb-3">
-            <h4 class="mb-0">Application #{{ $application->id }}</h4>
-            <a href="{{ route('admin.jobs.applications') }}" class="btn btn-outline-light">Back</a>
+            <h4 class="mb-0 text-white">Application Details</h4>
+            <a href="{{ route($appsRoute) }}" class="btn btn-outline-light">Back</a>
         </div>
 
         <div class="card mb-3">

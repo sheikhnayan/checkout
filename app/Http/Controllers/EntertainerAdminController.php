@@ -252,6 +252,71 @@ class EntertainerAdminController extends Controller
         return redirect()->back()->with('success', 'Entertainer has been unapproved and moved back to pending review.');
     }
 
+    public function destroy(Entertainer $entertainer)
+    {
+        $this->ensureCanManageEntertainer($entertainer);
+
+        \Illuminate\Support\Facades\DB::transaction(function () use ($entertainer) {
+            $userId = $entertainer->user_id;
+
+            \App\Models\EntertainerPackage::where('entertainer_id', $entertainer->id)->delete();
+
+            if ($entertainer->feed_model_id) {
+                FeedModel::where('id', $entertainer->feed_model_id)->delete();
+            }
+
+            $entertainer->delete();
+
+            if ($userId) {
+                \App\Models\User::where('id', $userId)->delete();
+            }
+        });
+
+        return redirect()->back()->with('success', 'Entertainer application deleted successfully.');
+    }
+
+    public function bulkDelete(Request $request)
+    {
+        $user = $this->currentUser();
+
+        $request->validate([
+            'ids' => 'required|array',
+            'ids.*' => 'integer|exists:entertainers,id',
+        ]);
+
+        $ids = $request->input('ids', []);
+
+        if (!$user->isAdmin()) {
+            $accessibleWebsiteIds = $user->accessibleWebsiteIds();
+            $ids = Entertainer::whereIn('id', $ids)->whereIn('website_id', $accessibleWebsiteIds)->pluck('id')->toArray();
+        }
+
+        $count = count($ids);
+
+        \Illuminate\Support\Facades\DB::transaction(function () use ($ids) {
+            foreach ($ids as $id) {
+                $entertainer = Entertainer::find($id);
+                if (!$entertainer) continue;
+
+                $userId = $entertainer->user_id;
+
+                \App\Models\EntertainerPackage::where('entertainer_id', $entertainer->id)->delete();
+
+                if ($entertainer->feed_model_id) {
+                    FeedModel::where('id', $entertainer->feed_model_id)->delete();
+                }
+
+                $entertainer->delete();
+
+                if ($userId) {
+                    \App\Models\User::where('id', $userId)->delete();
+                }
+            }
+        });
+
+        return redirect()->back()->with('success', "Successfully deleted {$count} entertainer application(s).");
+    }
+
     private function applyGlobalSmtp(): void
     {
         $smtp = SMTP::latest()->first();

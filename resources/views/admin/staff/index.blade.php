@@ -7,6 +7,14 @@
             <div class="d-flex justify-content-between align-items-center mb-3 flex-wrap gap-2">
                 <h4 class="mb-0">Current Staff Applications</h4>
                 <div class="d-flex align-items-center gap-2 flex-wrap">
+                    <form id="bulkDeleteForm" action="{{ route('admin.staff.bulk-delete') }}" method="POST" class="d-inline" onsubmit="return confirm('Are you sure you want to delete the selected staff application(s)? This action cannot be undone.');">
+                        @csrf
+                        <input type="hidden" name="type" value="{{ $type }}">
+                        <div id="bulkDeleteInputs"></div>
+                        <button type="submit" id="bulkDeleteBtn" class="btn btn-sm btn-danger d-none align-items-center gap-1">
+                            <i class="bx bx-trash"></i> Mass Delete (<span id="selectedCount">0</span>)
+                        </button>
+                    </form>
                     <span class="badge bg-label-info d-inline-flex align-items-center gap-1">
                         <i class="bx bx-sort-alt-2"></i>
                         Sort by type
@@ -48,6 +56,9 @@
             <table class="table table-bordered">
                 <thead>
                     <tr>
+                        <th style="width: 40px;" class="text-center">
+                            <input type="checkbox" id="selectAllStaff" class="form-check-input">
+                        </th>
                         <th>Name</th>
                         <th>Email</th>
                         @if($type === 'entertainer')
@@ -61,19 +72,31 @@
                 <tbody>
                     @forelse($staffList as $staff)
                         <tr>
-                            <td>{{ $staff->display_name }}</td>
-                            <td>{{ $staff->user->email }}</td>
+                            <td class="text-center">
+                                <input type="checkbox" class="form-check-input staff-cb" value="{{ $staff->id }}">
+                            </td>
+                            <td>{{ $staff->display_name ?: ($staff->user->name ?? 'N/A') }}</td>
+                            <td>{{ $staff->user->email ?? 'N/A' }}</td>
                             @if($type === 'entertainer')
                                 <td>{{ $staff->website->name ?? 'N/A' }}</td>
                             @endif
                             <td><span class="badge bg-{{ $staff->status === 'approved' ? 'success' : ($staff->status === 'pending' ? 'warning' : 'danger') }}">{{ ucfirst($staff->status) }}</span></td>
-                            <td>{{ $staff->created_at->format('M d, Y') }}</td>
+                            <td>{{ optional($staff->created_at)->format('M d, Y') }}</td>
                             <td>
-                                <a href="{{ route('admin.staff.show', ['type' => $type, 'id' => $staff->id]) }}" class="btn btn-sm btn-primary">Manage</a>
+                                <div class="d-flex align-items-center gap-1">
+                                    <a href="{{ route('admin.staff.show', ['type' => $type, 'id' => $staff->id]) }}" class="btn btn-sm btn-primary">Manage</a>
+                                    <form action="{{ route('admin.staff.destroy', ['type' => $type, 'id' => $staff->id]) }}" method="POST" class="d-inline" onsubmit="return confirm('Are you sure you want to delete this staff application?');">
+                                        @csrf
+                                        @method('DELETE')
+                                        <button type="submit" class="btn btn-sm btn-outline-danger" title="Delete Application">
+                                            <i class="bx bx-trash"></i>
+                                        </button>
+                                    </form>
+                                </div>
                             </td>
                         </tr>
                     @empty
-                        <tr><td colspan="{{ $type === 'entertainer' ? '6' : '5' }}" class="text-center">No staff submissions found.</td></tr>
+                        <tr><td colspan="{{ $type === 'entertainer' ? '7' : '6' }}" class="text-center">No staff submissions found.</td></tr>
                     @endforelse
                 </tbody>
             </table>
@@ -82,4 +105,55 @@
         </div>
     </div>
 </div>
+
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    const selectAll = document.getElementById('selectAllStaff');
+    const checkboxes = document.querySelectorAll('.staff-cb');
+    const bulkDeleteBtn = document.getElementById('bulkDeleteBtn');
+    const selectedCount = document.getElementById('selectedCount');
+    const bulkDeleteInputs = document.getElementById('bulkDeleteInputs');
+
+    function updateBulkDeleteState() {
+        const checked = document.querySelectorAll('.staff-cb:checked');
+        const count = checked.length;
+        if (selectedCount) selectedCount.textContent = count;
+
+        if (count > 0) {
+            bulkDeleteBtn.classList.remove('d-none');
+            bulkDeleteBtn.classList.add('d-inline-flex');
+        } else {
+            bulkDeleteBtn.classList.remove('d-inline-flex');
+            bulkDeleteBtn.classList.add('d-none');
+        }
+
+        if (selectAll) {
+            selectAll.checked = checkboxes.length > 0 && count === checkboxes.length;
+            selectAll.indeterminate = count > 0 && count < checkboxes.length;
+        }
+
+        if (bulkDeleteInputs) {
+            bulkDeleteInputs.innerHTML = '';
+            checked.forEach(cb => {
+                const input = document.createElement('input');
+                input.type = 'hidden';
+                input.name = 'ids[]';
+                input.value = cb.value;
+                bulkDeleteInputs.appendChild(input);
+            });
+        }
+    }
+
+    if (selectAll) {
+        selectAll.addEventListener('change', function() {
+            checkboxes.forEach(cb => cb.checked = selectAll.checked);
+            updateBulkDeleteState();
+        });
+    }
+
+    checkboxes.forEach(cb => {
+        cb.addEventListener('change', updateBulkDeleteState);
+    });
+});
+</script>
 @endsection

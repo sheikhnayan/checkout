@@ -127,4 +127,98 @@ class StaffAdminController extends Controller
 
         return redirect()->back()->with('success', ucfirst($type) . ' staff rejected.');
     }
+
+    /**
+     * Delete staff registration
+     */
+    public function destroy($type, $id)
+    {
+        $user = auth()->user();
+        if (!$user || !$user->isAdmin()) {
+            abort(403, 'Only super admin can delete staff applications.');
+        }
+
+        \Illuminate\Support\Facades\DB::transaction(function () use ($type, $id) {
+            if ($type === 'affiliate') {
+                $staff = Affiliate::where('is_staff_registration', true)->find($id);
+                if ($staff) {
+                    $userId = $staff->user_id;
+                    Affiliate::where('parent_affiliate_id', $staff->id)->update(['parent_affiliate_id' => null]);
+                    \App\Models\AffiliateWebsite::where('affiliate_id', $staff->id)->delete();
+                    \App\Models\AffiliatePackage::where('affiliate_id', $staff->id)->delete();
+                    $staff->delete();
+                    if ($userId) {
+                        \App\Models\User::where('id', $userId)->delete();
+                    }
+                }
+            } else {
+                $staff = Entertainer::where('is_staff_registration', true)->find($id);
+                if ($staff) {
+                    $userId = $staff->user_id;
+                    \App\Models\EntertainerPackage::where('entertainer_id', $staff->id)->delete();
+                    if ($staff->feed_model_id) {
+                        \App\Models\FeedModel::where('id', $staff->feed_model_id)->delete();
+                    }
+                    $staff->delete();
+                    if ($userId) {
+                        \App\Models\User::where('id', $userId)->delete();
+                    }
+                }
+            }
+        });
+
+        return redirect()->back()->with('success', ucfirst($type) . ' staff application deleted successfully.');
+    }
+
+    /**
+     * Bulk delete staff registrations
+     */
+    public function bulkDelete(Request $request)
+    {
+        $user = auth()->user();
+        if (!$user || !$user->isAdmin()) {
+            abort(403, 'Only super admin can delete staff applications.');
+        }
+
+        $request->validate([
+            'type' => 'required|in:affiliate,entertainer',
+            'ids' => 'required|array',
+            'ids.*' => 'integer',
+        ]);
+
+        $type = $request->input('type');
+        $ids = $request->input('ids', []);
+        $count = count($ids);
+
+        \Illuminate\Support\Facades\DB::transaction(function () use ($type, $ids) {
+            foreach ($ids as $id) {
+                if ($type === 'affiliate') {
+                    $staff = Affiliate::where('is_staff_registration', true)->find($id);
+                    if (!$staff) continue;
+                    $userId = $staff->user_id;
+                    Affiliate::where('parent_affiliate_id', $staff->id)->update(['parent_affiliate_id' => null]);
+                    \App\Models\AffiliateWebsite::where('affiliate_id', $staff->id)->delete();
+                    \App\Models\AffiliatePackage::where('affiliate_id', $staff->id)->delete();
+                    $staff->delete();
+                    if ($userId) {
+                        \App\Models\User::where('id', $userId)->delete();
+                    }
+                } else {
+                    $staff = Entertainer::where('is_staff_registration', true)->find($id);
+                    if (!$staff) continue;
+                    $userId = $staff->user_id;
+                    \App\Models\EntertainerPackage::where('entertainer_id', $staff->id)->delete();
+                    if ($staff->feed_model_id) {
+                        \App\Models\FeedModel::where('id', $staff->feed_model_id)->delete();
+                    }
+                    $staff->delete();
+                    if ($userId) {
+                        \App\Models\User::where('id', $userId)->delete();
+                    }
+                }
+            }
+        });
+
+        return redirect()->back()->with('success', "Successfully deleted {$count} {$type} staff application(s).");
+    }
 }

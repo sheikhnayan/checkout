@@ -18,29 +18,27 @@ class CustomFormController extends Controller
 {
     public function index(Request $request)
     {
-        $user = auth()->user();
+        $user = $this->currentUser();
         if (!$user) {
             abort(401);
         }
 
-        $accessibleWebsiteIds = collect($user->accessibleWebsiteIds())
-            ->map(fn ($id) => (int) $id)
-            ->filter(fn ($id) => $id > 0)
-            ->unique()
-            ->values()
-            ->all();
+        $accessibleWebsiteIds = $this->getAccessibleWebsiteIds();
+        $isAdmin = $this->isAdminUser();
 
         $websites = Website::query()
-            ->when(!$user->isAdmin(), fn ($q) => $q->whereIn('id', $accessibleWebsiteIds))
+            ->when(!$isAdmin, fn ($q) => $q->whereIn('id', $accessibleWebsiteIds))
             ->where('is_archieved', 0)
             ->orderBy('name')
             ->get(['id', 'name']);
 
         $query = CustomForm::query()->with(['creator', 'updater'])->withCount('submissions');
 
-        if (!$user->isAdmin()) {
+        if (!$isAdmin) {
             $query->where(function ($q) use ($accessibleWebsiteIds, $user) {
-                $q->where('created_by_user_id', $user->id);
+                if (isset($user->id)) {
+                    $q->where('created_by_user_id', $user->id);
+                }
                 foreach ($accessibleWebsiteIds as $wId) {
                     $q->orWhereJsonContains('website_ids', (int) $wId)
                       ->orWhereJsonContains('website_ids', (string) $wId);
@@ -72,20 +70,16 @@ class CustomFormController extends Controller
 
     public function create()
     {
-        $user = auth()->user();
+        $user = $this->currentUser();
         if (!$user) {
             abort(401);
         }
 
-        $accessibleWebsiteIds = collect($user->accessibleWebsiteIds())
-            ->map(fn ($id) => (int) $id)
-            ->filter(fn ($id) => $id > 0)
-            ->unique()
-            ->values()
-            ->all();
+        $accessibleWebsiteIds = $this->getAccessibleWebsiteIds();
+        $isAdmin = $this->isAdminUser();
 
         $websites = Website::query()
-            ->when(!$user->isAdmin(), fn ($q) => $q->whereIn('id', $accessibleWebsiteIds))
+            ->when(!$isAdmin, fn ($q) => $q->whereIn('id', $accessibleWebsiteIds))
             ->where('is_archieved', 0)
             ->orderBy('name')
             ->get(['id', 'name']);
@@ -728,23 +722,52 @@ class CustomFormController extends Controller
         return back()->with('form_success', $successMessage);
     }
 
+    private function currentUser()
+    {
+        return \Illuminate\Support\Facades\Auth::guard('ambassador')->user() ?: auth()->user();
+    }
+
+    private function getAccessibleWebsiteIds(): array
+    {
+        if ($ambassador = \Illuminate\Support\Facades\Auth::guard('ambassador')->user()) {
+            return $ambassador->clubs()->pluck('websites.id')->map(fn ($id) => (int) $id)->all();
+        }
+
+        $user = auth()->user();
+        if (!$user) {
+            return [];
+        }
+
+        if ($user->isAdmin() || $user->isSuperAdmin()) {
+            return Website::pluck('id')->map(fn ($id) => (int) $id)->all();
+        }
+
+        return array_map('intval', $user->accessibleWebsiteIds());
+    }
+
+    private function isAdminUser(): bool
+    {
+        $user = auth()->user();
+        return $user && ($user->isAdmin() || $user->isSuperAdmin());
+    }
+
     private function authorizeFormAccess(CustomForm $form, $user): void
     {
-        if ($user->isAdmin()) {
+        if ($this->isAdminUser()) {
             return;
         }
 
-        if ((int) $form->created_by_user_id === (int) $user->id) {
+        $accessibleWebsiteIds = $this->getAccessibleWebsiteIds();
+
+        if (isset($user->id) && (int) $form->created_by_user_id === (int) $user->id) {
             return;
         }
 
-        $accessibleWebsiteIds = collect($user->accessibleWebsiteIds())->map(fn ($id) => (int) $id)->all();
         $formWebsites = array_map('intval', $form->website_ids ?: []);
-
         if (array_intersect($accessibleWebsiteIds, $formWebsites)) {
             return;
         }
 
-        abort(403, 'Unauthorized form access.');
+        abort(403, 'Access denied for this form.');
     }
 }

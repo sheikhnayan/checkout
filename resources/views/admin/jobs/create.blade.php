@@ -1,16 +1,21 @@
-@extends('admin.main')
+@extends(request()->routeIs('admin.nightly-reports.*') ? 'admin.nightly-reports.layout' : 'admin.main')
 
 @section('content')
+@php
+  $isNightly = request()->routeIs('admin.nightly-reports.*');
+  $indexRoute = $isNightly ? 'admin.nightly-reports.jobs.index' : 'admin.jobs.index';
+  $storeRoute = $isNightly ? 'admin.nightly-reports.jobs.store' : 'admin.jobs.store';
+@endphp
 <div class="content-wrapper">
     <div class="container-xxl flex-grow-1 container-p-y">
         <div class="d-flex justify-content-between align-items-center mb-3">
-            <h4 class="mb-0">Create Job Post</h4>
-            <a href="{{ route('admin.jobs.index') }}" class="btn btn-outline-light">Back</a>
+            <h4 class="mb-0 text-white">Create Job Post</h4>
+            <a href="{{ route($indexRoute) }}" class="btn btn-outline-light">Back</a>
         </div>
 
         <div class="card">
             <div class="card-body">
-                <form method="POST" action="{{ route('admin.jobs.store') }}">
+                <form method="POST" action="{{ route($storeRoute) }}">
                     @csrf
 
                     <div class="row g-3">

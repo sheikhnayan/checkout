@@ -75,6 +75,13 @@
             <div class="d-flex justify-content-between align-items-center mb-3 flex-wrap gap-2">
                 <h4 class="mb-0 text-white-force">Promoter Applications & Management</h4>
                 <div class="d-flex align-items-center gap-2 flex-wrap">
+                    <form id="bulkDeleteForm" action="{{ route('admin.affiliate.bulk-delete') }}" method="POST" class="d-inline" onsubmit="return confirm('Are you sure you want to delete the selected promoter application(s)? This action cannot be undone.');">
+                        @csrf
+                        <div id="bulkDeleteInputs"></div>
+                        <button type="submit" id="bulkDeleteBtn" class="btn btn-sm btn-danger d-none align-items-center gap-1">
+                            <i class="bx bx-trash"></i> Mass Delete (<span id="selectedCount">0</span>)
+                        </button>
+                    </form>
                     <button type="button" class="btn btn-sm btn-primary d-inline-flex align-items-center gap-1 me-2" data-bs-toggle="modal" data-bs-target="#adminCreateSubAffiliateModal">
                         <i class="bx bx-user-plus"></i> Add Sub-Promoter
                     </button>
@@ -100,6 +107,9 @@
             <table class="table table-bordered align-middle">
                 <thead>
                     <tr>
+                        <th style="width: 40px;" class="text-center">
+                            <input type="checkbox" id="selectAllAffiliates" class="form-check-input">
+                        </th>
                         <th class="text-white-force">Name</th>
                         <th class="text-white-force">Type</th>
                         <th class="text-white-force">Email</th>
@@ -119,8 +129,11 @@
                 <tbody>
                     @forelse($affiliates as $affiliate)
                         <tr>
+                            <td class="text-center">
+                                <input type="checkbox" class="form-check-input affiliate-cb" value="{{ $affiliate->id }}">
+                            </td>
                             <td>
-                                <strong class="text-white-force">{{ $affiliate->display_name ?: $affiliate->user->name }}</strong>
+                                <strong class="text-white-force">{{ $affiliate->display_name ?: ($affiliate->user->name ?? 'N/A') }}</strong>
                                 @if($affiliate->isSubAffiliate())
                                     <div class="fs-8 text-primary">
                                         <i class="bx bx-subdirectory-right"></i> Sub-Promoter (Parent: {{ $affiliate->parent->display_name ?? 'Primary Promoter' }})
@@ -134,7 +147,7 @@
                                     <span class="badge bg-label-primary">Primary Promoter</span>
                                 @endif
                             </td>
-                            <td><span class="text-white-force">{{ $affiliate->user->email }}</span></td>
+                            <td><span class="text-white-force">{{ $affiliate->user->email ?? 'N/A' }}</span></td>
                             <td><span class="badge bg-{{ $affiliate->status === 'approved' ? 'success' : ($affiliate->status === 'pending' ? 'warning' : 'danger') }}">{{ ucfirst($affiliate->status) }}</span></td>
                             <td style="white-space: nowrap;">
                                 <span class="text-white-force">{{ optional($affiliate->created_at)->timezone('America/Los_Angeles')->format('M d, Y') }}</span><br>
@@ -175,17 +188,77 @@
                             @endif
                             <td><span class="text-white-force">${{ number_format($affiliate->wallet_balance, 2) }}</span></td>
                             <td>
-                                <a href="{{ route('admin.affiliate.show', $affiliate->id) }}" class="btn btn-sm btn-primary">Manage</a>
+                                <div class="d-flex align-items-center gap-1">
+                                    <a href="{{ route('admin.affiliate.show', $affiliate->id) }}" class="btn btn-sm btn-primary">Manage</a>
+                                    <form action="{{ route('admin.affiliate.destroy', $affiliate->id) }}" method="POST" class="d-inline" onsubmit="return confirm('Are you sure you want to delete this promoter application?');">
+                                        @csrf
+                                        @method('DELETE')
+                                        <button type="submit" class="btn btn-sm btn-outline-danger" title="Delete Application">
+                                            <i class="bx bx-trash"></i>
+                                        </button>
+                                    </form>
+                                </div>
                             </td>
                         </tr>
                     @empty
-                        <tr><td colspan="{{ $status === 'pending' ? 7 : 9 }}" class="text-center text-white-force">No promoter records found.</td></tr>
+                        <tr><td colspan="{{ $status === 'pending' ? 8 : 10 }}" class="text-center text-white-force">No promoter records found.</td></tr>
                     @endforelse
                 </tbody>
             </table>
         </div>
     </div>
 </div>
+
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    const selectAll = document.getElementById('selectAllAffiliates');
+    const checkboxes = document.querySelectorAll('.affiliate-cb');
+    const bulkDeleteBtn = document.getElementById('bulkDeleteBtn');
+    const selectedCount = document.getElementById('selectedCount');
+    const bulkDeleteInputs = document.getElementById('bulkDeleteInputs');
+
+    function updateBulkDeleteState() {
+        const checked = document.querySelectorAll('.affiliate-cb:checked');
+        const count = checked.length;
+        if (selectedCount) selectedCount.textContent = count;
+
+        if (count > 0) {
+            bulkDeleteBtn.classList.remove('d-none');
+            bulkDeleteBtn.classList.add('d-inline-flex');
+        } else {
+            bulkDeleteBtn.classList.remove('d-inline-flex');
+            bulkDeleteBtn.classList.add('d-none');
+        }
+
+        if (selectAll) {
+            selectAll.checked = checkboxes.length > 0 && count === checkboxes.length;
+            selectAll.indeterminate = count > 0 && count < checkboxes.length;
+        }
+
+        if (bulkDeleteInputs) {
+            bulkDeleteInputs.innerHTML = '';
+            checked.forEach(cb => {
+                const input = document.createElement('input');
+                input.type = 'hidden';
+                input.name = 'ids[]';
+                input.value = cb.value;
+                bulkDeleteInputs.appendChild(input);
+            });
+        }
+    }
+
+    if (selectAll) {
+        selectAll.addEventListener('change', function() {
+            checkboxes.forEach(cb => cb.checked = selectAll.checked);
+            updateBulkDeleteState();
+        });
+    }
+
+    checkboxes.forEach(cb => {
+        cb.addEventListener('change', updateBulkDeleteState);
+    });
+});
+</script>
 
 <!-- SUPER ADMIN CREATE SUB-PROMOTER MODAL -->
 <div class="modal fade" id="adminCreateSubAffiliateModal" tabindex="-1" aria-hidden="true">
