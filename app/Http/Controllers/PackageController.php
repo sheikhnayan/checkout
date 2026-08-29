@@ -98,6 +98,8 @@ class PackageController extends Controller
 
         $duplicate = $source->replicate();
         $duplicate->name = $this->generateDuplicatePackageName($source);
+        $duplicate->image = $this->duplicatePackageImage($source->image);
+        $duplicate->mobile_image = $this->duplicatePackageImage($source->mobile_image);
         $duplicate->is_archieved = 0;
         $duplicate->is_most_popular = 0;
         $duplicate->sort_order = $this->nextSortOrderForCategory(
@@ -825,6 +827,28 @@ class PackageController extends Controller
         if (file_exists($path)) {
             @unlink($path);
         }
+    }
+
+    private function duplicatePackageImage(?string $imageName): ?string
+    {
+        if (!$imageName) {
+            return null;
+        }
+
+        $sourcePath = public_path('uploads/' . $imageName);
+        if (!file_exists($sourcePath)) {
+            return null;
+        }
+
+        $extension = pathinfo($imageName, PATHINFO_EXTENSION);
+        $newImageName = 'package_' . time() . '_' . uniqid() . ($extension ? '.' . $extension : '');
+        $destinationPath = public_path('uploads/' . $newImageName);
+
+        if (@copy($sourcePath, $destinationPath)) {
+            return $newImageName;
+        }
+
+        return null;
     }
 
     private function authorizePackageManagement(Package $package, $user): void
