@@ -98,6 +98,13 @@ class Website extends Model
         'policy',
         'terms',
         'footer_text',
+        'show_sms_consent',
+        'sms_consent_text',
+        'show_terms_consent',
+        'terms_consent_text',
+        'show_transportation_consent',
+        'show_business_expense_consent',
+        'business_expense_text',
     ];
 
     protected $casts = [
@@ -108,7 +115,54 @@ class Website extends Model
         'entertainer_submission_emails' => 'array',
         'clublifter_enabled' => 'boolean',
         'is_physical_product_checkout' => 'boolean',
+        'show_sms_consent' => 'boolean',
+        'show_terms_consent' => 'boolean',
+        'show_transportation_consent' => 'boolean',
+        'show_business_expense_consent' => 'boolean',
     ];
+
+    public function getSmsConsentTextAttribute($value): string
+    {
+        return (!is_null($value) && trim((string)$value) !== '') 
+            ? (string) $value 
+            : 'I agree to receive SMS communications regarding my reservation, transportation updates, VIP services, and related notifications. Message and data rates may apply. Messaging frequency may vary. Reply STOP to opt out at any time.';
+    }
+
+    public function getTermsConsentTextAttribute($value): string
+    {
+        return (!is_null($value) && trim((string)$value) !== '') 
+            ? (string) $value 
+            : 'I have read and agree to the Terms of Service / Venue Policies';
+    }
+
+    public function getTermsConsentTextFormattedAttribute(): string
+    {
+        $raw = $this->terms_consent_text;
+        if (str_contains($raw, '<a ')) {
+            return $raw;
+        }
+        $termsUrl = e($this->terms ?? '#');
+        $formatted = str_replace(
+            ['Terms of Service', 'Venue Policies'],
+            ['<a target="_blank" href="' . $termsUrl . '">Terms of Service</a>', '<a target="_blank" href="' . $termsUrl . '">Venue Policies</a>'],
+            e($raw)
+        );
+        return $formatted;
+    }
+
+    public function getTransportationConfirmationTextAttribute($value): string
+    {
+        return (!is_null($value) && trim((string)$value) !== '') 
+            ? (string) $value 
+            : 'I confirm I am arriving in a personal vehicle or approved venue transportation. I am not arriving via Uber, Lyft, taxi, limousine, ride-share, or any other third-party transportation service.';
+    }
+
+    public function getBusinessExpenseTextAttribute($value): string
+    {
+        return (!is_null($value) && trim((string)$value) !== '') 
+            ? (string) $value 
+            : 'This purchase is for business purposes';
+    }
 
     public function getScheduleForDay(?string $dayName): array
     {

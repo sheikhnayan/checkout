@@ -36,6 +36,7 @@ class Affiliate extends Model
         'text_color',
         'font_family',
         'default_commission_percentage',
+        'commission_hold_days',
         'wallet_balance',
         'approved_at',
         'approved_by',
@@ -58,6 +59,7 @@ class Affiliate extends Model
         'sub_affiliate_permissions' => 'array',
         'wallet_balance' => 'decimal:2',
         'default_commission_percentage' => 'decimal:2',
+        'commission_hold_days' => 'integer',
         'gallery_images' => 'array',
         'show_location_section' => 'boolean',
     ];

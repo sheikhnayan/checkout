@@ -138,6 +138,7 @@ class AffiliateAdminController extends Controller
         $this->ensureAdmin();
         $request->validate([
             'default_commission_percentage' => 'required|numeric|min:0|max:100',
+            'commission_hold_days' => 'nullable|integer|min:0|max:365',
         ]);
 
         // Ensure relationships are loaded
@@ -156,6 +157,9 @@ class AffiliateAdminController extends Controller
         $affiliate->rejected_by = null;
         $affiliate->rejection_reason = null;
         $affiliate->default_commission_percentage = $request->default_commission_percentage;
+        $affiliate->commission_hold_days = $request->input('commission_hold_days') !== '' && $request->input('commission_hold_days') !== null 
+            ? (int) $request->input('commission_hold_days') 
+            : null;
         if (empty($affiliate->slug)) {
             $affiliate->slug = Affiliate::generateUniqueSlug($affiliate->display_name ?: $affiliate->user->name);
         }
@@ -324,12 +328,16 @@ class AffiliateAdminController extends Controller
 
         $request->validate([
             'default_commission_percentage' => 'required|numeric|min:0|max:100',
+            'commission_hold_days' => 'nullable|integer|min:0|max:365',
         ]);
 
         $affiliate->default_commission_percentage = $request->default_commission_percentage;
+        $affiliate->commission_hold_days = $request->input('commission_hold_days') !== '' && $request->input('commission_hold_days') !== null 
+            ? (int) $request->input('commission_hold_days') 
+            : null;
         $affiliate->save();
 
-        return redirect()->back()->with('success', 'Promoter commission updated successfully.');
+        return redirect()->back()->with('success', 'Promoter commission and custom hold period updated successfully.');
     }
 
     public function storeSubAffiliate(Request $request)

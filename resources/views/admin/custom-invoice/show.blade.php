@@ -91,25 +91,25 @@
                                         </div>
 
                                         @if($customInvoice->notes)
-                                        <div class="alert alert-info">
-                                            <strong>Notes:</strong><br>
+                                        <div class="alert" style="background: rgba(59,130,246,0.12); border: 1px solid rgba(59,130,246,0.25); color: #93c5fd; border-radius: 8px;">
+                                            <strong style="color: #60a5fa;">Notes:</strong><br>
                                             {{ $customInvoice->notes }}
                                         </div>
                                         @endif
 
                                         <h5 class="mt-4 mb-3">Line Items</h5>
-                                        <table class="table table-bordered">
-                                            <thead style="background-color: #f5f5f5;">
+                                        <table class="table table-bordered" style="border-color: rgba(255,255,255,0.1);">
+                                            <thead style="background: rgba(255,255,255,0.08);">
                                                 <tr>
-                                                    <th>Item</th>
-                                                    <th style="text-align: center;">Qty</th>
-                                                    <th style="text-align: right;">Price</th>
-                                                    <th style="text-align: right;">Total</th>
+                                                    <th style="color: #ffffff; font-weight: 700; border-color: rgba(255,255,255,0.1);">Item</th>
+                                                    <th style="text-align: center; color: #ffffff; font-weight: 700; border-color: rgba(255,255,255,0.1);">Qty</th>
+                                                    <th style="text-align: right; color: #ffffff; font-weight: 700; border-color: rgba(255,255,255,0.1);">Price</th>
+                                                    <th style="text-align: right; color: #ffffff; font-weight: 700; border-color: rgba(255,255,255,0.1);">Total</th>
                                                 </tr>
                                             </thead>
                                             <tbody>
                                                 @foreach($customInvoice->items as $item)
-                                                <tr>
+                                                <tr style="border-color: rgba(255,255,255,0.08);">
                                                     <td>{{ $item->name }}</td>
                                                     <td style="text-align: center;">{{ $item->quantity }}</td>
                                                     <td style="text-align: right;">${{ number_format($item->price, 2) }}</td>
@@ -119,7 +119,7 @@
                                             </tbody>
                                         </table>
 
-                                        <div style="margin-top: 30px; padding-top: 20px; border-top: 2px solid #2c3e50;">
+                                        <div style="margin-top: 30px; padding-top: 20px; border-top: 2px solid rgba(255,255,255,0.15);">
                                             <div style="display: flex; justify-content: space-between; margin-bottom: 10px;">
                                                 <span>Subtotal:</span>
                                                 <span>${{ number_format($customInvoice->subtotal, 2) }}</span>
@@ -142,12 +142,12 @@
                                                 <span>${{ number_format($customInvoice->gratuity, 2) }}</span>
                                             </div>
                                             @endif
-                                            <div style="display: flex; justify-content: space-between; margin-top: 15px; padding-top: 15px; border-top: 1px solid #ddd; font-weight: bold; font-size: 18px;">
+                                            <div style="display: flex; justify-content: space-between; margin-top: 15px; padding-top: 15px; border-top: 1px solid rgba(255,255,255,0.12); font-weight: bold; font-size: 18px; color: #ffffff;">
                                                 <span>TOTAL:</span>
                                                 <span>${{ number_format($customInvoice->total, 2) }}</span>
                                             </div>
                                             @if($customInvoice->refundable > 0)
-                                            <div style="display: flex; justify-content: space-between; margin-top: 10px; padding-top: 10px; border-top: 1px dashed #ddd; color: #666; font-size: 14px;">
+                                            <div style="display: flex; justify-content: space-between; margin-top: 10px; padding-top: 10px; border-top: 1px dashed rgba(255,255,255,0.15); color: rgba(255,255,255,0.65); font-size: 14px;">
                                                 <span>{{ $customInvoice->refundable_name ?? 'Non-Refundable Deposit' }} ({{ number_format($customInvoice->website->refundable_fee ?? 0) }}%):</span>
                                                 <span>${{ number_format($customInvoice->refundable, 2) }}</span>
                                             </div>
@@ -252,7 +252,7 @@
                                         <p style="font-size: 12px; margin-bottom: 10px;">
                                             Share this link with client for payment:
                                         </p>
-                                        <input type="text" class="form-control form-control-sm" value="{{ $customInvoice->getPaymentUrl() }}" readonly id="paymentLink">
+                                        <input type="text" class="form-control form-control-sm" value="{{ $customInvoice->getPaymentUrl() }}" readonly id="paymentLink" style="background: rgba(255,255,255,0.06); color: #818cf8; border: 1px solid rgba(255,255,255,0.15); font-weight: 600;">
                                         <button class="btn btn-sm btn-secondary mt-2" onclick="copyPaymentLink()">
                                             <i class="fas fa-copy"></i> Copy Link
                                         </button>

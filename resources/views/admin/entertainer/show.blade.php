@@ -62,29 +62,42 @@
             <p class="mb-1"><strong>Legal Name:</strong> {{ $entertainer->w9Form?->full_name ?? 'Not provided' }}</p>
             <p class="mb-1"><strong>Club:</strong> <span style="color:#f8fafc;">{{ $entertainer->website->name ?? 'N/A' }}</span></p>
             <p class="mb-1"><strong>Status:</strong> {{ ucfirst($entertainer->status) }}</p>
-            <p class="mb-3"><strong>Default Commission:</strong> {{ number_format((float) ($entertainer->default_commission_percentage ?? 0), 2) }}%</p>
+            <p class="mb-1"><strong>Default Commission:</strong> {{ number_format((float) ($entertainer->default_commission_percentage ?? 0), 2) }}%</p>
+            <p class="mb-3"><strong>Commission Hold Period:</strong> {{ $entertainer->commission_hold_days !== null ? $entertainer->commission_hold_days . ' days (Custom Override)' : 'Club Universal Default' }}</p>
             @if($entertainer->slug)
                 <p class="mb-3"><strong>Public Page:</strong> <a href="{{ route('entertainer.public', $entertainer->slug) }}" target="_blank">{{ route('entertainer.public', $entertainer->slug) }}</a></p>
             @endif
 
             @if($entertainer->status !== 'approved')
-                <form method="POST" action="{{ route('admin.entertainer.approve', $entertainer->id) }}" class="d-flex gap-2 align-items-end mb-3">
+                <form method="POST" action="{{ route('admin.entertainer.approve', $entertainer->id) }}" class="row g-2 align-items-end mb-3">
                     @csrf
-                    <div>
+                    <div class="col-md-5">
                         <label class="form-label">Default Commission % <i class="fas fa-circle-info ms-1 field-tip" data-bs-toggle="tooltip" data-bs-placement="top" title="The commission percentage this entertainer earns from referred bookings. Set when approving."></i></label>
                         <input type="number" min="0" max="100" step="0.01" name="default_commission_percentage" class="form-control" value="{{ old('default_commission_percentage', $entertainer->default_commission_percentage ?? 10) }}" required>
                     </div>
-                    <button type="submit" class="btn btn-success">Approve</button>
+                    <div class="col-md-5">
+                        <label class="form-label">Custom Hold Days <i class="fas fa-circle-info ms-1 field-tip" data-bs-toggle="tooltip" data-bs-placement="top" title="Custom hold period in days before funds release. Leave blank for club default."></i></label>
+                        <input type="number" min="0" max="365" name="commission_hold_days" class="form-control" value="{{ old('commission_hold_days', $entertainer->commission_hold_days) }}" placeholder="Club Default">
+                    </div>
+                    <div class="col-md-2">
+                        <button type="submit" class="btn btn-success w-100">Approve</button>
+                    </div>
                 </form>
             @endif
 
-            <form method="POST" action="{{ route('admin.entertainer.commission.update', $entertainer->id) }}" class="d-flex gap-2 align-items-end mb-3">
+            <form method="POST" action="{{ route('admin.entertainer.commission.update', $entertainer->id) }}" class="row g-2 align-items-end mb-3">
                 @csrf
-                <div>
+                <div class="col-md-5">
                     <label class="form-label">Change Commission (%) <i class="fas fa-circle-info ms-1 field-tip" data-bs-toggle="tooltip" data-bs-placement="top" title="Update the commission percentage this entertainer earns from referred bookings."></i></label>
                     <input type="number" min="0" max="100" step="0.01" name="default_commission_percentage" class="form-control" value="{{ old('default_commission_percentage', $entertainer->default_commission_percentage ?? 10) }}" required>
                 </div>
-                <button type="submit" class="btn btn-outline-primary">Update Fee</button>
+                <div class="col-md-5">
+                    <label class="form-label">Custom Hold Days <i class="fas fa-circle-info ms-1 field-tip" data-bs-toggle="tooltip" data-bs-placement="top" title="Custom hold period in days before commission releases to entertainer. Leave blank for club default."></i></label>
+                    <input type="number" min="0" max="365" name="commission_hold_days" class="form-control" value="{{ old('commission_hold_days', $entertainer->commission_hold_days) }}" placeholder="Club Default">
+                </div>
+                <div class="col-md-2">
+                    <button type="submit" class="btn btn-outline-primary w-100">Update</button>
+                </div>
             </form>
 
             @if($entertainer->status === 'approved')

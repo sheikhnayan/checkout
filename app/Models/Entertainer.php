@@ -28,6 +28,7 @@ class Entertainer extends Model
         'website_url',
         'font_family',
         'default_commission_percentage',
+        'commission_hold_days',
         'wallet_balance',
         'approved_at',
         'approved_by',
@@ -42,6 +43,7 @@ class Entertainer extends Model
         'rejected_at' => 'datetime',
         'is_active' => 'boolean',
         'default_commission_percentage' => 'decimal:2',
+        'commission_hold_days' => 'integer',
         'wallet_balance' => 'decimal:2',
         'gallery_images' => 'array',
     ];

@@ -435,7 +435,7 @@
                                     </div>
                                 </div>
 
-                                @if(!empty($selectedCategoryKey))
+                                @if(!empty($selectedCategoryKey) && ($activeTab === 'categories' || empty($activeTab)))
                                     <div class="card mt-3">
                                         <div class="card-body">
                                             <div class="d-flex justify-content-between align-items-center mb-2">
@@ -562,11 +562,7 @@
                                                 </tbody>
                                             </table>
                                         @endif
-                                    </div>
-                                </div>
-                            </div>
-
-                                @if(!empty($selectedCategoryKey))
+                                @if(!empty($selectedCategoryKey) && $activeTab === 'archived-categories')
                                     <div class="card mt-3">
                                         <div class="card-body">
                                             <div class="d-flex justify-content-between align-items-center mb-2">
@@ -579,7 +575,7 @@
                                             @if($categoryPackages->isEmpty())
                                                 <p class="text-muted mb-0">No packages found in this category.</p>
                                             @else
-                                                <table class="table" id="categoryPackagesTable">
+                                                <table class="table" id="archivedCategoryPackagesTable">
                                                     <thead>
                                                         <tr>
                                                             <th style="width:40px;"></th>
@@ -591,7 +587,7 @@
                                                             <th>Action</th>
                                                         </tr>
                                                     </thead>
-                                                    <tbody id="packageSortableBody">
+                                                    <tbody id="archivedPackageSortableBody">
                                                         @foreach($categoryPackages as $idx => $pkg)
                                                             <tr data-id="{{ $pkg->id }}">
                                                                 <td class="text-center align-middle"><i class="fas fa-grip-vertical drag-handle" title="Drag to reorder"></i></td>

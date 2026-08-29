@@ -6693,13 +6693,14 @@ body.embed-checkout-mode #cv-cart-toast .cv-toast-close {
                                                             <div id="zero-total-payment-note" style="display: none; margin: 0 0 18px; padding: 14px 16px; border: 1px solid rgba(34, 197, 94, 0.35); border-radius: 12px; background: rgba(34, 197, 94, 0.08); color: #d1fae5; font-size: 13px; line-height: 1.5;">
                                                                 This order total is $0.00. No card information is required to complete checkout.
                                                             </div>
-                                                            <div id="card-errors" style="margin-bottom: 14px; color: #ff9b9b; font-size: 13px;"></div>
-                                                            <div class="checkbox-container payment-consent-group" style="margin-top: 1.5rem; display: none;">
+                                                            <div id="card-errors" style="margin-bottom: 14px; color:                                                            @if($data->show_business_expense_consent ?? false)
+                                                            <div class="checkbox-container payment-consent-group" style="margin-top: 1.5rem;">
                                                                 <label class="consent-label">
                                                                     <input type="checkbox" id="businessExpenseCheckbox" />
-                                                                    <span>This purchase is for business purposes</span>
+                                                                    <span>{{ $data->business_expense_text }}</span>
                                                                 </label>
                                                             </div>
+                                                            @endif
 <div id="businessFields" style="display: none; margin-top: 1rem;">
     <div class="form-row">
         <div class="form-group" style="width: 50%;">
@@ -6720,22 +6721,29 @@ body.embed-checkout-mode #cv-cart-toast .cv-toast-close {
     </div>
 </div>
     
+                                                            @if(($data->show_sms_consent ?? true) || ($data->show_terms_consent ?? true))
                                                             <div class="checkbox-container payment-consent-group" id="payment-consent-group">
+                                                                @if($data->show_sms_consent ?? true)
                                                                 <label class="consent-label">
                                                                     <input type="checkbox" id="smsConsent" required />
-                                                                    <span>I agree to receive SMS communications regarding my reservation, transportation updates, VIP services, and related notifications. Message and data rates may apply. Messaging frequency may vary. Reply STOP to opt out at any time.</span>
+                                                                    <span>{{ $data->sms_consent_text }}</span>
                                                                 </label>
+                                                                @endif
 
-                                                                <label class="consent-label" style="margin-top: 1.4rem;">
+                                                                @if($data->show_terms_consent ?? true)
+                                                                <label class="consent-label" style="{{ ($data->show_sms_consent ?? true) ? 'margin-top: 1.4rem;' : '' }}">
                                                                     <input type="checkbox" id="termsConsent" required />
-                                                                    <span>I have read and agree to the <a
-                                                                        target="_blank" href="{{ $data->terms }}">Terms of Service</a> / <a target="_blank" href="{{ $data->terms }}">Venue Policies</a></span>
+                                                                    <span>
+                                                                        @if(empty($data->getRawOriginal('terms_consent_text')))
+                                                                            I have read and agree to the <a target="_blank" href="{{ $data->terms }}">Terms of Service</a> / <a target="_blank" href="{{ $data->terms }}">Venue Policies</a>
+                                                                        @else
+                                                                            {!! nl2br(e($data->terms_consent_text)) !!}
+                                                                        @endif
+                                                                    </span>
                                                                 </label>
-
-                                                                {{-- <p style="margin: 12px 0 0; font-size: 12px; line-height: 1.5; color: rgba(255,255,255,0.82);">
-                                                                    All bookings are processed through CartVIP. By completing this purchase, you acknowledge that all sales are final and non-refundable, subject to applicable law and the venue's policies, and that you agree to all venue entry requirements. You confirm that you are authorized to use this payment method and that the information provided is accurate. You understand that a valid government-issued photo ID may be required at check-in and may be photographed to verify identity, age, reservation redemption, fraud prevention, venue security, and chargeback dispute purposes. Identification records are securely stored and are never retained on the scanning device.
-                                                                </p> --}}
+                                                                @endif
                                                             </div>
+                                                            @endif                             </div>
 
                                                             <input type="hidden" class="package_use_date" name="package_use_date" value="">
                                                             <input type="hidden" class="promo_code" name="promo_code">
@@ -7384,14 +7392,14 @@ body.embed-checkout-mode #cv-cart-toast .cv-toast-close {
 
                     // Check SMS consent checkbox
                     const smsConsent = document.getElementById('smsConsent_two');
-                    if (!smsConsent || !smsConsent.checked) {
+                    if (smsConsent && !smsConsent.checked) {
                         hasError = true;
                         errorMessage = 'Please agree to receive SMS communications regarding your reservation, transportation updates, VIP services, and related notifications.';
                     }
 
                     // Check terms consent checkbox
                     const termsConsent = document.getElementById('termsConsent_two');
-                    if (!termsConsent || !termsConsent.checked) {
+                    if (termsConsent && !termsConsent.checked) {
                         hasError = true;
                         errorMessage = 'Please accept the Terms of Service.';
                     }
@@ -10443,7 +10451,7 @@ body.embed-checkout-mode #cv-cart-toast .cv-toast-close {
 
                 // Check SMS consent checkbox for package form
                 const smsConsentPackage = document.getElementById('smsConsent');
-                if (!smsConsentPackage || !smsConsentPackage.checked) {
+                if (smsConsentPackage && !smsConsentPackage.checked) {
                     e.preventDefault();
                     const errorMsg = document.getElementById('validation-error-msg-package') || document.createElement('div');
                     if (!errorMsg.id) {
@@ -10459,7 +10467,7 @@ body.embed-checkout-mode #cv-cart-toast .cv-toast-close {
 
                 // Check terms consent checkbox for package form
                 const termsConsentPackage = document.getElementById('termsConsent');
-                if (!termsConsentPackage || !termsConsentPackage.checked) {
+                if (termsConsentPackage && !termsConsentPackage.checked) {
                     e.preventDefault();
                     const errorMsg = document.getElementById('validation-error-msg-package') || document.createElement('div');
                     if (!errorMsg.id) {

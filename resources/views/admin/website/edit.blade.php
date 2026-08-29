@@ -665,11 +665,72 @@
                                                     </div>
                                                 </div>
                                                 
-                                                <div class="col-md-12">
-                                                    <div class="mb-3">
-                                                        <label for="transportation_confirmation_text" class="form-label">Transportation Confirmation Text <i class="fas fa-circle-info ms-1 field-tip" data-bs-toggle="tooltip" data-bs-placement="top" title="The legal confirmation text shown to customers next to the transportation arrival checkbox at checkout."></i></label>
-                                                        <textarea name="transportation_confirmation_text" class="form-control" id="transportation_confirmation_text" rows="3" placeholder="Transportation confirmation checkbox text">{{ $data->transportation_confirmation_text ?? 'I confirm I am arriving in a personal vehicle or approved venue transportation. I am not arriving via Uber, Lyft, taxi, limousine, ride-share, or any other third-party transportation service.' }}</textarea>
+                                                <div class="col-md-12 my-3">
+                                                    <h3 class="website-section-title"><i class="fas fa-check-square me-2"></i>Checkout Agreement Checkboxes & Verbiage Settings</h3>
+                                                </div>
+
+                                                <!-- 1. Transportation Confirmation Checkbox -->
+                                                <div class="col-md-12 mb-3">
+                                                    <div class="toggle-field">
+                                                        <p class="toggle-text">Show Transportation Arrival Checkbox <i class="fas fa-circle-info ms-1 field-tip" data-bs-toggle="tooltip" data-bs-placement="top" title="Show or hide the transportation arrival confirmation checkbox at checkout."></i></p>
+                                                        <label class="toggle-switch" for="show_transportation_consent">
+                                                            <input id="show_transportation_consent" type="checkbox" name="show_transportation_consent" value="1" class="toggle-switch-input" {{ old('show_transportation_consent', $data->show_transportation_consent ?? 1) == 1 ? 'checked' : '' }}>
+                                                            <span class="toggle-switch-slider"></span>
+                                                        </label>
                                                     </div>
+                                                </div>
+                                                <div class="col-md-12 mb-3">
+                                                    <label for="transportation_confirmation_text" class="form-label">Transportation Confirmation Verbiage <i class="fas fa-circle-info ms-1 field-tip" data-bs-toggle="tooltip" data-bs-placement="top" title="Custom text shown next to the transportation checkbox. Leave blank to use fallback default."></i></label>
+                                                    <textarea name="transportation_confirmation_text" class="form-control" id="transportation_confirmation_text" rows="2" placeholder="Leave blank to use default fallback text">{{ $data->raw_transportation_confirmation_text ?? $data->getRawOriginal('transportation_confirmation_text') }}</textarea>
+                                                    <small class="text-muted">Fallback default: "I confirm I am arriving in a personal vehicle or approved venue transportation..."</small>
+                                                </div>
+
+                                                <!-- 2. SMS Consent Checkbox -->
+                                                <div class="col-md-12 mb-3">
+                                                    <div class="toggle-field">
+                                                        <p class="toggle-text">Show SMS Communication Consent Checkbox <i class="fas fa-circle-info ms-1 field-tip" data-bs-toggle="tooltip" data-bs-placement="top" title="Show or hide the SMS communication consent checkbox at checkout."></i></p>
+                                                        <label class="toggle-switch" for="show_sms_consent">
+                                                            <input id="show_sms_consent" type="checkbox" name="show_sms_consent" value="1" class="toggle-switch-input" {{ old('show_sms_consent', $data->show_sms_consent ?? 1) == 1 ? 'checked' : '' }}>
+                                                            <span class="toggle-switch-slider"></span>
+                                                        </label>
+                                                    </div>
+                                                </div>
+                                                <div class="col-md-12 mb-3">
+                                                    <label for="sms_consent_text" class="form-label">SMS Consent Verbiage <i class="fas fa-circle-info ms-1 field-tip" data-bs-toggle="tooltip" data-bs-placement="top" title="Custom text shown next to the SMS consent checkbox. Leave blank to use fallback default."></i></label>
+                                                    <textarea name="sms_consent_text" class="form-control" id="sms_consent_text" rows="2" placeholder="Leave blank to use default fallback text">{{ $data->getRawOriginal('sms_consent_text') }}</textarea>
+                                                    <small class="text-muted">Fallback default: "I agree to receive SMS communications regarding my reservation..."</small>
+                                                </div>
+
+                                                <!-- 3. Terms & Policies Checkbox -->
+                                                <div class="col-md-12 mb-3">
+                                                    <div class="toggle-field">
+                                                        <p class="toggle-text">Show Terms & Policies Agreement Checkbox <i class="fas fa-circle-info ms-1 field-tip" data-bs-toggle="tooltip" data-bs-placement="top" title="Show or hide the Terms of Service / Venue Policies agreement checkbox at checkout."></i></p>
+                                                        <label class="toggle-switch" for="show_terms_consent">
+                                                            <input id="show_terms_consent" type="checkbox" name="show_terms_consent" value="1" class="toggle-switch-input" {{ old('show_terms_consent', $data->show_terms_consent ?? 1) == 1 ? 'checked' : '' }}>
+                                                            <span class="toggle-switch-slider"></span>
+                                                        </label>
+                                                    </div>
+                                                </div>
+                                                <div class="col-md-12 mb-3">
+                                                    <label for="terms_consent_text" class="form-label">Terms & Policies Verbiage <i class="fas fa-circle-info ms-1 field-tip" data-bs-toggle="tooltip" data-bs-placement="top" title="Custom text shown next to the Terms agreement checkbox. Leave blank to use fallback default."></i></label>
+                                                    <textarea name="terms_consent_text" class="form-control" id="terms_consent_text" rows="2" placeholder="Leave blank to use default fallback text">{{ $data->getRawOriginal('terms_consent_text') }}</textarea>
+                                                    <small class="text-muted">Fallback default: "I have read and agree to the Terms of Service / Venue Policies"</small>
+                                                </div>
+
+                                                <!-- 4. Business Purpose Checkbox -->
+                                                <div class="col-md-12 mb-3">
+                                                    <div class="toggle-field">
+                                                        <p class="toggle-text">Show Business Expense Checkbox <i class="fas fa-circle-info ms-1 field-tip" data-bs-toggle="tooltip" data-bs-placement="top" title="Show or hide the 'This purchase is for business purposes' checkbox at checkout."></i></p>
+                                                        <label class="toggle-switch" for="show_business_expense_consent">
+                                                            <input id="show_business_expense_consent" type="checkbox" name="show_business_expense_consent" value="1" class="toggle-switch-input" {{ old('show_business_expense_consent', $data->show_business_expense_consent ?? 0) == 1 ? 'checked' : '' }}>
+                                                            <span class="toggle-switch-slider"></span>
+                                                        </label>
+                                                    </div>
+                                                </div>
+                                                <div class="col-md-12 mb-3">
+                                                    <label for="business_expense_text" class="form-label">Business Expense Verbiage <i class="fas fa-circle-info ms-1 field-tip" data-bs-toggle="tooltip" data-bs-placement="top" title="Custom text shown next to the business expense checkbox. Leave blank to use fallback default."></i></label>
+                                                    <input type="text" name="business_expense_text" class="form-control" id="business_expense_text" value="{{ $data->getRawOriginal('business_expense_text') }}" placeholder="Leave blank to use default fallback text">
+                                                    <small class="text-muted">Fallback default: "This purchase is for business purposes"</small>
                                                 </div>
 
                                                 <div class="col-md-12 mb-3">

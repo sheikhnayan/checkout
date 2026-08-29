@@ -299,6 +299,13 @@ class WebsiteController extends Controller
         $add->package_tab_icon = $request->package_tab_icon ?: null;
         $add->package_tab_ribbon = $request->package_tab_ribbon ?: null;
         $add->transportation_confirmation_text = $request->transportation_confirmation_text;
+        $add->show_transportation_consent = $request->has('show_transportation_consent') ? $request->boolean('show_transportation_consent') : true;
+        $add->show_sms_consent = $request->has('show_sms_consent') ? $request->boolean('show_sms_consent') : true;
+        $add->sms_consent_text = $request->sms_consent_text;
+        $add->show_terms_consent = $request->has('show_terms_consent') ? $request->boolean('show_terms_consent') : true;
+        $add->terms_consent_text = $request->terms_consent_text;
+        $add->show_business_expense_consent = $request->boolean('show_business_expense_consent');
+        $add->business_expense_text = $request->business_expense_text;
         $add->show_arrival_time_verbiage = $request->boolean('show_arrival_time_verbiage');
         $dailyHours = $this->normalizeDailyOperatingHours($request->input('daily_operating_hours'), $enabledDailyDays);
         if ($dailyHours !== null) {
@@ -605,6 +612,13 @@ class WebsiteController extends Controller
         $add->package_tab_icon = $request->package_tab_icon ?: null;
         $add->package_tab_ribbon = $request->package_tab_ribbon ?: null;
         $add->transportation_confirmation_text = $request->transportation_confirmation_text;
+        $add->show_transportation_consent = $request->has('show_transportation_consent') ? $request->boolean('show_transportation_consent') : true;
+        $add->show_sms_consent = $request->has('show_sms_consent') ? $request->boolean('show_sms_consent') : true;
+        $add->sms_consent_text = $request->sms_consent_text;
+        $add->show_terms_consent = $request->has('show_terms_consent') ? $request->boolean('show_terms_consent') : true;
+        $add->terms_consent_text = $request->terms_consent_text;
+        $add->show_business_expense_consent = $request->boolean('show_business_expense_consent');
+        $add->business_expense_text = $request->business_expense_text;
         $add->show_arrival_time_verbiage = $request->boolean('show_arrival_time_verbiage');
         $dailyHours = $this->normalizeDailyOperatingHours($request->input('daily_operating_hours'), $enabledDailyDays);
         if ($dailyHours !== null) {

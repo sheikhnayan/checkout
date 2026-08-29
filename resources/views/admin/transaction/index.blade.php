@@ -97,6 +97,7 @@
 .txn-venue { font-size: 0.82rem; font-weight: 600; color: rgba(255,255,255,0.9); }
 .txn-pkg-type { font-size: 0.75rem; color: rgba(255,255,255,0.4); }
 .txn-customer-name { font-size: 0.82rem; font-weight: 600; color: rgba(255,255,255,0.9); }
+.badge-guest-count { background: rgba(124,58,237,0.22); color: #c084fc; border: 1px solid rgba(124,58,237,0.38); font-size: 0.72rem; font-weight: 700; padding: 1px 6px; border-radius: 4px; margin-left: 4px; display: inline-block; vertical-align: middle; }
 .txn-customer-email { font-size: 0.75rem; color: rgba(255,255,255,0.4); }
 .txn-amount { font-weight: 700; color: #fff; font-size: 0.9rem; }
 .txn-commission { font-weight: 600; color: rgba(255,255,255,0.75); font-size: 0.85rem; }
@@ -256,11 +257,26 @@
     color: #ffffff !important;
 }
 .polaris-popover-body {
-    max-height: 220px;
+    max-height: 340px;
     overflow-y: auto;
     display: flex;
     flex-direction: column;
-    gap: 6px;
+    gap: 4px;
+    padding-right: 4px;
+}
+.polaris-popover-body::-webkit-scrollbar {
+    width: 6px;
+}
+.polaris-popover-body::-webkit-scrollbar-track {
+    background: rgba(15, 23, 42, 0.6);
+    border-radius: 4px;
+}
+.polaris-popover-body::-webkit-scrollbar-thumb {
+    background: rgba(255, 255, 255, 0.25);
+    border-radius: 4px;
+}
+.polaris-popover-body::-webkit-scrollbar-thumb:hover {
+    background: rgba(255, 255, 255, 0.4);
 }
 .polaris-checkbox-label {
     display: flex;
@@ -1116,7 +1132,7 @@ body.modal-open .admin-mobile-menu-toggle {
                     <button class="polaris-filter-pill-btn dropdown-toggle" type="button" data-bs-toggle="dropdown" data-bs-auto-close="outside" id="pillVenueBtn">
                         <i class="fas fa-store"></i> Venue <span class="polaris-filter-pill-count d-none" id="countVenue">0</span>
                     </button>
-                    <div class="dropdown-menu polaris-popover-menu">
+                    <div class="dropdown-menu polaris-popover-menu" style="min-width: 250px !important;">
                         <div class="polaris-popover-header">
                             <span class="polaris-popover-title me-3">Filter by Venue</span>
                             <div>
@@ -1124,11 +1140,14 @@ body.modal-open .admin-mobile-menu-toggle {
                                 <a href="javascript:void(0)" class="polaris-popover-action" onclick="polarisToggleSelectAll('venue', false)">Clear</a>
                             </div>
                         </div>
-                        <div class="polaris-popover-body">
+                        <div class="mb-2">
+                            <input type="text" class="form-control form-control-sm bg-dark text-white border-secondary" placeholder="Search venues..." onkeyup="filterVenueDropdownList(this.value)" style="font-size: 0.78rem; padding: 4px 8px; border-radius: 6px;">
+                        </div>
+                        <div class="polaris-popover-body" id="venuePopoverBody">
                             @foreach($accessibleSitesList as $site)
-                            <label class="polaris-checkbox-label">
+                            <label class="polaris-checkbox-label venue-item-label">
                                 <input type="checkbox" class="polaris-filter-cb" data-category="venue" value="{{ $site->name }}" {{ $filterWebsite === $site->name ? 'checked' : '' }}>
-                                <span>{{ $site->name }}</span>
+                                <span class="venue-item-name">{{ $site->name }}</span>
                             </label>
                             @endforeach
                         </div>
@@ -1650,8 +1669,28 @@ body.modal-open .admin-mobile-menu-toggle {
                             <td>
                                 @php
                                     $customerPhone = trim((string) ($item->package_phone ?: $item->payment_phone ?: ''));
+                                    $resMen = (int) ($item->package_men ?? 0);
+                                    $resWomen = (int) ($item->package_women ?? 0);
+                                    $resGuests = $resMen + $resWomen;
+                                    $pkgGuests = (int) ($item->package_number_of_guest ?? 0);
+
+                                    $cartGuests = 0;
+                                    if (is_array($cartItems)) {
+                                        foreach ($cartItems as $ci) {
+                                            if (is_array($ci)) {
+                                                $cartGuests += max(1, (int) ($ci['guests'] ?? $ci['quantity'] ?? 1));
+                                            }
+                                        }
+                                    }
+
+                                    $totalGuestsCount = $resGuests > 0 ? $resGuests : ($pkgGuests > 0 ? $pkgGuests : $cartGuests);
                                 @endphp
-                                <div class="txn-customer-name">{{ $item->package_first_name }} {{ $item->package_last_name }}</div>
+                                <div class="txn-customer-name">
+                                    {{ $item->package_first_name }} {{ $item->package_last_name }}
+                                    @if($totalGuestsCount > 1)
+                                        <span class="badge-guest-count">x{{ $totalGuestsCount }}</span>
+                                    @endif
+                                </div>
                                 <div class="txn-customer-email">{{ $item->package_email }}</div>
                                 @if($customerPhone !== '')
                                     <div class="txn-customer-phone" style="font-size:0.75rem;color:rgba(255,255,255,0.6);margin-top:2px;">
@@ -5762,6 +5801,18 @@ body.modal-open .admin-mobile-menu-toggle {
 
                     setTimeout(updatePolarisScrollArrows, 350);
                 }
+            window.filterVenueDropdownList = function(query) {
+                var q = (query || '').toLowerCase().trim();
+                var labels = document.querySelectorAll('#venuePopoverBody .venue-item-label');
+                labels.forEach(function(label) {
+                    var text = (label.textContent || '').toLowerCase();
+                    if (!q || text.indexOf(q) !== -1) {
+                        label.style.display = 'flex';
+                    } else {
+                        label.style.display = 'none';
+                    }
+                });
+            };
             })();
             </script>
 @endpush

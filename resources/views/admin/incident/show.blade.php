@@ -1,7 +1,6 @@
 @extends('admin.main')
 
 @section('content')
-<link rel="stylesheet" href="{{ asset('user/extra.css') }}">
 
 <div class="content-wrapper">
     <div class="container-xxl flex-grow-1 container-p-y">

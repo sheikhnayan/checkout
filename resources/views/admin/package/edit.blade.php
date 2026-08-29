@@ -255,8 +255,8 @@ label{
 
                                                 <div class="col-md-6">
                                                     <div class="mb-3">
-                                                        <label for="name" class="form-label">Price <i class="fas fa-circle-info ms-1 field-tip" data-bs-toggle="tooltip" data-bs-placement="top" title="The base price of this package. When 'Charge per Quantity' is on, this is multiplied by guest count."></i></label>
-                                                        <input type="text" name="price" class="form-control" id="name" value="{{ $data->price }}" placeholder="Enter Price" required>
+                                                        <label for="price" class="form-label">Price <i class="fas fa-circle-info ms-1 field-tip" data-bs-toggle="tooltip" data-bs-placement="top" title="The base price of this package. When 'Charge per Quantity' is on, this is multiplied by guest count."></i></label>
+                                                        <input type="text" name="price" class="form-control" id="price" value="{{ $data->price }}" placeholder="Enter Price" required>
                                                     </div>
                                                 </div>
 

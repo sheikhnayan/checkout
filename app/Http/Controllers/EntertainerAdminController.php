@@ -114,6 +114,7 @@ class EntertainerAdminController extends Controller
 
         request()->validate([
             'default_commission_percentage' => 'required|numeric|min:0|max:100',
+            'commission_hold_days' => 'nullable|integer|min:0|max:365',
         ]);
 
         $entertainer->status = 'approved';
@@ -124,6 +125,9 @@ class EntertainerAdminController extends Controller
         $entertainer->rejected_by = null;
         $entertainer->rejection_reason = null;
         $entertainer->default_commission_percentage = request('default_commission_percentage');
+        $entertainer->commission_hold_days = request()->input('commission_hold_days') !== '' && request()->input('commission_hold_days') !== null
+            ? (int) request()->input('commission_hold_days')
+            : null;
 
         if (empty($entertainer->slug)) {
             $entertainer->slug = Entertainer::generateUniqueSlug($entertainer->display_name ?: $entertainer->user->name);
@@ -179,12 +183,16 @@ class EntertainerAdminController extends Controller
 
         $request->validate([
             'default_commission_percentage' => 'required|numeric|min:0|max:100',
+            'commission_hold_days' => 'nullable|integer|min:0|max:365',
         ]);
 
         $entertainer->default_commission_percentage = $request->default_commission_percentage;
+        $entertainer->commission_hold_days = $request->input('commission_hold_days') !== '' && $request->input('commission_hold_days') !== null
+            ? (int) $request->input('commission_hold_days')
+            : null;
         $entertainer->save();
 
-        return redirect()->back()->with('success', 'Entertainer commission updated successfully.');
+        return redirect()->back()->with('success', 'Entertainer commission and custom hold period updated successfully.');
     }
 
     public function reject(Request $request, Entertainer $entertainer)

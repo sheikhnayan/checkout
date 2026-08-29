@@ -106,7 +106,7 @@
                                                     @elseif($invoice->status === 'sent')
                                                         <span class="badge bg-primary">Sent</span>
                                                         @if($invoice->sent_at)
-                                                            <div style="font-size: 11px; color: #6c757d; margin-top: 4px;">{{ $invoice->sent_at->timezone('America/Los_Angeles')->format('M d, Y h:i A') }} PT</div>
+                                                            <div style="font-size: 11px; color: rgba(255,255,255,0.6); margin-top: 4px;">{{ $invoice->sent_at->timezone('America/Los_Angeles')->format('M d, Y h:i A') }} PT</div>
                                                         @endif
                                                     @elseif($invoice->status === 'paid')
                                                         <span class="badge bg-success">Paid</span>

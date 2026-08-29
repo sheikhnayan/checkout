@@ -62,6 +62,7 @@
             <p class="mb-1"><strong>Legal Name:</strong> {{ $affiliate->w9Form?->full_name ?? 'Not provided' }}</p>
             <p class="mb-1"><strong>Status:</strong> {{ ucfirst($affiliate->status) }}</p>
             <p class="mb-1"><strong>Default Commission:</strong> {{ number_format((float) ($affiliate->default_commission_percentage ?? 0), 2) }}%</p>
+            <p class="mb-1"><strong>Commission Hold Period:</strong> {{ $affiliate->commission_hold_days !== null ? $affiliate->commission_hold_days . ' days (Custom Override)' : 'Club Universal Default' }}</p>
             <p class="mb-3"><strong>Public Page:</strong>
                 @if($affiliate->slug)
                     <a href="{{ route('affiliate.public', $affiliate->slug) }}" target="_blank">{{ route('affiliate.public', $affiliate->slug) }}</a>
@@ -71,23 +72,35 @@
             </p>
 
             @if($affiliate->status !== 'approved')
-                <form method="POST" action="{{ route('admin.affiliate.approve', $affiliate->id) }}" class="d-flex gap-2 align-items-end mb-3">
+                <form method="POST" action="{{ route('admin.affiliate.approve', $affiliate->id) }}" class="row g-2 align-items-end mb-3">
                     @csrf
-                    <div>
+                    <div class="col-md-5">
                         <label class="form-label">Default Commission % <i class="fas fa-circle-info ms-1 field-tip" data-bs-toggle="tooltip" data-bs-placement="top" title="The commission percentage this affiliate earns from referred bookings. Set when approving."></i></label>
                         <input type="number" min="0" max="100" step="0.01" name="default_commission_percentage" class="form-control" value="{{ old('default_commission_percentage', $affiliate->default_commission_percentage) }}" required>
                     </div>
-                    <button type="submit" class="btn btn-success">Approve</button>
+                    <div class="col-md-5">
+                        <label class="form-label">Custom Hold Days <i class="fas fa-circle-info ms-1 field-tip" data-bs-toggle="tooltip" data-bs-placement="top" title="Custom hold period in days before funds release. Leave blank for club default."></i></label>
+                        <input type="number" min="0" max="365" name="commission_hold_days" class="form-control" value="{{ old('commission_hold_days', $affiliate->commission_hold_days) }}" placeholder="Club Default">
+                    </div>
+                    <div class="col-md-2">
+                        <button type="submit" class="btn btn-success w-100">Approve</button>
+                    </div>
                 </form>
             @endif
 
-            <form method="POST" action="{{ route('admin.affiliate.commission.update', $affiliate->id) }}" class="d-flex gap-2 align-items-end mb-3">
+            <form method="POST" action="{{ route('admin.affiliate.commission.update', $affiliate->id) }}" class="row g-2 align-items-end mb-3">
                 @csrf
-                <div>
+                <div class="col-md-5">
                     <label class="form-label">Change Commission (%) <i class="fas fa-circle-info ms-1 field-tip" data-bs-toggle="tooltip" data-bs-placement="top" title="Update the commission percentage this affiliate earns from referred bookings."></i></label>
                     <input type="number" min="0" max="100" step="0.01" name="default_commission_percentage" class="form-control" value="{{ old('default_commission_percentage', $affiliate->default_commission_percentage) }}" required>
                 </div>
-                <button type="submit" class="btn btn-outline-primary">Update Fee</button>
+                <div class="col-md-5">
+                    <label class="form-label">Custom Hold Days <i class="fas fa-circle-info ms-1 field-tip" data-bs-toggle="tooltip" data-bs-placement="top" title="Custom hold period in days before commission releases to promoter. Leave blank to use club universal default."></i></label>
+                    <input type="number" min="0" max="365" name="commission_hold_days" class="form-control" value="{{ old('commission_hold_days', $affiliate->commission_hold_days) }}" placeholder="Club Default">
+                </div>
+                <div class="col-md-2">
+                    <button type="submit" class="btn btn-outline-primary w-100">Update</button>
+                </div>
             </form>
 
             @if($affiliate->status === 'approved')

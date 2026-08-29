@@ -3288,7 +3288,7 @@ class TransactionController extends Controller
         $transaction->affiliate_commission_percentage = $commissionPercentage;
         $transaction->affiliate_commission_amount = $commissionAmount;
         $transaction->affiliate_commission_status = Transaction::COMMISSION_STATUS_PENDING;
-        $transaction->affiliate_commission_hold_until = $this->commissionHoldUntil($transaction);
+        $transaction->affiliate_commission_hold_until = $this->commissionHoldUntil($transaction, $affiliate);
         $transaction->affiliate_commission_approved_at = null;
         $transaction->affiliate_commission_reversed_at = null;
         $transaction->affiliate_source = $affiliate->slug;
@@ -3366,7 +3366,7 @@ class TransactionController extends Controller
         $transaction->entertainer_commission_percentage = $commissionPercentage;
         $transaction->entertainer_commission_amount = $commissionAmount;
         $transaction->entertainer_commission_status = Transaction::COMMISSION_STATUS_PENDING;
-        $transaction->entertainer_commission_hold_until = $this->commissionHoldUntil($transaction);
+        $transaction->entertainer_commission_hold_until = $this->commissionHoldUntil($transaction, null, $entertainer);
         $transaction->entertainer_commission_approved_at = null;
         $transaction->entertainer_commission_reversed_at = null;
         $transaction->entertainer_source = $entertainer->slug;
@@ -3638,8 +3638,27 @@ class TransactionController extends Controller
         $transaction->save();
     }
 
-    private function commissionHoldUntil(Transaction $transaction): Carbon
+    private function commissionHoldUntil(Transaction $transaction, ?Affiliate $affiliate = null, ?Entertainer $entertainer = null): Carbon
     {
+        // 1. Check custom hold period for Affiliate / Promoter
+        $aff = $affiliate ?: ($transaction->affiliate_id ? ($transaction->affiliate ?: Affiliate::find($transaction->affiliate_id)) : null);
+        if ($aff) {
+            if ($aff->commission_hold_days !== null) {
+                return now()->addDays(max((int) $aff->commission_hold_days, 0));
+            }
+            // Fallback to parent affiliate's custom hold period if sub-promoter
+            if ($aff->isSubAffiliate() && $aff->parent && $aff->parent->commission_hold_days !== null) {
+                return now()->addDays(max((int) $aff->parent->commission_hold_days, 0));
+            }
+        }
+
+        // 2. Check custom hold period for Entertainer
+        $ent = $entertainer ?: ($transaction->entertainer_id ? ($transaction->entertainer ?: Entertainer::find($transaction->entertainer_id)) : null);
+        if ($ent && isset($ent->commission_hold_days) && $ent->commission_hold_days !== null) {
+            return now()->addDays(max((int) $ent->commission_hold_days, 0));
+        }
+
+        // 3. Fallback to Website universal hold period (Stripe / Authorize.net)
         $website = $transaction->website ?: Website::find($transaction->website_id);
         $isAuthorize = $website && (string) $website->payment_method === 'authorize';
 
