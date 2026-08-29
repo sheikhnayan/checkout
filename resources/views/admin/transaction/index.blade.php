@@ -1856,17 +1856,38 @@ body.modal-open .admin-mobile-menu-toggle {
                 });
                 window.table = table;
 
+                window.setStatValueByLabel = function(label, value) {
+                    $('.txn-stat-card').each(function() {
+                        const text = $(this).find('.txn-stat-label').text().trim().toLowerCase();
+                        if (text === label.trim().toLowerCase()) {
+                            $(this).find('.txn-stat-value').text(value);
+                        }
+                    });
+                };
+
                 table.on('xhr.dt', function(e, settings, json, xhr) {
                     if (json && json.stats) {
-                        setStatValueByLabel('Total Sales', json.stats.totalTxns);
+                        setStatValueByLabel('Total Transactions', Number(json.stats.totalTxns).toLocaleString());
+                        setStatValueByLabel('Total Sales', Number(json.stats.totalTxns).toLocaleString());
                         setStatValueByLabel('Total Revenue', '$' + json.stats.totalRevenue);
+                        setStatValueByLabel('Pending Fee', '$' + json.stats.pendingCommission);
                         setStatValueByLabel('Pending Commission', '$' + json.stats.pendingCommission);
-                        setStatValueByLabel('Total Guests', json.stats.totalGuests);
+                        setStatValueByLabel('Total Guests', Number(json.stats.totalGuests).toLocaleString());
+                        setStatValueByLabel('Pending Amount', '$' + json.stats.pendingPayoutAmount);
                         setStatValueByLabel('Pending Payout', '$' + json.stats.pendingPayoutAmount);
                         setStatValueByLabel('Payout Amount', '$' + json.stats.payoutAmount);
+                        setStatValueByLabel('Total Earning', '$' + json.stats.totalEarning);
                         setStatValueByLabel('Total Earnings', '$' + json.stats.totalEarning);
                         setStatValueByLabel('Available Now', '$' + json.stats.availableNow);
                         setStatValueByLabel('Lifetime Earned', '$' + json.stats.lifetimeEarned);
+                    }
+                    if (json && json.charts && json.charts.chartDays && window.lineChartInstance) {
+                        const chartDays = json.charts.chartDays;
+                        const labels = chartDays.map(d => d.label);
+                        const revenues = chartDays.map(d => d.revenue);
+                        window.lineChartInstance.data.labels = labels;
+                        window.lineChartInstance.data.datasets[0].data = revenues;
+                        window.lineChartInstance.update();
                     }
                 });
 

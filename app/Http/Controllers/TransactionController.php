@@ -1529,6 +1529,7 @@ class TransactionController extends Controller
         }
 
         $stats = $this->calculateFilteredStats($filteredQuery);
+        $charts = $this->calculateChartData($filteredQuery);
 
         return response()->json([
             'draw' => (int) $request->input('draw', 1),
@@ -1536,6 +1537,7 @@ class TransactionController extends Controller
             'recordsFiltered' => $recordsFiltered,
             'data' => $data,
             'stats' => $stats,
+            'charts' => $charts,
         ]);
     }
 
@@ -1936,6 +1938,39 @@ class TransactionController extends Controller
             'totalEarning' => number_format($totalEarning, 2),
             'availableNow' => number_format($availableNow, 2),
             'lifetimeEarned' => number_format($lifetimeEarned, 2),
+        ];
+    }
+
+    private function calculateChartData($filteredQuery)
+    {
+        $now = Carbon::now('America/Los_Angeles');
+
+        $reportableQuery = (clone $filteredQuery)->where('status', 1);
+
+        $thirtyDaysAgo = $now->copy()->subDays(29)->startOfDay()->utc();
+
+        $dailyStats = (clone $reportableQuery)
+            ->where('created_at', '>=', $thirtyDaysAgo)
+            ->selectRaw("DATE(CONVERT_TZ(created_at, '+00:00', '-07:00')) as date_str, SUM(total) as daily_revenue, COUNT(*) as daily_completed")
+            ->groupBy('date_str')
+            ->get()
+            ->keyBy('date_str');
+
+        $chartDays = [];
+        for ($i = 29; $i >= 0; $i--) {
+            $dt = $now->copy()->subDays($i);
+            $dateStr = $dt->format('Y-m-d');
+            $stat = $dailyStats->get($dateStr);
+
+            $chartDays[] = [
+                'label' => $dt->format('M d'),
+                'revenue' => (float) ($stat->daily_revenue ?? 0),
+                'completed' => (int) ($stat->daily_completed ?? 0),
+            ];
+        }
+
+        return [
+            'chartDays' => $chartDays,
         ];
     }
 
