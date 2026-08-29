@@ -1500,23 +1500,60 @@ class TransactionController extends Controller
             });
         }
 
-        $affiliateFilter = trim((string) $request->query('affiliate', ''));
-        if ($affiliateFilter !== '') {
-            if (strcasecmp($affiliateFilter, 'Direct') === 0) {
-                $query->whereNull('affiliate_id')->whereNull('entertainer_id');
-            } else {
-                $query->where(function ($nameQuery) use ($affiliateFilter) {
-                    $nameQuery->whereHas('affiliate', function ($affiliateQuery) use ($affiliateFilter) {
-                        $affiliateQuery->where('display_name', $affiliateFilter)
-                            ->orWhereHas('user', function ($userQuery) use ($affiliateFilter) {
-                                $userQuery->where('name', $affiliateFilter);
+        $affiliateFilter = $request->query('affiliate');
+        if (!empty($affiliateFilter)) {
+            $rawFilters = is_array($affiliateFilter) ? $affiliateFilter : explode(',', (string) $affiliateFilter);
+            $rawFilters = array_filter(array_map('trim', $rawFilters));
+
+            if (!empty($rawFilters)) {
+                $hasDirect = false;
+                $searchNames = [];
+
+                foreach ($rawFilters as $filterVal) {
+                    if (strcasecmp($filterVal, 'Direct') === 0) {
+                        $hasDirect = true;
+                    } else {
+                        $cleanVal = trim(preg_replace('/\s*\([^)]*\)/', '', $filterVal));
+                        if ($cleanVal !== '') {
+                            $searchNames[] = strtolower($cleanVal);
+                        }
+                        $searchNames[] = strtolower($filterVal);
+                    }
+                }
+
+                $searchNames = array_unique($searchNames);
+
+                $query->where(function ($q) use ($hasDirect, $searchNames) {
+                    if ($hasDirect) {
+                        $q->where(function ($directQ) {
+                            $directQ->whereNull('affiliate_id')->whereNull('entertainer_id');
+                        });
+                    }
+
+                    if (!empty($searchNames)) {
+                        $method = $hasDirect ? 'orWhere' : 'where';
+                        $q->$method(function ($nameQuery) use ($searchNames) {
+                            $nameQuery->whereHas('affiliate', function ($affiliateQuery) use ($searchNames) {
+                                $affiliateQuery->where(function ($subQ) use ($searchNames) {
+                                    foreach ($searchNames as $n) {
+                                        $subQ->orWhereRaw('LOWER(display_name) LIKE ?', ["%{$n}%"])
+                                             ->orWhereHas('user', function ($uQ) use ($n) {
+                                                 $uQ->whereRaw('LOWER(name) LIKE ?', ["%{$n}%"]);
+                                             });
+                                    }
+                                });
+                            })->orWhereHas('entertainer', function ($entertainerQuery) use ($searchNames) {
+                                $entertainerQuery->where(function ($subQ) use ($searchNames) {
+                                    foreach ($searchNames as $n) {
+                                        $subQ->orWhereRaw('LOWER(display_name) LIKE ?', ["%{$n}%"])
+                                             ->orWhereHas('user', function ($uQ) use ($n) {
+                                                 $uQ->whereRaw('LOWER(name) LIKE ?', ["%{$n}%"]);
+                                             });
+                                    }
+                                });
                             });
-                    })->orWhereHas('entertainer', function ($entertainerQuery) use ($affiliateFilter) {
-                        $entertainerQuery->where('display_name', $affiliateFilter)
-                            ->orWhereHas('user', function ($userQuery) use ($affiliateFilter) {
-                                $userQuery->where('name', $affiliateFilter);
-                            });
-                    });
+                        });
+                    }
                 });
             }
         }
