@@ -1013,7 +1013,7 @@
   @endif
   @endif
 
-  @if(($authUser && $canAccessRoute('admin.feed-model.index')) || ($authUser && $canAccessRoute('admin.feed-post.index')) || (auth()->check() && auth()->user()->isAdmin()) || ($authUser && $canAccessRoute('admin.entertainer.index')) || ($authUser && $canAccessRoute('admin.affiliate.index')) || ($canAccessCustomInvoice && !$isAdminOrManagerUser))
+  @if(($authUser && $canAccessRoute('admin.feed-model.index')) || ($authUser && $canAccessRoute('admin.feed-post.index')) || (auth()->check() && auth()->user()->isAdmin()) || ($authUser && $canAccessRoute('admin.entertainer.index')) || ($authUser && $canAccessRoute('admin.affiliate.index')))
   <li class="menu-header small text-uppercase">
     <span class="menu-header-text">Promoters, Entertainers & Feed</span>
   </li>
@@ -1054,15 +1054,6 @@
     <a href="{{ route('admin.staff.index') }}" class="menu-link">
       <i class="menu-icon tf-icons bx bx-id-card"></i>
       <div class="text-truncate">Current Staff</div>
-    </a>
-  </li>
-  @endif
-
-  @if($canAccessCustomInvoice && !$isAdminOrManagerUser)
-  <li class="menu-item {{ request()->is('admins/custom-invoice*') ? 'active' : '' }}">
-    <a href="{{ route('admin.custom-invoice.index') }}" class="menu-link">
-      <i class="menu-icon tf-icons bx bx-file"></i>
-      <div class="text-truncate">Custom Invoices</div>
     </a>
   </li>
   @endif
@@ -1139,6 +1130,15 @@
   <li class="menu-header small text-uppercase">
     <span class="menu-header-text">Users</span>
   </li>
+
+  @if($canAccessCustomInvoice && !$isAdminOrManagerUser)
+  <li class="menu-item {{ request()->is('admins/custom-invoice*') ? 'active' : '' }}">
+    <a href="{{ route('admin.custom-invoice.index') }}" class="menu-link">
+      <i class="menu-icon tf-icons bx bx-file"></i>
+      <div class="text-truncate">Custom Invoices</div>
+    </a>
+  </li>
+  @endif
 
   @if((auth()->check() && auth()->user()->isAdmin()) || ($authUser && $canAccessRoute('admin.withdraw.entertainers')))
   <li class="menu-header small text-uppercase">
