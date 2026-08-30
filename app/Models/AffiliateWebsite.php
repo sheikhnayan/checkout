@@ -10,11 +10,13 @@ class AffiliateWebsite extends Model
         'affiliate_id',
         'website_id',
         'is_active',
+        'allow_custom_invoice',
         'commission_percentage',
     ];
 
     protected $casts = [
         'is_active' => 'boolean',
+        'allow_custom_invoice' => 'boolean',
         'commission_percentage' => 'decimal:2',
     ];
 

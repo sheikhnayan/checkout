@@ -194,6 +194,12 @@ class User extends Authenticatable
             return true;
         }
 
+        if (str_starts_with($routeName, 'admin.custom-invoice.')) {
+            if (!empty($this->accessibleCustomInvoiceWebsiteIds())) {
+                return true;
+            }
+        }
+
         if (!$this->isWebsiteUser() && !$this->isBouncer() && !$this->isManager()) {
             return false;
         }
@@ -277,5 +283,60 @@ class User extends Authenticatable
         }
 
         return collect();
+    }
+
+    /**
+     * Return website IDs where this user is allowed to create custom invoices.
+     * Admin -> all websites.
+     * Manager/Website User -> allocated websites if they have custom invoice route permission.
+     * Affiliate (Promoter/Sub-promoter) -> websites enabled in affiliate_websites (allow_custom_invoice = true).
+     * Entertainer -> assigned website if allow_custom_invoice = true on entertainer record.
+     */
+    public function accessibleCustomInvoiceWebsiteIds(): array
+    {
+        if ($this->isAdmin()) {
+            return Website::pluck('id')->map(fn ($id) => (int) $id)->all();
+        }
+
+        $ids = [];
+
+        // Managers / Website Admins / Website Users with role permissions
+        if ($this->isManager() || $this->isWebsiteUser() || $this->isBouncer()) {
+            if ($this->isWebsiteAdmin() || $this->hasRoutePermission('admin.custom-invoice.index') || $this->hasRoutePermission('admin.custom-invoice.create')) {
+                $ids = array_merge($ids, $this->accessibleWebsiteIds());
+            }
+        }
+
+        // Affiliates (Promoters / Sub-promoters)
+        if ($this->isAffiliate() && $this->affiliate) {
+            $affWebIds = \App\Models\AffiliateWebsite::where('affiliate_id', $this->affiliate->id)
+                ->where('is_active', true)
+                ->where('allow_custom_invoice', true)
+                ->pluck('website_id')
+                ->map(fn ($id) => (int) $id)
+                ->all();
+            $ids = array_merge($ids, $affWebIds);
+        }
+
+        // Entertainers
+        if ($this->isEntertainer() && $this->entertainer) {
+            if ($this->entertainer->is_active && $this->entertainer->allow_custom_invoice && $this->entertainer->website_id) {
+                $ids[] = (int) $this->entertainer->website_id;
+            }
+        }
+
+        return array_values(array_unique($ids));
+    }
+
+    /**
+     * Check if user can create custom invoice on a specific website.
+     */
+    public function canCreateCustomInvoiceOnWebsite(?int $websiteId): bool
+    {
+        if ($websiteId === null) {
+            return false;
+        }
+
+        return in_array((int) $websiteId, $this->accessibleCustomInvoiceWebsiteIds(), true);
     }
 }

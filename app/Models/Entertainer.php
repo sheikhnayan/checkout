@@ -36,12 +36,14 @@ class Entertainer extends Model
         'rejected_by',
         'rejection_reason',
         'is_active',
+        'allow_custom_invoice',
     ];
 
     protected $casts = [
         'approved_at' => 'datetime',
         'rejected_at' => 'datetime',
         'is_active' => 'boolean',
+        'allow_custom_invoice' => 'boolean',
         'default_commission_percentage' => 'decimal:2',
         'commission_hold_days' => 'integer',
         'wallet_balance' => 'decimal:2',

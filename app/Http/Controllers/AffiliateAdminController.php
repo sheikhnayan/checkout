@@ -258,10 +258,12 @@ class AffiliateAdminController extends Controller
             'website_ids.*' => 'integer|exists:websites,id',
             'club_commissions' => 'nullable|array',
             'club_commissions.*' => 'nullable|numeric|min:0|max:100',
+            'allow_custom_invoices' => 'nullable|array',
         ]);
 
         $websiteIds = collect($request->input('website_ids', []))->map(fn ($id) => (int) $id)->unique()->values();
         $clubCommissions = $request->input('club_commissions', []);
+        $allowCustomInvoices = $request->input('allow_custom_invoices', []);
 
         AffiliateWebsite::where('affiliate_id', $affiliate->id)
             ->whereNotIn('website_id', $websiteIds->all())
@@ -276,6 +278,7 @@ class AffiliateAdminController extends Controller
             $commission = isset($clubCommissions[$websiteId]) && $clubCommissions[$websiteId] !== '' && $clubCommissions[$websiteId] !== null
                 ? (float) $clubCommissions[$websiteId]
                 : null;
+            $allowInvoice = !empty($allowCustomInvoices[$websiteId]);
 
             AffiliateWebsite::updateOrCreate(
                 [
@@ -285,6 +288,7 @@ class AffiliateAdminController extends Controller
                 [
                     'is_active' => true,
                     'commission_percentage' => $commission,
+                    'allow_custom_invoice' => $allowInvoice,
                 ]
             );
 

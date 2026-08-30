@@ -85,18 +85,24 @@
                 </form>
             @endif
 
-            <form method="POST" action="{{ route('admin.entertainer.commission.update', $entertainer->id) }}" class="row g-2 align-items-end mb-3">
+            <form method="POST" action="{{ route('admin.entertainer.commission.update', $entertainer->id) }}" class="row g-3 align-items-end mb-3">
                 @csrf
-                <div class="col-md-5">
+                <div class="col-md-4">
                     <label class="form-label">Change Commission (%) <i class="fas fa-circle-info ms-1 field-tip" data-bs-toggle="tooltip" data-bs-placement="top" title="Update the commission percentage this entertainer earns from referred bookings."></i></label>
                     <input type="number" min="0" max="100" step="0.01" name="default_commission_percentage" class="form-control" value="{{ old('default_commission_percentage', $entertainer->default_commission_percentage ?? 10) }}" required>
                 </div>
-                <div class="col-md-5">
+                <div class="col-md-4">
                     <label class="form-label">Custom Hold Days <i class="fas fa-circle-info ms-1 field-tip" data-bs-toggle="tooltip" data-bs-placement="top" title="Custom hold period in days before commission releases to entertainer. Leave blank for club default."></i></label>
                     <input type="number" min="0" max="365" name="commission_hold_days" class="form-control" value="{{ old('commission_hold_days', $entertainer->commission_hold_days) }}" placeholder="Club Default">
                 </div>
-                <div class="col-md-2">
-                    <button type="submit" class="btn btn-outline-primary w-100">Update</button>
+                <div class="col-md-4">
+                    <div class="form-check form-switch mb-2">
+                        <input class="form-check-input" type="checkbox" name="allow_custom_invoice" value="1" id="allow_entertainer_invoice" {{ $entertainer->allow_custom_invoice ? 'checked' : '' }}>
+                        <label class="form-check-label fw-semibold text-info cursor-pointer" for="allow_entertainer_invoice">
+                            <i class="bx bx-receipt me-1"></i> Allow Custom Invoice Creation
+                        </label>
+                    </div>
+                    <button type="submit" class="btn btn-outline-primary w-100">Update Settings</button>
                 </div>
             </form>
 

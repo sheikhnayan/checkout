@@ -169,10 +169,18 @@
                                 </label>
                             </div>
                             <div class="col-md-6">
-                                <div class="input-group input-group-sm">
-                                    <span class="input-group-text bg-dark text-white border-secondary fs-8">Club Commission</span>
-                                    <input type="number" min="0" max="100" step="0.01" name="club_commissions[{{ $website->id }}]" class="form-control bg-dark text-white border-secondary" value="{{ old('club_commissions.' . $website->id, $clubCommValue) }}" placeholder="Default ({{ number_format((float) ($affiliate->default_commission_percentage ?? 0), 2) }}%)">
-                                    <span class="input-group-text bg-dark text-white border-secondary">%</span>
+                                <div class="d-flex flex-column gap-2">
+                                    <div class="input-group input-group-sm">
+                                        <span class="input-group-text bg-dark text-white border-secondary fs-8">Club Commission</span>
+                                        <input type="number" min="0" max="100" step="0.01" name="club_commissions[{{ $website->id }}]" class="form-control bg-dark text-white border-secondary" value="{{ old('club_commissions.' . $website->id, $clubCommValue) }}" placeholder="Default ({{ number_format((float) ($affiliate->default_commission_percentage ?? 0), 2) }}%)">
+                                        <span class="input-group-text bg-dark text-white border-secondary">%</span>
+                                    </div>
+                                    <div class="form-check form-switch form-check-sm mb-0 ms-1">
+                                        <input class="form-check-input" type="checkbox" name="allow_custom_invoices[{{ $website->id }}]" value="1" id="allow_invoice_{{ $website->id }}" {{ $affWeb && $affWeb->allow_custom_invoice ? 'checked' : '' }}>
+                                        <label class="form-check-label fs-7 fw-semibold text-info cursor-pointer" for="allow_invoice_{{ $website->id }}">
+                                            <i class="bx bx-receipt me-1"></i> Allow Custom Invoice Creation
+                                        </label>
+                                    </div>
                                 </div>
                             </div>
                         </div>
