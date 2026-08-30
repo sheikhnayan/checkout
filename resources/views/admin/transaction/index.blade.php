@@ -67,23 +67,193 @@
 }
 /* Stat Cards */
 .txn-stat-card {
-    background: linear-gradient(145deg, rgba(255,255,255,0.05), rgba(255,255,255,0.02));
-    border: 1px solid rgba(255,255,255,0.08); border-radius: 16px;
-    padding: 20px; display: flex; align-items: center; gap: 16px;
-    transition: transform 0.2s, box-shadow 0.2s;
+    background: rgba(30, 41, 59, 0.75) !important;
+    border: 1px solid rgba(255, 255, 255, 0.1) !important;
+    border-top: 3px solid #7c3aed !important;
+    border-radius: 14px !important;
+    padding: 18px 20px !important;
+    display: flex !important;
+    align-items: center !important;
+    gap: 16px !important;
+    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.25) !important;
+    transition: transform 0.2s, box-shadow 0.2s !important;
 }
-.txn-stat-card:hover { transform: translateY(-2px); box-shadow: 0 8px 30px rgba(0,0,0,0.3); }
+.row-cols-md-3 .col:nth-child(2) .txn-stat-card {
+    border-top-color: #f59e0b !important;
+}
+.row-cols-md-3 .col:nth-child(3) .txn-stat-card,
+.row-cols-md-3 .col:nth-child(4) .txn-stat-card {
+    border-top-color: #38bdf8 !important;
+}
+.txn-stat-card:hover {
+    transform: translateY(-2px) !important;
+    box-shadow: 0 8px 30px rgba(0,0,0,0.4) !important;
+    border-color: rgba(124, 58, 237, 0.4) !important;
+}
 .txn-stat-icon {
-    width: 52px; height: 52px; border-radius: 14px; flex-shrink: 0;
-    display: flex; align-items: center; justify-content: center; font-size: 1.3rem;
+    width: 48px !important;
+    height: 48px !important;
+    border-radius: 12px !important;
+    flex-shrink: 0 !important;
+    display: flex !important;
+    align-items: center !important;
+    justify-content: center !important;
+    font-size: 1.25rem !important;
 }
-.txn-stat-label { font-size: 0.68rem; font-weight: 700; letter-spacing: 0.08em; color: rgba(255,255,255,0.45); text-transform: uppercase; margin-bottom: 4px; }
-.txn-stat-value { font-size: 1.7rem; font-weight: 800; color: #fff; line-height: 1.1; margin-bottom: 6px; }
+.txn-stat-label {
+    font-size: 0.72rem !important;
+    font-weight: 700 !important;
+    letter-spacing: 0.08em !important;
+    color: rgba(255, 255, 255, 0.55) !important;
+    text-transform: uppercase !important;
+    margin-bottom: 4px !important;
+}
+.txn-stat-value {
+    font-size: 1.6rem !important;
+    font-weight: 800 !important;
+    color: #ffffff !important;
+    line-height: 1.1 !important;
+    margin-bottom: 0 !important;
+}
 .txn-stat-trend { font-size: 0.75rem; font-weight: 600; }
 .txn-stat-trend span { color: rgba(255,255,255,0.4); font-weight: 400; }
 .txn-stat-note { font-size: 0.75rem; color: rgba(255,255,255,0.4); }
 .trend-up { color: #10b981; }
 .trend-down { color: #ef4444; }
+
+/* Polaris Filter Bar */
+.polaris-filter-bar {
+    display: flex !important;
+    flex-direction: row !important;
+    flex-wrap: wrap !important;
+    align-items: center !important;
+    gap: 8px 10px !important;
+    background: rgba(15, 23, 42, 0.65) !important;
+    border: 1px solid rgba(255, 255, 255, 0.1) !important;
+    border-radius: 12px !important;
+    padding: 10px 14px !important;
+    margin-bottom: 14px !important;
+    overflow: visible !important;
+    width: 100% !important;
+}
+.polaris-filter-bar .dropdown {
+    display: inline-block !important;
+    position: relative !important;
+    margin: 0 !important;
+    flex-shrink: 0 !important;
+}
+.polaris-filter-pill-btn {
+    background: rgba(255, 255, 255, 0.08) !important;
+    border: 1px solid rgba(255, 255, 255, 0.15) !important;
+    color: #e2e8f0 !important;
+    font-size: 0.82rem !important;
+    font-weight: 600 !important;
+    padding: 6px 14px !important;
+    border-radius: 8px !important;
+    display: inline-flex !important;
+    align-items: center !important;
+    gap: 6px !important;
+    cursor: pointer !important;
+    transition: all 0.2s ease !important;
+    user-select: none !important;
+    white-space: nowrap !important;
+}
+.polaris-filter-pill-btn:hover,
+.polaris-filter-pill-btn.active {
+    background: rgba(124, 58, 237, 0.3) !important;
+    border-color: #7c3aed !important;
+    color: #ffffff !important;
+}
+.polaris-filter-pill-count {
+    background: #7c3aed;
+    color: #fff;
+    font-size: 0.7rem;
+    font-weight: 700;
+    padding: 1px 6px;
+    border-radius: 999px;
+}
+.polaris-scroll-btn {
+    position: absolute;
+    top: 50%;
+    transform: translateY(-50%);
+    z-index: 1050;
+    width: 28px;
+    height: 28px;
+    border-radius: 50%;
+    background: #1e293b;
+    border: 1px solid rgba(255, 255, 255, 0.25);
+    color: #ffffff !important;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 0.72rem;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.6);
+    cursor: pointer;
+    transition: all 0.2s ease-in-out;
+}
+.polaris-scroll-btn:hover {
+    background: #7c3aed;
+    border-color: #a78bfa;
+    color: #ffffff !important;
+}
+.polaris-scroll-left {
+    left: 4px;
+}
+.polaris-scroll-right {
+    right: 4px;
+}
+.polaris-popover-menu {
+    background: #1e293b !important;
+    border: 1px solid rgba(255, 255, 255, 0.15) !important;
+    border-radius: 12px !important;
+    padding: 14px !important;
+    min-width: 250px !important;
+    max-width: 320px !important;
+    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.6) !important;
+    z-index: 1050 !important;
+    margin-top: 6px !important;
+}
+.polaris-popover-menu,
+.polaris-popover-menu label,
+.polaris-popover-menu span,
+.polaris-popover-menu p,
+.polaris-popover-menu div {
+    color: #ffffff !important;
+}
+.polaris-popover-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    gap: 12px;
+    padding-bottom: 8px;
+    margin-bottom: 8px;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+}
+.polaris-popover-title {
+    font-size: 0.78rem;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    color: #cbd5e1 !important;
+    margin-right: 12px;
+    white-space: nowrap;
+}
+.polaris-popover-action {
+    font-size: 0.72rem;
+    color: #a78bfa !important;
+    cursor: pointer;
+    text-decoration: none;
+    font-weight: 600;
+}
+.polaris-popover-action:hover {
+    color: #c4b5fd !important;
+    text-decoration: underline;
+}
+.polaris-popover-menu select,
+.polaris-popover-menu input {
+    color: #ffffff !important;
+    background: rgba(15, 23, 42, 0.9) !important;
+}
 /* Charts */
 .txn-chart-card {
     background: linear-gradient(145deg, rgba(255,255,255,0.05), rgba(255,255,255,0.02));
