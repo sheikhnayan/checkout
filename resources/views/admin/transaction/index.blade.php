@@ -1288,6 +1288,10 @@ body.modal-open .admin-mobile-menu-toggle {
                                 <input type="checkbox" class="polaris-filter-cb" data-category="type" value="Reservation" {{ $filterType === 'Reservation' ? 'checked' : '' }}>
                                 <span>Table Reservation</span>
                             </label>
+                            <label class="polaris-checkbox-label">
+                                <input type="checkbox" class="polaris-filter-cb" data-category="type" value="Custom Invoice" {{ $filterType === 'Custom Invoice' || $filterType === 'custom_invoice' ? 'checked' : '' }}>
+                                <span>Custom Invoice</span>
+                            </label>
                         </div>
                     </div>
                 </div>
@@ -1455,7 +1459,7 @@ body.modal-open .admin-mobile-menu-toggle {
                                     $affiliateName = $item->entertainer->display_name ?: optional($item->entertainer->user)->name ?: ('Entertainer #' . $item->entertainer_id);
 
                                 $commission  = (float)($item->affiliate_commission_amount ?? 0) + (float)($item->entertainer_commission_amount ?? 0);
-                                $packageName = $item->type === 'package' ? ($item->package_table_label ?: 'Package') : 'Reservation';
+                                $packageName = $item->type === 'package' ? ($item->package_table_label ?: 'Package') : ($item->type === 'custom_invoice' ? 'Custom Invoice' : 'Reservation');
                                 $venueName   = $item->website->name ?? ($item->event->name ?? 'N/A');
 
                                 $cartItems = is_array($item->cart_items ?? null) ? $item->cart_items : json_decode($item->cart_items ?? '[]', true);

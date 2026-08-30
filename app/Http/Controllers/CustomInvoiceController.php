@@ -457,8 +457,13 @@ class CustomInvoiceController extends Controller
             } else {
                 return $this->processAuthorizePayment($invoice, $website, $setting, $request, $paymentAmount, $paymentType);
             }
-        } catch (\Exception $e) {
-            return redirect()->back()->with('error', $e->getMessage());
+        } catch (\Throwable $e) {
+            Log::error('Custom invoice payment processing exception', [
+                'invoice_id' => $invoice->id,
+                'error' => $e->getMessage(),
+                'trace' => $e->getTraceAsString(),
+            ]);
+            return redirect()->back()->with('error', 'Payment processing failed: ' . $e->getMessage());
         }
     }
 
@@ -873,7 +878,7 @@ class CustomInvoiceController extends Controller
     private function sendCustomInvoicePaymentConfirmation($invoice, $transaction, $website, string $paymentType, Request $request): void
     {
         try {
-            $this->applyInvoiceSmtpConfig($invoice, auth()->user());
+            $this->applyInvoiceSmtpConfig($invoice, auth()->user() ?? $invoice->user);
 
             $clientMail = new CustomInvoicePaymentConfirmationMail(
                 $invoice,

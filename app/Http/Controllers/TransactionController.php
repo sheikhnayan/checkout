@@ -1471,7 +1471,7 @@ class TransactionController extends Controller
         }
 
         $type = strtolower(trim((string) $request->query('type', '')));
-        if ($type === 'package' || $type === 'reservation') {
+        if (in_array($type, ['package', 'reservation', 'custom_invoice'], true)) {
             $query->where('type', $type);
         }
 
