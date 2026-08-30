@@ -229,7 +229,7 @@ label{
                                                                 <input class="toggle-switch-input" type="checkbox" name="sandbox_mode" id="sandbox_mode" value="1" @checked(old('sandbox_mode', $data->sandbox_mode ?? true))>
                                                                 <span class="toggle-switch-slider"></span>
                                                             </label>
-                                                            <label class="form-check-label mb-0 cursor-pointer text-dark fw-semibold" for="sandbox_mode">
+                                                            <label class="form-check-label mb-0 cursor-pointer fw-semibold" for="sandbox_mode" style="color: #000000 !important;">
                                                                 Sandbox (test) mode. Uncheck to go live and process real payments.
                                                             </label>
                                                         </div>
