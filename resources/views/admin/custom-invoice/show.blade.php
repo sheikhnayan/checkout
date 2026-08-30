@@ -351,9 +351,16 @@ html body .custom-invoice-page-wrapper .btn-light i {
                                         </div>
 
                                         @if($customInvoice->notes)
-                                        <div class="alert" style="background: rgba(59,130,246,0.12); border: 1px solid rgba(59,130,246,0.25); color: #93c5fd; border-radius: 8px;">
-                                            <strong style="color: #60a5fa;">Notes:</strong><br>
+                                        <div class="alert mb-3" style="background: #eff6ff; border: 1px solid #bfdbfe; color: #1e40af; border-radius: 8px;">
+                                            <strong style="color: #1d4ed8;"><i class="fas fa-comment-alt me-1"></i> Customer Notes (Public - Shown on Invoice & Email):</strong><br>
                                             {{ $customInvoice->notes }}
+                                        </div>
+                                        @endif
+
+                                        @if($customInvoice->internal_notes)
+                                        <div class="alert mb-3" style="background: #fffbeb; border: 1px solid #fde68a; color: #92400e; border-radius: 8px;">
+                                            <strong style="color: #78350f;"><i class="fas fa-lock me-1"></i> Internal Notes (Private - Staff Only):</strong><br>
+                                            {{ $customInvoice->internal_notes }}
                                         </div>
                                         @endif
 

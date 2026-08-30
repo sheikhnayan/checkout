@@ -274,6 +274,12 @@
                     <label>Invoice Date</label>
                     <span>{{ $invoice->created_at->format('M d, Y') }}</span>
                 </div>
+                @if($invoice->notes)
+                <div class="detail-row">
+                    <label>Notes</label>
+                    <span>{{ $invoice->notes }}</span>
+                </div>
+                @endif
             </div>
 
             <div class="items-section">

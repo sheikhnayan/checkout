@@ -13,6 +13,7 @@ class CustomInvoice extends Model
         'client_name',
         'client_email',
         'notes',
+        'internal_notes',
         'subtotal',
         'gratuity',
         'gratuity_name',

@@ -97,6 +97,7 @@ class CustomInvoiceController extends Controller
             'client_name' => 'required|string|max:255',
             'client_email' => 'required|email|max:255',
             'notes' => 'nullable|string',
+            'internal_notes' => 'nullable|string',
             'items' => 'required|array|min:1',
             'items.*.name' => 'required|string|max:255',
             'items.*.price' => 'required|numeric|min:0.01',
@@ -112,6 +113,7 @@ class CustomInvoiceController extends Controller
         $invoice->client_name = $request->client_name;
         $invoice->client_email = $request->client_email;
         $invoice->notes = $request->notes;
+        $invoice->internal_notes = $request->internal_notes;
         $invoice->payment_token = CustomInvoice::generatePaymentToken();
         $invoice->save();
 
@@ -221,6 +223,7 @@ class CustomInvoiceController extends Controller
             'client_name' => 'required|string|max:255',
             'client_email' => 'required|email|max:255',
             'notes' => 'nullable|string',
+            'internal_notes' => 'nullable|string',
             'items' => 'required|array|min:1',
             'items.*.name' => 'required|string|max:255',
             'items.*.price' => 'required|numeric|min:0.01',
@@ -231,6 +234,7 @@ class CustomInvoiceController extends Controller
             'client_name' => $request->client_name,
             'client_email' => $request->client_email,
             'notes' => $request->notes,
+            'internal_notes' => $request->internal_notes,
             'website_id' => $request->website_id,
         ]);
 
@@ -838,6 +842,14 @@ class CustomInvoiceController extends Controller
                     }
                 }
             }
+        }
+
+        $noteContent = !empty($invoice->internal_notes) ? $invoice->internal_notes : $invoice->notes;
+        if (!empty($noteContent)) {
+            $transaction->package_note = $noteContent;
+            $transaction->admin_notes = $noteContent;
+            $transaction->admin_notes_by = auth()->user()->name ?? 'System (Custom Invoice)';
+            $transaction->admin_notes_at = now();
         }
 
         $transaction->save();

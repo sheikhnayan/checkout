@@ -379,10 +379,20 @@ html body .custom-invoice-page-wrapper .btn-light i {
                                                 </div>
                                             </div>
 
-                                            <!-- Notes -->
-                                            <div class="form-group mb-3">
-                                                <label for="notes" class="form-label">Notes (Optional) <i class="fas fa-circle-info ms-1 field-tip" data-bs-toggle="tooltip" data-bs-placement="top" title="Optional internal notes or a message for the client shown on the invoice."></i></label>
-                                                <textarea name="notes" id="notes" class="form-control" rows="3">{{ old('notes') }}</textarea>
+                                            <!-- Customer Notes & Internal Notes -->
+                                            <div class="row mb-3">
+                                                <div class="col-md-6">
+                                                    <div class="form-group mb-3">
+                                                        <label for="notes" class="form-label">Customer Notes (Public) <i class="fas fa-circle-info ms-1 field-tip" data-bs-toggle="tooltip" data-bs-placement="top" title="Message or notes shown to the client on their invoice and email."></i></label>
+                                                        <textarea name="notes" id="notes" class="form-control" rows="3" placeholder="Optional notes for customer to see...">{{ old('notes') }}</textarea>
+                                                    </div>
+                                                </div>
+                                                <div class="col-md-6">
+                                                    <div class="form-group mb-3">
+                                                        <label for="internal_notes" class="form-label">Internal Notes (Private - Staff Only) <i class="fas fa-circle-info ms-1 field-tip" data-bs-toggle="tooltip" data-bs-placement="top" title="Private internal notes for staff reference. Transferred to transaction notes upon payment. NOT visible to customer."></i></label>
+                                                        <textarea name="internal_notes" id="internal_notes" class="form-control" rows="3" style="background-color: #fffbeb; border-color: #fcd34d;" placeholder="Private staff notes (not visible to customer)...">{{ old('internal_notes') }}</textarea>
+                                                    </div>
+                                                </div>
                                             </div>
 
                                             <!-- Line Items -->
