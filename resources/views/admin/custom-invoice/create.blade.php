@@ -6,14 +6,16 @@
 <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
 
 <style>
-/* Executive Light Professional Workspace Theme Overlay */
+/* Executive Light Professional Workspace - Zero Dark Backgrounds & Crisp Solid Black Fonts */
 html body .custom-invoice-page-wrapper,
-html body .custom-invoice-page-wrapper .content-wrapper,
-html body .custom-invoice-page-wrapper .app-main__inner,
+html body .content-wrapper,
+html body .app-main__inner,
+html body .layout-page,
 html body .custom-invoice-page-wrapper .row,
 html body .custom-invoice-page-wrapper div {
-    background-color: #f8fafc !important;
-    color: #0f172a;
+    background-color: #ffffff !important;
+    background: #ffffff !important;
+    color: #000000 !important;
 }
 
 /* Card & Box Containers */
@@ -22,10 +24,10 @@ html body .custom-invoice-page-wrapper .card-shadow-primary,
 html body .custom-invoice-page-wrapper .card-border {
     background-color: #ffffff !important;
     background: #ffffff !important;
-    border: 1px solid #e2e8f0 !important;
+    border: 1px solid #cbd5e1 !important;
     border-radius: 12px !important;
-    box-shadow: 0 4px 20px rgba(15, 23, 42, 0.04) !important;
-    color: #0f172a !important;
+    box-shadow: 0 4px 16px rgba(0, 0, 0, 0.04) !important;
+    color: #000000 !important;
     padding: 0 !important;
     overflow: hidden !important;
 }
@@ -33,26 +35,26 @@ html body .custom-invoice-page-wrapper .card-border {
 html body .custom-invoice-page-wrapper .card-header {
     background-color: #ffffff !important;
     background: #ffffff !important;
-    border-bottom: 1px solid #f1f5f9 !important;
+    border-bottom: 1px solid #e2e8f0 !important;
     padding: 20px 24px !important;
-    color: #0f172a !important;
+    color: #000000 !important;
 }
 
 html body .custom-invoice-page-wrapper .card-body {
     background-color: #ffffff !important;
     background: #ffffff !important;
     padding: 24px !important;
-    color: #0f172a !important;
+    color: #000000 !important;
 }
 
 html body .custom-invoice-page-wrapper .card-footer {
-    background-color: #f8fafc !important;
-    background: #f8fafc !important;
-    border-top: 1px solid #f1f5f9 !important;
+    background-color: #ffffff !important;
+    background: #ffffff !important;
+    border-top: 1px solid #e2e8f0 !important;
     padding: 16px 24px !important;
 }
 
-/* Typography & Headings (Fix Cyan/Blue Blurry Text) */
+/* SOLID CRISP BLACK TYPOGRAPHY - NO CYAN, NO BLUE, NO GRAY */
 html body .custom-invoice-page-wrapper h1,
 html body .custom-invoice-page-wrapper h2,
 html body .custom-invoice-page-wrapper h3,
@@ -64,24 +66,54 @@ html body .custom-invoice-page-wrapper .page-title-heading span,
 html body .custom-invoice-page-wrapper label,
 html body .custom-invoice-page-wrapper .form-label,
 html body .custom-invoice-page-wrapper strong,
-html body .custom-invoice-page-wrapper b {
-    color: #0f172a !important;
-    font-weight: 700 !important;
-}
-
+html body .custom-invoice-page-wrapper b,
 html body .custom-invoice-page-wrapper p,
 html body .custom-invoice-page-wrapper span,
 html body .custom-invoice-page-wrapper li,
 html body .custom-invoice-page-wrapper small,
 html body .custom-invoice-page-wrapper .text-muted,
-html body .custom-invoice-page-wrapper .help-text {
-    color: #475569 !important;
+html body .custom-invoice-page-wrapper .help-text,
+html body .custom-invoice-page-wrapper .field-tip,
+html body .custom-invoice-page-wrapper td,
+html body .custom-invoice-page-wrapper th,
+html body .custom-invoice-page-wrapper div {
+    color: #000000 !important;
+    opacity: 1 !important;
+}
+
+html body .custom-invoice-page-wrapper label,
+html body .custom-invoice-page-wrapper .form-label,
+html body .custom-invoice-page-wrapper .card-title,
+html body .custom-invoice-page-wrapper h1,
+html body .custom-invoice-page-wrapper h2,
+html body .custom-invoice-page-wrapper h3,
+html body .custom-invoice-page-wrapper h4,
+html body .custom-invoice-page-wrapper h5,
+html body .custom-invoice-page-wrapper h6 {
+    font-weight: 700 !important;
 }
 
 html body .custom-invoice-page-wrapper .breadcrumb-item,
 html body .custom-invoice-page-wrapper .breadcrumb-item a,
 html body .custom-invoice-page-wrapper .breadcrumb-item i {
-    color: #64748b !important;
+    color: #334155 !important;
+    font-weight: 600 !important;
+}
+
+/* Global Back Button Styling */
+html body .admin-global-back-btn {
+    background-color: #ffffff !important;
+    background: #ffffff !important;
+    color: #000000 !important;
+    border: 1px solid #cbd5e1 !important;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.06) !important;
+    border-radius: 8px !important;
+    font-weight: 700 !important;
+}
+
+html body .admin-global-back-btn i {
+    background: #f1f5f9 !important;
+    color: #000000 !important;
 }
 
 /* Form Controls & Inputs */
@@ -92,17 +124,17 @@ html body .custom-invoice-page-wrapper input,
 html body .custom-invoice-page-wrapper select {
     background-color: #ffffff !important;
     background: #ffffff !important;
-    color: #0f172a !important;
+    color: #000000 !important;
     border: 1px solid #cbd5e1 !important;
     border-radius: 8px !important;
     padding: 10px 14px !important;
     font-size: 14px !important;
-    font-weight: 500 !important;
+    font-weight: 600 !important;
 }
 
 html body .custom-invoice-page-wrapper .form-select option {
     background-color: #ffffff !important;
-    color: #0f172a !important;
+    color: #000000 !important;
 }
 
 html body .custom-invoice-page-wrapper .form-control:focus,
@@ -112,9 +144,9 @@ html body .custom-invoice-page-wrapper input:focus,
 html body .custom-invoice-page-wrapper select:focus {
     background-color: #ffffff !important;
     background: #ffffff !important;
-    color: #0f172a !important;
-    border-color: #0f172a !important;
-    box-shadow: 0 0 0 3px rgba(15, 23, 42, 0.1) !important;
+    color: #000000 !important;
+    border-color: #000000 !important;
+    box-shadow: 0 0 0 3px rgba(0, 0, 0, 0.1) !important;
 }
 
 /* Invoice Item Row Card */
@@ -127,13 +159,13 @@ html body .custom-invoice-page-wrapper .invoice-item {
     margin-bottom: 16px !important;
 }
 
-/* Action Buttons & Badges */
+/* Action Buttons */
 html body .custom-invoice-page-wrapper .btn-primary {
     background-color: #0f172a !important;
     background: #0f172a !important;
     border-color: #0f172a !important;
     color: #ffffff !important;
-    font-weight: 600 !important;
+    font-weight: 700 !important;
     border-radius: 8px !important;
 }
 
@@ -142,7 +174,7 @@ html body .custom-invoice-page-wrapper .btn-success {
     background: #16a34a !important;
     border-color: #16a34a !important;
     color: #ffffff !important;
-    font-weight: 600 !important;
+    font-weight: 700 !important;
     border-radius: 8px !important;
 }
 
@@ -150,9 +182,9 @@ html body .custom-invoice-page-wrapper .btn-outline-secondary,
 html body .custom-invoice-page-wrapper .btn-secondary {
     background-color: #ffffff !important;
     background: #ffffff !important;
-    color: #334155 !important;
+    color: #000000 !important;
     border: 1px solid #cbd5e1 !important;
-    font-weight: 600 !important;
+    font-weight: 700 !important;
     border-radius: 8px !important;
 }
 </style>

@@ -1392,7 +1392,7 @@
               }
             }
           @endphp
-          <div class="container-xxl mt-3">
+          <div class="container-fluid px-3 px-md-4 mt-3">
             <div class="admin-page-controls">
               <a href="{{ $__backUrl }}" class="admin-global-back-btn" aria-label="Go back to previous page">
                 <i class="fas fa-arrow-left"></i>
