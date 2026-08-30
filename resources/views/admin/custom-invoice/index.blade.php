@@ -56,6 +56,36 @@ html body .custom-invoice-page-wrapper .card-footer {
     padding: 16px 24px !important;
 }
 
+/* ABSOLUTE FORCE PURE BLACK (#000000) FOR ALL CARD TITLES, CARD HEADERS, & HEADINGS */
+html body .custom-invoice-page-wrapper .card-title,
+html body .custom-invoice-page-wrapper .card-header .card-title,
+html body .content-wrapper .custom-invoice-page-wrapper .card-title,
+html body .content-wrapper .custom-invoice-page-wrapper .card-header .card-title,
+html body .content-wrapper .card-header .card-title,
+html body .custom-invoice-page-wrapper .card h1,
+html body .custom-invoice-page-wrapper .card h2,
+html body .custom-invoice-page-wrapper .card h3,
+html body .custom-invoice-page-wrapper .card h4,
+html body .custom-invoice-page-wrapper .card h5,
+html body .custom-invoice-page-wrapper .card h6,
+html body .custom-invoice-page-wrapper h1,
+html body .custom-invoice-page-wrapper h2,
+html body .custom-invoice-page-wrapper h3,
+html body .custom-invoice-page-wrapper h4,
+html body .custom-invoice-page-wrapper h5,
+html body .custom-invoice-page-wrapper h6,
+html body .custom-invoice-page-wrapper .page-title-heading span,
+html body .custom-invoice-page-wrapper .app-page-title h1,
+html body .custom-invoice-page-wrapper .app-page-title h2,
+html body .custom-invoice-page-wrapper .app-page-title h3,
+html body .custom-invoice-page-wrapper .app-page-title h4,
+html body .custom-invoice-page-wrapper .app-page-title h5,
+html body .custom-invoice-page-wrapper .app-page-title h6 {
+    color: #000000 !important;
+    font-weight: 800 !important;
+    opacity: 1 !important;
+}
+
 /* ABSOLUTE 100% FORCE SOLID BLACK (#000000) FOR ALL LABELS, HEADINGS, PARAGRAPHS & TEXT */
 html body .custom-invoice-page-wrapper form label,
 html body .custom-invoice-page-wrapper form .form-label,
@@ -75,16 +105,6 @@ html body .custom-invoice-page-wrapper form p,
 html body .custom-invoice-page-wrapper form small,
 html body .custom-invoice-page-wrapper form i,
 html body .custom-invoice-page-wrapper form .field-tip,
-html body .custom-invoice-page-wrapper h1,
-html body .custom-invoice-page-wrapper h2,
-html body .custom-invoice-page-wrapper h3,
-html body .custom-invoice-page-wrapper h4,
-html body .custom-invoice-page-wrapper h5,
-html body .custom-invoice-page-wrapper h6,
-html body .custom-invoice-page-wrapper .card-title,
-html body .custom-invoice-page-wrapper .page-title-heading span,
-html body .custom-invoice-page-wrapper label,
-html body .custom-invoice-page-wrapper .form-label,
 html body .custom-invoice-page-wrapper strong,
 html body .custom-invoice-page-wrapper b,
 html body .custom-invoice-page-wrapper p,
