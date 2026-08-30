@@ -7,103 +7,94 @@
 <link rel="stylesheet" href="https://cdn.linearicons.com/free/1.0.0/icon-font.min.css">
 
 <style>
-/* Executive Light Professional Workspace Theme */
-.content-wrapper, .app-main__inner {
+/* Executive Light Professional Workspace Theme Overlay */
+html body .custom-invoice-page-wrapper,
+html body .custom-invoice-page-wrapper .content-wrapper,
+html body .custom-invoice-page-wrapper .app-main__inner {
     background-color: #f8fafc !important;
-}
-
-.page-title-heading span, .app-page-title h2, .app-page-title h3, .app-page-title h4, .app-page-title h5, .app-page-title div {
+    background: #f8fafc !important;
     color: #0f172a !important;
 }
 
-.breadcrumb-item, .breadcrumb-item a, .breadcrumb-item.active {
+html body .custom-invoice-page-wrapper .card,
+html body .custom-invoice-page-wrapper .card-shadow-primary,
+html body .custom-invoice-page-wrapper .card-header,
+html body .custom-invoice-page-wrapper .card-body,
+html body .custom-invoice-page-wrapper .card-footer {
+    background-color: #ffffff !important;
+    background: #ffffff !important;
+    border: 1px solid #e2e8f0 !important;
+    border-radius: 12px !important;
+    color: #0f172a !important;
+    box-shadow: 0 4px 16px rgba(15, 23, 42, 0.04) !important;
+}
+
+html body .custom-invoice-page-wrapper h1,
+html body .custom-invoice-page-wrapper h2,
+html body .custom-invoice-page-wrapper h3,
+html body .custom-invoice-page-wrapper h4,
+html body .custom-invoice-page-wrapper h5,
+html body .custom-invoice-page-wrapper h6,
+html body .custom-invoice-page-wrapper label,
+html body .custom-invoice-page-wrapper .form-label,
+html body .custom-invoice-page-wrapper .card-title,
+html body .custom-invoice-page-wrapper .page-title-heading span,
+html body .custom-invoice-page-wrapper div {
+    color: #0f172a;
+}
+
+html body .custom-invoice-page-wrapper .breadcrumb-item,
+html body .custom-invoice-page-wrapper .breadcrumb-item a,
+html body .custom-invoice-page-wrapper .breadcrumb-item.active {
     color: #475569 !important;
 }
 
-.card, .card-shadow-primary {
+/* Light Table & Cell Backgrounds */
+html body .custom-invoice-page-wrapper .table,
+html body .custom-invoice-page-wrapper .table > :not(caption) > *,
+html body .custom-invoice-page-wrapper .table > :not(caption) > * > *,
+html body .custom-invoice-page-wrapper table.dataTable,
+html body .custom-invoice-page-wrapper table.dataTable tbody tr,
+html body .custom-invoice-page-wrapper table.dataTable tbody td {
     background-color: #ffffff !important;
-    border: 1px solid #e2e8f0 !important;
-    border-radius: 12px !important;
-    box-shadow: 0 4px 16px rgba(15, 23, 42, 0.04) !important;
-    color: #0f172a !important;
+    background: #ffffff !important;
+    color: #1e293b !important;
+    border-color: #f1f5f9 !important;
 }
 
-.card-header {
-    background-color: #ffffff !important;
-    border-bottom: 1px solid #f1f5f9 !important;
-    color: #0f172a !important;
-}
-
-.card-title, h1, h2, h3, h4, h5, h6, label, .form-label {
-    color: #0f172a !important;
-    font-weight: 600 !important;
-}
-
-.text-muted, small, .help-text, .text-secondary {
-    color: #64748b !important;
-}
-
-/* Crisp Input Controls */
-.form-control, .form-select, textarea, input[type="text"], input[type="number"], input[type="email"], select {
-    background-color: #ffffff !important;
-    color: #0f172a !important;
-    border: 1px solid #cbd5e1 !important;
-    border-radius: 8px !important;
-    padding: 10px 14px !important;
-    font-size: 14px !important;
-}
-
-.form-control:focus, .form-select:focus, select:focus, textarea:focus, input:focus {
-    background-color: #ffffff !important;
-    color: #0f172a !important;
-    border-color: #2563eb !important;
-    box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.12) !important;
-    outline: none !important;
-}
-
-.form-control::placeholder {
-    color: #94a3b8 !important;
-}
-
-/* Light Table Styling */
-.table, table.dataTable {
-    background-color: #ffffff !important;
-    color: #0f172a !important;
-    border-color: #e2e8f0 !important;
-}
-
-.table thead th, table.dataTable thead th {
+html body .custom-invoice-page-wrapper .table thead th,
+html body .custom-invoice-page-wrapper table.dataTable thead th {
     background-color: #f1f5f9 !important;
+    background: #f1f5f9 !important;
     color: #475569 !important;
     font-weight: 700 !important;
     font-size: 12px !important;
     text-transform: uppercase !important;
     letter-spacing: 0.04em !important;
     border-bottom: 2px solid #cbd5e1 !important;
-    padding: 12px 14px !important;
-}
-
-.table td, table.dataTable td {
-    color: #1e293b !important;
-    border-color: #f1f5f9 !important;
-    padding: 14px !important;
-    vertical-align: middle !important;
 }
 
 /* DataTables Light Controls */
-.dataTables_wrapper, .dataTables_length, .dataTables_filter, .dataTables_info, .dataTables_paginate {
+html body .custom-invoice-page-wrapper .dataTables_wrapper,
+html body .custom-invoice-page-wrapper .dataTables_length,
+html body .custom-invoice-page-wrapper .dataTables_filter,
+html body .custom-invoice-page-wrapper .dataTables_info,
+html body .custom-invoice-page-wrapper .dataTables_paginate {
     color: #0f172a !important;
 }
 
-.dataTables_length select, .dataTables_filter input {
+html body .custom-invoice-page-wrapper .dataTables_length select,
+html body .custom-invoice-page-wrapper .dataTables_filter input {
     background-color: #ffffff !important;
+    background: #ffffff !important;
     color: #0f172a !important;
     border: 1px solid #cbd5e1 !important;
     border-radius: 6px !important;
     padding: 6px 10px !important;
 }
 
-.dataTables_paginate .paginate_button {
+html body .custom-invoice-page-wrapper .dataTables_paginate .paginate_button {
+    background-color: #ffffff !important;
     background: #ffffff !important;
     color: #0f172a !important;
     border: 1px solid #cbd5e1 !important;
@@ -111,14 +102,16 @@
     margin: 0 2px !important;
 }
 
-.dataTables_paginate .paginate_button.current, .dataTables_paginate .paginate_button:hover {
+html body .custom-invoice-page-wrapper .dataTables_paginate .paginate_button.current,
+html body .custom-invoice-page-wrapper .dataTables_paginate .paginate_button:hover {
+    background-color: #0f172a !important;
     background: #0f172a !important;
     color: #ffffff !important;
     border-color: #0f172a !important;
 }
 
-/* Status Badges */
-.badge {
+/* Action Buttons & Badges */
+html body .custom-invoice-page-wrapper .badge {
     padding: 6px 12px !important;
     font-weight: 700 !important;
     border-radius: 999px !important;
@@ -126,33 +119,27 @@
     letter-spacing: 0.03em !important;
 }
 
-.btn-primary {
+html body .custom-invoice-page-wrapper .btn-primary {
     background-color: #0f172a !important;
+    background: #0f172a !important;
     border-color: #0f172a !important;
     color: #ffffff !important;
     font-weight: 600 !important;
     border-radius: 8px !important;
 }
 
-.btn-primary:hover {
-    background-color: #1e293b !important;
-    border-color: #1e293b !important;
-}
-
-.btn-outline-secondary, .btn-secondary {
+html body .custom-invoice-page-wrapper .btn-outline-secondary,
+html body .custom-invoice-page-wrapper .btn-secondary {
     background-color: #ffffff !important;
+    background: #ffffff !important;
     color: #334155 !important;
     border: 1px solid #cbd5e1 !important;
     font-weight: 600 !important;
     border-radius: 8px !important;
 }
-
-.btn-outline-secondary:hover, .btn-secondary:hover {
-    background-color: #f1f5f9 !important;
-    color: #0f172a !important;
-}
 </style>
 
+<div class="custom-invoice-page-wrapper">
     <!-- Content wrapper -->
     <div class="content-wrapper">
         <!-- Content -->
@@ -318,6 +305,7 @@
             </div>
         </div>
     </div>
+</div>
 
     <link rel="stylesheet" href="https://cdn.datatables.net/1.13.4/css/jquery.dataTables.min.css">
     <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
