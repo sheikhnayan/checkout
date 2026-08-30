@@ -302,16 +302,22 @@ class User extends Authenticatable
 
         // Managers / Website Admins / Website Users with role permissions
         if ($this->isManager() || $this->isWebsiteUser() || $this->isBouncer()) {
-            if ($this->isWebsiteAdmin() || $this->hasRoutePermission('admin.custom-invoice.index') || $this->hasRoutePermission('admin.custom-invoice.create')) {
+            $role = $this->websiteRole;
+            $hasRolePerm = $role && $role->permissions()->whereIn('key', ['admin.custom-invoice.index', 'admin.custom-invoice.create'])->exists();
+            if ($this->isWebsiteAdmin() || $this->isManager() || $hasRolePerm) {
                 $ids = array_merge($ids, $this->accessibleWebsiteIds());
             }
         }
 
         // Affiliates (Promoters / Sub-promoters)
-        if ($this->isAffiliate() && $this->affiliate) {
+        if ($this->affiliate) {
             $affWebIds = \App\Models\AffiliateWebsite::where('affiliate_id', $this->affiliate->id)
-                ->where('is_active', true)
-                ->where('allow_custom_invoice', true)
+                ->where(function ($q) {
+                    $q->where('is_active', true)->orWhere('is_active', 1)->orWhereNull('is_active');
+                })
+                ->where(function ($q) {
+                    $q->where('allow_custom_invoice', true)->orWhere('allow_custom_invoice', 1);
+                })
                 ->pluck('website_id')
                 ->map(fn ($id) => (int) $id)
                 ->all();
@@ -319,8 +325,8 @@ class User extends Authenticatable
         }
 
         // Entertainers
-        if ($this->isEntertainer() && $this->entertainer) {
-            if ($this->entertainer->is_active && $this->entertainer->allow_custom_invoice && $this->entertainer->website_id) {
+        if ($this->entertainer) {
+            if ($this->entertainer->allow_custom_invoice && $this->entertainer->website_id) {
                 $ids[] = (int) $this->entertainer->website_id;
             }
         }

@@ -216,7 +216,7 @@
                                     </div>
                                     <div class="d-flex align-items-center mt-1">
                                         <label class="toggle-switch me-2" for="allow_invoice_{{ $website->id }}">
-                                            <input class="toggle-switch-input" type="checkbox" name="allow_custom_invoices[{{ $website->id }}]" value="1" id="allow_invoice_{{ $website->id }}" {{ ($affWeb ? (bool) $affWeb->allow_custom_invoice : true) ? 'checked' : '' }}>
+                                            <input class="toggle-switch-input" type="checkbox" name="allow_custom_invoices[{{ $website->id }}]" value="1" id="allow_invoice_{{ $website->id }}" {{ ($affWeb ? (bool) $affWeb->allow_custom_invoice : false) ? 'checked' : '' }}>
                                             <span class="toggle-switch-slider"></span>
                                         </label>
                                         <label for="allow_invoice_{{ $website->id }}" class="mb-0 fs-7 fw-semibold text-white cursor-pointer">

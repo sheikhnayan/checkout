@@ -64,6 +64,14 @@ class CheckRoutePermission
             return $next($request);
         }
 
+        // Custom invoice routes: allow any authorized user (Promoter, Sub-promoter, Entertainer, Staff, Manager) with custom invoice access
+        if (str_starts_with($routeName, 'admin.custom-invoice.')) {
+            if (!empty($user->accessibleCustomInvoiceWebsiteIds())) {
+                return $next($request);
+            }
+            abort(403, 'You do not have permission to access custom invoices.');
+        }
+
         // Entertainers are allowed to manage only feed post routes.
         if ($user->isEntertainer() && str_starts_with($routeName, 'admin.feed-post.')) {
             return $next($request);

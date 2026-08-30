@@ -137,7 +137,7 @@
                 <div class="col-md-4">
                     <div class="d-flex align-items-center mb-2">
                         <label class="toggle-switch me-2" for="allow_entertainer_invoice">
-                            <input class="toggle-switch-input" type="checkbox" name="allow_custom_invoice" value="1" id="allow_entertainer_invoice" {{ ($entertainer->allow_custom_invoice ?? true) ? 'checked' : '' }}>
+                            <input class="toggle-switch-input" type="checkbox" name="allow_custom_invoice" value="1" id="allow_entertainer_invoice" {{ ($entertainer->allow_custom_invoice ?? false) ? 'checked' : '' }}>
                             <span class="toggle-switch-slider"></span>
                         </label>
                         <label for="allow_entertainer_invoice" class="mb-0 fw-semibold text-white fs-7 cursor-pointer">
