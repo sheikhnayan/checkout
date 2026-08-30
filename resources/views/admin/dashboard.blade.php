@@ -263,7 +263,7 @@
                         <span class="growth-tag growth-up"><i class="fas fa-check me-1"></i>Live</span>
                     </div>
                     <p class="text-muted fs-8 mb-0 mt-2">
-                        Avg Ticket: <strong class="text-white">${{ $totalTransactions > 0 ? number_format(($totalRevenue ?? 0) / $totalTransactions, 2) : '0.00' }}</strong>
+                        Avg Purchase: <strong class="text-white">${{ $totalTransactions > 0 ? number_format(($totalRevenue ?? 0) / $totalTransactions, 2) : '0.00' }}</strong>
                     </p>
                 </div>
             </div>

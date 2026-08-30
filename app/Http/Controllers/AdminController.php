@@ -24,12 +24,17 @@ class AdminController extends Controller
         $user = auth()->user();
 
         if ($user->isAdmin()) {
-            $totalRevenue = Transaction::where('status', 'completed')->sum('total');
-            $monthlyRevenue = Transaction::where('status', 'completed')
+            $validTxQuery = function ($query) {
+                $query->whereIn('status', [1, '1', 'completed', 'paid'])
+                      ->orWhereNotIn('status', [0, '0', 'canceled', 'cancelled', 'failed', 'refunded']);
+            };
+
+            $totalRevenue = Transaction::where($validTxQuery)->sum('total');
+            $monthlyRevenue = Transaction::where($validTxQuery)
                 ->whereBetween('created_at', [now()->startOfMonth(), now()->endOfMonth()])
                 ->sum('total');
 
-            $prevMonthRevenue = Transaction::where('status', 'completed')
+            $prevMonthRevenue = Transaction::where($validTxQuery)
                 ->whereBetween('created_at', [now()->subMonth()->startOfMonth(), now()->subMonth()->endOfMonth()])
                 ->sum('total');
 
@@ -56,7 +61,7 @@ class AdminController extends Controller
                 $displayDate = $date->format('M d');
 
                 $dailyStats = Transaction::whereDate('created_at', $dateStr)
-                    ->selectRaw("SUM(CASE WHEN status = 'completed' THEN total ELSE 0 END) as revenue, COUNT(*) as count")
+                    ->selectRaw("SUM(CASE WHEN status IN (1, '1', 'completed', 'paid') OR status NOT IN (0, '0', 'canceled', 'cancelled', 'failed', 'refunded') THEN total ELSE 0 END) as revenue, COUNT(*) as count")
                     ->first();
 
                 $chartDates[] = $displayDate;
@@ -67,11 +72,12 @@ class AdminController extends Controller
             // Sales breakdown by Club (Top 5)
             $topClubs = Website::where('is_archieved', 0)
                 ->get()
-                ->map(function ($site) {
-                    $revenue = Transaction::where('status', 'completed')
+                ->map(function ($site) use ($validTxQuery) {
+                    $revenue = Transaction::where($validTxQuery)
                         ->where(function ($q) use ($site) {
                             $q->whereHas('event', fn($s) => $s->where('website_id', $site->id))
-                              ->orWhereHas('package', fn($s) => $s->where('website_id', $site->id));
+                              ->orWhereHas('package', fn($s) => $s->where('website_id', $site->id))
+                              ->orWhere('website_id', $site->id);
                         })->sum('total');
                     $site->calculated_revenue = (float) $revenue;
                     return $site;
