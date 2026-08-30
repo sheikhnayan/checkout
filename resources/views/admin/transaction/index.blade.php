@@ -245,15 +245,26 @@
 .polaris-scroll-right {
     right: 4px;
 }
+.polaris-filter-bar {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    flex-wrap: wrap;
+    overflow: visible !important;
+}
+.polaris-filter-bar .dropdown {
+    position: relative !important;
+}
 .polaris-popover-menu {
     background: #1e293b !important;
     border: 1px solid rgba(255, 255, 255, 0.15) !important;
     border-radius: 12px !important;
-    padding: 12px !important;
-    min-width: 230px !important;
+    padding: 14px !important;
+    min-width: 250px !important;
     max-width: 320px !important;
-    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.5) !important;
-    z-index: 99999 !important;
+    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.6) !important;
+    z-index: 1050 !important;
+    margin-top: 6px !important;
 }
 .polaris-popover-menu,
 .polaris-popover-menu label,
@@ -2932,63 +2943,6 @@ body.modal-open .admin-mobile-menu-toggle {
                 });
 
                 // Body Teleport for Polaris Filter Dropdowns (escapes all overflow & stacking contexts)
-                $(document).on('show.bs.dropdown', '#polarisFilterContainer .dropdown', function () {
-                    var $dropdown = $(this);
-                    var $btn = $dropdown.find('.dropdown-toggle');
-                    var $menu = $dropdown.find('.dropdown-menu');
-
-                    if (!$btn.length || !$menu.length) return;
-
-                    $menu.data('orig-parent', $dropdown);
-                    $('body').append($menu);
-
-                    var rect = $btn[0].getBoundingClientRect();
-                    var menuWidth = $menu.outerWidth() || 260;
-                    if (window.innerWidth < 768) {
-                        menuWidth = Math.min(menuWidth, window.innerWidth - 32);
-                    }
-
-                    var left = rect.left;
-                    if (left + menuWidth > window.innerWidth - 16) {
-                        left = Math.max(16, window.innerWidth - menuWidth - 16);
-                    }
-                    if (left < 16) {
-                        left = 16;
-                    }
-
-                    var top = rect.bottom + 4;
-
-                    $menu.css({
-                        'position': 'fixed',
-                        'top': top + 'px',
-                        'left': left + 'px',
-                        'margin': '0',
-                        'transform': 'none',
-                        'z-index': '99999',
-                        'display': 'block'
-                    });
-                });
-
-                $(document).on('hide.bs.dropdown hidden.bs.dropdown', '#polarisFilterContainer .dropdown', function () {
-                    var $dropdown = $(this);
-                    var $menu = $('body > .polaris-popover-menu').filter(function() {
-                        return $(this).data('orig-parent') && $(this).data('orig-parent')[0] === $dropdown[0];
-                    });
-
-                    if ($menu.length) {
-                        $menu.css({
-                            'position': '',
-                            'top': '',
-                            'left': '',
-                            'margin': '',
-                            'transform': '',
-                            'z-index': '',
-                            'display': ''
-                        });
-                        $dropdown.append($menu);
-                    }
-                });
-
                 $(document).on('click mousedown touchstart', '.polaris-popover-menu', function(e) {
                     e.stopPropagation();
                 });
