@@ -1131,15 +1131,6 @@
     <span class="menu-header-text">Users</span>
   </li>
 
-  @if($canAccessCustomInvoice && !$isAdminOrManagerUser)
-  <li class="menu-item {{ request()->is('admins/custom-invoice*') ? 'active' : '' }}">
-    <a href="{{ route('admin.custom-invoice.index') }}" class="menu-link">
-      <i class="menu-icon tf-icons bx bx-file"></i>
-      <div class="text-truncate">Custom Invoices</div>
-    </a>
-  </li>
-  @endif
-
   @if((auth()->check() && auth()->user()->isAdmin()) || ($authUser && $canAccessRoute('admin.withdraw.entertainers')))
   <li class="menu-header small text-uppercase">
     <span class="menu-header-text">Withdrawals</span>
@@ -1170,6 +1161,15 @@
       <div class="text-truncate">Promoter Dashboard</div>
     </a>
   </li>
+
+  @if($canAccessCustomInvoice && !$isAdminOrManagerUser)
+  <li class="menu-item {{ request()->is('admins/custom-invoice*') ? 'active' : '' }}">
+    <a href="{{ route('admin.custom-invoice.index') }}" class="menu-link">
+      <i class="menu-icon tf-icons bx bx-file"></i>
+      <div class="text-truncate">Custom Invoices</div>
+    </a>
+  </li>
+  @endif
 
   @if(!$currentAffiliate || !$currentAffiliate->isSubAffiliate() || $currentAffiliate->hasSubPermission('show_packages'))
   <li class="menu-item {{ request()->is('affiliate-portal/packages') ? 'active' : '' }}">
@@ -1231,6 +1231,15 @@
       <div class="text-truncate">Entertainer Dashboard</div>
     </a>
   </li>
+
+  @if($canAccessCustomInvoice && !$isAdminOrManagerUser)
+  <li class="menu-item {{ request()->is('admins/custom-invoice*') ? 'active' : '' }}">
+    <a href="{{ route('admin.custom-invoice.index') }}" class="menu-link">
+      <i class="menu-icon tf-icons bx bx-file"></i>
+      <div class="text-truncate">Custom Invoices</div>
+    </a>
+  </li>
+  @endif
 
   <li class="menu-item {{ request()->is('entertainer-portal/packages') ? 'active' : '' }}">
     <a href="{{ route('entertainer.portal.packages') }}" class="menu-link">
