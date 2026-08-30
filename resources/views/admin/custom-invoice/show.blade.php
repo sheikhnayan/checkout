@@ -300,8 +300,8 @@ html body .custom-invoice-page-wrapper .btn-light i {
                                         <li class="active breadcrumb-item">View</li>
                                     </ol>
                                     <div style="float: right">
-                                        <a href="{{ route('admin.custom-invoice.index') }}" class="btn btn-secondary">
-                                            <i class="fas fa-arrow-left"></i> Back
+                                        <a href="{{ route('admin.custom-invoice.index') }}" class="btn btn-dark">
+                                            <i class="fas fa-arrow-left text-white"></i> <span class="text-white">Back</span>
                                         </a>
                                     </div>
                                 </nav>
@@ -519,8 +519,8 @@ html body .custom-invoice-page-wrapper .btn-light i {
                                             Share this link with client for payment:
                                         </p>
                                         <input type="text" class="form-control form-control-sm" value="{{ $customInvoice->getPaymentUrl() }}" readonly id="paymentLink" style="background: #ffffff !important; color: #2563eb !important; border: 1px solid #cbd5e1 !important; font-weight: 600;">
-                                        <button class="btn btn-sm btn-secondary mt-2" onclick="copyPaymentLink()">
-                                            <i class="fas fa-copy"></i> Copy Link
+                                        <button class="btn btn-sm btn-dark mt-2" onclick="copyPaymentLink()">
+                                            <i class="fas fa-copy text-white"></i> <span class="text-white">Copy Link</span>
                                         </button>
                                     </div>
                                 </div>

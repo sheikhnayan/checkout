@@ -296,6 +296,11 @@ html body .custom-invoice-page-wrapper .btn-light i {
                                         </li>
                                         <li class="active breadcrumb-item">Create</li>
                                     </ol>
+                                    <div style="float: right">
+                                        <a href="{{ route('admin.custom-invoice.index') }}" class="btn btn-dark">
+                                            <i class="fas fa-arrow-left text-white"></i> <span class="text-white">Back</span>
+                                        </a>
+                                    </div>
                                 </nav>
                             </div>
                         </div>
@@ -400,14 +405,14 @@ html body .custom-invoice-page-wrapper .btn-light i {
                                                         </button>
                                                     </div>
                                                 </div>
-                                                <button type="button" class="btn btn-secondary btn-sm" id="addItemBtn">
-                                                    <i class="fas fa-plus"></i> Add Item
+                                                <button type="button" class="btn btn-dark btn-sm" id="addItemBtn">
+                                                    <i class="fas fa-plus text-white"></i> <span class="text-white">Add Item</span>
                                                 </button>
                                             </div>
                                         </div>
 
                                         <div class="card-footer border-top p-3">
-                                            <a href="{{ route('admin.custom-invoice.index') }}" class="btn btn-secondary">Cancel</a>
+                                            <a href="{{ route('admin.custom-invoice.index') }}" class="btn btn-dark text-white">Cancel</a>
                                             <button type="submit" name="action" value="draft" class="btn btn-primary">Save as Draft</button>
                                             <button type="submit" name="action" value="send" class="btn btn-success">Save & Send to Client</button>
                                         </div>
