@@ -941,7 +941,7 @@
       $canAccessNightlyReports = $authUser && ((isset($canAccessRoute) && is_callable($canAccessRoute) && $canAccessRoute('admin.nightly-reports.dashboard')) || $authUser->isAdmin());
   @endphp
   
-  @if($canAccessIncidentPortal || $canAccessJobMarketplace || $canAccessNightlyReports)
+  @if($canAccessIncidentPortal || $canAccessJobMarketplace || $canAccessNightlyReports || ($authUser && $canAccessRoute('admin.custom-invoice.index')))
   <li class="menu-header small text-uppercase">
     <span class="menu-header-text">Manager Portal</span>
   </li>
