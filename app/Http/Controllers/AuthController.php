@@ -247,16 +247,12 @@ class AuthController extends Controller
 
     private function redirectByUserType(User $user)
     {
-        $defaultUrl = route('admin.index');
-
         if ($user->isAffiliate()) {
             $defaultUrl = route('affiliate.portal.dashboard');
         } elseif ($user->isEntertainer()) {
             $defaultUrl = route('entertainer.portal.dashboard');
-        } elseif ($user->isWebsiteUser() || $user->isBouncer() || $user->isManager()) {
-            $defaultUrl = route('admin.index');
         } else {
-            $defaultUrl = route('admin.transaction.index');
+            $defaultUrl = route('admin.index');
         }
 
         return redirect()->intended($defaultUrl);

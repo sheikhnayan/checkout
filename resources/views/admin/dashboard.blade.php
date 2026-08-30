@@ -374,20 +374,25 @@
                                     <th>Customer</th>
                                     <th>Event / Package</th>
                                     <th>Amount</th>
-                                    <th>Status</th>
                                     <th>Date</th>
                                 </tr>
                             </thead>
                             <tbody>
                                 @forelse($recentTransactions as $tx)
+                                @php
+                                    $custName = trim(($tx->first_name ?? '') . ' ' . ($tx->last_name ?? ''));
+                                    if (empty($custName)) {
+                                        $custName = $tx->full_name ?? $tx->name ?? optional($tx->user)->name ?? $tx->cardholder_name ?? 'Guest';
+                                    }
+                                @endphp
                                 <tr>
                                     <td>
                                         <div class="d-flex align-items-center gap-2">
                                             <div class="dash-avatar">
-                                                {{ strtoupper(substr($tx->full_name ?: 'C', 0, 1)) }}
+                                                {{ strtoupper(substr($custName, 0, 1)) }}
                                             </div>
                                             <div>
-                                                <div class="fw-semibold text-white">{{ $tx->full_name ?: 'Guest' }}</div>
+                                                <div class="fw-semibold text-white">{{ $custName }}</div>
                                                 <small class="text-muted fs-8">{{ $tx->email }}</small>
                                             </div>
                                         </div>
@@ -406,22 +411,13 @@
                                         @endif
                                     </td>
                                     <td class="fw-bold text-white">${{ number_format($tx->total, 2) }}</td>
-                                    <td>
-                                        @if($tx->status === 'completed')
-                                            <span class="dash-badge dash-badge-completed"><i class="fas fa-check-circle me-1"></i>Completed</span>
-                                        @elseif($tx->status === 'pending')
-                                            <span class="dash-badge dash-badge-pending"><i class="fas fa-hourglass-half me-1"></i>Pending</span>
-                                        @else
-                                            <span class="dash-badge dash-badge-failed"><i class="fas fa-times-circle me-1"></i>{{ ucfirst($tx->status) }}</span>
-                                        @endif
-                                    </td>
                                     <td class="text-muted fs-8">
                                         {{ $tx->created_at->timezone('America/Los_Angeles')->format('M d, g:i A') }} PT
                                     </td>
                                 </tr>
                                 @empty
                                 <tr>
-                                    <td colspan="5" class="text-center text-muted py-4">No recent transactions found.</td>
+                                    <td colspan="4" class="text-center text-muted py-4">No recent transactions found.</td>
                                 </tr>
                                 @endforelse
                             </tbody>
