@@ -80,7 +80,7 @@ class AdminController extends Controller
                 ->take(5)
                 ->values();
 
-            $recentTransactions = Transaction::with(['event', 'package'])
+            $recentTransactions = Transaction::with(['event', 'package', 'website', 'event.website', 'package.website', 'user'])
                 ->latest()
                 ->take(7)
                 ->get();

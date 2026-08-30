@@ -367,11 +367,12 @@
                             View All <i class="fas fa-arrow-right ms-1"></i>
                         </a>
                     </div>
-                    <div class="table-responsive">
+                    <div class="table-responsive p-2">
                         <table class="table dash-table mb-0">
                             <thead>
                                 <tr>
                                     <th>Customer</th>
+                                    <th>Club</th>
                                     <th>Event / Package</th>
                                     <th>Amount</th>
                                     <th>Date</th>
@@ -380,22 +381,36 @@
                             <tbody>
                                 @forelse($recentTransactions as $tx)
                                 @php
-                                    $custName = trim(($tx->first_name ?? '') . ' ' . ($tx->last_name ?? ''));
-                                    if (empty($custName)) {
-                                        $custName = $tx->full_name ?? $tx->name ?? optional($tx->user)->name ?? $tx->cardholder_name ?? 'Guest';
+                                    $custFirstName = trim((string)($tx->first_name ?? $tx->billing_first_name ?? ''));
+                                    $custLastName = trim((string)($tx->last_name ?? $tx->billing_last_name ?? ''));
+                                    $custFullName = trim($custFirstName . ' ' . $custLastName);
+
+                                    if (empty($custFullName)) {
+                                        $custFullName = trim((string)($tx->full_name ?? $tx->name ?? $tx->billing_name ?? optional($tx->user)->name ?? $tx->cardholder_name ?? ''));
                                     }
+
+                                    if (empty($custFullName)) {
+                                        $custFullName = 'Guest Customer';
+                                    }
+
+                                    $clubName = $tx->website->name ?? optional(optional($tx->event)->website)->name ?? optional(optional($tx->package)->website)->name ?? 'N/A';
                                 @endphp
                                 <tr>
                                     <td>
                                         <div class="d-flex align-items-center gap-2">
                                             <div class="dash-avatar">
-                                                {{ strtoupper(substr($custName, 0, 1)) }}
+                                                {{ strtoupper(substr($custFullName, 0, 1)) }}
                                             </div>
                                             <div>
-                                                <div class="fw-semibold text-white">{{ $custName }}</div>
+                                                <div class="fw-semibold text-white">{{ $custFullName }}</div>
                                                 <small class="text-muted fs-8">{{ $tx->email }}</small>
                                             </div>
                                         </div>
+                                    </td>
+                                    <td>
+                                        <span class="badge bg-dark border border-secondary text-white fs-8" style="font-weight: 600;">
+                                            <i class="fas fa-building me-1 text-warning"></i>{{ $clubName }}
+                                        </span>
                                     </td>
                                     <td>
                                         @if($tx->event)
@@ -417,7 +432,7 @@
                                 </tr>
                                 @empty
                                 <tr>
-                                    <td colspan="4" class="text-center text-muted py-4">No recent transactions found.</td>
+                                    <td colspan="5" class="text-center text-muted py-4">No recent transactions found.</td>
                                 </tr>
                                 @endforelse
                             </tbody>
