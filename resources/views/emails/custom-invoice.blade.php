@@ -206,7 +206,7 @@
         <div class="email-body">
             <h2 class="greeting">Hello {{ $invoice->client_name }},</h2>
             
-            <div style="background-color: #fff1f2; border: 1px solid #fecdd3; border-left: 4px solid #e11d48; padding: 16px 20px; border-radius: 8px; margin-bottom: 24px;">
+            <!-- <div style="background-color: #fff1f2; border: 1px solid #fecdd3; border-left: 4px solid #e11d48; padding: 16px 20px; border-radius: 8px; margin-bottom: 24px;">
                 <div style="display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 8px;">
                     <span style="color: #be123c; font-weight: 800; font-size: 14px; text-transform: uppercase; letter-spacing: 0.05em;">
                         ⚠️ PAYMENT REQUIRED
@@ -218,7 +218,7 @@
                 <p style="margin: 8px 0 0 0; color: #881337; font-size: 13.5px; line-height: 1.5;">
                     Payment is required for invoice <strong>#{{ $invoice->id }}</strong> issued by <strong>{{ $invoice->website->name ?? 'CartVIP' }}</strong>. Please review your itemized summary below and complete your payment online.
                 </p>
-            </div>
+            </div> -->
 
             <p class="intro-text">
                 An invoice has been prepared for you by <strong>{{ $invoice->website->name ?? 'CartVIP' }}</strong>. Please review your order details below and complete payment via the secure link.
