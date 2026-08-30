@@ -445,10 +445,12 @@ class CustomInvoiceController extends Controller
             ? $invoice->refundable 
             : $invoice->total;
 
+        $paymentMethod = $website->payment_method ?: ($setting->payment_method ?? 'authorize');
+
         try {
-            if ($website->payment_method == 'stripe') {
+            if ($paymentMethod == 'stripe') {
                 return $this->processStripePayment($invoice, $website, $setting, $request, $paymentAmount, $paymentType);
-            } elseif ($website->payment_method == 'authorize') {
+            } else {
                 return $this->processAuthorizePayment($invoice, $website, $setting, $request, $paymentAmount, $paymentType);
             }
         } catch (\Exception $e) {
@@ -461,7 +463,11 @@ class CustomInvoiceController extends Controller
      */
     private function processStripePayment($invoice, $website, $setting, $request, $amount, $paymentType)
     {
-        $secret = $website->stripe_secret_key ?? $setting->stripe_secret;
+        $secret = trim((string) ($website->stripe_secret_key ?? ''));
+        if (empty($secret)) {
+            $secret = trim((string) ($setting->stripe_secret ?? ''));
+        }
+
         Stripe\Stripe::setApiKey($secret);
 
         try {
@@ -532,14 +538,13 @@ class CustomInvoiceController extends Controller
      */
     private function processAuthorizePayment($invoice, $website, $setting, $request, $amount, $paymentType)
     {
-        $loginId = $website->authorize_login_id
-            ?: $website->authorize_app_key
-            ?: $setting->authorize_login
-            ?: $setting->authorize_key;
+        $loginId = trim((string) ($website->authorize_login_id ?? $website->authorize_app_key ?? ''));
+        $transactionKey = trim((string) ($website->authorize_transaction_key ?? $website->authorize_secret_key ?? ''));
 
-        $transactionKey = $website->authorize_transaction_key
-            ?: $website->authorize_secret_key
-            ?: $setting->authorize_secret;
+        if (empty($loginId) || empty($transactionKey)) {
+            $loginId = trim((string) ($setting->authorize_login ?? $setting->authorize_key ?? ''));
+            $transactionKey = trim((string) ($setting->authorize_secret ?? ''));
+        }
 
         if (empty($loginId) || empty($transactionKey)) {
             return redirect()->back()->with('error', 'Payment processing failed: Authorize.Net credentials are not configured.');
@@ -549,9 +554,20 @@ class CustomInvoiceController extends Controller
         $merchantAuthentication->setName($loginId);
         $merchantAuthentication->setTransactionKey($transactionKey);
 
+        $rawCardNumber = preg_replace('/\D/', '', (string) $request->cardNumber);
+        $rawExp = preg_replace('/\D/', '', (string) $request->expirationDate);
+
+        if (strlen($rawExp) === 4) {
+            $expMonth = substr($rawExp, 0, 2);
+            $expYear = '20' . substr($rawExp, 2, 2);
+            $formattedExp = $expYear . '-' . $expMonth;
+        } else {
+            $formattedExp = $request->expirationDate;
+        }
+
         $charge = new AnetAPI\CreditCardType();
-        $charge->setCardNumber($request->cardNumber);
-        $charge->setExpirationDate($request->expirationDate);
+        $charge->setCardNumber($rawCardNumber);
+        $charge->setExpirationDate($formattedExp);
         $charge->setCardCode($request->cvv);
 
         $paymentOne = new AnetAPI\PaymentType();

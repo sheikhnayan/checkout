@@ -343,7 +343,9 @@ html body .custom-invoice-page-wrapper .btn-light i {
                                                             data-sales-tax-fee="{{ $website->sales_tax_fee ?? 0 }}"
                                                             data-sales-tax-name="{{ $website->sales_tax_name ?? 'Sales Tax' }}"
                                                             data-service-charge-fee="{{ $website->service_charge_fee ?? 0 }}"
-                                                            data-service-charge-name="{{ $website->service_charge_name ?? 'Service Charge' }}">
+                                                            data-service-charge-name="{{ $website->service_charge_name ?? 'Service Charge' }}"
+                                                            data-processing-fee="{{ $website->processing_fee ?? 0 }}"
+                                                            data-processing-fee-type="{{ $website->processing_fee_type ?? 'percentage' }}">
                                                             {{ $website->name }}
                                                         </option>
                                                     @endforeach
@@ -442,6 +444,10 @@ html body .custom-invoice-page-wrapper .btn-light i {
                                             <div id="gratuityRow" style="display: none; justify-content: space-between; margin-bottom: 10px;">
                                                 <span id="gratuityLabel">Gratuity Fee:</span>
                                                 <span id="summaryGratuity" style="font-weight: 500;">$0.00</span>
+                                            </div>
+                                            <div id="processingFeeRow" style="display: none; justify-content: space-between; margin-bottom: 10px;">
+                                                <span id="processingFeeLabel">Processing Fee:</span>
+                                                <span id="summaryProcessingFee" style="font-weight: 500;">$0.00</span>
                                             </div>
                                             <hr>
                                             <div style="display: flex; justify-content: space-between; font-weight: bold; font-size: 18px;">
@@ -555,6 +561,23 @@ html body .custom-invoice-page-wrapper .btn-light i {
                     total += gratuity;
                 } else {
                     document.getElementById('gratuityRow').style.display = 'none';
+                }
+
+                // Processing Fee
+                const processingFeeVal = parseFloat(selectedOption.dataset.processingFee) || 0;
+                const processingFeeType = (selectedOption.dataset.processingFeeType || 'percentage').toLowerCase();
+                let processingFee = 0;
+                if (processingFeeVal > 0) {
+                    if (processingFeeType === 'flat') {
+                        processingFee = processingFeeVal;
+                    } else {
+                        processingFee = subtotal * (processingFeeVal / 100);
+                    }
+                    document.getElementById('summaryProcessingFee').textContent = '$' + processingFee.toFixed(2);
+                    document.getElementById('processingFeeRow').style.display = 'flex';
+                    total += processingFee;
+                } else {
+                    document.getElementById('processingFeeRow').style.display = 'none';
                 }
                 
                 // Refundable (shown separately, NOT added to total)

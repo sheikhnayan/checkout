@@ -215,7 +215,9 @@
                 $payLogoUrl = $logo;
             } else {
                 $logoPath = str_starts_with($logo, 'storage/') ? $logo : ('storage/' . $logo);
-                $payLogoUrl = url($logoPath);
+                if (file_exists(public_path($logoPath))) {
+                    $payLogoUrl = url($logoPath);
+                }
             }
         }
     @endphp
@@ -224,7 +226,7 @@
         <div class="payment-header">
             @if($payLogoUrl)
                 <div style="margin-bottom: 10px;">
-                    <img src="{{ $payLogoUrl }}" alt="{{ $website->name ?? 'Venue' }}" style="max-height: 48px; max-width: 220px; object-fit: contain;">
+                    <img src="{{ $payLogoUrl }}" alt="{{ $website->name ?? 'Venue' }}" style="max-height: 48px; max-width: 220px; object-fit: contain;" onerror="this.parentElement.style.display='none';">
                 </div>
             @endif
             <h1 class="header-title">{{ $website->name ?? 'CartVIP' }}</h1>
@@ -713,6 +715,18 @@
                     updateStates(this, stateSelect);
                     $(this).on('change', function() {
                         updateStates(this, stateSelect);
+                    });
+                });
+
+                $('input[name="expirationDate"]').each(function() {
+                    $(this).attr('placeholder', 'MM/YY').attr('maxlength', '5');
+                    $(this).on('input', function() {
+                        let val = $(this).val().replace(/\D/g, '');
+                        if (val.length >= 3) {
+                            $(this).val(val.substring(0, 2) + '/' + val.substring(2, 4));
+                        } else {
+                            $(this).val(val);
+                        }
                     });
                 });
             });
