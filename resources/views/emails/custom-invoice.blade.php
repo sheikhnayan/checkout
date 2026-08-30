@@ -185,7 +185,9 @@
                 $logoUrl = $logo;
             } else {
                 $logoPath = str_starts_with($logo, 'storage/') ? $logo : ('storage/' . $logo);
-                $logoUrl = url($logoPath);
+                if (file_exists(public_path($logoPath))) {
+                    $logoUrl = url($logoPath);
+                }
             }
         }
     @endphp
@@ -194,7 +196,7 @@
         <div class="email-header">
             @if($logoUrl)
                 <div style="margin-bottom: 12px;">
-                    <img src="{{ $logoUrl }}" alt="{{ $invoice->website->name ?? 'Venue' }}" style="max-height: 48px; max-width: 220px; object-fit: contain;">
+                    <img src="{{ $logoUrl }}" alt="{{ $invoice->website->name ?? 'Venue' }}" style="max-height: 48px; max-width: 220px; object-fit: contain;" onerror="this.parentElement.style.display='none';">
                 </div>
             @endif
             <h1 class="club-name">{{ $invoice->website->name ?? 'CartVIP' }}</h1>
@@ -203,6 +205,21 @@
 
         <div class="email-body">
             <h2 class="greeting">Hello {{ $invoice->client_name }},</h2>
+            
+            <div style="background-color: #fff1f2; border: 1px solid #fecdd3; border-left: 4px solid #e11d48; padding: 16px 20px; border-radius: 8px; margin-bottom: 24px;">
+                <div style="display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 8px;">
+                    <span style="color: #be123c; font-weight: 800; font-size: 14px; text-transform: uppercase; letter-spacing: 0.05em;">
+                        ⚠️ PAYMENT REQUIRED
+                    </span>
+                    <span style="color: #9f1239; font-weight: 800; font-size: 15px;">
+                        Total Due: ${{ number_format($invoice->total, 2) }}
+                    </span>
+                </div>
+                <p style="margin: 8px 0 0 0; color: #881337; font-size: 13.5px; line-height: 1.5;">
+                    Payment is required for invoice <strong>#{{ $invoice->id }}</strong> issued by <strong>{{ $invoice->website->name ?? 'CartVIP' }}</strong>. Please review your itemized summary below and complete your payment online.
+                </p>
+            </div>
+
             <p class="intro-text">
                 An invoice has been prepared for you by <strong>{{ $invoice->website->name ?? 'CartVIP' }}</strong>. Please review your order details below and complete payment via the secure link.
             </p>

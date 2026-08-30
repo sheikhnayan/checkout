@@ -29,8 +29,9 @@ class CustomInvoiceMail extends Mailable
      */
     public function envelope(): Envelope
     {
+        $clubName = optional($this->invoice->website)->name ?? 'CartVIP';
         return new Envelope(
-            subject: 'Invoice #' . $this->invoice->id . ' - Payment Required',
+            subject: 'CartVIP Invoice - ' . $clubName,
         );
     }
 
