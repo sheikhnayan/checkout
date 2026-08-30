@@ -9,49 +9,82 @@
 /* Executive Light Professional Workspace Theme Overlay */
 html body .custom-invoice-page-wrapper,
 html body .custom-invoice-page-wrapper .content-wrapper,
-html body .custom-invoice-page-wrapper .app-main__inner {
+html body .custom-invoice-page-wrapper .app-main__inner,
+html body .custom-invoice-page-wrapper .row,
+html body .custom-invoice-page-wrapper div {
     background-color: #f8fafc !important;
-    background: #f8fafc !important;
-    color: #0f172a !important;
+    color: #0f172a;
 }
 
+/* Card & Box Containers */
 html body .custom-invoice-page-wrapper .card,
 html body .custom-invoice-page-wrapper .card-shadow-primary,
-html body .custom-invoice-page-wrapper .card-header,
-html body .custom-invoice-page-wrapper .card-body,
-html body .custom-invoice-page-wrapper .card-footer {
+html body .custom-invoice-page-wrapper .card-border {
     background-color: #ffffff !important;
     background: #ffffff !important;
     border: 1px solid #e2e8f0 !important;
     border-radius: 12px !important;
+    box-shadow: 0 4px 20px rgba(15, 23, 42, 0.04) !important;
     color: #0f172a !important;
-    box-shadow: 0 4px 16px rgba(15, 23, 42, 0.04) !important;
+    padding: 0 !important;
+    overflow: hidden !important;
 }
 
+html body .custom-invoice-page-wrapper .card-header {
+    background-color: #ffffff !important;
+    background: #ffffff !important;
+    border-bottom: 1px solid #f1f5f9 !important;
+    padding: 20px 24px !important;
+    color: #0f172a !important;
+}
+
+html body .custom-invoice-page-wrapper .card-body {
+    background-color: #ffffff !important;
+    background: #ffffff !important;
+    padding: 24px !important;
+    color: #0f172a !important;
+}
+
+html body .custom-invoice-page-wrapper .card-footer {
+    background-color: #f8fafc !important;
+    background: #f8fafc !important;
+    border-top: 1px solid #f1f5f9 !important;
+    padding: 16px 24px !important;
+}
+
+/* Typography & Headings (Fix Cyan/Blue Blurry Text) */
 html body .custom-invoice-page-wrapper h1,
 html body .custom-invoice-page-wrapper h2,
 html body .custom-invoice-page-wrapper h3,
 html body .custom-invoice-page-wrapper h4,
 html body .custom-invoice-page-wrapper h5,
 html body .custom-invoice-page-wrapper h6,
-html body .custom-invoice-page-wrapper label,
-html body .custom-invoice-page-wrapper .form-label,
 html body .custom-invoice-page-wrapper .card-title,
 html body .custom-invoice-page-wrapper .page-title-heading span,
-html body .custom-invoice-page-wrapper div,
-html body .custom-invoice-page-wrapper span,
+html body .custom-invoice-page-wrapper label,
+html body .custom-invoice-page-wrapper .form-label,
+html body .custom-invoice-page-wrapper strong,
+html body .custom-invoice-page-wrapper b {
+    color: #0f172a !important;
+    font-weight: 700 !important;
+}
+
 html body .custom-invoice-page-wrapper p,
-html body .custom-invoice-page-wrapper li {
-    color: #0f172a;
+html body .custom-invoice-page-wrapper span,
+html body .custom-invoice-page-wrapper li,
+html body .custom-invoice-page-wrapper small,
+html body .custom-invoice-page-wrapper .text-muted,
+html body .custom-invoice-page-wrapper .help-text {
+    color: #475569 !important;
 }
 
 html body .custom-invoice-page-wrapper .breadcrumb-item,
 html body .custom-invoice-page-wrapper .breadcrumb-item a,
-html body .custom-invoice-page-wrapper .breadcrumb-item.active {
-    color: #475569 !important;
+html body .custom-invoice-page-wrapper .breadcrumb-item i {
+    color: #64748b !important;
 }
 
-/* Crisp White Inputs & Selects */
+/* Form Controls & Inputs */
 html body .custom-invoice-page-wrapper .form-control,
 html body .custom-invoice-page-wrapper .form-select,
 html body .custom-invoice-page-wrapper textarea,
@@ -64,6 +97,7 @@ html body .custom-invoice-page-wrapper select {
     border-radius: 8px !important;
     padding: 10px 14px !important;
     font-size: 14px !important;
+    font-weight: 500 !important;
 }
 
 html body .custom-invoice-page-wrapper .form-select option {
@@ -79,17 +113,21 @@ html body .custom-invoice-page-wrapper select:focus {
     background-color: #ffffff !important;
     background: #ffffff !important;
     color: #0f172a !important;
-    border-color: #2563eb !important;
-    box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.12) !important;
+    border-color: #0f172a !important;
+    box-shadow: 0 0 0 3px rgba(15, 23, 42, 0.1) !important;
 }
 
+/* Invoice Item Row Card */
 html body .custom-invoice-page-wrapper .invoice-item {
     background-color: #f8fafc !important;
     background: #f8fafc !important;
     border: 1px solid #cbd5e1 !important;
     border-radius: 10px !important;
+    padding: 18px !important;
+    margin-bottom: 16px !important;
 }
 
+/* Action Buttons & Badges */
 html body .custom-invoice-page-wrapper .btn-primary {
     background-color: #0f172a !important;
     background: #0f172a !important;

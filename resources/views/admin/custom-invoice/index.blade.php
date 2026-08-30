@@ -10,46 +10,120 @@
 /* Executive Light Professional Workspace Theme Overlay */
 html body .custom-invoice-page-wrapper,
 html body .custom-invoice-page-wrapper .content-wrapper,
-html body .custom-invoice-page-wrapper .app-main__inner {
+html body .custom-invoice-page-wrapper .app-main__inner,
+html body .custom-invoice-page-wrapper .row,
+html body .custom-invoice-page-wrapper div {
     background-color: #f8fafc !important;
-    background: #f8fafc !important;
-    color: #0f172a !important;
+    color: #0f172a;
 }
 
+/* Card & Box Containers */
 html body .custom-invoice-page-wrapper .card,
 html body .custom-invoice-page-wrapper .card-shadow-primary,
-html body .custom-invoice-page-wrapper .card-header,
-html body .custom-invoice-page-wrapper .card-body,
-html body .custom-invoice-page-wrapper .card-footer {
+html body .custom-invoice-page-wrapper .card-border,
+html body .custom-invoice-page-wrapper .dataTables_wrapper {
     background-color: #ffffff !important;
     background: #ffffff !important;
     border: 1px solid #e2e8f0 !important;
     border-radius: 12px !important;
+    box-shadow: 0 4px 20px rgba(15, 23, 42, 0.04) !important;
     color: #0f172a !important;
-    box-shadow: 0 4px 16px rgba(15, 23, 42, 0.04) !important;
+    padding: 0 !important;
+    overflow: hidden !important;
 }
 
+html body .custom-invoice-page-wrapper .card-header {
+    background-color: #ffffff !important;
+    background: #ffffff !important;
+    border-bottom: 1px solid #f1f5f9 !important;
+    padding: 20px 24px !important;
+    color: #0f172a !important;
+}
+
+html body .custom-invoice-page-wrapper .card-body {
+    background-color: #ffffff !important;
+    background: #ffffff !important;
+    padding: 24px !important;
+    color: #0f172a !important;
+}
+
+html body .custom-invoice-page-wrapper .card-footer {
+    background-color: #f8fafc !important;
+    background: #f8fafc !important;
+    border-top: 1px solid #f1f5f9 !important;
+    padding: 16px 24px !important;
+}
+
+/* Typography & Headings */
 html body .custom-invoice-page-wrapper h1,
 html body .custom-invoice-page-wrapper h2,
 html body .custom-invoice-page-wrapper h3,
 html body .custom-invoice-page-wrapper h4,
 html body .custom-invoice-page-wrapper h5,
 html body .custom-invoice-page-wrapper h6,
-html body .custom-invoice-page-wrapper label,
-html body .custom-invoice-page-wrapper .form-label,
 html body .custom-invoice-page-wrapper .card-title,
 html body .custom-invoice-page-wrapper .page-title-heading span,
-html body .custom-invoice-page-wrapper div {
-    color: #0f172a;
+html body .custom-invoice-page-wrapper label,
+html body .custom-invoice-page-wrapper .form-label,
+html body .custom-invoice-page-wrapper strong,
+html body .custom-invoice-page-wrapper b {
+    color: #0f172a !important;
+    font-weight: 700 !important;
+}
+
+html body .custom-invoice-page-wrapper p,
+html body .custom-invoice-page-wrapper span,
+html body .custom-invoice-page-wrapper li,
+html body .custom-invoice-page-wrapper small,
+html body .custom-invoice-page-wrapper .text-muted,
+html body .custom-invoice-page-wrapper .help-text {
+    color: #475569 !important;
 }
 
 html body .custom-invoice-page-wrapper .breadcrumb-item,
 html body .custom-invoice-page-wrapper .breadcrumb-item a,
-html body .custom-invoice-page-wrapper .breadcrumb-item.active {
-    color: #475569 !important;
+html body .custom-invoice-page-wrapper .breadcrumb-item i {
+    color: #64748b !important;
 }
 
-/* Light Table & Cell Backgrounds */
+/* Form Controls & Inputs */
+html body .custom-invoice-page-wrapper .form-control,
+html body .custom-invoice-page-wrapper .form-select,
+html body .custom-invoice-page-wrapper textarea,
+html body .custom-invoice-page-wrapper input,
+html body .custom-invoice-page-wrapper select {
+    background-color: #ffffff !important;
+    background: #ffffff !important;
+    color: #0f172a !important;
+    border: 1px solid #cbd5e1 !important;
+    border-radius: 8px !important;
+    padding: 10px 14px !important;
+    font-size: 14px !important;
+    font-weight: 500 !important;
+}
+
+html body .custom-invoice-page-wrapper .form-select option {
+    background-color: #ffffff !important;
+    color: #0f172a !important;
+}
+
+html body .custom-invoice-page-wrapper .form-control:focus,
+html body .custom-invoice-page-wrapper .form-select:focus,
+html body .custom-invoice-page-wrapper textarea:focus,
+html body .custom-invoice-page-wrapper input:focus,
+html body .custom-invoice-page-wrapper select:focus {
+    background-color: #ffffff !important;
+    background: #ffffff !important;
+    color: #0f172a !important;
+    border-color: #0f172a !important;
+    box-shadow: 0 0 0 3px rgba(15, 23, 42, 0.1) !important;
+}
+
+/* DataTables Light Styling */
+html body .custom-invoice-page-wrapper .dataTables_wrapper {
+    padding: 20px !important;
+}
+
 html body .custom-invoice-page-wrapper .table,
 html body .custom-invoice-page-wrapper .table > :not(caption) > *,
 html body .custom-invoice-page-wrapper .table > :not(caption) > * > *,
@@ -60,6 +134,8 @@ html body .custom-invoice-page-wrapper table.dataTable tbody td {
     background: #ffffff !important;
     color: #1e293b !important;
     border-color: #f1f5f9 !important;
+    padding: 14px 16px !important;
+    vertical-align: middle !important;
 }
 
 html body .custom-invoice-page-wrapper .table thead th,
@@ -72,15 +148,17 @@ html body .custom-invoice-page-wrapper table.dataTable thead th {
     text-transform: uppercase !important;
     letter-spacing: 0.04em !important;
     border-bottom: 2px solid #cbd5e1 !important;
+    padding: 14px 16px !important;
 }
 
-/* DataTables Light Controls */
-html body .custom-invoice-page-wrapper .dataTables_wrapper,
 html body .custom-invoice-page-wrapper .dataTables_length,
 html body .custom-invoice-page-wrapper .dataTables_filter,
 html body .custom-invoice-page-wrapper .dataTables_info,
 html body .custom-invoice-page-wrapper .dataTables_paginate {
-    color: #0f172a !important;
+    color: #334155 !important;
+    font-weight: 600 !important;
+    font-size: 13px !important;
+    padding: 10px 0 !important;
 }
 
 html body .custom-invoice-page-wrapper .dataTables_length select,
@@ -90,7 +168,7 @@ html body .custom-invoice-page-wrapper .dataTables_filter input {
     color: #0f172a !important;
     border: 1px solid #cbd5e1 !important;
     border-radius: 6px !important;
-    padding: 6px 10px !important;
+    padding: 6px 12px !important;
 }
 
 html body .custom-invoice-page-wrapper .dataTables_paginate .paginate_button {
@@ -99,7 +177,8 @@ html body .custom-invoice-page-wrapper .dataTables_paginate .paginate_button {
     color: #0f172a !important;
     border: 1px solid #cbd5e1 !important;
     border-radius: 6px !important;
-    margin: 0 2px !important;
+    margin: 0 3px !important;
+    font-weight: 600 !important;
 }
 
 html body .custom-invoice-page-wrapper .dataTables_paginate .paginate_button.current,

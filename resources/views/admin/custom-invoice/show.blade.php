@@ -9,64 +9,95 @@
 /* Executive Light Professional Workspace Theme Overlay */
 html body .custom-invoice-page-wrapper,
 html body .custom-invoice-page-wrapper .content-wrapper,
-html body .custom-invoice-page-wrapper .app-main__inner {
+html body .custom-invoice-page-wrapper .app-main__inner,
+html body .custom-invoice-page-wrapper .row,
+html body .custom-invoice-page-wrapper div {
     background-color: #f8fafc !important;
-    background: #f8fafc !important;
-    color: #0f172a !important;
+    color: #0f172a;
 }
 
+/* Card & Box Containers */
 html body .custom-invoice-page-wrapper .card,
 html body .custom-invoice-page-wrapper .card-shadow-primary,
-html body .custom-invoice-page-wrapper .card-header,
-html body .custom-invoice-page-wrapper .card-body,
-html body .custom-invoice-page-wrapper .card-footer {
+html body .custom-invoice-page-wrapper .card-border {
     background-color: #ffffff !important;
     background: #ffffff !important;
     border: 1px solid #e2e8f0 !important;
     border-radius: 12px !important;
+    box-shadow: 0 4px 20px rgba(15, 23, 42, 0.04) !important;
     color: #0f172a !important;
-    box-shadow: 0 4px 16px rgba(15, 23, 42, 0.04) !important;
+    padding: 0 !important;
+    overflow: hidden !important;
 }
 
+html body .custom-invoice-page-wrapper .card-header {
+    background-color: #ffffff !important;
+    background: #ffffff !important;
+    border-bottom: 1px solid #f1f5f9 !important;
+    padding: 20px 24px !important;
+    color: #0f172a !important;
+}
+
+html body .custom-invoice-page-wrapper .card-body {
+    background-color: #ffffff !important;
+    background: #ffffff !important;
+    padding: 24px !important;
+    color: #0f172a !important;
+}
+
+html body .custom-invoice-page-wrapper .card-footer {
+    background-color: #f8fafc !important;
+    background: #f8fafc !important;
+    border-top: 1px solid #f1f5f9 !important;
+    padding: 16px 24px !important;
+}
+
+/* Typography & Headings */
 html body .custom-invoice-page-wrapper h1,
 html body .custom-invoice-page-wrapper h2,
 html body .custom-invoice-page-wrapper h3,
 html body .custom-invoice-page-wrapper h4,
 html body .custom-invoice-page-wrapper h5,
 html body .custom-invoice-page-wrapper h6,
-html body .custom-invoice-page-wrapper label,
-html body .custom-invoice-page-wrapper .form-label,
 html body .custom-invoice-page-wrapper .card-title,
 html body .custom-invoice-page-wrapper .page-title-heading span,
-html body .custom-invoice-page-wrapper div,
-html body .custom-invoice-page-wrapper span,
+html body .custom-invoice-page-wrapper label,
+html body .custom-invoice-page-wrapper .form-label,
+html body .custom-invoice-page-wrapper strong,
+html body .custom-invoice-page-wrapper b {
+    color: #0f172a !important;
+    font-weight: 700 !important;
+}
+
 html body .custom-invoice-page-wrapper p,
-html body .custom-invoice-page-wrapper td,
-html body .custom-invoice-page-wrapper th {
-    color: #0f172a;
+html body .custom-invoice-page-wrapper span,
+html body .custom-invoice-page-wrapper li,
+html body .custom-invoice-page-wrapper small,
+html body .custom-invoice-page-wrapper .text-muted,
+html body .custom-invoice-page-wrapper .help-text,
+html body .custom-invoice-page-wrapper td {
+    color: #475569 !important;
 }
 
 html body .custom-invoice-page-wrapper .breadcrumb-item,
 html body .custom-invoice-page-wrapper .breadcrumb-item a,
-html body .custom-invoice-page-wrapper .breadcrumb-item.active {
-    color: #475569 !important;
+html body .custom-invoice-page-wrapper .breadcrumb-item i {
+    color: #64748b !important;
 }
 
 /* Light Table & Cell Backgrounds */
 html body .custom-invoice-page-wrapper .table,
 html body .custom-invoice-page-wrapper .table > :not(caption) > *,
-html body .custom-invoice-page-wrapper .table > :not(caption) > * > *,
-html body .custom-invoice-page-wrapper table.dataTable,
-html body .custom-invoice-page-wrapper table.dataTable tbody tr,
-html body .custom-invoice-page-wrapper table.dataTable tbody td {
+html body .custom-invoice-page-wrapper .table > :not(caption) > * > * {
     background-color: #ffffff !important;
     background: #ffffff !important;
     color: #1e293b !important;
     border-color: #f1f5f9 !important;
+    padding: 14px 16px !important;
+    vertical-align: middle !important;
 }
 
-html body .custom-invoice-page-wrapper .table thead th,
-html body .custom-invoice-page-wrapper table.dataTable thead th {
+html body .custom-invoice-page-wrapper .table thead th {
     background-color: #f1f5f9 !important;
     background: #f1f5f9 !important;
     color: #475569 !important;
@@ -75,6 +106,7 @@ html body .custom-invoice-page-wrapper table.dataTable thead th {
     text-transform: uppercase !important;
     letter-spacing: 0.04em !important;
     border-bottom: 2px solid #cbd5e1 !important;
+    padding: 14px 16px !important;
 }
 
 /* Status Badges & Buttons */
