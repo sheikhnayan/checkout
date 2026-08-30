@@ -288,8 +288,7 @@
                     <thead>
                         <tr>
                             <th>Description</th>
-                            <th style="text-align: center;">Guests</th>
-                            <th style="text-align: center;">Qty</th>
+                            <th style="text-align: center;">Qty (Guests)</th>
                             <th class="text-right">Price</th>
                             <th class="text-right">Amount</th>
                         </tr>
@@ -298,7 +297,6 @@
                         @foreach($invoice->items as $item)
                         <tr>
                             <td>{{ $item->name }}</td>
-                            <td style="text-align: center;">{{ $item->guests ?? 1 }}</td>
                             <td style="text-align: center;">{{ $item->quantity }}</td>
                             <td class="text-right">${{ number_format($item->price, 2) }}</td>
                             <td class="text-right"><strong>${{ number_format($item->getLineTotal(), 2) }}</strong></td>
@@ -394,31 +392,39 @@
                             <input type="hidden" name="payment_amount" id="payment_amount_input" value="{{ $invoice->refundable > 0 ? $invoice->refundable : $invoice->total }}">
                             
                             <!-- Reservation Date & Arrival Time -->
-                            <div class="form-row" style="display: flex; gap: 15px; margin-bottom: 15px; background: #eff6ff; padding: 15px; border-radius: 8px; border: 1px solid #bfdbfe;">
-                                <div class="form-group" style="flex: 1; margin-bottom: 0;">
-                                    <label style="font-weight: 600; color: #1e3a8a;">Reservation / Visit Date <span style="color:red;">*</span></label>
-                                    <input type="date" name="package_use_date" class="form-control" min="{{ date('Y-m-d') }}" value="{{ old('package_use_date', date('Y-m-d')) }}" required>
-                                    <small style="font-size: 11px; color: #475569;">Select your planned date of visit</small>
+                            <div class="form-row" style="display: flex; flex-direction: column; gap: 10px; margin-bottom: 15px; background: #eff6ff; padding: 15px; border-radius: 8px; border: 1px solid #bfdbfe;">
+                                @if($invoice->package_use_date && $invoice->transportation_arrival_time)
+                                <div style="font-size: 13px; color: #1e3a8a; font-weight: 500;">
+                                    <i class="fas fa-check-circle text-success me-1"></i> <strong>Pre-selected Visit Details:</strong> Your visit date and arrival time have been pre-set for this booking. You may adjust them below if needed.
                                 </div>
-                                <div class="form-group" style="flex: 1; margin-bottom: 0;">
-                                    <label style="font-weight: 600; color: #1e3a8a;">Estimated Arrival Time <span style="color:red;">*</span></label>
-                                    <select name="transportation_arrival_time" class="form-select" style="width:100%; padding:10px; border:1px solid #cbd5e1; border-radius:5px; background:white;" required>
-                                        <option value="" disabled selected>Select Arrival Time</option>
-                                        <option value="9:00 PM">9:00 PM</option>
-                                        <option value="9:30 PM">9:30 PM</option>
-                                        <option value="10:00 PM">10:00 PM</option>
-                                        <option value="10:30 PM">10:30 PM</option>
-                                        <option value="11:00 PM">11:00 PM</option>
-                                        <option value="11:30 PM">11:30 PM</option>
-                                        <option value="12:00 AM">12:00 AM (Midnight)</option>
-                                        <option value="12:30 AM">12:30 AM</option>
-                                        <option value="1:00 AM">1:00 AM</option>
-                                        <option value="1:30 AM">1:30 AM</option>
-                                        <option value="2:00 AM">2:00 AM</option>
-                                        <option value="2:30 AM">2:30 AM</option>
-                                        <option value="3:00 AM">3:00 AM</option>
-                                    </select>
-                                    <small style="font-size: 11px; color: #475569;">Select expected arrival time</small>
+                                @endif
+                                <div style="display: flex; gap: 15px;">
+                                    <div class="form-group" style="flex: 1; margin-bottom: 0;">
+                                        <label style="font-weight: 600; color: #1e3a8a;">Reservation / Visit Date <span style="color:red;">*</span></label>
+                                        <input type="date" name="package_use_date" class="form-control" min="{{ date('Y-m-d') }}" value="{{ old('package_use_date', $invoice->package_use_date ?? '') }}" required>
+                                        <small style="font-size: 11px; color: #475569;">Planned date of visit</small>
+                                    </div>
+                                    <div class="form-group" style="flex: 1; margin-bottom: 0;">
+                                        <label style="font-weight: 600; color: #1e3a8a;">Estimated Arrival Time <span style="color:red;">*</span></label>
+                                        <select name="transportation_arrival_time" class="form-select" style="width:100%; padding:10px; border:1px solid #cbd5e1; border-radius:5px; background:white;" required>
+                                            <option value="" disabled {{ empty($invoice->transportation_arrival_time) ? 'selected' : '' }}>Select Arrival Time</option>
+                                            @php $selTime = old('transportation_arrival_time', $invoice->transportation_arrival_time); @endphp
+                                            <option value="9:00 PM" {{ $selTime == '9:00 PM' ? 'selected' : '' }}>9:00 PM</option>
+                                            <option value="9:30 PM" {{ $selTime == '9:30 PM' ? 'selected' : '' }}>9:30 PM</option>
+                                            <option value="10:00 PM" {{ $selTime == '10:00 PM' ? 'selected' : '' }}>10:00 PM</option>
+                                            <option value="10:30 PM" {{ $selTime == '10:30 PM' ? 'selected' : '' }}>10:30 PM</option>
+                                            <option value="11:00 PM" {{ $selTime == '11:00 PM' ? 'selected' : '' }}>11:00 PM</option>
+                                            <option value="11:30 PM" {{ $selTime == '11:30 PM' ? 'selected' : '' }}>11:30 PM</option>
+                                            <option value="12:00 AM" {{ $selTime == '12:00 AM' ? 'selected' : '' }}>12:00 AM (Midnight)</option>
+                                            <option value="12:30 AM" {{ $selTime == '12:30 AM' ? 'selected' : '' }}>12:30 AM</option>
+                                            <option value="1:00 AM" {{ $selTime == '1:00 AM' ? 'selected' : '' }}>1:00 AM</option>
+                                            <option value="1:30 AM" {{ $selTime == '1:30 AM' ? 'selected' : '' }}>1:30 AM</option>
+                                            <option value="2:00 AM" {{ $selTime == '2:00 AM' ? 'selected' : '' }}>2:00 AM</option>
+                                            <option value="2:30 AM" {{ $selTime == '2:30 AM' ? 'selected' : '' }}>2:30 AM</option>
+                                            <option value="3:00 AM" {{ $selTime == '3:00 AM' ? 'selected' : '' }}>3:00 AM</option>
+                                        </select>
+                                        <small style="font-size: 11px; color: #475569;">Expected arrival time</small>
+                                    </div>
                                 </div>
                             </div>
 
@@ -510,31 +516,39 @@
                             <input type="hidden" name="payment_amount" id="payment_amount_input" value="{{ $invoice->refundable > 0 ? $invoice->refundable : $invoice->total }}">
                             
                             <!-- Reservation Date & Arrival Time -->
-                            <div class="form-row" style="display: flex; gap: 15px; margin-bottom: 15px; background: #eff6ff; padding: 15px; border-radius: 8px; border: 1px solid #bfdbfe;">
-                                <div class="form-group" style="flex: 1; margin-bottom: 0;">
-                                    <label style="font-weight: 600; color: #1e3a8a;">Reservation / Visit Date <span style="color:red;">*</span></label>
-                                    <input type="date" name="package_use_date" class="form-control" min="{{ date('Y-m-d') }}" value="{{ old('package_use_date', date('Y-m-d')) }}" required>
-                                    <small style="font-size: 11px; color: #475569;">Select your planned date of visit</small>
+                            <div class="form-row" style="display: flex; flex-direction: column; gap: 10px; margin-bottom: 15px; background: #eff6ff; padding: 15px; border-radius: 8px; border: 1px solid #bfdbfe;">
+                                @if($invoice->package_use_date && $invoice->transportation_arrival_time)
+                                <div style="font-size: 13px; color: #1e3a8a; font-weight: 500;">
+                                    <i class="fas fa-check-circle text-success me-1"></i> <strong>Pre-selected Visit Details:</strong> Your visit date and arrival time have been pre-set for this booking. You may adjust them below if needed.
                                 </div>
-                                <div class="form-group" style="flex: 1; margin-bottom: 0;">
-                                    <label style="font-weight: 600; color: #1e3a8a;">Estimated Arrival Time <span style="color:red;">*</span></label>
-                                    <select name="transportation_arrival_time" class="form-select" style="width:100%; padding:10px; border:1px solid #cbd5e1; border-radius:5px; background:white;" required>
-                                        <option value="" disabled selected>Select Arrival Time</option>
-                                        <option value="9:00 PM">9:00 PM</option>
-                                        <option value="9:30 PM">9:30 PM</option>
-                                        <option value="10:00 PM">10:00 PM</option>
-                                        <option value="10:30 PM">10:30 PM</option>
-                                        <option value="11:00 PM">11:00 PM</option>
-                                        <option value="11:30 PM">11:30 PM</option>
-                                        <option value="12:00 AM">12:00 AM (Midnight)</option>
-                                        <option value="12:30 AM">12:30 AM</option>
-                                        <option value="1:00 AM">1:00 AM</option>
-                                        <option value="1:30 AM">1:30 AM</option>
-                                        <option value="2:00 AM">2:00 AM</option>
-                                        <option value="2:30 AM">2:30 AM</option>
-                                        <option value="3:00 AM">3:00 AM</option>
-                                    </select>
-                                    <small style="font-size: 11px; color: #475569;">Select expected arrival time</small>
+                                @endif
+                                <div style="display: flex; gap: 15px;">
+                                    <div class="form-group" style="flex: 1; margin-bottom: 0;">
+                                        <label style="font-weight: 600; color: #1e3a8a;">Reservation / Visit Date <span style="color:red;">*</span></label>
+                                        <input type="date" name="package_use_date" class="form-control" min="{{ date('Y-m-d') }}" value="{{ old('package_use_date', $invoice->package_use_date ?? '') }}" required>
+                                        <small style="font-size: 11px; color: #475569;">Planned date of visit</small>
+                                    </div>
+                                    <div class="form-group" style="flex: 1; margin-bottom: 0;">
+                                        <label style="font-weight: 600; color: #1e3a8a;">Estimated Arrival Time <span style="color:red;">*</span></label>
+                                        <select name="transportation_arrival_time" class="form-select" style="width:100%; padding:10px; border:1px solid #cbd5e1; border-radius:5px; background:white;" required>
+                                            <option value="" disabled {{ empty($invoice->transportation_arrival_time) ? 'selected' : '' }}>Select Arrival Time</option>
+                                            @php $selTimeAuth = old('transportation_arrival_time', $invoice->transportation_arrival_time); @endphp
+                                            <option value="9:00 PM" {{ $selTimeAuth == '9:00 PM' ? 'selected' : '' }}>9:00 PM</option>
+                                            <option value="9:30 PM" {{ $selTimeAuth == '9:30 PM' ? 'selected' : '' }}>9:30 PM</option>
+                                            <option value="10:00 PM" {{ $selTimeAuth == '10:00 PM' ? 'selected' : '' }}>10:00 PM</option>
+                                            <option value="10:30 PM" {{ $selTimeAuth == '10:30 PM' ? 'selected' : '' }}>10:30 PM</option>
+                                            <option value="11:00 PM" {{ $selTimeAuth == '11:00 PM' ? 'selected' : '' }}>11:00 PM</option>
+                                            <option value="11:30 PM" {{ $selTimeAuth == '11:30 PM' ? 'selected' : '' }}>11:30 PM</option>
+                                            <option value="12:00 AM" {{ $selTimeAuth == '12:00 AM' ? 'selected' : '' }}>12:00 AM (Midnight)</option>
+                                            <option value="12:30 AM" {{ $selTimeAuth == '12:30 AM' ? 'selected' : '' }}>12:30 AM</option>
+                                            <option value="1:00 AM" {{ $selTime == '1:00 AM' ? 'selected' : '' }}>1:00 AM</option>
+                                            <option value="1:30 AM" {{ $selTimeAuth == '1:30 AM' ? 'selected' : '' }}>1:30 AM</option>
+                                            <option value="2:00 AM" {{ $selTimeAuth == '2:00 AM' ? 'selected' : '' }}>2:00 AM</option>
+                                            <option value="2:30 AM" {{ $selTimeAuth == '2:30 AM' ? 'selected' : '' }}>2:30 AM</option>
+                                            <option value="3:00 AM" {{ $selTimeAuth == '3:00 AM' ? 'selected' : '' }}>3:00 AM</option>
+                                        </select>
+                                        <small style="font-size: 11px; color: #475569;">Expected arrival time</small>
+                                    </div>
                                 </div>
                             </div>
 

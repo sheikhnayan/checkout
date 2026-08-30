@@ -1473,8 +1473,7 @@ body.modal-open .admin-mobile-menu-toggle {
                                         return null;
                                     }
 
-                                    $guests = max(1, (int) ($ci['guests'] ?? 1));
-                                    $quantity = max(1, (int) ($ci['quantity'] ?? 1));
+                                    $quantity = max(1, (int) ($ci['quantity'] ?? $ci['guests'] ?? 1));
                                     $packageType = strtolower(trim((string) ($ci['package_type'] ?? $ci['type'] ?? $ci['packageType'] ?? '')));
                                     if ($packageType === '' && !empty($ci['package_id'])) {
                                         $package = \App\Models\Package::find((int) $ci['package_id']);
@@ -1485,7 +1484,7 @@ body.modal-open .admin-mobile-menu-toggle {
                                         return $name . ($quantity > 1 ? ' x' . $quantity : '');
                                     }
 
-                                    return $name . ($guests > 0 ? ': ' . $guests . ($guests === 1 ? ' guest' : ' guests') : '') . ($quantity > 1 ? ' (Qty ' . $quantity . ')' : '');
+                                    return $name . ': ' . $quantity . ' ' . ($quantity === 1 ? 'guest' : 'guests');
                                 })->filter()->values();
 
                                 $packageDetailsText = $packageDetails->isNotEmpty()

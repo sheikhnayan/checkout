@@ -380,6 +380,40 @@ html body .custom-invoice-page-wrapper .btn-light i {
                                                 </div>
                                             </div>
 
+                                             <!-- Reservation Date & Arrival Time (Optional Pre-selection) -->
+                                             <div class="row mb-3">
+                                                 <div class="col-md-6">
+                                                     <div class="form-group mb-3">
+                                                         <label for="package_use_date" class="form-label">Reservation / Visit Date (Optional Pre-selection) <i class="fas fa-circle-info ms-1 field-tip" data-bs-toggle="tooltip" data-bs-placement="top" title="Preselect visit date for client. If left blank, client must select date at checkout."></i></label>
+                                                         <input type="date" name="package_use_date" id="package_use_date" class="form-control" value="{{ old('package_use_date', $customInvoice->package_use_date) }}" min="{{ date('Y-m-d') }}">
+                                                         <small class="text-muted">Optional: Preselect date or leave empty for client to pick at payment.</small>
+                                                     </div>
+                                                 </div>
+                                                 <div class="col-md-6">
+                                                     <div class="form-group mb-3">
+                                                         <label for="transportation_arrival_time" class="form-label">Estimated Arrival Time (Optional Pre-selection) <i class="fas fa-circle-info ms-1 field-tip" data-bs-toggle="tooltip" data-bs-placement="top" title="Preselect arrival time for client. If left blank, client must select time at checkout."></i></label>
+                                                         <select name="transportation_arrival_time" id="transportation_arrival_time" class="form-select">
+                                                             <option value="">-- Client Will Select at Checkout --</option>
+                                                             @php $val = old('transportation_arrival_time', $customInvoice->transportation_arrival_time); @endphp
+                                                             <option value="9:00 PM" {{ $val == '9:00 PM' ? 'selected' : '' }}>9:00 PM</option>
+                                                             <option value="9:30 PM" {{ $val == '9:30 PM' ? 'selected' : '' }}>9:30 PM</option>
+                                                             <option value="10:00 PM" {{ $val == '10:00 PM' ? 'selected' : '' }}>10:00 PM</option>
+                                                             <option value="10:30 PM" {{ $val == '10:30 PM' ? 'selected' : '' }}>10:30 PM</option>
+                                                             <option value="11:00 PM" {{ $val == '11:00 PM' ? 'selected' : '' }}>11:00 PM</option>
+                                                             <option value="11:30 PM" {{ $val == '11:30 PM' ? 'selected' : '' }}>11:30 PM</option>
+                                                             <option value="12:00 AM" {{ $val == '12:00 AM' ? 'selected' : '' }}>12:00 AM (Midnight)</option>
+                                                             <option value="12:30 AM" {{ $val == '12:30 AM' ? 'selected' : '' }}>12:30 AM</option>
+                                                             <option value="1:00 AM" {{ $val == '1:00 AM' ? 'selected' : '' }}>1:00 AM</option>
+                                                             <option value="1:30 AM" {{ $val == '1:30 AM' ? 'selected' : '' }}>1:30 AM</option>
+                                                             <option value="2:00 AM" {{ $val == '2:00 AM' ? 'selected' : '' }}>2:00 AM</option>
+                                                             <option value="2:30 AM" {{ $val == '2:30 AM' ? 'selected' : '' }}>2:30 AM</option>
+                                                             <option value="3:00 AM" {{ $val == '3:00 AM' ? 'selected' : '' }}>3:00 AM</option>
+                                                         </select>
+                                                         <small class="text-muted">Optional: Preselect time or leave empty for client to pick at payment.</small>
+                                                     </div>
+                                                 </div>
+                                             </div>
+
                                             <!-- Customer Notes & Internal Notes -->
                                             <div class="row mb-3">
                                                 <div class="col-md-6">
@@ -403,16 +437,12 @@ html body .custom-invoice-page-wrapper .btn-light i {
                                                     @foreach($customInvoice->items as $index => $item)
                                                     <div class="invoice-item mb-3 p-3 border rounded" style="background-color: #f9f9f9;">
                                                         <div class="row">
-                                                            <div class="col-md-5">
+                                                            <div class="col-md-6">
                                                                 <label class="form-label small text-muted">Item Name</label>
                                                                 <input type="text" name="items[{{ $index }}][name]" class="form-control mb-2" placeholder="Item Name" value="{{ $item->name }}" required>
                                                             </div>
-                                                            <div class="col-md-2">
-                                                                <label class="form-label small text-muted">Guests</label>
-                                                                <input type="number" name="items[{{ $index }}][guests]" class="form-control mb-2 guests" placeholder="Guests" value="{{ $item->guests ?? 1 }}" min="1" required>
-                                                            </div>
-                                                            <div class="col-md-2">
-                                                                <label class="form-label small text-muted">Qty</label>
+                                                            <div class="col-md-3">
+                                                                <label class="form-label small text-muted">Qty (Guests)</label>
                                                                 <input type="number" name="items[{{ $index }}][quantity]" class="form-control mb-2 quantity" placeholder="Qty" value="{{ $item->quantity }}" min="1" required>
                                                             </div>
                                                             <div class="col-md-3">
@@ -647,16 +677,12 @@ html body .custom-invoice-page-wrapper .btn-light i {
             newItem.style.border = '1px solid #cbd5e1';
             newItem.innerHTML = `
                 <div class="row">
-                    <div class="col-md-5">
+                    <div class="col-md-6">
                         <label class="form-label small text-muted">Item Name</label>
                         <input type="text" name="items[${itemCount}][name]" class="form-control mb-2" placeholder="Item Name" required>
                     </div>
-                    <div class="col-md-2">
-                        <label class="form-label small text-muted">Guests</label>
-                        <input type="number" name="items[${itemCount}][guests]" class="form-control mb-2 guests" placeholder="Guests" value="1" min="1" required>
-                    </div>
-                    <div class="col-md-2">
-                        <label class="form-label small text-muted">Qty</label>
+                    <div class="col-md-3">
+                        <label class="form-label small text-muted">Qty (Guests)</label>
                         <input type="number" name="items[${itemCount}][quantity]" class="form-control mb-2 quantity" placeholder="Qty" value="1" min="1" required>
                     </div>
                     <div class="col-md-3">

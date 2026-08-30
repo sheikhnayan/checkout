@@ -347,6 +347,12 @@ html body .custom-invoice-page-wrapper .btn-light i {
                                                 @if($customInvoice->paid_at)
                                                     <p><strong>Paid Date:</strong> {{ $customInvoice->paid_at->timezone('America/Los_Angeles')->format('M d, Y h:i A') }} PT</p>
                                                 @endif
+                                                @if($customInvoice->package_use_date)
+                                                    <p><strong>Visit Date:</strong> {{ \Carbon\Carbon::parse($customInvoice->package_use_date)->format('M d, Y') }}</p>
+                                                @endif
+                                                @if($customInvoice->transportation_arrival_time)
+                                                    <p><strong>Arrival Time:</strong> {{ $customInvoice->transportation_arrival_time }}</p>
+                                                @endif
                                             </div>
                                         </div>
 
