@@ -360,11 +360,67 @@
                             <input type="hidden" name="payment_type" id="payment_type_input" value="{{ $invoice->refundable > 0 ? 'deposit' : 'full' }}">
                             <input type="hidden" name="payment_amount" id="payment_amount_input" value="{{ $invoice->refundable > 0 ? $invoice->refundable : $invoice->total }}">
                             
-                            <div class="form-group">
-                                <label>Full Name</label>
-                                <input type="text" name="cardholder_name" class="form-control" required>
+                            <div class="form-row" style="display: flex; gap: 15px;">
+                                <div class="form-group" style="flex: 1;">
+                                    <label>First Name</label>
+                                    <input type="text" name="firstName" class="form-control" value="{{ explode(' ', $invoice->client_name)[0] ?? '' }}" required>
+                                </div>
+                                <div class="form-group" style="flex: 1;">
+                                    <label>Last Name</label>
+                                    <input type="text" name="lastName" class="form-control" value="{{ implode(' ', array_slice(explode(' ', $invoice->client_name), 1)) }}" required>
+                                </div>
                             </div>
+
+                            <div class="form-row" style="display: flex; gap: 15px;">
+                                <div class="form-group" style="flex: 1;">
+                                    <label>Email Address</label>
+                                    <input type="email" name="billing_email" class="form-control" value="{{ $invoice->client_email }}" required>
+                                </div>
+                                <div class="form-group" style="flex: 1;">
+                                    <label>Phone Number</label>
+                                    <input type="tel" name="billing_phone" class="form-control" placeholder="(555) 000-0000" required>
+                                </div>
+                            </div>
+
                             <div class="form-group">
+                                <label>Billing Address</label>
+                                <input type="text" name="billing_address" class="form-control" placeholder="Street address" required>
+                            </div>
+
+                            <div class="form-row" style="display: flex; gap: 15px;">
+                                <div class="form-group" style="flex: 1;">
+                                    <label>Country</label>
+                                    <select name="billing_country" class="form-select country-selector" style="width:100%; padding:10px; border:1px solid #ddd; border-radius:5px;" required>
+                                        <option value="US" selected>United States</option>
+                                        <option value="CA">Canada</option>
+                                        <option value="GB">United Kingdom</option>
+                                        <option value="AU">Australia</option>
+                                        <option value="MX">Mexico</option>
+                                        <option value="DE">Germany</option>
+                                        <option value="FR">France</option>
+                                        <option value="IT">Italy</option>
+                                        <option value="ES">Spain</option>
+                                        <option value="BR">Brazil</option>
+                                    </select>
+                                </div>
+                                <div class="form-group" style="flex: 1;">
+                                    <label>State / Province</label>
+                                    <select name="billing_state" class="form-select state-selector" style="width:100%; padding:10px; border:1px solid #ddd; border-radius:5px;" required></select>
+                                </div>
+                            </div>
+
+                            <div class="form-row" style="display: flex; gap: 15px;">
+                                <div class="form-group" style="flex: 1;">
+                                    <label>City</label>
+                                    <input type="text" name="billing_city" class="form-control" placeholder="City" required>
+                                </div>
+                                <div class="form-group" style="flex: 1;">
+                                    <label>ZIP / Postal Code</label>
+                                    <input type="text" name="billing_zip" class="form-control" placeholder="ZIP / Postal code" required>
+                                </div>
+                            </div>
+
+                            <div class="form-group" style="margin-top: 15px;">
                                 <label>Card Number</label>
                                 <div id="card-number" style="padding: 12px; border: 1px solid #ddd; border-radius: 5px; background: white;"></div>
                             </div>
@@ -391,15 +447,67 @@
                             <input type="hidden" name="payment_type" id="payment_type_input" value="{{ $invoice->refundable > 0 ? 'deposit' : 'full' }}">
                             <input type="hidden" name="payment_amount" id="payment_amount_input" value="{{ $invoice->refundable > 0 ? $invoice->refundable : $invoice->total }}">
                             
-                            <div class="form-group">
-                                <label>First Name</label>
-                                <input type="text" name="firstName" class="form-control" required>
+                            <div class="form-row" style="display: flex; gap: 15px;">
+                                <div class="form-group" style="flex: 1;">
+                                    <label>First Name</label>
+                                    <input type="text" name="firstName" class="form-control" value="{{ explode(' ', $invoice->client_name)[0] ?? '' }}" required>
+                                </div>
+                                <div class="form-group" style="flex: 1;">
+                                    <label>Last Name</label>
+                                    <input type="text" name="lastName" class="form-control" value="{{ implode(' ', array_slice(explode(' ', $invoice->client_name), 1)) }}" required>
+                                </div>
                             </div>
-                            <div class="form-group">
-                                <label>Last Name</label>
-                                <input type="text" name="lastName" class="form-control" required>
+
+                            <div class="form-row" style="display: flex; gap: 15px;">
+                                <div class="form-group" style="flex: 1;">
+                                    <label>Email Address</label>
+                                    <input type="email" name="billing_email" class="form-control" value="{{ $invoice->client_email }}" required>
+                                </div>
+                                <div class="form-group" style="flex: 1;">
+                                    <label>Phone Number</label>
+                                    <input type="tel" name="billing_phone" class="form-control" placeholder="(555) 000-0000" required>
+                                </div>
                             </div>
+
                             <div class="form-group">
+                                <label>Billing Address</label>
+                                <input type="text" name="billing_address" class="form-control" placeholder="Street address" required>
+                            </div>
+
+                            <div class="form-row" style="display: flex; gap: 15px;">
+                                <div class="form-group" style="flex: 1;">
+                                    <label>Country</label>
+                                    <select name="billing_country" class="form-select country-selector" style="width:100%; padding:10px; border:1px solid #ddd; border-radius:5px;" required>
+                                        <option value="US" selected>United States</option>
+                                        <option value="CA">Canada</option>
+                                        <option value="GB">United Kingdom</option>
+                                        <option value="AU">Australia</option>
+                                        <option value="MX">Mexico</option>
+                                        <option value="DE">Germany</option>
+                                        <option value="FR">France</option>
+                                        <option value="IT">Italy</option>
+                                        <option value="ES">Spain</option>
+                                        <option value="BR">Brazil</option>
+                                    </select>
+                                </div>
+                                <div class="form-group" style="flex: 1;">
+                                    <label>State / Province</label>
+                                    <select name="billing_state" class="form-select state-selector" style="width:100%; padding:10px; border:1px solid #ddd; border-radius:5px;" required></select>
+                                </div>
+                            </div>
+
+                            <div class="form-row" style="display: flex; gap: 15px;">
+                                <div class="form-group" style="flex: 1;">
+                                    <label>City</label>
+                                    <input type="text" name="billing_city" class="form-control" placeholder="City" required>
+                                </div>
+                                <div class="form-group" style="flex: 1;">
+                                    <label>ZIP / Postal Code</label>
+                                    <input type="text" name="billing_zip" class="form-control" placeholder="ZIP / Postal code" required>
+                                </div>
+                            </div>
+
+                            <div class="form-group" style="margin-top: 15px;">
                                 <label>Card Number</label>
                                 <input type="text" name="cardNumber" class="form-control" placeholder="4111 1111 1111 1111" required>
                             </div>
@@ -413,20 +521,7 @@
                                     <input type="text" name="cvv" class="form-control" placeholder="123" required>
                                 </div>
                             </div>
-                            <div class="form-group">
-                                <label>Billing Address</label>
-                                <input type="text" name="billing_address" class="form-control" placeholder="Street address" required>
-                            </div>
-                            <div class="form-row" style="display: flex; gap: 15px;">
-                                <div class="form-group" style="flex: 1;">
-                                    <label>Billing ZIP</label>
-                                    <input type="text" name="billing_zip" class="form-control" placeholder="ZIP / Postal code" required>
-                                </div>
-                                <div class="form-group" style="flex: 1;">
-                                    <label>Country</label>
-                                    <input type="text" name="billing_country" class="form-control" placeholder="US" value="US" required>
-                                </div>
-                            </div>
+
                             <button type="submit" class="pay-button" id="pay-btn">
                                 <i class="fas fa-lock"></i> <span id="pay-btn-text">Pay ${{ number_format($invoice->refundable > 0 ? $invoice->refundable : $invoice->total, 2) }} Securely</span>
                             </button>
@@ -556,5 +651,60 @@
         });
     </script>
     @endif
+    <script>
+        (function() {
+            const usStates = [
+                {code: "AL", name: "Alabama"}, {code: "AK", name: "Alaska"}, {code: "AZ", name: "Arizona"}, {code: "AR", name: "Arkansas"}, {code: "CA", name: "California"},
+                {code: "CO", name: "Colorado"}, {code: "CT", name: "Connecticut"}, {code: "DE", name: "Delaware"}, {code: "FL", name: "Florida"}, {code: "GA", name: "Georgia"},
+                {code: "HI", name: "Hawaii"}, {code: "ID", name: "Idaho"}, {code: "IL", name: "Illinois"}, {code: "IN", name: "Indiana"}, {code: "IA", name: "Iowa"},
+                {code: "KS", name: "Kansas"}, {code: "KY", name: "Kentucky"}, {code: "LA", name: "Louisiana"}, {code: "ME", name: "Maine"}, {code: "MD", name: "Maryland"},
+                {code: "MA", name: "Massachusetts"}, {code: "MI", name: "Michigan"}, {code: "MN", name: "Minnesota"}, {code: "MS", name: "Mississippi"}, {code: "MO", name: "Missouri"},
+                {code: "MT", name: "Montana"}, {code: "NE", name: "Nebraska"}, {code: "NV", name: "Nevada"}, {code: "NH", name: "New Hampshire"}, {code: "NJ", name: "New Jersey"},
+                {code: "NM", name: "New Mexico"}, {code: "NY", name: "New York"}, {code: "NC", name: "North Carolina"}, {code: "ND", name: "North Dakota"}, {code: "OH", name: "Ohio"},
+                {code: "OK", name: "Oklahoma"}, {code: "OR", name: "Oregon"}, {code: "PA", name: "Pennsylvania"}, {code: "RI", name: "Rhode Island"}, {code: "SC", name: "South Carolina"},
+                {code: "SD", name: "South Dakota"}, {code: "TN", name: "Tennessee"}, {code: "TX", name: "Texas"}, {code: "UT", name: "Utah"}, {code: "VT", name: "Vermont"},
+                {code: "VA", name: "Virginia"}, {code: "WA", name: "Washington"}, {code: "WV", name: "West Virginia"}, {code: "WI", name: "Wisconsin"}, {code: "WY", name: "Wyoming"},
+                {code: "DC", name: "District of Columbia"}, {code: "PR", name: "Puerto Rico"}
+            ];
+
+            const caProvinces = [
+                {code: "AB", name: "Alberta"}, {code: "BC", name: "British Columbia"}, {code: "MB", name: "Manitoba"}, {code: "NB", name: "New Brunswick"},
+                {code: "NL", name: "Newfoundland and Labrador"}, {code: "NS", name: "Nova Scotia"}, {code: "ON", name: "Ontario"}, {code: "PE", name: "Prince Edward Island"},
+                {code: "QC", name: "Quebec"}, {code: "SK", name: "Saskatchewan"}, {code: "NT", name: "Northwest Territories"}, {code: "NU", name: "Nunavut"}, {code: "YT", name: "Yukon"}
+            ];
+
+            function updateStates(countrySelect, stateSelect) {
+                const country = $(countrySelect).val();
+                const $state = $(stateSelect);
+                $state.empty();
+
+                let list = [];
+                if (country === 'US') {
+                    list = usStates;
+                } else if (country === 'CA') {
+                    list = caProvinces;
+                }
+
+                if (list.length > 0) {
+                    $state.append('<option value="" disabled selected>Select State / Province</option>');
+                    list.forEach(function(item) {
+                        $state.append('<option value="' + item.code + '">' + item.name + ' (' + item.code + ')</option>');
+                    });
+                } else {
+                    $state.append('<option value="N/A" selected>N/A - Other Region</option>');
+                }
+            }
+
+            $(document).ready(function() {
+                $('.country-selector').each(function() {
+                    const stateSelect = $(this).closest('form').find('.state-selector');
+                    updateStates(this, stateSelect);
+                    $(this).on('change', function() {
+                        updateStates(this, stateSelect);
+                    });
+                });
+            });
+        })();
+    </script>
 </body>
 </html>

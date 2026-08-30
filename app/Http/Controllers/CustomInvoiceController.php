@@ -496,23 +496,18 @@ class CustomInvoiceController extends Controller
                 'payment_transaction_id' => $charge->id,
             ]);
 
-            // Create Transaction record for tracking
-            $transaction = new \App\Models\Transaction();
-            $transaction->transaction_id = $charge->id;
-            $transaction->package_first_name = $invoice->client_name;
-            $transaction->package_email = $invoice->client_email;
-            $transaction->payment_first_name = $request->cardholder_name ?? $invoice->client_name;
-            $transaction->payment_email = $invoice->client_email;
-            $transaction->payment_card_last4 = $stripeCardLast4;
-            $transaction->payment_card_brand = $stripeCardBrand;
-            $transaction->event_id = null;
-            $transaction->website_id = $invoice->website_id;
-            $transaction->total = $amount;
-            $transaction->actual_total = $amount;
-            $transaction->type = 'custom_invoice';
-            $transaction->custom_invoice_id = $invoice->id;
-            $transaction->ip_address = $request->ip();
-            $transaction->save();
+            // Create Transaction record fully aligned with main checkout system
+            $transaction = $this->buildTransactionFromCustomInvoice(
+                $invoice,
+                $website,
+                $request,
+                $charge->id,
+                (float) $amount,
+                (string) $paymentType,
+                $stripeCardLast4,
+                $stripeCardBrand,
+                'stripe'
+            );
 
             $this->sendCustomInvoicePaymentConfirmation($invoice, $transaction, $website, $paymentType, $request);
 
@@ -562,12 +557,16 @@ class CustomInvoiceController extends Controller
         $paymentOne = new AnetAPI\PaymentType();
         $paymentOne->setCreditCard($charge);
 
-        // Billing address for AVS — street + ZIP are what the issuer actually
-        // verifies. Without them Authorize.Net returns AVS code "U".
+        $firstName = trim((string) ($request->firstName ?? $request->billing_first_name ?? ''));
+        $lastName = trim((string) ($request->lastName ?? $request->billing_last_name ?? ''));
+
+        // Billing address for AVS
         $billTo = new AnetAPI\CustomerAddressType();
-        $billTo->setFirstName($request->firstName ?? '');
-        $billTo->setLastName($request->lastName ?? '');
+        $billTo->setFirstName($firstName);
+        $billTo->setLastName($lastName);
         $billTo->setAddress((string) $request->input('billing_address', ''));
+        $billTo->setCity((string) $request->input('billing_city', ''));
+        $billTo->setState((string) $request->input('billing_state', ''));
         $billTo->setZip((string) $request->input('billing_zip', ''));
         $billTo->setCountry((string) $request->input('billing_country', 'US'));
 
@@ -589,7 +588,6 @@ class CustomInvoiceController extends Controller
             $useSandbox = $setting->sandbox_mode;
         }
         if ($useSandbox === null) {
-            // Match current checkout behavior when no toggle is configured.
             $useSandbox = true;
         }
 
@@ -603,9 +601,6 @@ class CustomInvoiceController extends Controller
             if ($response->getMessages()->getResultCode() == "Ok") {
                 $tresponse = $response->getTransactionResponse();
                 $rc = $tresponse != null ? (string) $tresponse->getResponseCode() : null;
-                // responseCode 1 = approved, 4 = held for review (money taken in both
-                // cases). 2 = declined, 3 = error -> fall through to the error handler
-                // below. A top-level resultCode of "Ok" alone does NOT mean approved.
                 if ($tresponse != null && ($rc === '1' || $rc === '4')) {
                     $maskedAccount = trim((string) ($tresponse->getAccountNumber() ?? ''));
                     $accountDigits = preg_replace('/\D/', '', $maskedAccount);
@@ -623,23 +618,18 @@ class CustomInvoiceController extends Controller
                         'payment_transaction_id' => $tresponse->getTransId(),
                     ]);
 
-                    // Create Transaction record for tracking
-                    $transaction = new \App\Models\Transaction();
-                    $transaction->transaction_id = $tresponse->getTransId();
-                    $transaction->package_first_name = $invoice->client_name;
-                    $transaction->package_email = $invoice->client_email;
-                    $transaction->payment_first_name = $request->firstName . ' ' . $request->lastName;
-                    $transaction->payment_email = $invoice->client_email;
-                    $transaction->payment_card_last4 = $authCardLast4;
-                    $transaction->payment_card_brand = $authCardBrand;
-                    $transaction->event_id = null;
-                    $transaction->website_id = $invoice->website_id;
-                    $transaction->total = $amount;
-                    $transaction->actual_total = $amount;
-                    $transaction->type = 'custom_invoice';
-                    $transaction->custom_invoice_id = $invoice->id;
-                    $transaction->ip_address = $request->ip();
-                    $transaction->save();
+                    // Create Transaction record fully aligned with main checkout system
+                    $transaction = $this->buildTransactionFromCustomInvoice(
+                        $invoice,
+                        $website,
+                        $request,
+                        (string) $tresponse->getTransId(),
+                        (float) $amount,
+                        (string) $paymentType,
+                        $authCardLast4,
+                        $authCardBrand,
+                        'authorize'
+                    );
 
                     $this->sendCustomInvoicePaymentConfirmation($invoice, $transaction, $website, $paymentType, $request);
 
@@ -699,6 +689,146 @@ class CustomInvoiceController extends Controller
         return redirect()->back()->with('error', 'Payment processing failed: empty response from Authorize.Net.');
     }
 
+    /**
+     * Build and persist a complete Transaction model matching system-wide standards
+     */
+    private function buildTransactionFromCustomInvoice($invoice, $website, Request $request, string $transactionId, float $amount, string $paymentType, ?string $cardLast4, ?string $cardBrand, string $paymentMethod): \App\Models\Transaction
+    {
+        $firstName = trim((string) ($request->firstName ?? $request->billing_first_name ?? $request->cardholder_name ?? ''));
+        $lastName = trim((string) ($request->lastName ?? $request->billing_last_name ?? ''));
+        if (empty($firstName) && empty($lastName)) {
+            $parts = explode(' ', trim((string) $invoice->client_name));
+            $firstName = $parts[0] ?? $invoice->client_name;
+            $lastName = count($parts) > 1 ? implode(' ', array_slice($parts, 1)) : '';
+        }
+
+        $email = trim((string) ($request->billing_email ?? $invoice->client_email));
+        $phone = trim((string) ($request->billing_phone ?? ''));
+        $address = trim((string) ($request->billing_address ?? ''));
+        $city = trim((string) ($request->billing_city ?? ''));
+        $state = trim((string) ($request->billing_state ?? ''));
+        $zip = trim((string) ($request->billing_zip ?? ''));
+        $country = trim((string) ($request->billing_country ?? 'US'));
+
+        // Prepare line items JSON array for cart_items column
+        $cartItems = $invoice->items->map(function ($item) {
+            return [
+                'name' => $item->name,
+                'price' => (float) $item->price,
+                'quantity' => (int) $item->quantity,
+                'total' => (float) $item->getLineTotal(),
+            ];
+        })->toArray();
+
+        $transaction = new \App\Models\Transaction();
+        $transaction->transaction_id = $transactionId;
+        $transaction->status = \App\Models\Transaction::STATUS_COMPLETED; // 1 = Completed
+        $transaction->type = 'custom_invoice';
+        $transaction->custom_invoice_id = $invoice->id;
+        $transaction->website_id = $invoice->website_id;
+
+        // Customer details
+        $transaction->package_first_name = $firstName;
+        $transaction->package_last_name = $lastName;
+        $transaction->package_email = $email;
+        $transaction->package_phone = $phone;
+
+        // Payment & Billing details
+        $transaction->payment_first_name = $firstName;
+        $transaction->payment_last_name = $lastName;
+        $transaction->payment_email = $email;
+        $transaction->payment_phone = $phone;
+        $transaction->payment_address = $address;
+        $transaction->payment_city = $city;
+        $transaction->payment_state = $state;
+        $transaction->payment_zip_code = $zip;
+        $transaction->payment_country = $country;
+        $transaction->payment_method = $paymentMethod;
+        $transaction->payment_card_last4 = $cardLast4;
+        $transaction->payment_card_brand = $cardBrand;
+
+        // Financial totals
+        $transaction->sub_total = (float) $invoice->subtotal;
+        $transaction->sales_tax = (float) $invoice->sales_tax;
+        $transaction->service_charge = (float) $invoice->service_charge;
+        $transaction->gratuity = (float) $invoice->gratuity;
+        $transaction->processing_fee = (float) $invoice->processing_fee;
+        $transaction->refundable = (float) $invoice->refundable;
+        $transaction->total = $amount;
+        $transaction->actual_total = (float) $invoice->total;
+        $transaction->due = max((float) $invoice->total - $amount, 0);
+
+        // Cart items & Ticket QR Code
+        $transaction->cart_items = $cartItems;
+        $transaction->ticket_qr_code = 'INV-' . $invoice->id . '-' . strtoupper(substr(md5($transactionId), 0, 8));
+        $transaction->ip_address = $request->ip();
+
+        // Connect Creator / Promoter / Sub-promoter / Entertainer / Staff
+        $creator = $invoice->user;
+        if ($creator) {
+            $transaction->user_id = $creator->id;
+
+            // 1. Check Affiliate (Promoter / Sub-promoter)
+            $affiliate = $creator->affiliate;
+            if (!$affiliate) {
+                $affiliate = \App\Models\Affiliate::where('user_id', $creator->id)->first();
+            }
+
+            if ($affiliate) {
+                $transaction->affiliate_id = $affiliate->id;
+                $transaction->promoter_id = $affiliate->parent_id ?: $affiliate->id;
+
+                $affWeb = \App\Models\AffiliateWebsite::where('affiliate_id', $affiliate->id)
+                    ->where('website_id', $invoice->website_id)
+                    ->first();
+
+                $commRate = $affWeb ? (float) $affWeb->commission_percentage : 0;
+                if ($commRate <= 0) {
+                    $commRate = (float) ($affiliate->default_commission_percentage ?? 0);
+                }
+
+                if ($commRate > 0) {
+                    $commAmount = round($amount * ($commRate / 100), 2);
+                    $transaction->affiliate_commission_percentage = $commRate;
+                    $transaction->affiliate_commission_amount = $commAmount;
+                    $transaction->affiliate_commission_status = \App\Models\Transaction::COMMISSION_STATUS_PENDING;
+
+                    $holdDays = (int) ($website->commission_hold_days ?? 0);
+                    if ($holdDays > 0) {
+                        $transaction->affiliate_commission_hold_until = now()->addDays($holdDays);
+                    }
+                }
+            }
+
+            // 2. Check Entertainer
+            $entertainer = $creator->entertainer;
+            if (!$entertainer) {
+                $entertainer = \App\Models\Entertainer::where('user_id', $creator->id)->first();
+            }
+
+            if ($entertainer) {
+                $transaction->entertainer_id = $entertainer->id;
+
+                $entRate = (float) ($entertainer->default_commission_percentage ?? 0);
+                if ($entRate > 0) {
+                    $entAmount = round($amount * ($entRate / 100), 2);
+                    $transaction->entertainer_commission_percentage = $entRate;
+                    $transaction->entertainer_commission_amount = $entAmount;
+                    $transaction->entertainer_commission_status = \App\Models\Transaction::COMMISSION_STATUS_PENDING;
+
+                    $holdDays = (int) ($website->commission_hold_days ?? 0);
+                    if ($holdDays > 0) {
+                        $transaction->entertainer_commission_hold_until = now()->addDays($holdDays);
+                    }
+                }
+            }
+        }
+
+        $transaction->save();
+
+        return $transaction;
+    }
+
     private function sendCustomInvoicePaymentConfirmation($invoice, $transaction, $website, string $paymentType, Request $request): void
     {
         try {
@@ -709,8 +839,8 @@ class CustomInvoiceController extends Controller
                 $transaction,
                 $paymentType,
                 $website,
-                (string) ($request->cardholder_name ?? $request->firstName ?? ''),
-                (string) ($request->lastName ?? '')
+                (string) ($request->cardholder_name ?? $request->firstName ?? $transaction->payment_first_name ?? ''),
+                (string) ($request->lastName ?? $transaction->payment_last_name ?? '')
             );
 
             $managerMail = (clone $clientMail)->subject(
@@ -719,6 +849,48 @@ class CustomInvoiceController extends Controller
 
             if ($invoice->client_email && filter_var($invoice->client_email, FILTER_VALIDATE_EMAIL)) {
                 Mail::to($invoice->client_email)->send(clone $clientMail);
+            }
+
+            // Send official Transaction receipt with PDF attachment and Ticket QR Code
+            try {
+                $mailData = [
+                    'transaction_id' => $transaction->transaction_id,
+                    'order_id' => $transaction->id,
+                    'website_name' => $website->name ?? 'Venue',
+                    'club_name' => $website->name ?? 'Venue',
+                    'package_first_name' => $transaction->package_first_name,
+                    'package_last_name' => $transaction->package_last_name,
+                    'package_email' => $transaction->package_email,
+                    'package_phone' => $transaction->package_phone,
+                    'type' => 'custom_invoice',
+                    'cart_items' => $transaction->cart_items,
+                    'price_breakdown' => [
+                        'sub_total' => $transaction->sub_total,
+                        'sales_tax' => $transaction->sales_tax,
+                        'service_charge' => $transaction->service_charge,
+                        'gratuity' => $transaction->gratuity,
+                        'processing_fee' => $transaction->processing_fee,
+                        'total' => $transaction->total,
+                    ],
+                ];
+
+                $txnMail = new TransactionMail($mailData, $transaction, $transaction->cart_items, $mailData['price_breakdown'], $website, true, 'guest');
+                Mail::to($transaction->package_email)->send($txnMail);
+            } catch (\Throwable $txnMailEx) {
+                Log::warning('Custom invoice TransactionMail dispatch failed', ['error' => $txnMailEx->getMessage()]);
+            }
+
+            // Dispatch Telnyx SMS confirmation if configured
+            if (!empty($transaction->package_phone)) {
+                try {
+                    $telnyx = new \App\Services\TelnyxSmsService();
+                    if ($telnyx->isConfigured()) {
+                        $msg = "Payment Confirmed: Thank you for your payment of $" . number_format($transaction->total, 2) . " to " . ($website->name ?? 'Venue') . ". Confirmation #: " . $transaction->transaction_id . ". View ticket: " . url('/custom-invoice/' . $invoice->payment_token . '/pay');
+                        $telnyx->sendSms($transaction->package_phone, $msg);
+                    }
+                } catch (\Throwable $smsEx) {
+                    Log::warning('Custom invoice payment SMS failed', ['error' => $smsEx->getMessage()]);
+                }
             }
 
             $managerEmails = collect($website->emails ?? [])->pluck('email')
