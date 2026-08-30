@@ -112,9 +112,10 @@ html body .custom-invoice-page-wrapper small,
 html body .custom-invoice-page-wrapper .text-muted,
 html body .custom-invoice-page-wrapper .help-text,
 html body .custom-invoice-page-wrapper .field-tip,
-html body .custom-invoice-page-wrapper td,
-html body .custom-invoice-page-wrapper th,
-html body .custom-invoice-page-wrapper i {
+html body .custom-invoice-page-wrapper i,
+html body .custom-invoice-page-wrapper .card-body *,
+html body .custom-invoice-page-wrapper code,
+html body .custom-invoice-page-wrapper pre {
     color: #000000 !important;
     opacity: 1 !important;
 }
@@ -126,18 +127,6 @@ html body .custom-invoice-page-wrapper form .form-label {
     color: #000000 !important;
     font-weight: 800 !important;
     font-size: 14px !important;
-}
-
-html body .custom-invoice-page-wrapper label,
-html body .custom-invoice-page-wrapper .form-label,
-html body .custom-invoice-page-wrapper .card-title,
-html body .custom-invoice-page-wrapper h1,
-html body .custom-invoice-page-wrapper h2,
-html body .custom-invoice-page-wrapper h3,
-html body .custom-invoice-page-wrapper h4,
-html body .custom-invoice-page-wrapper h5,
-html body .custom-invoice-page-wrapper h6 {
-    font-weight: 700 !important;
 }
 
 html body .custom-invoice-page-wrapper .breadcrumb-item,
@@ -163,18 +152,29 @@ html body .admin-global-back-btn i {
     color: #000000 !important;
 }
 
-/* Light Table & Cell Backgrounds */
+/* ABSOLUTE FORCE PURE BLACK (#000000) FOR DATATABLES, TABLES, CELLS, INPUTS, AND SUMMARY BREAKDOWN */
+html body .custom-invoice-page-wrapper table,
+html body .custom-invoice-page-wrapper table.dataTable,
+html body .custom-invoice-page-wrapper table.dataTable tbody,
+html body .custom-invoice-page-wrapper table.dataTable tbody tr,
+html body .custom-invoice-page-wrapper table.dataTable tbody td,
+html body .custom-invoice-page-wrapper table.dataTable thead,
+html body .custom-invoice-page-wrapper table.dataTable thead tr,
+html body .custom-invoice-page-wrapper table.dataTable thead th,
 html body .custom-invoice-page-wrapper .table,
 html body .custom-invoice-page-wrapper .table > :not(caption) > *,
-html body .custom-invoice-page-wrapper .table > :not(caption) > * > * {
+html body .custom-invoice-page-wrapper .table > :not(caption) > * > *,
+html body .content-wrapper .custom-invoice-page-wrapper table.dataTable tbody td,
+html body .content-wrapper .custom-invoice-page-wrapper table.dataTable thead th {
     background-color: #ffffff !important;
     background: #ffffff !important;
     color: #000000 !important;
-    border-color: #f1f5f9 !important;
-    padding: 14px 16px !important;
-    vertical-align: middle !important;
+    font-weight: 700 !important;
+    opacity: 1 !important;
+    border-color: #e2e8f0 !important;
 }
 
+html body .custom-invoice-page-wrapper table.dataTable thead th,
 html body .custom-invoice-page-wrapper .table thead th {
     background-color: #f1f5f9 !important;
     background: #f1f5f9 !important;
@@ -182,9 +182,31 @@ html body .custom-invoice-page-wrapper .table thead th {
     font-weight: 800 !important;
     font-size: 12px !important;
     text-transform: uppercase !important;
-    letter-spacing: 0.04em !important;
     border-bottom: 2px solid #cbd5e1 !important;
-    padding: 14px 16px !important;
+}
+
+/* DataTables Filter Search Box & Controls */
+html body .custom-invoice-page-wrapper .dataTables_wrapper,
+html body .content-wrapper .custom-invoice-page-wrapper .dataTables_wrapper,
+html body .custom-invoice-page-wrapper div.dataTables_wrapper .dataTables_filter input,
+html body .content-wrapper .custom-invoice-page-wrapper div.dataTables_wrapper .dataTables_filter input {
+    background-color: #ffffff !important;
+    background: #ffffff !important;
+    color: #000000 !important;
+    border: 1px solid #cbd5e1 !important;
+    border-radius: 6px !important;
+    padding: 6px 12px !important;
+    font-weight: 600 !important;
+}
+
+html body .custom-invoice-page-wrapper .dataTables_info,
+html body .custom-invoice-page-wrapper .dataTables_paginate,
+html body .custom-invoice-page-wrapper .dataTables_paginate .paginate_button,
+html body .content-wrapper .custom-invoice-page-wrapper .dataTables_info,
+html body .content-wrapper .custom-invoice-page-wrapper .dataTables_paginate .paginate_button {
+    color: #000000 !important;
+    font-weight: 700 !important;
+    opacity: 1 !important;
 }
 
 /* Action Buttons */
