@@ -5,21 +5,109 @@
 <!-- Font Awesome -->
 <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
 
+<style>
+/* Executive Light Professional Workspace Theme */
+.content-wrapper, .app-main__inner {
+    background-color: #f8fafc !important;
+}
+
+.page-title-heading span, .app-page-title h2, .app-page-title h3, .app-page-title h4, .app-page-title h5, .app-page-title div {
+    color: #0f172a !important;
+}
+
+.breadcrumb-item, .breadcrumb-item a, .breadcrumb-item.active {
+    color: #475569 !important;
+}
+
+.card, .card-shadow-primary {
+    background-color: #ffffff !important;
+    border: 1px solid #e2e8f0 !important;
+    border-radius: 12px !important;
+    box-shadow: 0 4px 16px rgba(15, 23, 42, 0.04) !important;
+    color: #0f172a !important;
+}
+
+.card-header {
+    background-color: #ffffff !important;
+    border-bottom: 1px solid #f1f5f9 !important;
+    color: #0f172a !important;
+}
+
+.card-title, h1, h2, h3, h4, h5, h6, label, .form-label {
+    color: #0f172a !important;
+    font-weight: 600 !important;
+}
+
+.text-muted, small, .help-text, .text-secondary {
+    color: #64748b !important;
+}
+
+/* Light Table Styling */
+.table, table.dataTable {
+    background-color: #ffffff !important;
+    color: #0f172a !important;
+    border-color: #e2e8f0 !important;
+}
+
+.table thead th, table.dataTable thead th {
+    background-color: #f1f5f9 !important;
+    color: #475569 !important;
+    font-weight: 700 !important;
+    font-size: 12px !important;
+    text-transform: uppercase !important;
+    letter-spacing: 0.04em !important;
+    border-bottom: 2px solid #cbd5e1 !important;
+    padding: 12px 14px !important;
+}
+
+.table td, table.dataTable td {
+    color: #1e293b !important;
+    border-color: #f1f5f9 !important;
+    padding: 14px !important;
+    vertical-align: middle !important;
+}
+
+/* Status Badges */
+.badge {
+    padding: 6px 12px !important;
+    font-weight: 700 !important;
+    border-radius: 999px !important;
+    font-size: 11px !important;
+    letter-spacing: 0.03em !important;
+}
+
+.btn-primary {
+    background-color: #0f172a !important;
+    border-color: #0f172a !important;
+    color: #ffffff !important;
+    font-weight: 600 !important;
+    border-radius: 8px !important;
+}
+
+.btn-outline-secondary, .btn-secondary {
+    background-color: #ffffff !important;
+    color: #334155 !important;
+    border: 1px solid #cbd5e1 !important;
+    font-weight: 600 !important;
+    border-radius: 8px !important;
+}
+</style>
+
     <!-- Content wrapper -->
     <div class="content-wrapper">
         <!-- Content -->
-        <div class="container-xxl flex-grow-1 container-p-y">
+        <div class="container-fluid px-3 px-md-4 flex-grow-1 container-p-y">
             <div class="row">
-                <div class="col-xxl-12 mb-6 order-0">
+                <div class="col-12 mb-4">
                     <div class="app-main__inner">
-                        <div class="app-page-title mt-4">
+                        <div class="app-page-title mt-3">
                             <div class="page-title-wrapper">
                                 <div class="page-title-heading">
                                     <div class="page-title-icon">
-                                        <i class="fas fa-file-invoice icon-gradient bg-arielle-smile"></i>
+                                        <i class="fas fa-file-invoice text-primary"></i>
                                     </div>
                                     <div>
-                                        <span class="text-capitalize">Invoice #{{ $customInvoice->id }}</span>
+                                        <span class="text-capitalize fs-4 fw-bold">Invoice #{{ $customInvoice->id }}</span>
                                     </div>
                                 </div>
                             </div>
