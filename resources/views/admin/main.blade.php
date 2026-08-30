@@ -941,6 +941,7 @@
       $canAccessNightlyReports = $authUser && ((isset($canAccessRoute) && is_callable($canAccessRoute) && $canAccessRoute('admin.nightly-reports.dashboard')) || $authUser->isAdmin());
       $canAccessFormBuilder = $authUser && (isset($canAccessRoute) && is_callable($canAccessRoute) && $canAccessRoute('admin.forms.index'));
       $canAccessCustomInvoice = $authUser && (isset($canAccessRoute) && is_callable($canAccessRoute) && $canAccessRoute('admin.custom-invoice.index'));
+      $isAdminOrManagerUser = $authUser && ($authUser->isAdmin() || $authUser->isManager() || $authUser->isWebsiteAdmin() || $authUser->isWebsiteUser() || in_array($authUser->user_type, ['admin', 'manager', 'website_user']));
       
       $userHasHelpCenterAccess = false;
       if (isset($authUser) && $authUser) {
@@ -956,7 +957,7 @@
       }
   @endphp
   
-  @if($canAccessIncidentPortal || $canAccessJobMarketplace || $canAccessNightlyReports || $canAccessFormBuilder || $canAccessCustomInvoice || $userHasHelpCenterAccess)
+  @if($canAccessIncidentPortal || $canAccessJobMarketplace || $canAccessNightlyReports || $canAccessFormBuilder || ($canAccessCustomInvoice && $isAdminOrManagerUser) || $userHasHelpCenterAccess)
   <li class="menu-header small text-uppercase">
     <span class="menu-header-text">Manager Portal</span>
   </li>
@@ -1002,7 +1003,7 @@
   </li>
   @endif
 
-  @if($canAccessCustomInvoice)
+  @if($canAccessCustomInvoice && $isAdminOrManagerUser)
   <li class="menu-item {{ request()->is('admins/custom-invoice*') ? 'active' : '' }}">
     <a href="{{ route('admin.custom-invoice.index') }}" class="menu-link">
       <i class="menu-icon tf-icons bx bx-file"></i>
@@ -1012,7 +1013,7 @@
   @endif
   @endif
 
-  @if(($authUser && $canAccessRoute('admin.feed-model.index')) || ($authUser && $canAccessRoute('admin.feed-post.index')) || (auth()->check() && auth()->user()->isAdmin()) || ($authUser && $canAccessRoute('admin.entertainer.index')) || ($authUser && $canAccessRoute('admin.affiliate.index')))
+  @if(($authUser && $canAccessRoute('admin.feed-model.index')) || ($authUser && $canAccessRoute('admin.feed-post.index')) || (auth()->check() && auth()->user()->isAdmin()) || ($authUser && $canAccessRoute('admin.entertainer.index')) || ($authUser && $canAccessRoute('admin.affiliate.index')) || ($canAccessCustomInvoice && !$isAdminOrManagerUser))
   <li class="menu-header small text-uppercase">
     <span class="menu-header-text">Promoters, Entertainers & Feed</span>
   </li>
@@ -1053,6 +1054,15 @@
     <a href="{{ route('admin.staff.index') }}" class="menu-link">
       <i class="menu-icon tf-icons bx bx-id-card"></i>
       <div class="text-truncate">Current Staff</div>
+    </a>
+  </li>
+  @endif
+
+  @if($canAccessCustomInvoice && !$isAdminOrManagerUser)
+  <li class="menu-item {{ request()->is('admins/custom-invoice*') ? 'active' : '' }}">
+    <a href="{{ route('admin.custom-invoice.index') }}" class="menu-link">
+      <i class="menu-icon tf-icons bx bx-file"></i>
+      <div class="text-truncate">Custom Invoices</div>
     </a>
   </li>
   @endif
