@@ -25,6 +25,45 @@
 .table-responsive {
     padding-bottom: 20px;
 }
+.toggle-switch {
+    position: relative;
+    display: inline-block;
+    width: 44px;
+    height: 24px;
+    vertical-align: middle;
+}
+.toggle-switch-input {
+    opacity: 0;
+    width: 0;
+    height: 0;
+    position: absolute;
+}
+.toggle-switch-slider {
+    position: absolute;
+    inset: 0;
+    border-radius: 999px;
+    background: #475569;
+    transition: background .2s ease;
+    cursor: pointer;
+}
+.toggle-switch-slider::before {
+    content: '';
+    position: absolute;
+    width: 18px;
+    height: 18px;
+    left: 3px;
+    top: 3px;
+    border-radius: 50%;
+    background: #fff;
+    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.25);
+    transition: transform .2s ease;
+}
+.toggle-switch-input:checked + .toggle-switch-slider {
+    background: #ffcc00;
+}
+.toggle-switch-input:checked + .toggle-switch-slider::before {
+    transform: translateX(20px);
+}
 </style>
 @endpush
 
@@ -96,10 +135,13 @@
                     <input type="number" min="0" max="365" name="commission_hold_days" class="form-control" value="{{ old('commission_hold_days', $entertainer->commission_hold_days) }}" placeholder="Club Default">
                 </div>
                 <div class="col-md-4">
-                    <div class="form-check form-switch mb-2">
-                        <input class="form-check-input" type="checkbox" name="allow_custom_invoice" value="1" id="allow_entertainer_invoice" {{ $entertainer->allow_custom_invoice ? 'checked' : '' }}>
-                        <label class="form-check-label fw-semibold text-info cursor-pointer" for="allow_entertainer_invoice">
-                            <i class="bx bx-receipt me-1"></i> Allow Custom Invoice Creation
+                    <div class="d-flex align-items-center mb-2">
+                        <label class="toggle-switch me-2" for="allow_entertainer_invoice">
+                            <input class="toggle-switch-input" type="checkbox" name="allow_custom_invoice" value="1" id="allow_entertainer_invoice" {{ ($entertainer->allow_custom_invoice ?? true) ? 'checked' : '' }}>
+                            <span class="toggle-switch-slider"></span>
+                        </label>
+                        <label for="allow_entertainer_invoice" class="mb-0 fw-semibold text-white fs-7 cursor-pointer">
+                            <i class="bx bx-receipt me-1 text-warning"></i> Allow Custom Invoice Creation
                         </label>
                     </div>
                     <button type="submit" class="btn btn-outline-primary w-100">Update Settings</button>

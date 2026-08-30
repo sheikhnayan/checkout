@@ -13,13 +13,13 @@ return new class extends Migration
     {
         if (Schema::hasTable('affiliate_websites') && !Schema::hasColumn('affiliate_websites', 'allow_custom_invoice')) {
             Schema::table('affiliate_websites', function (Blueprint $table) {
-                $table->boolean('allow_custom_invoice')->default(false)->after('is_active');
+                $table->boolean('allow_custom_invoice')->default(true)->after('is_active');
             });
         }
 
         if (Schema::hasTable('entertainers') && !Schema::hasColumn('entertainers', 'allow_custom_invoice')) {
             Schema::table('entertainers', function (Blueprint $table) {
-                $table->boolean('allow_custom_invoice')->default(false)->after('is_active');
+                $table->boolean('allow_custom_invoice')->default(true)->after('is_active');
             });
         }
     }

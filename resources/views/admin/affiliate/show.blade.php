@@ -25,6 +25,45 @@
 .table-responsive {
     padding-bottom: 20px;
 }
+.toggle-switch {
+    position: relative;
+    display: inline-block;
+    width: 44px;
+    height: 24px;
+    vertical-align: middle;
+}
+.toggle-switch-input {
+    opacity: 0;
+    width: 0;
+    height: 0;
+    position: absolute;
+}
+.toggle-switch-slider {
+    position: absolute;
+    inset: 0;
+    border-radius: 999px;
+    background: #475569;
+    transition: background .2s ease;
+    cursor: pointer;
+}
+.toggle-switch-slider::before {
+    content: '';
+    position: absolute;
+    width: 18px;
+    height: 18px;
+    left: 3px;
+    top: 3px;
+    border-radius: 50%;
+    background: #fff;
+    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.25);
+    transition: transform .2s ease;
+}
+.toggle-switch-input:checked + .toggle-switch-slider {
+    background: #ffcc00;
+}
+.toggle-switch-input:checked + .toggle-switch-slider::before {
+    transform: translateX(20px);
+}
 </style>
 @endpush
 
@@ -175,10 +214,13 @@
                                         <input type="number" min="0" max="100" step="0.01" name="club_commissions[{{ $website->id }}]" class="form-control bg-dark text-white border-secondary" value="{{ old('club_commissions.' . $website->id, $clubCommValue) }}" placeholder="Default ({{ number_format((float) ($affiliate->default_commission_percentage ?? 0), 2) }}%)">
                                         <span class="input-group-text bg-dark text-white border-secondary">%</span>
                                     </div>
-                                    <div class="form-check form-switch form-check-sm mb-0 ms-1">
-                                        <input class="form-check-input" type="checkbox" name="allow_custom_invoices[{{ $website->id }}]" value="1" id="allow_invoice_{{ $website->id }}" {{ $affWeb && $affWeb->allow_custom_invoice ? 'checked' : '' }}>
-                                        <label class="form-check-label fs-7 fw-semibold text-info cursor-pointer" for="allow_invoice_{{ $website->id }}">
-                                            <i class="bx bx-receipt me-1"></i> Allow Custom Invoice Creation
+                                    <div class="d-flex align-items-center mt-1">
+                                        <label class="toggle-switch me-2" for="allow_invoice_{{ $website->id }}">
+                                            <input class="toggle-switch-input" type="checkbox" name="allow_custom_invoices[{{ $website->id }}]" value="1" id="allow_invoice_{{ $website->id }}" {{ ($affWeb ? (bool) $affWeb->allow_custom_invoice : true) ? 'checked' : '' }}>
+                                            <span class="toggle-switch-slider"></span>
+                                        </label>
+                                        <label for="allow_invoice_{{ $website->id }}" class="mb-0 fs-7 fw-semibold text-white cursor-pointer">
+                                            <i class="bx bx-receipt me-1 text-warning"></i> Allow Custom Invoice Creation
                                         </label>
                                     </div>
                                 </div>
