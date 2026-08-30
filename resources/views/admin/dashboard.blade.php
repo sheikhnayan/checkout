@@ -381,18 +381,19 @@
                             <tbody>
                                 @forelse($recentTransactions as $tx)
                                 @php
-                                    $custFirstName = trim((string)($tx->first_name ?? $tx->billing_first_name ?? ''));
-                                    $custLastName = trim((string)($tx->last_name ?? $tx->billing_last_name ?? ''));
+                                    $custFirstName = trim((string)($tx->package_first_name ?? $tx->payment_first_name ?? $tx->billing_first_name ?? $tx->first_name ?? ''));
+                                    $custLastName = trim((string)($tx->package_last_name ?? $tx->payment_last_name ?? $tx->billing_last_name ?? $tx->last_name ?? ''));
                                     $custFullName = trim($custFirstName . ' ' . $custLastName);
 
                                     if (empty($custFullName)) {
-                                        $custFullName = trim((string)($tx->full_name ?? $tx->name ?? $tx->billing_name ?? optional($tx->user)->name ?? $tx->cardholder_name ?? ''));
+                                        $custFullName = trim((string)($tx->client_name ?? $tx->full_name ?? $tx->name ?? $tx->billing_name ?? optional($tx->user)->name ?? $tx->cardholder_name ?? ''));
                                     }
 
                                     if (empty($custFullName)) {
                                         $custFullName = 'Guest Customer';
                                     }
 
+                                    $custEmail = $tx->package_email ?? $tx->payment_email ?? $tx->email ?? $tx->billing_email ?? optional($tx->user)->email ?? '';
                                     $clubName = $tx->website->name ?? optional(optional($tx->event)->website)->name ?? optional(optional($tx->package)->website)->name ?? 'N/A';
                                 @endphp
                                 <tr>
@@ -403,7 +404,7 @@
                                             </div>
                                             <div>
                                                 <div class="fw-semibold text-white">{{ $custFullName }}</div>
-                                                <small class="text-muted fs-8">{{ $tx->email }}</small>
+                                                <small class="text-muted fs-8">{{ $custEmail }}</small>
                                             </div>
                                         </div>
                                     </td>
