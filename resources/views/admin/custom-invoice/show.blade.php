@@ -54,7 +54,25 @@ html body .custom-invoice-page-wrapper .card-footer {
     padding: 16px 24px !important;
 }
 
-/* SOLID CRISP BLACK TYPOGRAPHY - NO CYAN, NO BLUE, NO GRAY */
+/* ABSOLUTE 100% FORCE SOLID BLACK (#000000) FOR ALL LABELS, HEADINGS, PARAGRAPHS & TEXT */
+html body .custom-invoice-page-wrapper form label,
+html body .custom-invoice-page-wrapper form .form-label,
+html body .custom-invoice-page-wrapper form .form-group label,
+html body .custom-invoice-page-wrapper form .form-section-title,
+html body .custom-invoice-page-wrapper form .section-title,
+html body .custom-invoice-page-wrapper form .website-section-title,
+html body .custom-invoice-page-wrapper form .card-title,
+html body .custom-invoice-page-wrapper form h1,
+html body .custom-invoice-page-wrapper form h2,
+html body .custom-invoice-page-wrapper form h3,
+html body .custom-invoice-page-wrapper form h4,
+html body .custom-invoice-page-wrapper form h5,
+html body .custom-invoice-page-wrapper form h6,
+html body .custom-invoice-page-wrapper form span,
+html body .custom-invoice-page-wrapper form p,
+html body .custom-invoice-page-wrapper form small,
+html body .custom-invoice-page-wrapper form i,
+html body .custom-invoice-page-wrapper form .field-tip,
 html body .custom-invoice-page-wrapper h1,
 html body .custom-invoice-page-wrapper h2,
 html body .custom-invoice-page-wrapper h3,
@@ -76,9 +94,18 @@ html body .custom-invoice-page-wrapper .help-text,
 html body .custom-invoice-page-wrapper .field-tip,
 html body .custom-invoice-page-wrapper td,
 html body .custom-invoice-page-wrapper th,
-html body .custom-invoice-page-wrapper div {
+html body .custom-invoice-page-wrapper i {
     color: #000000 !important;
     opacity: 1 !important;
+}
+
+html body .custom-invoice-page-wrapper label,
+html body .custom-invoice-page-wrapper .form-label,
+html body .custom-invoice-page-wrapper form label,
+html body .custom-invoice-page-wrapper form .form-label {
+    color: #000000 !important;
+    font-weight: 800 !important;
+    font-size: 14px !important;
 }
 
 html body .custom-invoice-page-wrapper label,
