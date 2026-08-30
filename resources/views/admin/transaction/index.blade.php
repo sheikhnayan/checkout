@@ -18,10 +18,32 @@
 .txn-filters-btn, .txn-export-btn {
     background: rgba(255,255,255,0.07); border: 1px solid rgba(255,255,255,0.1);
     color: #fff; border-radius: 10px; font-size: 0.85rem; padding: 7px 16px; transition: background 0.2s;
-/* Animated Note Highlight Button */
+}
+.txn-filters-btn:hover, .txn-export-btn:hover { background: rgba(255,255,255,0.13); color: #fff; }
+.txn-export-btn::after { display: none !important; }
+/* Stat Cards */
+.txn-stat-card {
+    background: linear-gradient(145deg, rgba(255,255,255,0.05), rgba(255,255,255,0.02));
+    border: 1px solid rgba(255,255,255,0.08); border-radius: 16px;
+    padding: 20px; display: flex; align-items: center; gap: 16px;
+    transition: transform 0.2s, box-shadow 0.2s;
+}
+.txn-stat-card:hover { transform: translateY(-2px); box-shadow: 0 8px 30px rgba(0,0,0,0.3); }
+.txn-stat-icon {
+    width: 52px; height: 52px; border-radius: 14px; flex-shrink: 0;
+    display: flex; align-items: center; justify-content: center; font-size: 1.3rem;
+}
+.txn-stat-label { font-size: 0.68rem; font-weight: 700; letter-spacing: 0.08em; color: rgba(255,255,255,0.45); text-transform: uppercase; margin-bottom: 4px; }
+.txn-stat-value { font-size: 1.7rem; font-weight: 800; color: #fff; line-height: 1.1; margin-bottom: 6px; }
+.txn-stat-trend { font-size: 0.75rem; font-weight: 600; }
+.txn-stat-trend span { color: rgba(255,255,255,0.4); font-weight: 400; }
+.txn-stat-note { font-size: 0.75rem; color: rgba(255,255,255,0.4); }
+.trend-up { color: #10b981; }
+.trend-down { color: #ef4444; }
+
 @keyframes notePulseGlow {
     0% {
-        box-shadow: 0 0 0 0 rgba(245, 158, 11, 0.85);
+        box-shadow: 0 0 0 0 rgba(245, 158, 11, 0.7);
         transform: scale(1);
     }
     50% {
@@ -49,229 +71,6 @@
 }
 .btn-has-note i {
     color: #0f172a !important;
-}
-/* Sticky Action Column */
-.txn-table th:last-child,
-.txn-table td:last-child {
-    position: sticky;
-    right: 0;
-    background: #0f172a !important;
-    z-index: 4;
-    box-shadow: -4px 0 10px rgba(0, 0, 0, 0.5);
-}
-.txn-table tbody tr.even td:last-child {
-    background: #111827 !important;
-}
-.txn-table tbody tr:hover td:last-child {
-    background: #1e293b !important;
-}
-/* Stat Cards Layout Fix */
-.txn-stat-card-row {
-    display: flex !important;
-    flex-wrap: wrap !important;
-    gap: 16px !important;
-    width: 100% !important;
-    margin-bottom: 24px !important;
-}
-.txn-stat-card-col {
-    flex: 1 1 240px !important;
-    min-width: 220px !important;
-    max-width: 100% !important;
-}
-.txn-stat-card {
-    background: rgba(30, 41, 59, 0.75) !important;
-    border: 1px solid rgba(255, 255, 255, 0.1) !important;
-    border-top: 3px solid #7c3aed !important;
-    border-radius: 14px !important;
-    padding: 18px 20px !important;
-    display: flex !important;
-    align-items: center !important;
-    gap: 16px !important;
-    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.25) !important;
-    transition: transform 0.2s, box-shadow 0.2s !important;
-}
-.txn-stat-card-col:nth-child(2) .txn-stat-card {
-    border-top-color: #f59e0b !important;
-}
-.txn-stat-card-col:nth-child(3) .txn-stat-card,
-.txn-stat-card-col:nth-child(4) .txn-stat-card {
-    border-top-color: #38bdf8 !important;
-}
-.txn-stat-card:hover {
-    transform: translateY(-2px) !important;
-    box-shadow: 0 8px 30px rgba(0,0,0,0.4) !important;
-    border-color: rgba(124, 58, 237, 0.4) !important;
-}
-.txn-stat-icon {
-    width: 48px !important;
-    height: 48px !important;
-    border-radius: 12px !important;
-    flex-shrink: 0 !important;
-    display: flex !important;
-    align-items: center !important;
-    justify-content: center !important;
-    font-size: 1.25rem !important;
-}
-.txn-stat-label {
-    font-size: 0.72rem !important;
-    font-weight: 700 !important;
-    letter-spacing: 0.08em !important;
-    color: rgba(255, 255, 255, 0.55) !important;
-    text-transform: uppercase !important;
-    margin-bottom: 4px !important;
-}
-.txn-stat-value {
-    font-size: 1.6rem !important;
-    font-weight: 800 !important;
-    color: #ffffff !important;
-    line-height: 1.1 !important;
-    margin-bottom: 0 !important;
-}
-.txn-stat-trend { font-size: 0.75rem; font-weight: 600; }
-.txn-stat-trend span { color: rgba(255,255,255,0.4); font-weight: 400; }
-.txn-stat-note { font-size: 0.75rem; color: rgba(255,255,255,0.4); }
-.trend-up { color: #10b981; }
-.trend-down { color: #ef4444; }
-
-/* Polaris Filter Bar */
-#polarisFilterContainer,
-.polaris-filter-bar {
-    display: flex !important;
-    flex-direction: row !important;
-    flex-wrap: wrap !important;
-    align-items: center !important;
-    gap: 8px 10px !important;
-    background: rgba(15, 23, 42, 0.65) !important;
-    border: 1px solid rgba(255, 255, 255, 0.1) !important;
-    border-radius: 12px !important;
-    padding: 10px 14px !important;
-    margin-bottom: 14px !important;
-    overflow: visible !important;
-    width: 100% !important;
-}
-#polarisFilterContainer .dropdown,
-.polaris-filter-bar .dropdown {
-    display: inline-block !important;
-    position: relative !important;
-    margin: 0 !important;
-    flex-shrink: 0 !important;
-    width: auto !important;
-}
-#polarisFilterContainer .dropdown-toggle,
-#polarisFilterContainer .polaris-filter-pill-btn,
-.polaris-filter-pill-btn {
-    display: inline-flex !important;
-    width: auto !important;
-    max-width: none !important;
-    flex: 0 0 auto !important;
-    white-space: nowrap !important;
-    background: rgba(255, 255, 255, 0.08) !important;
-    border: 1px solid rgba(255, 255, 255, 0.15) !important;
-    color: #e2e8f0 !important;
-    font-size: 0.82rem !important;
-    font-weight: 600 !important;
-    padding: 6px 14px !important;
-    border-radius: 8px !important;
-    align-items: center !important;
-    gap: 6px !important;
-    cursor: pointer !important;
-    transition: all 0.2s ease !important;
-}
-.polaris-filter-pill-btn:hover,
-.polaris-filter-pill-btn.active {
-    background: rgba(124, 58, 237, 0.3) !important;
-    border-color: #7c3aed !important;
-    color: #ffffff !important;
-}
-.polaris-filter-pill-count {
-    background: #7c3aed;
-    color: #fff;
-    font-size: 0.7rem;
-    font-weight: 700;
-    padding: 1px 6px;
-    border-radius: 999px;
-}
-.polaris-scroll-btn {
-    position: absolute;
-    top: 50%;
-    transform: translateY(-50%);
-    z-index: 1050;
-    width: 28px;
-    height: 28px;
-    border-radius: 50%;
-    background: #1e293b;
-    border: 1px solid rgba(255, 255, 255, 0.25);
-    color: #ffffff !important;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    font-size: 0.72rem;
-    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.6);
-    cursor: pointer;
-    transition: all 0.2s ease-in-out;
-}
-.polaris-scroll-btn:hover {
-    background: #7c3aed;
-    border-color: #a78bfa;
-    color: #ffffff !important;
-}
-.polaris-scroll-left {
-    left: 4px;
-}
-.polaris-scroll-right {
-    right: 4px;
-}
-.polaris-popover-menu {
-    background: #1e293b !important;
-    border: 1px solid rgba(255, 255, 255, 0.15) !important;
-    border-radius: 12px !important;
-    padding: 14px !important;
-    min-width: 250px !important;
-    max-width: 320px !important;
-    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.6) !important;
-    z-index: 1050 !important;
-    margin-top: 6px !important;
-}
-.polaris-popover-menu,
-.polaris-popover-menu label,
-.polaris-popover-menu span,
-.polaris-popover-menu p,
-.polaris-popover-menu div {
-    color: #ffffff !important;
-}
-.polaris-popover-header {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    gap: 12px;
-    padding-bottom: 8px;
-    margin-bottom: 8px;
-    border-bottom: 1px solid rgba(255, 255, 255, 0.08);
-}
-.polaris-popover-title {
-    font-size: 0.78rem;
-    font-weight: 700;
-    text-transform: uppercase;
-    letter-spacing: 0.05em;
-    color: #cbd5e1 !important;
-    margin-right: 12px;
-    white-space: nowrap;
-}
-.polaris-popover-action {
-    font-size: 0.72rem;
-    color: #a78bfa !important;
-    cursor: pointer;
-    text-decoration: none;
-    font-weight: 600;
-}
-.polaris-popover-action:hover {
-    color: #c4b5fd !important;
-    text-decoration: underline;
-}
-.polaris-popover-menu select,
-.polaris-popover-menu input {
-    color: #ffffff !important;
-    background: rgba(15, 23, 42, 0.9) !important;
 }
 /* Charts */
 .txn-chart-card {
@@ -330,7 +129,6 @@
 .txn-venue { font-size: 0.82rem; font-weight: 600; color: rgba(255,255,255,0.9); }
 .txn-pkg-type { font-size: 0.75rem; color: rgba(255,255,255,0.4); }
 .txn-customer-name { font-size: 0.82rem; font-weight: 600; color: rgba(255,255,255,0.9); }
-.badge-guest-count { background: rgba(124,58,237,0.22); color: #c084fc; border: 1px solid rgba(124,58,237,0.38); font-size: 0.72rem; font-weight: 700; padding: 1px 6px; border-radius: 4px; margin-left: 4px; display: inline-block; vertical-align: middle; }
 .txn-customer-email { font-size: 0.75rem; color: rgba(255,255,255,0.4); }
 .txn-amount { font-weight: 700; color: #fff; font-size: 0.9rem; }
 .txn-commission { font-weight: 600; color: rgba(255,255,255,0.75); font-size: 0.85rem; }
@@ -434,26 +232,15 @@
 .polaris-scroll-right {
     right: 4px;
 }
-.polaris-filter-bar {
-    display: flex;
-    align-items: center;
-    gap: 8px;
-    flex-wrap: wrap;
-    overflow: visible !important;
-}
-.polaris-filter-bar .dropdown {
-    position: relative !important;
-}
 .polaris-popover-menu {
     background: #1e293b !important;
     border: 1px solid rgba(255, 255, 255, 0.15) !important;
     border-radius: 12px !important;
-    padding: 14px !important;
-    min-width: 250px !important;
+    padding: 12px !important;
+    min-width: 230px !important;
     max-width: 320px !important;
-    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.6) !important;
-    z-index: 1050 !important;
-    margin-top: 6px !important;
+    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.5) !important;
+    z-index: 99999 !important;
 }
 .polaris-popover-menu,
 .polaris-popover-menu label,
@@ -501,26 +288,11 @@
     color: #ffffff !important;
 }
 .polaris-popover-body {
-    max-height: 340px;
+    max-height: 220px;
     overflow-y: auto;
     display: flex;
     flex-direction: column;
-    gap: 4px;
-    padding-right: 4px;
-}
-.polaris-popover-body::-webkit-scrollbar {
-    width: 6px;
-}
-.polaris-popover-body::-webkit-scrollbar-track {
-    background: rgba(15, 23, 42, 0.6);
-    border-radius: 4px;
-}
-.polaris-popover-body::-webkit-scrollbar-thumb {
-    background: rgba(255, 255, 255, 0.25);
-    border-radius: 4px;
-}
-.polaris-popover-body::-webkit-scrollbar-thumb:hover {
-    background: rgba(255, 255, 255, 0.4);
+    gap: 6px;
 }
 .polaris-checkbox-label {
     display: flex;
@@ -1195,8 +967,8 @@ body.modal-open .admin-mobile-menu-toggle {
         </div>
 
         {{-- ── STAT CARDS ──────────────────────────────────────────── --}}
-        <div class="txn-stat-card-row">
-            <div class="txn-stat-card-col">
+        <div class="row row-cols-1 row-cols-md-3 g-3 mb-4">
+            <div class="col">
                 <div class="txn-stat-card">
                     <div class="txn-stat-icon" style="background:rgba(124,58,237,0.15);color:#7c3aed"><i class="fas fa-receipt"></i></div>
                     <div>
@@ -1208,7 +980,7 @@ body.modal-open .admin-mobile-menu-toggle {
                     </div>
                 </div>
             </div>
-            <div class="txn-stat-card-col">
+            <div class="col">
                 <div class="txn-stat-card">
                     <div class="txn-stat-icon" style="background:rgba(245,158,11,0.15);color:#f59e0b"><i class="fas fa-dollar-sign"></i></div>
                     <div>
@@ -1220,7 +992,7 @@ body.modal-open .admin-mobile-menu-toggle {
                     </div>
                 </div>
             </div>
-            <div class="txn-stat-card-col" style="display:none !important;">
+            <div class="col" style="display:none !important;">
                 <div class="txn-stat-card">
                     <div class="txn-stat-icon" style="background:rgba(249,115,22,0.15);color:#f97316"><i class="fas fa-clock"></i></div>
                     <div>
@@ -1230,7 +1002,7 @@ body.modal-open .admin-mobile-menu-toggle {
                     </div>
                 </div>
             </div>
-            <div class="txn-stat-card-col">
+            <div class="col">
                 <div class="txn-stat-card">
                     <div class="txn-stat-icon" style="background:rgba(56,189,248,0.15);color:#38bdf8"><i class="fas fa-users"></i></div>
                     <div>
@@ -1281,7 +1053,7 @@ body.modal-open .admin-mobile-menu-toggle {
                 <div class="txn-chart-card" id="performanceChartCard">
                     <div class="txn-chart-header">
                         <div class="fw-semibold text-white" style="font-size:0.85rem;letter-spacing:0.05em">PERFORMANCE OVER TIME</div>
-                        <select class="txn-period-select" id="chartPeriod" style="display:none !important;">
+                        <select class="txn-period-select" id="chartPeriod">
                             <option value="7">By Day (7d)</option>
                             <option value="14">By Day (14d)</option>
                             <option value="30" selected>By Day (30d)</option>
@@ -1376,7 +1148,7 @@ body.modal-open .admin-mobile-menu-toggle {
                     <button class="polaris-filter-pill-btn dropdown-toggle" type="button" data-bs-toggle="dropdown" data-bs-auto-close="outside" id="pillVenueBtn">
                         <i class="fas fa-store"></i> Venue <span class="polaris-filter-pill-count d-none" id="countVenue">0</span>
                     </button>
-                    <div class="dropdown-menu polaris-popover-menu" style="min-width: 250px !important;">
+                    <div class="dropdown-menu polaris-popover-menu">
                         <div class="polaris-popover-header">
                             <span class="polaris-popover-title me-3">Filter by Venue</span>
                             <div>
@@ -1384,14 +1156,11 @@ body.modal-open .admin-mobile-menu-toggle {
                                 <a href="javascript:void(0)" class="polaris-popover-action" onclick="polarisToggleSelectAll('venue', false)">Clear</a>
                             </div>
                         </div>
-                        <div class="mb-2">
-                            <input type="text" class="form-control form-control-sm bg-dark text-white border-secondary" placeholder="Search venues..." onkeyup="filterVenueDropdownList(this.value)" style="font-size: 0.78rem; padding: 4px 8px; border-radius: 6px;">
-                        </div>
-                        <div class="polaris-popover-body" id="venuePopoverBody">
+                        <div class="polaris-popover-body">
                             @foreach($accessibleSitesList as $site)
-                            <label class="polaris-checkbox-label venue-item-label">
+                            <label class="polaris-checkbox-label">
                                 <input type="checkbox" class="polaris-filter-cb" data-category="venue" value="{{ $site->name }}" {{ $filterWebsite === $site->name ? 'checked' : '' }}>
-                                <span class="venue-item-name">{{ $site->name }}</span>
+                                <span>{{ $site->name }}</span>
                             </label>
                             @endforeach
                         </div>
@@ -1932,28 +1701,8 @@ body.modal-open .admin-mobile-menu-toggle {
                             <td>
                                 @php
                                     $customerPhone = trim((string) ($item->package_phone ?: $item->payment_phone ?: ''));
-                                    $resMen = (int) ($item->package_men ?? 0);
-                                    $resWomen = (int) ($item->package_women ?? 0);
-                                    $resGuests = $resMen + $resWomen;
-                                    $pkgGuests = (int) ($item->package_number_of_guest ?? 0);
-
-                                    $cartGuests = 0;
-                                    if (is_array($cartItems)) {
-                                        foreach ($cartItems as $ci) {
-                                            if (is_array($ci)) {
-                                                $cartGuests += max(1, (int) ($ci['guests'] ?? $ci['quantity'] ?? 1));
-                                            }
-                                        }
-                                    }
-
-                                    $totalGuestsCount = $resGuests > 0 ? $resGuests : ($pkgGuests > 0 ? $pkgGuests : $cartGuests);
                                 @endphp
-                                <div class="txn-customer-name">
-                                    {{ $item->package_first_name }} {{ $item->package_last_name }}
-                                    @if($totalGuestsCount > 1)
-                                        <span class="badge-guest-count">x{{ $totalGuestsCount }}</span>
-                                    @endif
-                                </div>
+                                <div class="txn-customer-name">{{ $item->package_first_name }} {{ $item->package_last_name }}</div>
                                 <div class="txn-customer-email">{{ $item->package_email }}</div>
                                 @if($customerPhone !== '')
                                     <div class="txn-customer-phone" style="font-size:0.75rem;color:rgba(255,255,255,0.6);margin-top:2px;">
@@ -2162,7 +1911,7 @@ body.modal-open .admin-mobile-menu-toggle {
                                         data-id="{{ $item->id }}"
                                         data-admin_notes="{{ $item->admin_notes ?? '' }}"
                                         data-admin_notes_by="{{ $item->admin_notes_by ?? '' }}"
-                                        data-admin_notes_at="{{ $formatDatePst($item->admin_notes_at) }}"
+                                        data-admin_notes_at="{{ $item->admin_notes_at ? optional($item->admin_notes_at)->timezone('America/Los_Angeles')->format('M d, Y h:i A \P\D\T') : '' }}"
                                         data-transaction_id="{{ $item->transaction_id ?? 'Free' }}"
                                         data-package_id="{{ $packageDetailsText }}"
                                         data-cart-items='@json($cartItems)'
@@ -2235,7 +1984,7 @@ body.modal-open .admin-mobile-menu-toggle {
                                         data-entertainer_name="{{ !empty($item->entertainer_id) && !empty($item->entertainer) ? ($item->entertainer->display_name ?: optional($item->entertainer->user)->name ?: ('Entertainer #' . $item->entertainer_id)) : '' }}"
                                         data-affiliate_commission_percentage="{{ (float) ($item->affiliate_commission_percentage ?? 0) }}"
                                         data-affiliate_commission_amount="{{ (float) ($item->affiliate_commission_amount ?? 0) }}"
-                                        data-affiliate_commission_status="{{ $item->affiliate_commission_status ?? '' }}"
+                                         data-affiliate_commission_status="{{ $item->affiliate_commission_status ?? '' }}"
                                         data-affiliate_commission_hold_until="{{ $formatDatePst($item->affiliate_commission_hold_until, 'M d, Y h:i A \P\T') }}"
                                         data-entertainer_commission_percentage="{{ (float) ($item->entertainer_commission_percentage ?? 0) }}"
                                         data-entertainer_commission_amount="{{ (float) ($item->entertainer_commission_amount ?? 0) }}"
@@ -3132,6 +2881,63 @@ body.modal-open .admin-mobile-menu-toggle {
                 });
 
                 // Body Teleport for Polaris Filter Dropdowns (escapes all overflow & stacking contexts)
+                $(document).on('show.bs.dropdown', '#polarisFilterContainer .dropdown', function () {
+                    var $dropdown = $(this);
+                    var $btn = $dropdown.find('.dropdown-toggle');
+                    var $menu = $dropdown.find('.dropdown-menu');
+
+                    if (!$btn.length || !$menu.length) return;
+
+                    $menu.data('orig-parent', $dropdown);
+                    $('body').append($menu);
+
+                    var rect = $btn[0].getBoundingClientRect();
+                    var menuWidth = $menu.outerWidth() || 260;
+                    if (window.innerWidth < 768) {
+                        menuWidth = Math.min(menuWidth, window.innerWidth - 32);
+                    }
+
+                    var left = rect.left;
+                    if (left + menuWidth > window.innerWidth - 16) {
+                        left = Math.max(16, window.innerWidth - menuWidth - 16);
+                    }
+                    if (left < 16) {
+                        left = 16;
+                    }
+
+                    var top = rect.bottom + 4;
+
+                    $menu.css({
+                        'position': 'fixed',
+                        'top': top + 'px',
+                        'left': left + 'px',
+                        'margin': '0',
+                        'transform': 'none',
+                        'z-index': '99999',
+                        'display': 'block'
+                    });
+                });
+
+                $(document).on('hide.bs.dropdown hidden.bs.dropdown', '#polarisFilterContainer .dropdown', function () {
+                    var $dropdown = $(this);
+                    var $menu = $('body > .polaris-popover-menu').filter(function() {
+                        return $(this).data('orig-parent') && $(this).data('orig-parent')[0] === $dropdown[0];
+                    });
+
+                    if ($menu.length) {
+                        $menu.css({
+                            'position': '',
+                            'top': '',
+                            'left': '',
+                            'margin': '',
+                            'transform': '',
+                            'z-index': '',
+                            'display': ''
+                        });
+                        $dropdown.append($menu);
+                    }
+                });
+
                 $(document).on('click mousedown touchstart', '.polaris-popover-menu', function(e) {
                     e.stopPropagation();
                 });
@@ -3972,7 +3778,7 @@ body.modal-open .admin-mobile-menu-toggle {
                 }
             })();
 
-            window.buildAdminNotesCardHtml = function(txnId, noteText, noteBy, noteAt, pkgNote, transNote) {
+            window.buildAdminNotesCardHtml = function(txnId, noteText, noteBy, noteAt) {
                 var safeEsc = window.txnEsc || function(v) { return String(v == null ? '' : v).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;').replace(/'/g,'&#39;'); };
                 var authorInfo = '';
                 if (noteBy || noteAt) {
@@ -3980,30 +3786,14 @@ body.modal-open .admin-mobile-menu-toggle {
                 }
 
                 var cardHtml = '';
-
-                pkgNote = (pkgNote || '').trim();
-                transNote = (transNote || '').trim();
-
-                if (pkgNote || transNote) {
-                    cardHtml += '<div class="mb-3 p-3" style="background:rgba(245, 158, 11, 0.12);border:1px solid rgba(245, 158, 11, 0.35);border-radius:10px;">';
-                    cardHtml += '<div class="fw-bold mb-1 text-warning" style="font-size:0.85rem;"><i class="fas fa-comment-alt me-1"></i>Customer Notes:</div>';
-                    if (pkgNote) {
-                        cardHtml += '<div class="text-white-50 small mb-1"><strong>Booking Note:</strong> <span class="text-white">' + safeEsc(pkgNote) + '</span></div>';
-                    }
-                    if (transNote) {
-                        cardHtml += '<div class="text-white-50 small"><strong>Transportation Note:</strong> <span class="text-white">' + safeEsc(transNote) + '</span></div>';
-                    }
-                    cardHtml += '</div>';
-                }
-
                 cardHtml += '<div class="txn-detail-card admin-notes-card mb-0" style="background:rgba(30,41,59,0.7);border:1px solid rgba(124,58,237,0.35);border-radius:12px;padding:16px;">';
                 cardHtml += '<div class="d-flex align-items-center justify-content-between mb-2 flex-wrap gap-1">';
-                cardHtml += '<div class="txn-detail-title mb-0" style="color:#a78bfa;font-size:0.9rem;font-weight:700;"><i class="fas fa-sticky-note me-2"></i>Admin Notes</div>';
-                cardHtml += '<div class="admin-note-author-info text-white-50" style="font-size:0.75rem;">' + (authorInfo ? authorInfo : 'No internal note saved yet') + '</div>';
+                cardHtml += '<div class="txn-detail-title mb-0" style="color:#a78bfa;font-size:0.9rem;font-weight:700;"><i class="fas fa-sticky-note me-2"></i>Notes</div>';
+                cardHtml += '<div class="admin-note-author-info text-white-50" style="font-size:0.75rem;">' + (authorInfo ? authorInfo : 'No note saved yet') + '</div>';
                 cardHtml += '</div>';
                 cardHtml += '<form class="admin-note-form" data-txn-id="' + safeEsc(txnId) + '">';
                 cardHtml += '<div class="mb-3">';
-                cardHtml += '<textarea class="form-control admin-note-textarea" rows="4" placeholder="Enter internal notes for this transaction…" style="background:rgba(15,23,42,0.9);border:1px solid rgba(255,255,255,0.15);color:#fff;font-size:0.85rem;border-radius:8px;">' + safeEsc(noteText) + '</textarea>';
+                cardHtml += '<textarea class="form-control admin-note-textarea" rows="4" placeholder="Enter notes for this transaction…" style="background:rgba(15,23,42,0.9);border:1px solid rgba(255,255,255,0.15);color:#fff;font-size:0.85rem;border-radius:8px;">' + safeEsc(noteText) + '</textarea>';
                 cardHtml += '</div>';
                 cardHtml += '<div class="d-flex align-items-center justify-content-between gap-2">';
                 cardHtml += '<span class="admin-note-msg text-success small fw-semibold" style="display:none;"><i class="fas fa-check-circle me-1"></i>Saved!</span>';
@@ -4024,11 +3814,9 @@ body.modal-open .admin-mobile-menu-toggle {
                 var noteText = $btn.data('admin_notes') || '';
                 var noteBy = $btn.data('admin_notes_by') || '';
                 var noteAt = $btn.data('admin_notes_at') || '';
-                var pkgNote = $btn.data('package_note') || '';
-                var transNote = $btn.data('transportation_note') || '';
 
                 $('#txnNotesModalOrderTitle').text(orderNum);
-                var cardHtml = window.buildAdminNotesCardHtml(txnId, noteText, noteBy, noteAt, pkgNote, transNote);
+                var cardHtml = window.buildAdminNotesCardHtml(txnId, noteText, noteBy, noteAt);
                 $('#txnNotesModalBody').html(cardHtml);
             });
 
@@ -4062,39 +3850,17 @@ body.modal-open .admin-mobile-menu-toggle {
                         if (res.success) {
                             $msg.fadeIn(150).delay(2000).fadeOut(200);
 
-                            var newNote = (res.admin_notes || '').trim();
                             var $targetBtns = $('.view-btn[data-id="' + txnId + '"], .view-btn[data-transaction-id="' + txnId + '"], .open-notes-btn[data-id="' + txnId + '"], .open-notes-btn[data-transaction-id="' + txnId + '"]');
                             $targetBtns.data('admin_notes', res.admin_notes || '');
                             $targetBtns.data('admin_notes_by', res.admin_notes_by || '');
                             $targetBtns.data('admin_notes_at', res.admin_notes_at || '');
-
-                            $('.open-notes-btn[data-id="' + txnId + '"]').each(function() {
-                                var $b = $(this);
-                                if ($b.is('button')) {
-                                    var pkgNote = ($b.data('package_note') || '').trim();
-                                    var transNote = ($b.data('transportation_note') || '').trim();
-                                    var hasAnyNote = newNote !== '' || pkgNote !== '' || transNote !== '';
-
-                                    if (hasAnyNote) {
-                                        $b.removeClass('btn-outline-warning')
-                                          .addClass('btn-warning text-dark fw-bold btn-has-note')
-                                          .attr('title', 'Has Notes - Click to view/edit')
-                                          .html('<i class="fas fa-sticky-note me-1"></i>Notes <span class="badge bg-dark text-warning rounded-circle ms-1 p-1" style="font-size:0.6rem;line-height:1;">!</span>');
-                                    } else {
-                                        $b.removeClass('btn-warning text-dark fw-bold btn-has-note')
-                                          .addClass('btn-outline-warning')
-                                          .attr('title', 'Notes')
-                                          .html('<i class="fas fa-sticky-note me-1"></i>Notes');
-                                    }
-                                }
-                            });
 
                             var safeEsc = window.txnEsc || function(v) { return String(v || ''); };
                             var authorHtml = '';
                             if (res.admin_notes_by || res.admin_notes_at) {
                                 authorHtml = 'Updated' + (res.admin_notes_by ? ' by <strong style="color:#a78bfa;">' + safeEsc(res.admin_notes_by) + '</strong>' : '') + (res.admin_notes_at ? ' on ' + safeEsc(res.admin_notes_at) : '');
                             } else {
-                                authorHtml = 'No internal note saved yet';
+                                authorHtml = 'No note saved yet';
                             }
 
                             $('.admin-note-form[data-txn-id="' + txnId + '"]').each(function() {
@@ -6049,18 +5815,6 @@ body.modal-open .admin-mobile-menu-toggle {
 
                     setTimeout(updatePolarisScrollArrows, 350);
                 }
-            window.filterVenueDropdownList = function(query) {
-                var q = (query || '').toLowerCase().trim();
-                var labels = document.querySelectorAll('#venuePopoverBody .venue-item-label');
-                labels.forEach(function(label) {
-                    var text = (label.textContent || '').toLowerCase();
-                    if (!q || text.indexOf(q) !== -1) {
-                        label.style.display = 'flex';
-                    } else {
-                        label.style.display = 'none';
-                    }
-                });
-            };
             })();
             </script>
 @endpush
