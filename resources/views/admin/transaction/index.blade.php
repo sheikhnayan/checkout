@@ -1054,11 +1054,6 @@ body.modal-open .admin-mobile-menu-toggle {
                 <div class="txn-chart-card" id="performanceChartCard">
                     <div class="txn-chart-header">
                         <div class="fw-semibold text-white" style="font-size:0.85rem;letter-spacing:0.05em">PERFORMANCE OVER TIME</div>
-                        <select class="txn-period-select" id="chartPeriod">
-                            <option value="7">By Day (7d)</option>
-                            <option value="14">By Day (14d)</option>
-                            <option value="30" selected>By Day (30d)</option>
-                        </select>
                     </div>
                     <div class="d-flex flex-wrap gap-4 mb-3">
                         <div class="txn-chart-legend"><span style="background:#7c3aed"></span>Revenue</div>
@@ -1626,9 +1621,7 @@ body.modal-open .admin-mobile-menu-toggle {
                                 }
 
                                 $hasAdminNoteRow = !empty(trim((string) ($item->admin_notes ?? '')));
-                                $hasPackageNoteRow = !empty(trim((string) ($item->package_note ?? '')));
-                                $hasTransNoteRow = !empty(trim((string) ($item->transportation_note ?? '')));
-                                $hasAnyNoteRow = $hasAdminNoteRow || $hasPackageNoteRow || $hasTransNoteRow;
+                                $hasAnyNoteRow = $hasAdminNoteRow;
 
                                 $formatDatePst = function ($dateVal, $format = 'M d, Y h:i A \P\D\T') {
                                     if (empty($dateVal)) {
@@ -3876,13 +3869,31 @@ body.modal-open .admin-mobile-menu-toggle {
                             $targetBtns.data('admin_notes_by', res.admin_notes_by || '');
                             $targetBtns.data('admin_notes_at', res.admin_notes_at || '');
 
-                            var safeEsc = window.txnEsc || function(v) { return String(v || ''); };
-                            var authorHtml = '';
-                            if (res.admin_notes_by || res.admin_notes_at) {
-                                authorHtml = 'Updated' + (res.admin_notes_by ? ' by <strong style="color:#a78bfa;">' + safeEsc(res.admin_notes_by) + '</strong>' : '') + (res.admin_notes_at ? ' on ' + safeEsc(res.admin_notes_at) : '');
-                            } else {
-                                authorHtml = 'No note saved yet';
-                            }
+                             var newAdminNote = (res.admin_notes || '').trim();
+                             $('.open-notes-btn[data-id="' + txnId + '"]').each(function() {
+                                 var $b = $(this);
+                                 if ($b.is('button')) {
+                                     if (newAdminNote !== '') {
+                                         $b.removeClass('btn-outline-warning')
+                                           .addClass('btn-warning text-dark fw-bold btn-has-note')
+                                           .attr('title', 'Has Notes - Click to view/edit')
+                                           .html('<i class="fas fa-sticky-note me-1"></i>Notes <span class="badge bg-dark text-warning rounded-circle ms-1 p-1" style="font-size:0.6rem;line-height:1;">!</span>');
+                                     } else {
+                                         $b.removeClass('btn-warning text-dark fw-bold btn-has-note')
+                                           .addClass('btn-outline-warning')
+                                           .attr('title', 'Notes')
+                                           .html('<i class="fas fa-sticky-note me-1"></i>Notes');
+                                     }
+                                 }
+                             });
+
+                             var safeEsc = window.txnEsc || function(v) { return String(v || ''); };
+                             var authorHtml = '';
+                             if (res.admin_notes_by || res.admin_notes_at) {
+                                 authorHtml = 'Updated' + (res.admin_notes_by ? ' by <strong style="color:#a78bfa;">' + safeEsc(res.admin_notes_by) + '</strong>' : '') + (res.admin_notes_at ? ' on ' + safeEsc(res.admin_notes_at) : '');
+                             } else {
+                                 authorHtml = 'No note saved yet';
+                             }
 
                             $('.admin-note-form[data-txn-id="' + txnId + '"]').each(function() {
                                 $(this).find('.admin-note-textarea').val(res.admin_notes || '');
