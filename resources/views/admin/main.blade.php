@@ -998,6 +998,15 @@
     </a>
   </li>
   @endif
+
+  @if($authUser && $canAccessRoute('admin.custom-invoice.index'))
+  <li class="menu-item {{ request()->is('admins/custom-invoice') ? 'active' : '' }}">
+    <a href="{{ route('admin.custom-invoice.index') }}" class="menu-link">
+      <i class="menu-icon tf-icons bx bx-file"></i>
+      <div class="text-truncate">Custom Invoices</div>
+    </a>
+  </li>
+  @endif
   @endif
 
   @if(($authUser && $canAccessRoute('admin.feed-model.index')) || ($authUser && $canAccessRoute('admin.feed-post.index')) || (auth()->check() && auth()->user()->isAdmin()) || ($authUser && $canAccessRoute('admin.entertainer.index')) || ($authUser && $canAccessRoute('admin.affiliate.index')))
@@ -1101,14 +1110,6 @@
     <a href="{{ route('admin.transaction.scan') }}" class="menu-link">
       <i class="menu-icon tf-icons bx bx-qr-scan"></i>
       <div class="text-truncate">Ticket Scanner</div>
-    </a>
-  </li>
-  @endif
-  @if($authUser && $canAccessRoute('admin.custom-invoice.index'))
-  <li class="menu-item {{ request()->is('admins/custom-invoice') ? 'active' : '' }}">
-    <a href="{{ route('admin.custom-invoice.index') }}" class="menu-link">
-      <i class="menu-icon tf-icons bx bx-file"></i>
-      <div class="text-truncate">Custom Invoices</div>
     </a>
   </li>
   @endif
