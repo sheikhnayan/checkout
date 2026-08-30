@@ -542,12 +542,20 @@ class CustomInvoiceController extends Controller
      */
     private function processAuthorizePayment($invoice, $website, $setting, $request, $amount, $paymentType)
     {
-        $loginId = trim((string) ($website->authorize_login_id ?? $website->authorize_app_key ?? ''));
-        $transactionKey = trim((string) ($website->authorize_transaction_key ?? $website->authorize_secret_key ?? ''));
+        $clubLogin = trim((string) ($website->authorize_login_id ?? $website->authorize_app_key ?? ''));
+        $clubTransKey = trim((string) ($website->authorize_transaction_key ?? $website->authorize_secret_key ?? ''));
 
-        if (empty($loginId) || empty($transactionKey)) {
-            $loginId = trim((string) ($setting->authorize_login ?? $setting->authorize_key ?? ''));
-            $transactionKey = trim((string) ($setting->authorize_secret ?? ''));
+        $globalLogin = trim((string) ($setting->authorize_login ?? $setting->authorize_key ?? ''));
+        $globalTransKey = trim((string) ($setting->authorize_secret ?? ''));
+
+        if (!empty($clubLogin) && !empty($clubTransKey)) {
+            $loginId = $clubLogin;
+            $transactionKey = $clubTransKey;
+            $usesGlobalKeys = false;
+        } else {
+            $loginId = $globalLogin;
+            $transactionKey = $globalTransKey;
+            $usesGlobalKeys = true;
         }
 
         if (empty($loginId) || empty($transactionKey)) {
@@ -592,20 +600,25 @@ class CustomInvoiceController extends Controller
 
         $transactionRequestType = new AnetAPI\TransactionRequestType();
         $transactionRequestType->setTransactionType("authCaptureTransaction");
-        $transactionRequestType->setAmount($amount);
+        $transactionRequestType->setAmount(number_format((float) $amount, 2, '.', ''));
         $transactionRequestType->setPayment($paymentOne);
         $transactionRequestType->setBillTo($billTo);
+        $transactionRequestType->setCustomerIP($request->ip());
 
         $request_obj = new AnetAPI\CreateTransactionRequest();
         $request_obj->setMerchantAuthentication($merchantAuthentication);
-        $request_obj->setRefId(uniqid());
+        $request_obj->setRefId('ref' . uniqid());
         $request_obj->setTransactionRequest($transactionRequestType);
 
         $controller = new AnetController\CreateTransactionController($request_obj);
         
-        $useSandbox = $website->sandbox_mode;
-        if ($useSandbox === null) {
-            $useSandbox = $setting->sandbox_mode;
+        if ($usesGlobalKeys) {
+            $useSandbox = $setting->sandbox_mode ?? null;
+        } else {
+            $useSandbox = $website->sandbox_mode ?? null;
+            if ($useSandbox === null) {
+                $useSandbox = $setting->sandbox_mode ?? null;
+            }
         }
         if ($useSandbox === null) {
             $useSandbox = true;
