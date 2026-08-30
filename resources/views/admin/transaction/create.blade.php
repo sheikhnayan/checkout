@@ -352,32 +352,108 @@ label{
             <script>
             // Dynamic name/email pairs as objects in one array
             $(document).on('click', '.add-email', function() {
-                const emailGroup = `<div class=\"row mb-2 email-group\">\
-                    <div class=\"col-5\">\
-                        <input type=\"text\" class=\"form-control email-name\" placeholder=\"Name\" required>\
-                    </div>\
-                    <div class=\"col-5\">\
-                        <input type=\"email\" class=\"form-control email-address\" placeholder=\"Email Address\" required>\
-                    </div>\
-                    <div class=\"col-2\">\
-                        <button type=\"button\" class=\"btn btn-danger remove-email w-100\" title=\"Remove\"><i class=\"fa fa-minus\"></i></button>\
-                    </div>\
-                </div>`;
-                $('#emails-wrapper').append(emailGroup);
-            });
-            $(document).on('click', '.remove-email', function() {
-                $(this).closest('.email-group').remove();
-            });
-            // Serialize name/email pairs to JSON on submit
-            $('form').on('submit', function(e) {
-                var emails = [];
-                $('#emails-wrapper .email-group').each(function() {
-                    var name = $(this).find('.email-name').val();
-                    var address = $(this).find('.email-address').val();
-                    if (name && address) {
-                        emails.push({name: name, email: address});
+            // Dynamic name/email repeater logic with automatic button state management
+            function refreshRepeaterButtons(wrapperId, groupClass, addClass, removeClass, nameClass, addressClass) {
+                var wrapper = $(wrapperId);
+                if (!wrapper.length) return;
+
+                var rows = wrapper.find('.' + groupClass);
+                if (rows.length === 0) {
+                    var newRow = '<div class="row mb-2 ' + groupClass + '">'
+                        + '<div class="col-5"><input type="text" class="form-control ' + nameClass + '" placeholder="Name"></div>'
+                        + '<div class="col-5"><input type="email" class="form-control ' + addressClass + '" placeholder="Email Address"></div>'
+                        + '<div class="col-2"></div>'
+                        + '</div>';
+                    wrapper.append(newRow);
+                    rows = wrapper.find('.' + groupClass);
+                }
+
+                rows.each(function(index) {
+                    var actionCol = $(this).find('.col-2');
+                    if (index === rows.length - 1) {
+                        actionCol.html('<button type="button" class="btn btn-warning ' + addClass + ' w-100" title="Add Email"><i class="fa fa-plus"></i></button>');
+                    } else {
+                        actionCol.html('<button type="button" class="btn btn-danger ' + removeClass + ' w-100" title="Remove"><i class="fa fa-minus"></i></button>');
                     }
                 });
+            }
+
+            $(document).on('click', '.add-email', function() {
+                var emailGroup = '<div class="row mb-2 email-group">'
+                    + '<div class="col-5"><input type="text" class="form-control email-name" placeholder="Name"></div>'
+                    + '<div class="col-5"><input type="email" class="form-control email-address" placeholder="Email Address"></div>'
+                    + '<div class="col-2"></div>'
+                    + '</div>';
+                $('#emails-wrapper').append(emailGroup);
+                refreshRepeaterButtons('#emails-wrapper', 'email-group', 'add-email', 'remove-email', 'email-name', 'email-address');
+            });
+
+            $(document).on('click', '.remove-email', function() {
+                $(this).closest('.email-group').remove();
+                refreshRepeaterButtons('#emails-wrapper', 'email-group', 'add-email', 'remove-email', 'email-name', 'email-address');
+            });
+
+            $(document).ready(function() {
+                refreshRepeaterButtons('#emails-wrapper', 'email-group', 'add-email', 'remove-email', 'email-name', 'email-address');
+            });
+
+            // Serialize name/email pairs to JSON on submit with validation
+            $('form').on('submit', function(e) {
+                $('.email-name, .email-address').removeClass('is-invalid');
+                $('.email-error-alert').remove();
+
+                var emails = [];
+                var emailValidationError = null;
+                var emailErrorElement = null;
+                var emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+
+                $('#emails-wrapper .email-group').each(function() {
+                    if (emailValidationError) return;
+
+                    var nameInput = $(this).find('.email-name');
+                    var addressInput = $(this).find('.email-address');
+                    var name = (nameInput.val() || '').trim();
+                    var address = (addressInput.val() || '').trim();
+
+                    if (!name && !address) {
+                        return; // Ignore completely blank rows safely
+                    }
+
+                    if (name && !address) {
+                        emailValidationError = 'Please enter an Email Address for "' + name + '" in Contact Emails.';
+                        emailErrorElement = addressInput;
+                        return;
+                    }
+
+                    if (!name && address) {
+                        emailValidationError = 'Please enter a Name for "' + address + '" in Contact Emails.';
+                        emailErrorElement = nameInput;
+                        return;
+                    }
+
+                    if (address && !emailRegex.test(address)) {
+                        emailValidationError = 'Please enter a valid email address (e.g. name@domain.com) for "' + (name || 'Contact Email') + '".';
+                        emailErrorElement = addressInput;
+                        return;
+                    }
+
+                    emails.push({name: name, email: address});
+                });
+
+                if (emailValidationError) {
+                    e.preventDefault();
+                    if (emailErrorElement) {
+                        emailErrorElement.addClass('is-invalid').focus();
+                        var alertHtml = '<div class="alert alert-danger alert-dismissible fade show mt-2 email-error-alert" role="alert">'
+                            + '<i class="fas fa-exclamation-triangle me-2"></i>' + $('<div>').text(emailValidationError).html()
+                            + '<button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>'
+                            + '</div>';
+                        $('#emails-wrapper').after(alertHtml);
+                        emailErrorElement[0].scrollIntoView({ behavior: 'smooth', block: 'center' });
+                    }
+                    return false;
+                }
+
                 $('#emails-json').val(JSON.stringify(emails));
             });
             </script>

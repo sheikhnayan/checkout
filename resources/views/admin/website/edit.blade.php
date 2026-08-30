@@ -428,30 +428,31 @@
                                                     <div class="mb-3">
                                                         <label class="form-label">Contact Emails <i class="fas fa-circle-info ms-1 field-tip" data-bs-toggle="tooltip" data-bs-placement="top" title="Additional email addresses that receive booking confirmation notifications."></i></label>
                                                         <div id="emails-wrapper">
-                                                            @foreach ($data->emails as $item)
+                                                            @forelse ($data->emails as $item)
                                                                 <div class="row mb-2 email-group">
                                                                     <div class="col-5">
-                                                                        <input type="text" class="form-control email-name" placeholder="Name" value="{{ $item->name }}" required>
+                                                                        <input type="text" class="form-control email-name" placeholder="Name" value="{{ $item->name }}">
                                                                     </div>
                                                                     <div class="col-5">
-                                                                        <input type="email" class="form-control email-address" placeholder="Email Address" value="{{ $item->email }}" required>
+                                                                        <input type="email" class="form-control email-address" placeholder="Email Address" value="{{ $item->email }}">
                                                                     </div>
                                                                     <div class="col-2">
                                                                         <button type="button" class="btn btn-danger remove-email w-100" title="Remove"><i class="fa fa-minus"></i></button>
                                                                     </div>
                                                                 </div>
-                                                            @endforeach
-                                                            <div class="row mb-2 email-group">
-                                                                <div class="col-5">
-                                                                    <input type="text" class="form-control email-name" placeholder="Name">
+                                                            @empty
+                                                                <div class="row mb-2 email-group">
+                                                                    <div class="col-5">
+                                                                        <input type="text" class="form-control email-name" placeholder="Name">
+                                                                    </div>
+                                                                    <div class="col-5">
+                                                                        <input type="email" class="form-control email-address" placeholder="Email Address">
+                                                                    </div>
+                                                                    <div class="col-2">
+                                                                        <button type="button" class="btn btn-warning add-email w-100" title="Add Email"><i class="fa fa-plus"></i></button>
+                                                                    </div>
                                                                 </div>
-                                                                <div class="col-5">
-                                                                    <input type="email" class="form-control email-address" placeholder="Email Address">
-                                                                </div>
-                                                                <div class="col-2">
-                                                                    <button type="button" class="btn btn-success add-email w-100" title="Add Email"><i class="fa fa-plus"></i></button>
-                                                                </div>
-                                                            </div>
+                                                            @endforelse
                                                         </div>
                                                         <input type="hidden" name="emails" id="emails-json">
                                                     </div>
@@ -460,7 +461,8 @@
                                                     <div class="mb-3">
                                                         <label class="form-label">Entertainer Submission Emails <i class="fas fa-circle-info ms-1 field-tip" data-bs-toggle="tooltip" data-bs-placement="top" title="Email recipients for entertainer application submissions only."></i></label>
                                                         <div id="entertainer-submission-emails-wrapper">
-                                                            @foreach ((array) ($data->entertainer_submission_emails ?? []) as $item)
+                                                            @php $entEmails = (array) ($data->entertainer_submission_emails ?? []); @endphp
+                                                            @forelse ($entEmails as $item)
                                                                 <div class="row mb-2 entertainer-submission-email-group">
                                                                     <div class="col-5">
                                                                         <input type="text" class="form-control entertainer-submission-email-name" placeholder="Name" value="{{ is_array($item) ? ($item['name'] ?? '') : '' }}">
@@ -472,18 +474,19 @@
                                                                         <button type="button" class="btn btn-danger remove-entertainer-submission-email w-100" title="Remove"><i class="fa fa-minus"></i></button>
                                                                     </div>
                                                                 </div>
-                                                            @endforeach
-                                                            <div class="row mb-2 entertainer-submission-email-group">
-                                                                <div class="col-5">
-                                                                    <input type="text" class="form-control entertainer-submission-email-name" placeholder="Name">
+                                                            @empty
+                                                                <div class="row mb-2 entertainer-submission-email-group">
+                                                                    <div class="col-5">
+                                                                        <input type="text" class="form-control entertainer-submission-email-name" placeholder="Name">
+                                                                    </div>
+                                                                    <div class="col-5">
+                                                                        <input type="email" class="form-control entertainer-submission-email-address" placeholder="Email Address">
+                                                                    </div>
+                                                                    <div class="col-2">
+                                                                        <button type="button" class="btn btn-warning add-entertainer-submission-email w-100" title="Add Email"><i class="fa fa-plus"></i></button>
+                                                                    </div>
                                                                 </div>
-                                                                <div class="col-5">
-                                                                    <input type="email" class="form-control entertainer-submission-email-address" placeholder="Email Address">
-                                                                </div>
-                                                                <div class="col-2">
-                                                                    <button type="button" class="btn btn-success add-entertainer-submission-email w-100" title="Add Email"><i class="fa fa-plus"></i></button>
-                                                                </div>
-                                                            </div>
+                                                            @endforelse
                                                         </div>
                                                         <input type="hidden" name="entertainer_submission_emails" id="entertainer-submission-emails-json">
                                                     </div>
@@ -1021,65 +1024,179 @@
             <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
 
             <script>
-            // Dynamic name/email pairs as objects in one array
+            // Dynamic name/email repeater logic with automatic button state management
+            function refreshRepeaterButtons(wrapperId, groupClass, addClass, removeClass, nameClass, addressClass) {
+                var wrapper = $(wrapperId);
+                if (!wrapper.length) return;
+
+                var rows = wrapper.find('.' + groupClass);
+                if (rows.length === 0) {
+                    var newRow = '<div class="row mb-2 ' + groupClass + '">'
+                        + '<div class="col-5"><input type="text" class="form-control ' + nameClass + '" placeholder="Name"></div>'
+                        + '<div class="col-5"><input type="email" class="form-control ' + addressClass + '" placeholder="Email Address"></div>'
+                        + '<div class="col-2"></div>'
+                        + '</div>';
+                    wrapper.append(newRow);
+                    rows = wrapper.find('.' + groupClass);
+                }
+
+                rows.each(function(index) {
+                    var actionCol = $(this).find('.col-2');
+                    if (index === rows.length - 1) {
+                        actionCol.html('<button type="button" class="btn btn-warning ' + addClass + ' w-100" title="Add Email"><i class="fa fa-plus"></i></button>');
+                    } else {
+                        actionCol.html('<button type="button" class="btn btn-danger ' + removeClass + ' w-100" title="Remove"><i class="fa fa-minus"></i></button>');
+                    }
+                });
+            }
+
             $(document).on('click', '.add-email', function() {
-                const emailGroup = `<div class=\"row mb-2 email-group\">\
-                    <div class=\"col-5\">\
-                        <input type=\"text\" class=\"form-control email-name\" placeholder=\"Name\" required>\
-                    </div>\
-                    <div class=\"col-5\">\
-                        <input type=\"email\" class=\"form-control email-address\" placeholder=\"Email Address\" required>\
-                    </div>\
-                    <div class=\"col-2\">\
-                        <button type=\"button\" class=\"btn btn-danger remove-email w-100\" title=\"Remove\"><i class=\"fa fa-minus\"></i></button>\
-                    </div>\
-                </div>`;
+                var emailGroup = '<div class="row mb-2 email-group">'
+                    + '<div class="col-5"><input type="text" class="form-control email-name" placeholder="Name"></div>'
+                    + '<div class="col-5"><input type="email" class="form-control email-address" placeholder="Email Address"></div>'
+                    + '<div class="col-2"></div>'
+                    + '</div>';
                 $('#emails-wrapper').append(emailGroup);
+                refreshRepeaterButtons('#emails-wrapper', 'email-group', 'add-email', 'remove-email', 'email-name', 'email-address');
             });
+
             $(document).on('click', '.remove-email', function() {
                 $(this).closest('.email-group').remove();
+                refreshRepeaterButtons('#emails-wrapper', 'email-group', 'add-email', 'remove-email', 'email-name', 'email-address');
             });
 
             $(document).on('click', '.add-entertainer-submission-email', function() {
-                const emailGroup = `<div class="row mb-2 entertainer-submission-email-group">\
-                    <div class="col-5">\
-                        <input type="text" class="form-control entertainer-submission-email-name" placeholder="Name">\
-                    </div>\
-                    <div class="col-5">\
-                        <input type="email" class="form-control entertainer-submission-email-address" placeholder="Email Address">\
-                    </div>\
-                    <div class="col-2">\
-                        <button type="button" class="btn btn-danger remove-entertainer-submission-email w-100" title="Remove"><i class="fa fa-minus"></i></button>\
-                    </div>\
-                </div>`;
+                var emailGroup = '<div class="row mb-2 entertainer-submission-email-group">'
+                    + '<div class="col-5"><input type="text" class="form-control entertainer-submission-email-name" placeholder="Name"></div>'
+                    + '<div class="col-5"><input type="email" class="form-control entertainer-submission-email-address" placeholder="Email Address"></div>'
+                    + '<div class="col-2"></div>'
+                    + '</div>';
                 $('#entertainer-submission-emails-wrapper').append(emailGroup);
+                refreshRepeaterButtons('#entertainer-submission-emails-wrapper', 'entertainer-submission-email-group', 'add-entertainer-submission-email', 'remove-entertainer-submission-email', 'entertainer-submission-email-name', 'entertainer-submission-email-address');
             });
 
             $(document).on('click', '.remove-entertainer-submission-email', function() {
                 $(this).closest('.entertainer-submission-email-group').remove();
+                refreshRepeaterButtons('#entertainer-submission-emails-wrapper', 'entertainer-submission-email-group', 'add-entertainer-submission-email', 'remove-entertainer-submission-email', 'entertainer-submission-email-name', 'entertainer-submission-email-address');
             });
 
-            // Serialize name/email pairs to JSON on submit
+            $(document).ready(function() {
+                refreshRepeaterButtons('#emails-wrapper', 'email-group', 'add-email', 'remove-email', 'email-name', 'email-address');
+                refreshRepeaterButtons('#entertainer-submission-emails-wrapper', 'entertainer-submission-email-group', 'add-entertainer-submission-email', 'remove-entertainer-submission-email', 'entertainer-submission-email-name', 'entertainer-submission-email-address');
+            });
+
+            // Serialize name/email pairs to JSON on submit with clear validation
             $('form').on('submit', function(e) {
+                $('.email-name, .email-address, .entertainer-submission-email-name, .entertainer-submission-email-address').removeClass('is-invalid');
+                $('.email-error-alert').remove();
+
                 var emails = [];
+                var emailValidationError = null;
+                var emailErrorElement = null;
+                var emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+
                 $('#emails-wrapper .email-group').each(function() {
-                    var name = $(this).find('.email-name').val();
-                    var address = $(this).find('.email-address').val();
-                    if (name && address) {
-                        emails.push({name: name, email: address});
+                    if (emailValidationError) return;
+
+                    var nameInput = $(this).find('.email-name');
+                    var addressInput = $(this).find('.email-address');
+                    var name = (nameInput.val() || '').trim();
+                    var address = (addressInput.val() || '').trim();
+
+                    if (!name && !address) {
+                        return; // Ignore completely blank rows safely
                     }
+
+                    if (name && !address) {
+                        emailValidationError = 'Please enter an Email Address for "' + name + '" in Contact Emails.';
+                        emailErrorElement = addressInput;
+                        return;
+                    }
+
+                    if (!name && address) {
+                        emailValidationError = 'Please enter a Name for "' + address + '" in Contact Emails.';
+                        emailErrorElement = nameInput;
+                        return;
+                    }
+
+                    if (address && !emailRegex.test(address)) {
+                        emailValidationError = 'Please enter a valid email address (e.g. name@domain.com) for "' + (name || 'Contact Email') + '".';
+                        emailErrorElement = addressInput;
+                        return;
+                    }
+
+                    emails.push({name: name, email: address});
                 });
-                $('#emails-json').val(JSON.stringify(emails));
+
+                if (emailValidationError) {
+                    e.preventDefault();
+                    if (emailErrorElement) {
+                        emailErrorElement.addClass('is-invalid').focus();
+                        var alertHtml = '<div class="alert alert-danger alert-dismissible fade show mt-2 email-error-alert" role="alert">'
+                            + '<i class="fas fa-exclamation-triangle me-2"></i>' + $('<div>').text(emailValidationError).html()
+                            + '<button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>'
+                            + '</div>';
+                        $('#emails-wrapper').after(alertHtml);
+                        emailErrorElement[0].scrollIntoView({ behavior: 'smooth', block: 'center' });
+                    }
+                    return false;
+                }
 
                 var entertainerSubmissionEmails = [];
+                var entertainerValidationError = null;
+                var entertainerErrorElement = null;
+
                 $('#entertainer-submission-emails-wrapper .entertainer-submission-email-group').each(function() {
-                    var name = $(this).find('.entertainer-submission-email-name').val();
-                    var address = $(this).find('.entertainer-submission-email-address').val();
-                    if (name && address) {
-                        entertainerSubmissionEmails.push({name: name, email: address});
+                    if (entertainerValidationError) return;
+
+                    var nameInput = $(this).find('.entertainer-submission-email-name');
+                    var addressInput = $(this).find('.entertainer-submission-email-address');
+                    var name = (nameInput.val() || '').trim();
+                    var address = (addressInput.val() || '').trim();
+
+                    if (!name && !address) {
+                        return; // Ignore completely blank rows safely
                     }
+
+                    if (name && !address) {
+                        entertainerValidationError = 'Please enter an Email Address for "' + name + '" in Entertainer Submission Emails.';
+                        entertainerErrorElement = addressInput;
+                        return;
+                    }
+
+                    if (!name && address) {
+                        entertainerValidationError = 'Please enter a Name for "' + address + '" in Entertainer Submission Emails.';
+                        entertainerErrorElement = nameInput;
+                        return;
+                    }
+
+                    if (address && !emailRegex.test(address)) {
+                        entertainerValidationError = 'Please enter a valid email address for "' + (name || 'Entertainer Submission Email') + '".';
+                        entertainerErrorElement = addressInput;
+                        return;
+                    }
+
+                    entertainerSubmissionEmails.push({name: name, email: address});
                 });
-                $('#entertainer-submission-emails-json').val(JSON.stringify(entertainerSubmissionEmails));
+
+                if (entertainerValidationError) {
+                    e.preventDefault();
+                    if (entertainerErrorElement) {
+                        entertainerErrorElement.addClass('is-invalid').focus();
+                        var alertHtml = '<div class="alert alert-danger alert-dismissible fade show mt-2 email-error-alert" role="alert">'
+                            + '<i class="fas fa-exclamation-triangle me-2"></i>' + $('<div>').text(entertainerValidationError).html()
+                            + '<button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>'
+                            + '</div>';
+                        $('#entertainer-submission-emails-wrapper').after(alertHtml);
+                        entertainerErrorElement[0].scrollIntoView({ behavior: 'smooth', block: 'center' });
+                    }
+                    return false;
+                }
+
+                $('#emails-json').val(JSON.stringify(emails));
+                if ($('#entertainer-submission-emails-json').length) {
+                    $('#entertainer-submission-emails-json').val(JSON.stringify(entertainerSubmissionEmails));
+                }
             });
 
             (function () {

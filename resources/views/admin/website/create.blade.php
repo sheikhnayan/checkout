@@ -1034,65 +1034,179 @@ label{
             </script>
             <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
             <script>
-            // Dynamic name/email pairs as objects in one array
+            // Dynamic name/email repeater logic with automatic button state management
+            function refreshRepeaterButtons(wrapperId, groupClass, addClass, removeClass, nameClass, addressClass) {
+                var wrapper = $(wrapperId);
+                if (!wrapper.length) return;
+
+                var rows = wrapper.find('.' + groupClass);
+                if (rows.length === 0) {
+                    var newRow = '<div class="row mb-2 ' + groupClass + '">'
+                        + '<div class="col-5"><input type="text" class="form-control ' + nameClass + '" placeholder="Name"></div>'
+                        + '<div class="col-5"><input type="email" class="form-control ' + addressClass + '" placeholder="Email Address"></div>'
+                        + '<div class="col-2"></div>'
+                        + '</div>';
+                    wrapper.append(newRow);
+                    rows = wrapper.find('.' + groupClass);
+                }
+
+                rows.each(function(index) {
+                    var actionCol = $(this).find('.col-2');
+                    if (index === rows.length - 1) {
+                        actionCol.html('<button type="button" class="btn btn-warning ' + addClass + ' w-100" title="Add Email"><i class="fa fa-plus"></i></button>');
+                    } else {
+                        actionCol.html('<button type="button" class="btn btn-danger ' + removeClass + ' w-100" title="Remove"><i class="fa fa-minus"></i></button>');
+                    }
+                });
+            }
+
             $(document).on('click', '.add-email', function() {
-                const emailGroup = `<div class=\"row mb-2 email-group\">\
-                    <div class=\"col-5\">\
-                        <input type=\"text\" class=\"form-control email-name\" placeholder=\"Name\" required>\
-                    </div>\
-                    <div class=\"col-5\">\
-                        <input type=\"email\" class=\"form-control email-address\" placeholder=\"Email Address\" required>\
-                    </div>\
-                    <div class=\"col-2\">\
-                        <button type=\"button\" class=\"btn btn-danger remove-email w-100\" title=\"Remove\"><i class=\"fa fa-minus\"></i></button>\
-                    </div>\
-                </div>`;
+                var emailGroup = '<div class="row mb-2 email-group">'
+                    + '<div class="col-5"><input type="text" class="form-control email-name" placeholder="Name"></div>'
+                    + '<div class="col-5"><input type="email" class="form-control email-address" placeholder="Email Address"></div>'
+                    + '<div class="col-2"></div>'
+                    + '</div>';
                 $('#emails-wrapper').append(emailGroup);
+                refreshRepeaterButtons('#emails-wrapper', 'email-group', 'add-email', 'remove-email', 'email-name', 'email-address');
             });
+
             $(document).on('click', '.remove-email', function() {
                 $(this).closest('.email-group').remove();
+                refreshRepeaterButtons('#emails-wrapper', 'email-group', 'add-email', 'remove-email', 'email-name', 'email-address');
             });
 
             $(document).on('click', '.add-entertainer-submission-email', function() {
-                const emailGroup = `<div class="row mb-2 entertainer-submission-email-group">\
-                    <div class="col-5">\
-                        <input type="text" class="form-control entertainer-submission-email-name" placeholder="Name">\
-                    </div>\
-                    <div class="col-5">\
-                        <input type="email" class="form-control entertainer-submission-email-address" placeholder="Email Address">\
-                    </div>\
-                    <div class="col-2">\
-                        <button type="button" class="btn btn-danger remove-entertainer-submission-email w-100" title="Remove"><i class="fa fa-minus"></i></button>\
-                    </div>\
-                </div>`;
+                var emailGroup = '<div class="row mb-2 entertainer-submission-email-group">'
+                    + '<div class="col-5"><input type="text" class="form-control entertainer-submission-email-name" placeholder="Name"></div>'
+                    + '<div class="col-5"><input type="email" class="form-control entertainer-submission-email-address" placeholder="Email Address"></div>'
+                    + '<div class="col-2"></div>'
+                    + '</div>';
                 $('#entertainer-submission-emails-wrapper').append(emailGroup);
+                refreshRepeaterButtons('#entertainer-submission-emails-wrapper', 'entertainer-submission-email-group', 'add-entertainer-submission-email', 'remove-entertainer-submission-email', 'entertainer-submission-email-name', 'entertainer-submission-email-address');
             });
 
             $(document).on('click', '.remove-entertainer-submission-email', function() {
                 $(this).closest('.entertainer-submission-email-group').remove();
+                refreshRepeaterButtons('#entertainer-submission-emails-wrapper', 'entertainer-submission-email-group', 'add-entertainer-submission-email', 'remove-entertainer-submission-email', 'entertainer-submission-email-name', 'entertainer-submission-email-address');
             });
 
-            // Serialize name/email pairs to JSON on submit
+            $(document).ready(function() {
+                refreshRepeaterButtons('#emails-wrapper', 'email-group', 'add-email', 'remove-email', 'email-name', 'email-address');
+                refreshRepeaterButtons('#entertainer-submission-emails-wrapper', 'entertainer-submission-email-group', 'add-entertainer-submission-email', 'remove-entertainer-submission-email', 'entertainer-submission-email-name', 'entertainer-submission-email-address');
+            });
+
+            // Serialize name/email pairs to JSON on submit with validation
             $('form').on('submit', function(e) {
+                $('.email-name, .email-address, .entertainer-submission-email-name, .entertainer-submission-email-address').removeClass('is-invalid');
+                $('.email-error-alert').remove();
+
                 var emails = [];
+                var emailValidationError = null;
+                var emailErrorElement = null;
+                var emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+
                 $('#emails-wrapper .email-group').each(function() {
-                    var name = $(this).find('.email-name').val();
-                    var address = $(this).find('.email-address').val();
-                    if (name && address) {
-                        emails.push({name: name, email: address});
+                    if (emailValidationError) return;
+
+                    var nameInput = $(this).find('.email-name');
+                    var addressInput = $(this).find('.email-address');
+                    var name = (nameInput.val() || '').trim();
+                    var address = (addressInput.val() || '').trim();
+
+                    if (!name && !address) {
+                        return; // Ignore completely blank rows safely
                     }
+
+                    if (name && !address) {
+                        emailValidationError = 'Please enter an Email Address for "' + name + '" in Contact Emails.';
+                        emailErrorElement = addressInput;
+                        return;
+                    }
+
+                    if (!name && address) {
+                        emailValidationError = 'Please enter a Name for "' + address + '" in Contact Emails.';
+                        emailErrorElement = nameInput;
+                        return;
+                    }
+
+                    if (address && !emailRegex.test(address)) {
+                        emailValidationError = 'Please enter a valid email address (e.g. name@domain.com) for "' + (name || 'Contact Email') + '".';
+                        emailErrorElement = addressInput;
+                        return;
+                    }
+
+                    emails.push({name: name, email: address});
                 });
-                $('#emails-json').val(JSON.stringify(emails));
+
+                if (emailValidationError) {
+                    e.preventDefault();
+                    if (emailErrorElement) {
+                        emailErrorElement.addClass('is-invalid').focus();
+                        var alertHtml = '<div class="alert alert-danger alert-dismissible fade show mt-2 email-error-alert" role="alert">'
+                            + '<i class="fas fa-exclamation-triangle me-2"></i>' + $('<div>').text(emailValidationError).html()
+                            + '<button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>'
+                            + '</div>';
+                        $('#emails-wrapper').after(alertHtml);
+                        emailErrorElement[0].scrollIntoView({ behavior: 'smooth', block: 'center' });
+                    }
+                    return false;
+                }
 
                 var entertainerSubmissionEmails = [];
+                var entertainerValidationError = null;
+                var entertainerErrorElement = null;
+
                 $('#entertainer-submission-emails-wrapper .entertainer-submission-email-group').each(function() {
-                    var name = $(this).find('.entertainer-submission-email-name').val();
-                    var address = $(this).find('.entertainer-submission-email-address').val();
-                    if (name && address) {
-                        entertainerSubmissionEmails.push({name: name, email: address});
+                    if (entertainerValidationError) return;
+
+                    var nameInput = $(this).find('.entertainer-submission-email-name');
+                    var addressInput = $(this).find('.entertainer-submission-email-address');
+                    var name = (nameInput.val() || '').trim();
+                    var address = (addressInput.val() || '').trim();
+
+                    if (!name && !address) {
+                        return; // Ignore completely blank rows safely
                     }
+
+                    if (name && !address) {
+                        entertainerValidationError = 'Please enter an Email Address for "' + name + '" in Entertainer Submission Emails.';
+                        entertainerErrorElement = addressInput;
+                        return;
+                    }
+
+                    if (!name && address) {
+                        entertainerValidationError = 'Please enter a Name for "' + address + '" in Entertainer Submission Emails.';
+                        entertainerErrorElement = nameInput;
+                        return;
+                    }
+
+                    if (address && !emailRegex.test(address)) {
+                        entertainerValidationError = 'Please enter a valid email address for "' + (name || 'Entertainer Submission Email') + '".';
+                        entertainerErrorElement = addressInput;
+                        return;
+                    }
+
+                    entertainerSubmissionEmails.push({name: name, email: address});
                 });
-                $('#entertainer-submission-emails-json').val(JSON.stringify(entertainerSubmissionEmails));
+
+                if (entertainerValidationError) {
+                    e.preventDefault();
+                    if (entertainerErrorElement) {
+                        entertainerErrorElement.addClass('is-invalid').focus();
+                        var alertHtml = '<div class="alert alert-danger alert-dismissible fade show mt-2 email-error-alert" role="alert">'
+                            + '<i class="fas fa-exclamation-triangle me-2"></i>' + $('<div>').text(entertainerValidationError).html()
+                            + '<button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>'
+                            + '</div>';
+                        $('#entertainer-submission-emails-wrapper').after(alertHtml);
+                        entertainerErrorElement[0].scrollIntoView({ behavior: 'smooth', block: 'center' });
+                    }
+                    return false;
+                }
+
+                $('#emails-json').val(JSON.stringify(emails));
+                if ($('#entertainer-submission-emails-json').length) {
+                    $('#entertainer-submission-emails-json').val(JSON.stringify(entertainerSubmissionEmails));
+                }
             });
 
             (function restoreOldFormValues() {
@@ -1134,80 +1248,62 @@ label{
                 });
 
                 const rawEmails = oldInput.emails;
-                if (!rawEmails) {
-                    return;
+                if (rawEmails) {
+                    let parsedEmails = [];
+                    try {
+                        parsedEmails = typeof rawEmails === 'string' ? JSON.parse(rawEmails) : rawEmails;
+                    } catch (e) {
+                        parsedEmails = [];
+                    }
+
+                    if (Array.isArray(parsedEmails) && parsedEmails.length > 0) {
+                        const wrapper = $('#emails-wrapper');
+                        wrapper.empty();
+
+                        parsedEmails.forEach(function (item) {
+                            const name = item && item.name ? item.name : '';
+                            const email = item && item.email ? item.email : '';
+                            const row = '<div class="row mb-2 email-group">'
+                                + '<div class="col-5"><input type="text" class="form-control email-name" placeholder="Name" value="' + $('<div>').text(name).html() + '"></div>'
+                                + '<div class="col-5"><input type="email" class="form-control email-address" placeholder="Email Address" value="' + $('<div>').text(email).html() + '"></div>'
+                                + '<div class="col-2"></div>'
+                                + '</div>';
+                            wrapper.append(row);
+                        });
+                        refreshRepeaterButtons('#emails-wrapper', 'email-group', 'add-email', 'remove-email', 'email-name', 'email-address');
+                        $('#emails-json').val(JSON.stringify(parsedEmails));
+                    }
                 }
-
-                let parsedEmails = [];
-                try {
-                    parsedEmails = typeof rawEmails === 'string' ? JSON.parse(rawEmails) : rawEmails;
-                } catch (e) {
-                    parsedEmails = [];
-                }
-
-                if (!Array.isArray(parsedEmails) || parsedEmails.length === 0) {
-                    return;
-                }
-
-                const wrapper = $('#emails-wrapper');
-                wrapper.empty();
-
-                parsedEmails.forEach(function (item, index) {
-                    const name = item && item.name ? item.name : '';
-                    const email = item && item.email ? item.email : '';
-                    const actionBtn = index === 0
-                        ? '<button type="button" class="btn btn-success add-email w-100" title="Add Email"><i class="fa fa-plus"></i></button>'
-                        : '<button type="button" class="btn btn-danger remove-email w-100" title="Remove"><i class="fa fa-minus"></i></button>';
-
-                    const row = '<div class="row mb-2 email-group">'
-                        + '<div class="col-5"><input type="text" class="form-control email-name" placeholder="Name" value="' + $('<div>').text(name).html() + '"></div>'
-                        + '<div class="col-5"><input type="email" class="form-control email-address" placeholder="Email Address" value="' + $('<div>').text(email).html() + '"></div>'
-                        + '<div class="col-2">' + actionBtn + '</div>'
-                        + '</div>';
-
-                    wrapper.append(row);
-                });
-
-                $('#emails-json').val(JSON.stringify(parsedEmails));
 
                 const rawEntertainerSubmissionEmails = oldInput.entertainer_submission_emails;
-                if (!rawEntertainerSubmissionEmails) {
-                    return;
+                if (rawEntertainerSubmissionEmails) {
+                    let parsedEntertainerSubmissionEmails = [];
+                    try {
+                        parsedEntertainerSubmissionEmails = typeof rawEntertainerSubmissionEmails === 'string'
+                            ? JSON.parse(rawEntertainerSubmissionEmails)
+                            : rawEntertainerSubmissionEmails;
+                    } catch (e) {
+                        parsedEntertainerSubmissionEmails = [];
+                    }
+
+                    if (Array.isArray(parsedEntertainerSubmissionEmails) && parsedEntertainerSubmissionEmails.length > 0) {
+                        const entertainerWrapper = $('#entertainer-submission-emails-wrapper');
+                        entertainerWrapper.empty();
+
+                        parsedEntertainerSubmissionEmails.forEach(function (item) {
+                            const name = item && item.name ? item.name : '';
+                            const email = item && item.email ? item.email : '';
+                            const row = '<div class="row mb-2 entertainer-submission-email-group">'
+                                + '<div class="col-5"><input type="text" class="form-control entertainer-submission-email-name" placeholder="Name" value="' + $('<div>').text(name).html() + '"></div>'
+                                + '<div class="col-5"><input type="email" class="form-control entertainer-submission-email-address" placeholder="Email Address" value="' + $('<div>').text(email).html() + '"></div>'
+                                + '<div class="col-2"></div>'
+                                + '</div>';
+                            entertainerWrapper.append(row);
+                        });
+                        refreshRepeaterButtons('#entertainer-submission-emails-wrapper', 'entertainer-submission-email-group', 'add-entertainer-submission-email', 'remove-entertainer-submission-email', 'entertainer-submission-email-name', 'entertainer-submission-email-address');
+                        $('#entertainer-submission-emails-json').val(JSON.stringify(parsedEntertainerSubmissionEmails));
+                    }
                 }
-
-                let parsedEntertainerSubmissionEmails = [];
-                try {
-                    parsedEntertainerSubmissionEmails = typeof rawEntertainerSubmissionEmails === 'string'
-                        ? JSON.parse(rawEntertainerSubmissionEmails)
-                        : rawEntertainerSubmissionEmails;
-                } catch (e) {
-                    parsedEntertainerSubmissionEmails = [];
-                }
-
-                if (!Array.isArray(parsedEntertainerSubmissionEmails) || parsedEntertainerSubmissionEmails.length === 0) {
-                    return;
-                }
-
-                const entertainerWrapper = $('#entertainer-submission-emails-wrapper');
-                entertainerWrapper.empty();
-
-                parsedEntertainerSubmissionEmails.forEach(function (item, index) {
-                    const name = item && item.name ? item.name : '';
-                    const email = item && item.email ? item.email : '';
-                    const actionBtn = index === 0
-                        ? '<button type="button" class="btn btn-success add-entertainer-submission-email w-100" title="Add Email"><i class="fa fa-plus"></i></button>'
-                        : '<button type="button" class="btn btn-danger remove-entertainer-submission-email w-100" title="Remove"><i class="fa fa-minus"></i></button>';
-
-                    const row = '<div class="row mb-2 entertainer-submission-email-group">'
-                        + '<div class="col-5"><input type="text" class="form-control entertainer-submission-email-name" placeholder="Name" value="' + $('<div>').text(name).html() + '"></div>'
-                        + '<div class="col-5"><input type="email" class="form-control entertainer-submission-email-address" placeholder="Email Address" value="' + $('<div>').text(email).html() + '"></div>'
-                        + '<div class="col-2">' + actionBtn + '</div>'
-                        + '</div>';
-
-                    entertainerWrapper.append(row);
-                });
-
-                $('#entertainer-submission-emails-json').val(JSON.stringify(parsedEntertainerSubmissionEmails));
             })();
 
             @if($errors->has('website_admin_email'))

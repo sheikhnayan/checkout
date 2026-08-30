@@ -18,9 +18,38 @@
 .txn-filters-btn, .txn-export-btn {
     background: rgba(255,255,255,0.07); border: 1px solid rgba(255,255,255,0.1);
     color: #fff; border-radius: 10px; font-size: 0.85rem; padding: 7px 16px; transition: background 0.2s;
+/* Animated Note Highlight Button */
+@keyframes notePulseGlow {
+    0% {
+        box-shadow: 0 0 0 0 rgba(245, 158, 11, 0.85);
+        transform: scale(1);
+    }
+    50% {
+        box-shadow: 0 0 0 8px rgba(245, 158, 11, 0);
+        transform: scale(1.04);
+    }
+    100% {
+        box-shadow: 0 0 0 0 rgba(245, 158, 11, 0);
+        transform: scale(1);
+    }
 }
-.txn-filters-btn:hover, .txn-export-btn:hover { background: rgba(255,255,255,0.13); color: #fff; }
-.txn-export-btn::after { display: none !important; }
+.btn-has-note {
+    background-color: #f59e0b !important;
+    color: #0f172a !important;
+    font-weight: 700 !important;
+    border-color: #fbbf24 !important;
+    animation: notePulseGlow 2.2s infinite ease-in-out;
+    position: relative;
+    box-shadow: 0 2px 8px rgba(245, 158, 11, 0.35);
+}
+.btn-has-note:hover {
+    background-color: #d97706 !important;
+    color: #0f172a !important;
+    border-color: #f59e0b !important;
+}
+.btn-has-note i {
+    color: #0f172a !important;
+}
 /* Stat Cards */
 .txn-stat-card {
     background: linear-gradient(145deg, rgba(255,255,255,0.05), rgba(255,255,255,0.02));
@@ -1610,6 +1639,11 @@ body.modal-open .admin-mobile-menu-toggle {
                                         $item->package->transportation === '1'
                                     );
                                 }
+
+                                $hasAdminNoteRow = !empty(trim((string) ($item->admin_notes ?? '')));
+                                $hasPackageNoteRow = !empty(trim((string) ($item->package_note ?? '')));
+                                $hasTransNoteRow = !empty(trim((string) ($item->transportation_note ?? '')));
+                                $hasAnyNoteRow = $hasAdminNoteRow || $hasPackageNoteRow || $hasTransNoteRow;
                             @endphp
                             <td data-order="{{ $purchaseSortOrder }}">
                                 <div class="txn-date-main">{{ $purchaseAtLocal?->format('M d, Y') ?? '-' }}</div>
@@ -1986,22 +2020,24 @@ body.modal-open .admin-mobile-menu-toggle {
                                         title="View Details">
                                         <i class="fas fa-eye"></i>
                                     </button>
-                                    <button type="button" class="btn btn-sm btn-outline-warning open-notes-btn px-2 py-1 ms-1"
+                                    <button type="button" class="btn btn-sm {{ $hasAnyNoteRow ? 'btn-warning text-dark fw-bold btn-has-note' : 'btn-outline-warning' }} open-notes-btn px-2 py-1 ms-1"
                                         data-bs-toggle="modal" data-bs-target="#txnNotesModal"
                                         data-id="{{ $item->id }}"
                                         data-transaction-id="{{ $item->transaction_id ?? 'Free' }}"
                                         data-admin_notes="{{ $item->admin_notes ?? '' }}"
                                         data-admin_notes_by="{{ $item->admin_notes_by ?? '' }}"
                                         data-admin_notes_at="{{ $item->admin_notes_at ? optional($item->admin_notes_at)->timezone('America/Los_Angeles')->format('M d, Y h:i A \P\D\T') : '' }}"
-                                        title="Notes" style="font-size:0.75rem;border-radius:6px;font-weight:600;">
-                                        <i class="fas fa-sticky-note me-1"></i>Notes
+                                        data-package_note="{{ $item->package_note ?? '' }}"
+                                        data-transportation_note="{{ $item->transportation_note ?? '' }}"
+                                        title="{{ $hasAnyNoteRow ? 'Has Notes - Click to view/edit' : 'Notes' }}" style="font-size:0.75rem;border-radius:6px;font-weight:600;">
+                                        <i class="fas fa-sticky-note me-1"></i>Notes @if($hasAnyNoteRow)<span class="badge bg-dark text-warning rounded-circle ms-1 p-1" style="font-size:0.6rem;line-height:1;">!</span>@endif
                                     </button>
                                     <div class="dropdown">
                                         <button class="txn-action-more btn p-0" data-bs-toggle="dropdown" type="button" style="border:none;background:none">
                                             <i class="fas fa-ellipsis-v"></i>
                                         </button>
                                         <ul class="dropdown-menu dropdown-menu-end" style="background:#1e293b;border:1px solid rgba(255,255,255,0.1)">
-                                            <li><a class="dropdown-item open-notes-btn" style="color:rgba(255,255,255,0.7);font-size:0.82rem" href="javascript:void(0)" data-bs-toggle="modal" data-bs-target="#txnNotesModal" data-id="{{ $item->id }}" data-transaction-id="{{ $item->transaction_id ?? 'Free' }}" data-admin_notes="{{ $item->admin_notes ?? '' }}" data-admin_notes_by="{{ $item->admin_notes_by ?? '' }}" data-admin_notes_at="{{ $item->admin_notes_at ? optional($item->admin_notes_at)->timezone('America/Los_Angeles')->format('M d, Y h:i A \P\D\T') : '' }}"><i class="fas fa-sticky-note me-2 text-warning"></i>Notes</a></li>
+                                            <li><a class="dropdown-item open-notes-btn {{ $hasAnyNoteRow ? 'fw-bold text-warning' : '' }}" style="color:rgba(255,255,255,0.7);font-size:0.82rem" href="javascript:void(0)" data-bs-toggle="modal" data-bs-target="#txnNotesModal" data-id="{{ $item->id }}" data-transaction-id="{{ $item->transaction_id ?? 'Free' }}" data-admin_notes="{{ $item->admin_notes ?? '' }}" data-admin_notes_by="{{ $item->admin_notes_by ?? '' }}" data-admin_notes_at="{{ $item->admin_notes_at ? optional($item->admin_notes_at)->timezone('America/Los_Angeles')->format('M d, Y h:i A \P\D\T') : '' }}" data-package_note="{{ $item->package_note ?? '' }}" data-transportation_note="{{ $item->transportation_note ?? '' }}"><i class="fas fa-sticky-note me-2 text-warning"></i>Notes @if($hasAnyNoteRow)<span class="badge bg-warning text-dark ms-1" style="font-size:0.65rem;">Has Note</span>@endif</a></li>
                                             @if(!$isArchivedView)
                                             <li><a class="dropdown-item" style="color:rgba(255,255,255,0.7);font-size:0.82rem" href="{{ route('admin.transaction.update', ['id' => $item->id, 'status' => 1]) }}"><i class="fas fa-check me-2 text-success"></i>Mark Completed</a></li>
                                             <li><a class="dropdown-item" style="color:rgba(255,255,255,0.7);font-size:0.82rem" href="{{ route('admin.transaction.update', ['id' => $item->id, 'status' => 0]) }}"><i class="fas fa-times me-2 text-danger"></i>Mark Canceled</a></li>
@@ -3764,7 +3800,7 @@ body.modal-open .admin-mobile-menu-toggle {
                 }
             })();
 
-            window.buildAdminNotesCardHtml = function(txnId, noteText, noteBy, noteAt) {
+            window.buildAdminNotesCardHtml = function(txnId, noteText, noteBy, noteAt, pkgNote, transNote) {
                 var safeEsc = window.txnEsc || function(v) { return String(v == null ? '' : v).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;').replace(/'/g,'&#39;'); };
                 var authorInfo = '';
                 if (noteBy || noteAt) {
@@ -3772,14 +3808,30 @@ body.modal-open .admin-mobile-menu-toggle {
                 }
 
                 var cardHtml = '';
+
+                pkgNote = (pkgNote || '').trim();
+                transNote = (transNote || '').trim();
+
+                if (pkgNote || transNote) {
+                    cardHtml += '<div class="mb-3 p-3" style="background:rgba(245, 158, 11, 0.12);border:1px solid rgba(245, 158, 11, 0.35);border-radius:10px;">';
+                    cardHtml += '<div class="fw-bold mb-1 text-warning" style="font-size:0.85rem;"><i class="fas fa-comment-alt me-1"></i>Customer Notes:</div>';
+                    if (pkgNote) {
+                        cardHtml += '<div class="text-white-50 small mb-1"><strong>Booking Note:</strong> <span class="text-white">' + safeEsc(pkgNote) + '</span></div>';
+                    }
+                    if (transNote) {
+                        cardHtml += '<div class="text-white-50 small"><strong>Transportation Note:</strong> <span class="text-white">' + safeEsc(transNote) + '</span></div>';
+                    }
+                    cardHtml += '</div>';
+                }
+
                 cardHtml += '<div class="txn-detail-card admin-notes-card mb-0" style="background:rgba(30,41,59,0.7);border:1px solid rgba(124,58,237,0.35);border-radius:12px;padding:16px;">';
                 cardHtml += '<div class="d-flex align-items-center justify-content-between mb-2 flex-wrap gap-1">';
-                cardHtml += '<div class="txn-detail-title mb-0" style="color:#a78bfa;font-size:0.9rem;font-weight:700;"><i class="fas fa-sticky-note me-2"></i>Notes</div>';
-                cardHtml += '<div class="admin-note-author-info text-white-50" style="font-size:0.75rem;">' + (authorInfo ? authorInfo : 'No note saved yet') + '</div>';
+                cardHtml += '<div class="txn-detail-title mb-0" style="color:#a78bfa;font-size:0.9rem;font-weight:700;"><i class="fas fa-sticky-note me-2"></i>Admin Notes</div>';
+                cardHtml += '<div class="admin-note-author-info text-white-50" style="font-size:0.75rem;">' + (authorInfo ? authorInfo : 'No internal note saved yet') + '</div>';
                 cardHtml += '</div>';
                 cardHtml += '<form class="admin-note-form" data-txn-id="' + safeEsc(txnId) + '">';
                 cardHtml += '<div class="mb-3">';
-                cardHtml += '<textarea class="form-control admin-note-textarea" rows="4" placeholder="Enter notes for this transaction…" style="background:rgba(15,23,42,0.9);border:1px solid rgba(255,255,255,0.15);color:#fff;font-size:0.85rem;border-radius:8px;">' + safeEsc(noteText) + '</textarea>';
+                cardHtml += '<textarea class="form-control admin-note-textarea" rows="4" placeholder="Enter internal notes for this transaction…" style="background:rgba(15,23,42,0.9);border:1px solid rgba(255,255,255,0.15);color:#fff;font-size:0.85rem;border-radius:8px;">' + safeEsc(noteText) + '</textarea>';
                 cardHtml += '</div>';
                 cardHtml += '<div class="d-flex align-items-center justify-content-between gap-2">';
                 cardHtml += '<span class="admin-note-msg text-success small fw-semibold" style="display:none;"><i class="fas fa-check-circle me-1"></i>Saved!</span>';
@@ -3800,9 +3852,11 @@ body.modal-open .admin-mobile-menu-toggle {
                 var noteText = $btn.data('admin_notes') || '';
                 var noteBy = $btn.data('admin_notes_by') || '';
                 var noteAt = $btn.data('admin_notes_at') || '';
+                var pkgNote = $btn.data('package_note') || '';
+                var transNote = $btn.data('transportation_note') || '';
 
                 $('#txnNotesModalOrderTitle').text(orderNum);
-                var cardHtml = window.buildAdminNotesCardHtml(txnId, noteText, noteBy, noteAt);
+                var cardHtml = window.buildAdminNotesCardHtml(txnId, noteText, noteBy, noteAt, pkgNote, transNote);
                 $('#txnNotesModalBody').html(cardHtml);
             });
 
@@ -3836,17 +3890,39 @@ body.modal-open .admin-mobile-menu-toggle {
                         if (res.success) {
                             $msg.fadeIn(150).delay(2000).fadeOut(200);
 
+                            var newNote = (res.admin_notes || '').trim();
                             var $targetBtns = $('.view-btn[data-id="' + txnId + '"], .view-btn[data-transaction-id="' + txnId + '"], .open-notes-btn[data-id="' + txnId + '"], .open-notes-btn[data-transaction-id="' + txnId + '"]');
                             $targetBtns.data('admin_notes', res.admin_notes || '');
                             $targetBtns.data('admin_notes_by', res.admin_notes_by || '');
                             $targetBtns.data('admin_notes_at', res.admin_notes_at || '');
+
+                            $('.open-notes-btn[data-id="' + txnId + '"]').each(function() {
+                                var $b = $(this);
+                                if ($b.is('button')) {
+                                    var pkgNote = ($b.data('package_note') || '').trim();
+                                    var transNote = ($b.data('transportation_note') || '').trim();
+                                    var hasAnyNote = newNote !== '' || pkgNote !== '' || transNote !== '';
+
+                                    if (hasAnyNote) {
+                                        $b.removeClass('btn-outline-warning')
+                                          .addClass('btn-warning text-dark fw-bold btn-has-note')
+                                          .attr('title', 'Has Notes - Click to view/edit')
+                                          .html('<i class="fas fa-sticky-note me-1"></i>Notes <span class="badge bg-dark text-warning rounded-circle ms-1 p-1" style="font-size:0.6rem;line-height:1;">!</span>');
+                                    } else {
+                                        $b.removeClass('btn-warning text-dark fw-bold btn-has-note')
+                                          .addClass('btn-outline-warning')
+                                          .attr('title', 'Notes')
+                                          .html('<i class="fas fa-sticky-note me-1"></i>Notes');
+                                    }
+                                }
+                            });
 
                             var safeEsc = window.txnEsc || function(v) { return String(v || ''); };
                             var authorHtml = '';
                             if (res.admin_notes_by || res.admin_notes_at) {
                                 authorHtml = 'Updated' + (res.admin_notes_by ? ' by <strong style="color:#a78bfa;">' + safeEsc(res.admin_notes_by) + '</strong>' : '') + (res.admin_notes_at ? ' on ' + safeEsc(res.admin_notes_at) : '');
                             } else {
-                                authorHtml = 'No note saved yet';
+                                authorHtml = 'No internal note saved yet';
                             }
 
                             $('.admin-note-form[data-txn-id="' + txnId + '"]').each(function() {
