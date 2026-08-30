@@ -288,6 +288,7 @@
                     <thead>
                         <tr>
                             <th>Description</th>
+                            <th style="text-align: center;">Guests</th>
                             <th style="text-align: center;">Qty</th>
                             <th class="text-right">Price</th>
                             <th class="text-right">Amount</th>
@@ -297,6 +298,7 @@
                         @foreach($invoice->items as $item)
                         <tr>
                             <td>{{ $item->name }}</td>
+                            <td style="text-align: center;">{{ $item->guests ?? 1 }}</td>
                             <td style="text-align: center;">{{ $item->quantity }}</td>
                             <td class="text-right">${{ number_format($item->price, 2) }}</td>
                             <td class="text-right"><strong>${{ number_format($item->getLineTotal(), 2) }}</strong></td>
@@ -348,6 +350,17 @@
             </div>
 
             <div class="payment-section">
+                @if(!empty($website->operating_hours))
+                <div style="margin-bottom: 20px; padding: 15px; background-color: #f8fafc; border: 1px solid #cbd5e1; border-left: 4px solid #667eea; border-radius: 6px;">
+                    <h4 style="margin: 0 0 6px 0; font-size: 14px; color: #1e293b; font-weight: 600;">
+                        <i class="fas fa-clock me-1 text-primary"></i> Club Operating Hours
+                    </h4>
+                    <p style="margin: 0; font-size: 13px; color: #475569; line-height: 1.5;">
+                        {{ $website->operating_hours }}
+                    </p>
+                </div>
+                @endif
+
                 @if($invoice->refundable > 0)
                 <!-- Payment Type Selection -->
                 <div style="margin-bottom: 25px; padding: 20px; background-color: #f9f9f9; border-radius: 5px;">
@@ -371,7 +384,7 @@
                 </div>
                 @endif
 
-                <h3 style="margin-bottom: 20px; color: #333;">Payment Information</h3>
+                <h3 style="margin-bottom: 20px; color: #333;">Reservation & Payment Information</h3>
                 
                 @if($website->payment_method === 'stripe')
                     <div id="stripe-form" class="payment-form active">
@@ -380,6 +393,35 @@
                             <input type="hidden" name="payment_type" id="payment_type_input" value="{{ $invoice->refundable > 0 ? 'deposit' : 'full' }}">
                             <input type="hidden" name="payment_amount" id="payment_amount_input" value="{{ $invoice->refundable > 0 ? $invoice->refundable : $invoice->total }}">
                             
+                            <!-- Reservation Date & Arrival Time -->
+                            <div class="form-row" style="display: flex; gap: 15px; margin-bottom: 15px; background: #eff6ff; padding: 15px; border-radius: 8px; border: 1px solid #bfdbfe;">
+                                <div class="form-group" style="flex: 1; margin-bottom: 0;">
+                                    <label style="font-weight: 600; color: #1e3a8a;">Reservation / Visit Date <span style="color:red;">*</span></label>
+                                    <input type="date" name="package_use_date" class="form-control" min="{{ date('Y-m-d') }}" value="{{ old('package_use_date', date('Y-m-d')) }}" required>
+                                    <small style="font-size: 11px; color: #475569;">Select your planned date of visit</small>
+                                </div>
+                                <div class="form-group" style="flex: 1; margin-bottom: 0;">
+                                    <label style="font-weight: 600; color: #1e3a8a;">Estimated Arrival Time <span style="color:red;">*</span></label>
+                                    <select name="transportation_arrival_time" class="form-select" style="width:100%; padding:10px; border:1px solid #cbd5e1; border-radius:5px; background:white;" required>
+                                        <option value="" disabled selected>Select Arrival Time</option>
+                                        <option value="9:00 PM">9:00 PM</option>
+                                        <option value="9:30 PM">9:30 PM</option>
+                                        <option value="10:00 PM">10:00 PM</option>
+                                        <option value="10:30 PM">10:30 PM</option>
+                                        <option value="11:00 PM">11:00 PM</option>
+                                        <option value="11:30 PM">11:30 PM</option>
+                                        <option value="12:00 AM">12:00 AM (Midnight)</option>
+                                        <option value="12:30 AM">12:30 AM</option>
+                                        <option value="1:00 AM">1:00 AM</option>
+                                        <option value="1:30 AM">1:30 AM</option>
+                                        <option value="2:00 AM">2:00 AM</option>
+                                        <option value="2:30 AM">2:30 AM</option>
+                                        <option value="3:00 AM">3:00 AM</option>
+                                    </select>
+                                    <small style="font-size: 11px; color: #475569;">Select expected arrival time</small>
+                                </div>
+                            </div>
+
                             <div class="form-row" style="display: flex; gap: 15px;">
                                 <div class="form-group" style="flex: 1;">
                                     <label>First Name</label>
@@ -467,6 +509,35 @@
                             <input type="hidden" name="payment_type" id="payment_type_input" value="{{ $invoice->refundable > 0 ? 'deposit' : 'full' }}">
                             <input type="hidden" name="payment_amount" id="payment_amount_input" value="{{ $invoice->refundable > 0 ? $invoice->refundable : $invoice->total }}">
                             
+                            <!-- Reservation Date & Arrival Time -->
+                            <div class="form-row" style="display: flex; gap: 15px; margin-bottom: 15px; background: #eff6ff; padding: 15px; border-radius: 8px; border: 1px solid #bfdbfe;">
+                                <div class="form-group" style="flex: 1; margin-bottom: 0;">
+                                    <label style="font-weight: 600; color: #1e3a8a;">Reservation / Visit Date <span style="color:red;">*</span></label>
+                                    <input type="date" name="package_use_date" class="form-control" min="{{ date('Y-m-d') }}" value="{{ old('package_use_date', date('Y-m-d')) }}" required>
+                                    <small style="font-size: 11px; color: #475569;">Select your planned date of visit</small>
+                                </div>
+                                <div class="form-group" style="flex: 1; margin-bottom: 0;">
+                                    <label style="font-weight: 600; color: #1e3a8a;">Estimated Arrival Time <span style="color:red;">*</span></label>
+                                    <select name="transportation_arrival_time" class="form-select" style="width:100%; padding:10px; border:1px solid #cbd5e1; border-radius:5px; background:white;" required>
+                                        <option value="" disabled selected>Select Arrival Time</option>
+                                        <option value="9:00 PM">9:00 PM</option>
+                                        <option value="9:30 PM">9:30 PM</option>
+                                        <option value="10:00 PM">10:00 PM</option>
+                                        <option value="10:30 PM">10:30 PM</option>
+                                        <option value="11:00 PM">11:00 PM</option>
+                                        <option value="11:30 PM">11:30 PM</option>
+                                        <option value="12:00 AM">12:00 AM (Midnight)</option>
+                                        <option value="12:30 AM">12:30 AM</option>
+                                        <option value="1:00 AM">1:00 AM</option>
+                                        <option value="1:30 AM">1:30 AM</option>
+                                        <option value="2:00 AM">2:00 AM</option>
+                                        <option value="2:30 AM">2:30 AM</option>
+                                        <option value="3:00 AM">3:00 AM</option>
+                                    </select>
+                                    <small style="font-size: 11px; color: #475569;">Select expected arrival time</small>
+                                </div>
+                            </div>
+
                             <div class="form-row" style="display: flex; gap: 15px;">
                                 <div class="form-group" style="flex: 1;">
                                     <label>First Name</label>
@@ -528,13 +599,16 @@
                             </div>
 
                             <div class="form-group" style="margin-top: 15px;">
-                                <label>Card Number</label>
+                                <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 5px;">
+                                    <label style="margin: 0;">Card Number</label>
+                                    <span class="card-brand-icon"><i class="fas fa-credit-card text-muted" style="font-size: 18px;"></i></span>
+                                </div>
                                 <input type="text" name="cardNumber" class="form-control" placeholder="4111 1111 1111 1111" required>
                             </div>
                             <div class="form-row" style="display: flex; gap: 15px;">
                                 <div class="form-group" style="flex: 1;">
-                                    <label>Expiry Date (MMYY)</label>
-                                    <input type="text" name="expirationDate" class="form-control" placeholder="1225" required>
+                                    <label>Expiry Date (MM/YY)</label>
+                                    <input type="text" name="expirationDate" class="form-control" placeholder="12/28" required>
                                 </div>
                                 <div class="form-group" style="flex: 1;">
                                     <label>CVV</label>
@@ -732,6 +806,32 @@
                             $(this).val(val.substring(0, 2) + '/' + val.substring(2, 4));
                         } else {
                             $(this).val(val);
+                        }
+                    });
+                });
+
+                // Card Number Auto-Formatter (groups of 4) & Brand Detector
+                $('input[name="cardNumber"]').each(function() {
+                    $(this).attr('placeholder', '4111 1111 1111 1111').attr('maxlength', '19');
+                    $(this).on('input', function() {
+                        let val = $(this).val().replace(/\D/g, '');
+                        if (val.length > 16) val = val.substring(0, 16);
+                        let formatted = val.match(/.{1,4}/g)?.join(' ') || val;
+                        $(this).val(formatted);
+
+                        const iconSpan = $(this).closest('.form-group').find('.card-brand-icon');
+                        if (iconSpan.length > 0) {
+                            if (/^4/.test(val)) {
+                                iconSpan.html('<i class="fab fa-cc-visa text-primary" style="font-size: 20px;"></i>');
+                            } else if (/^5[1-5]|^2[2-7]/.test(val)) {
+                                iconSpan.html('<i class="fab fa-cc-mastercard text-warning" style="font-size: 20px;"></i>');
+                            } else if (/^3[47]/.test(val)) {
+                                iconSpan.html('<i class="fab fa-cc-amex text-info" style="font-size: 20px;"></i>');
+                            } else if (/^6(?:011|5)/.test(val)) {
+                                iconSpan.html('<i class="fab fa-cc-discover text-warning" style="font-size: 20px;"></i>');
+                            } else {
+                                iconSpan.html('<i class="fas fa-credit-card text-muted" style="font-size: 20px;"></i>');
+                            }
                         }
                     });
                 });

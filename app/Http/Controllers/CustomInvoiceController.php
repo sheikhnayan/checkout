@@ -122,6 +122,7 @@ class CustomInvoiceController extends Controller
             CustomInvoiceItem::create([
                 'custom_invoice_id' => $invoice->id,
                 'name' => $itemData['name'],
+                'guests' => max(1, (int) ($itemData['guests'] ?? 1)),
                 'price' => $itemData['price'],
                 'quantity' => $itemData['quantity'] ?? 1,
             ]);
@@ -244,6 +245,7 @@ class CustomInvoiceController extends Controller
             CustomInvoiceItem::create([
                 'custom_invoice_id' => $customInvoice->id,
                 'name' => $itemData['name'],
+                'guests' => max(1, (int) ($itemData['guests'] ?? 1)),
                 'price' => $itemData['price'],
                 'quantity' => $itemData['quantity'] ?? 1,
             ]);
@@ -440,6 +442,19 @@ class CustomInvoiceController extends Controller
             return redirect()->back()->with('error', 'This invoice has already been paid!');
         }
 
+        $request->validate([
+            'package_use_date' => 'required|date|after_or_equal:today',
+            'transportation_arrival_time' => 'required|string',
+        ], [
+            'package_use_date.required' => 'Please select your reservation / visit date.',
+            'package_use_date.after_or_equal' => 'Reservation date must be today or a future date.',
+            'transportation_arrival_time.required' => 'Please select your estimated arrival time.',
+        ]);
+
+        $invoice->package_use_date = $request->package_use_date;
+        $invoice->transportation_arrival_time = $request->transportation_arrival_time;
+        $invoice->save();
+
         $website = $invoice->website;
         $setting = Setting::find(1);
 
@@ -602,6 +617,9 @@ class CustomInvoiceController extends Controller
         $billTo->setState((string) $request->input('billing_state', ''));
         $billTo->setZip((string) $request->input('billing_zip', ''));
         $billTo->setCountry((string) $request->input('billing_country', 'US'));
+        if ($request->filled('billing_phone')) {
+            $billTo->setPhoneNumber((string) $request->input('billing_phone'));
+        }
 
         $transactionRequestType = new AnetAPI\TransactionRequestType();
         $transactionRequestType->setTransactionType("authCaptureTransaction");
@@ -609,6 +627,34 @@ class CustomInvoiceController extends Controller
         $transactionRequestType->setPayment($paymentOne);
         $transactionRequestType->setBillTo($billTo);
         $transactionRequestType->setCustomerIP($request->ip());
+
+        // Order details (Invoice Number & Description for Authorize.Net Merchant Portal)
+        $order = new AnetAPI\OrderType();
+        $order->setInvoiceNumber('INV-' . $invoice->id);
+        $order->setDescription(substr('Custom Invoice #' . $invoice->id . ' - ' . ($website->name ?? 'Venue'), 0, 255));
+        $transactionRequestType->setOrder($order);
+
+        // Customer Data (Email for Authorize.Net Merchant notifications)
+        $email = trim((string) ($request->billing_email ?? $invoice->client_email));
+        if (!empty($email)) {
+            $customerData = new AnetAPI\CustomerDataType();
+            $customerData->setEmail($email);
+            $transactionRequestType->setCustomer($customerData);
+        }
+
+        // Line Items for Authorize.Net receipt & merchant portal details
+        $lineItems = [];
+        foreach ($invoice->items as $index => $item) {
+            $lineItem = new AnetAPI\LineItemType();
+            $lineItem->setItemId((string) ($index + 1));
+            $lineItem->setName(substr((string) $item->name, 0, 31));
+            $lineItem->setQuantity((int) $item->quantity);
+            $lineItem->setUnitPrice(number_format((float) $item->price, 2, '.', ''));
+            $lineItems[] = $lineItem;
+        }
+        if (!empty($lineItems)) {
+            $transactionRequestType->setLineItems($lineItems);
+        }
 
         $request_obj = new AnetAPI\CreateTransactionRequest();
         $request_obj->setMerchantAuthentication($merchantAuthentication);
@@ -748,10 +794,15 @@ class CustomInvoiceController extends Controller
         $zip = trim((string) ($request->billing_zip ?? ''));
         $country = trim((string) ($request->billing_country ?? 'US'));
 
-        // Prepare line items JSON array for cart_items column
-        $cartItems = $invoice->items->map(function ($item) {
+        // Prepare line items JSON array for cart_items column with per-item guests count
+        $totalGuests = 0;
+        $cartItems = $invoice->items->map(function ($item) use (&$totalGuests) {
+            $itemGuests = max(1, (int) ($item->guests ?? 1));
+            $totalGuests += ($itemGuests * (int) $item->quantity);
             return [
                 'name' => $item->name,
+                'package_name' => $item->name,
+                'guests' => $itemGuests,
                 'price' => (float) $item->price,
                 'quantity' => (int) $item->quantity,
                 'total' => (float) $item->getLineTotal(),
@@ -770,6 +821,9 @@ class CustomInvoiceController extends Controller
         $transaction->package_last_name = $lastName;
         $transaction->package_email = $email;
         $transaction->package_phone = $phone;
+        $transaction->package_number_of_guest = max(1, $totalGuests);
+        $transaction->package_use_date = $invoice->package_use_date ?? $request->input('package_use_date');
+        $transaction->transportation_arrival_time = $invoice->transportation_arrival_time ?? $request->input('transportation_arrival_time');
 
         // Payment & Billing details
         $transaction->payment_first_name = $firstName;

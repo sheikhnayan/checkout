@@ -1468,24 +1468,24 @@ body.modal-open .admin-mobile-menu-toggle {
                                         return null;
                                     }
 
-                                    $name = trim((string) ($ci['package_name'] ?? $ci['packageName'] ?? $ci['pkgName'] ?? ''));
+                                    $name = trim((string) ($ci['name'] ?? $ci['package_name'] ?? $ci['packageName'] ?? $ci['pkgName'] ?? ''));
                                     if ($name === '') {
                                         return null;
                                     }
 
-                                    $quantity = max(1, (int) ($ci['guests'] ?? $ci['quantity'] ?? 1));
+                                    $guests = max(1, (int) ($ci['guests'] ?? 1));
+                                    $quantity = max(1, (int) ($ci['quantity'] ?? 1));
                                     $packageType = strtolower(trim((string) ($ci['package_type'] ?? $ci['type'] ?? $ci['packageType'] ?? '')));
                                     if ($packageType === '' && !empty($ci['package_id'])) {
                                         $package = \App\Models\Package::find((int) $ci['package_id']);
                                         $packageType = $package ? strtolower(trim((string) ($package->package_type ?? ''))) : '';
                                     }
 
-                                    $isTicketPkg = $packageType === 'ticket';
-                                    if ($isTicketPkg) {
+                                    if ($packageType === 'ticket') {
                                         return $name . ($quantity > 1 ? ' x' . $quantity : '');
                                     }
 
-                                    return $name . ': ' . $quantity . ' ' . ($quantity === 1 ? 'guest' : 'guests');
+                                    return $name . ($guests > 0 ? ': ' . $guests . ($guests === 1 ? ' guest' : ' guests') : '') . ($quantity > 1 ? ' (Qty ' . $quantity . ')' : '');
                                 })->filter()->values();
 
                                 $packageDetailsText = $packageDetails->isNotEmpty()

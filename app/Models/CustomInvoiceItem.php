@@ -9,12 +9,14 @@ class CustomInvoiceItem extends Model
     protected $fillable = [
         'custom_invoice_id',
         'name',
+        'guests',
         'description',
         'quantity',
         'price',
     ];
 
     protected $casts = [
+        'guests' => 'integer',
         'price' => 'decimal:2',
     ];
 

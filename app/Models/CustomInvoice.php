@@ -14,6 +14,8 @@ class CustomInvoice extends Model
         'client_email',
         'notes',
         'internal_notes',
+        'package_use_date',
+        'transportation_arrival_time',
         'subtotal',
         'gratuity',
         'gratuity_name',

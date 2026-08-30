@@ -401,13 +401,20 @@ html body .custom-invoice-page-wrapper .btn-light i {
                                                 <div id="itemsContainer">
                                                     <div class="invoice-item mb-3 p-3 border rounded" style="background-color: #f9f9f9;">
                                                         <div class="row">
-                                                            <div class="col-md-6">
+                                                            <div class="col-md-5">
+                                                                <label class="form-label small text-muted">Item Name</label>
                                                                 <input type="text" name="items[0][name]" class="form-control mb-2" placeholder="Item Name" required>
                                                             </div>
-                                                            <div class="col-md-3">
+                                                            <div class="col-md-2">
+                                                                <label class="form-label small text-muted">Guests</label>
+                                                                <input type="number" name="items[0][guests]" class="form-control mb-2 guests" placeholder="Guests" value="1" min="1" required>
+                                                            </div>
+                                                            <div class="col-md-2">
+                                                                <label class="form-label small text-muted">Qty</label>
                                                                 <input type="number" name="items[0][quantity]" class="form-control mb-2 quantity" placeholder="Qty" value="1" min="1" required>
                                                             </div>
                                                             <div class="col-md-3">
+                                                                <label class="form-label small text-muted">Price ($)</label>
                                                                 <input type="number" name="items[0][price]" class="form-control mb-2 price" placeholder="Price" step="0.01" min="0.01" required>
                                                             </div>
                                                         </div>
@@ -624,13 +631,20 @@ html body .custom-invoice-page-wrapper .btn-light i {
             newItem.style.border = '1px solid #cbd5e1';
             newItem.innerHTML = `
                 <div class="row">
-                    <div class="col-md-6">
+                    <div class="col-md-5">
+                        <label class="form-label small text-muted">Item Name</label>
                         <input type="text" name="items[${itemCount}][name]" class="form-control mb-2" placeholder="Item Name" required>
                     </div>
-                    <div class="col-md-3">
+                    <div class="col-md-2">
+                        <label class="form-label small text-muted">Guests</label>
+                        <input type="number" name="items[${itemCount}][guests]" class="form-control mb-2 guests" placeholder="Guests" value="1" min="1" required>
+                    </div>
+                    <div class="col-md-2">
+                        <label class="form-label small text-muted">Qty</label>
                         <input type="number" name="items[${itemCount}][quantity]" class="form-control mb-2 quantity" placeholder="Qty" value="1" min="1" required>
                     </div>
                     <div class="col-md-3">
+                        <label class="form-label small text-muted">Price ($)</label>
                         <input type="number" name="items[${itemCount}][price]" class="form-control mb-2 price" placeholder="Price" step="0.01" min="0.01" required>
                     </div>
                 </div>
