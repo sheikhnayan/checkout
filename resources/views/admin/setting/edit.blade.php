@@ -58,6 +58,46 @@ label{
 .mode-current strong {
     font-size: 13px;
 }
+
+.toggle-switch {
+    position: relative;
+    display: inline-block;
+    width: 44px;
+    height: 24px;
+    vertical-align: middle;
+}
+.toggle-switch-input {
+    opacity: 0;
+    width: 0;
+    height: 0;
+    position: absolute;
+}
+.toggle-switch-slider {
+    position: absolute;
+    inset: 0;
+    border-radius: 999px;
+    background: #cbd5e1;
+    transition: background .2s ease;
+    cursor: pointer;
+}
+.toggle-switch-slider::before {
+    content: '';
+    position: absolute;
+    width: 18px;
+    height: 18px;
+    left: 3px;
+    top: 3px;
+    border-radius: 50%;
+    background: #fff;
+    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.25);
+    transition: transform .2s ease;
+}
+.toggle-switch-input:checked + .toggle-switch-slider {
+    background: #ffcc00;
+}
+.toggle-switch-input:checked + .toggle-switch-slider::before {
+    transform: translateX(20px);
+}
 </style>
 <style>
   #suggestions {
@@ -184,9 +224,12 @@ label{
                                                             <span>Payment Gateway Mode</span>
                                                             <i class="fas fa-circle-info ms-1 field-tip" data-bs-toggle="tooltip" data-bs-placement="top" title="Controls the Authorize.Net / Stripe environment for clubs that use the GLOBAL keys above. Sandbox = test only, no real charges. Uncheck to process REAL payments. A per-club override on the website Payment Settings page still takes precedence."></i>
                                                         </p>
-                                                        <div class="form-check form-switch">
-                                                            <input class="form-check-input" type="checkbox" role="switch" name="sandbox_mode" id="sandbox_mode" value="1" @checked(old('sandbox_mode', $data->sandbox_mode ?? true))>
-                                                            <label class="form-check-label" for="sandbox_mode">
+                                                        <div class="d-flex align-items-center gap-2 my-2">
+                                                            <label class="toggle-switch me-1" for="sandbox_mode">
+                                                                <input class="toggle-switch-input" type="checkbox" name="sandbox_mode" id="sandbox_mode" value="1" @checked(old('sandbox_mode', $data->sandbox_mode ?? true))>
+                                                                <span class="toggle-switch-slider"></span>
+                                                            </label>
+                                                            <label class="form-check-label mb-0 cursor-pointer text-dark fw-semibold" for="sandbox_mode">
                                                                 Sandbox (test) mode. Uncheck to go live and process real payments.
                                                             </label>
                                                         </div>
