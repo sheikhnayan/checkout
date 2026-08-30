@@ -129,6 +129,7 @@
 .txn-venue { font-size: 0.82rem; font-weight: 600; color: rgba(255,255,255,0.9); }
 .txn-pkg-type { font-size: 0.75rem; color: rgba(255,255,255,0.4); }
 .txn-customer-name { font-size: 0.82rem; font-weight: 600; color: rgba(255,255,255,0.9); }
+.badge-guest-count { background: rgba(124,58,237,0.22); color: #c084fc; border: 1px solid rgba(124,58,237,0.38); font-size: 0.72rem; font-weight: 700; padding: 1px 6px; border-radius: 4px; margin-left: 5px; display: inline-block; vertical-align: middle; }
 .txn-customer-email { font-size: 0.75rem; color: rgba(255,255,255,0.4); }
 .txn-amount { font-weight: 700; color: #fff; font-size: 0.9rem; }
 .txn-commission { font-weight: 600; color: rgba(255,255,255,0.75); font-size: 0.85rem; }
@@ -1701,8 +1702,28 @@ body.modal-open .admin-mobile-menu-toggle {
                             <td>
                                 @php
                                     $customerPhone = trim((string) ($item->package_phone ?: $item->payment_phone ?: ''));
+                                    $resMen = (int) ($item->package_men ?? 0);
+                                    $resWomen = (int) ($item->package_women ?? 0);
+                                    $resGuests = $resMen + $resWomen;
+                                    $pkgGuests = (int) ($item->package_number_of_guest ?? 0);
+
+                                    $cartGuests = 0;
+                                    if (is_array($cartItems)) {
+                                        foreach ($cartItems as $ci) {
+                                            if (is_array($ci)) {
+                                                $cartGuests += max(1, (int) ($ci['guests'] ?? $ci['quantity'] ?? 1));
+                                            }
+                                        }
+                                    }
+
+                                    $totalGuestsCount = $resGuests > 0 ? $resGuests : ($pkgGuests > 0 ? $pkgGuests : $cartGuests);
                                 @endphp
-                                <div class="txn-customer-name">{{ $item->package_first_name }} {{ $item->package_last_name }}</div>
+                                <div class="txn-customer-name">
+                                    {{ $item->package_first_name }} {{ $item->package_last_name }}
+                                    @if($totalGuestsCount > 1)
+                                        <span class="badge-guest-count">x{{ $totalGuestsCount }}</span>
+                                    @endif
+                                </div>
                                 <div class="txn-customer-email">{{ $item->package_email }}</div>
                                 @if($customerPhone !== '')
                                     <div class="txn-customer-phone" style="font-size:0.75rem;color:rgba(255,255,255,0.6);margin-top:2px;">
