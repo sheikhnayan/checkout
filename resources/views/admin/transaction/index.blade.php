@@ -65,7 +65,19 @@
 .txn-table tbody tr:hover td:last-child {
     background: #1e293b !important;
 }
-/* Stat Cards */
+/* Stat Cards Layout Fix */
+.txn-stat-card-row {
+    display: flex !important;
+    flex-wrap: wrap !important;
+    gap: 16px !important;
+    width: 100% !important;
+    margin-bottom: 24px !important;
+}
+.txn-stat-card-col {
+    flex: 1 1 240px !important;
+    min-width: 220px !important;
+    max-width: 100% !important;
+}
 .txn-stat-card {
     background: rgba(30, 41, 59, 0.75) !important;
     border: 1px solid rgba(255, 255, 255, 0.1) !important;
@@ -78,11 +90,11 @@
     box-shadow: 0 4px 20px rgba(0, 0, 0, 0.25) !important;
     transition: transform 0.2s, box-shadow 0.2s !important;
 }
-.row-cols-md-3 .col:nth-child(2) .txn-stat-card {
+.txn-stat-card-col:nth-child(2) .txn-stat-card {
     border-top-color: #f59e0b !important;
 }
-.row-cols-md-3 .col:nth-child(3) .txn-stat-card,
-.row-cols-md-3 .col:nth-child(4) .txn-stat-card {
+.txn-stat-card-col:nth-child(3) .txn-stat-card,
+.txn-stat-card-col:nth-child(4) .txn-stat-card {
     border-top-color: #38bdf8 !important;
 }
 .txn-stat-card:hover {
@@ -122,6 +134,7 @@
 .trend-down { color: #ef4444; }
 
 /* Polaris Filter Bar */
+#polarisFilterContainer,
 .polaris-filter-bar {
     display: flex !important;
     flex-direction: row !important;
@@ -136,13 +149,22 @@
     overflow: visible !important;
     width: 100% !important;
 }
+#polarisFilterContainer .dropdown,
 .polaris-filter-bar .dropdown {
     display: inline-block !important;
     position: relative !important;
     margin: 0 !important;
     flex-shrink: 0 !important;
+    width: auto !important;
 }
+#polarisFilterContainer .dropdown-toggle,
+#polarisFilterContainer .polaris-filter-pill-btn,
 .polaris-filter-pill-btn {
+    display: inline-flex !important;
+    width: auto !important;
+    max-width: none !important;
+    flex: 0 0 auto !important;
+    white-space: nowrap !important;
     background: rgba(255, 255, 255, 0.08) !important;
     border: 1px solid rgba(255, 255, 255, 0.15) !important;
     color: #e2e8f0 !important;
@@ -150,13 +172,10 @@
     font-weight: 600 !important;
     padding: 6px 14px !important;
     border-radius: 8px !important;
-    display: inline-flex !important;
     align-items: center !important;
     gap: 6px !important;
     cursor: pointer !important;
     transition: all 0.2s ease !important;
-    user-select: none !important;
-    white-space: nowrap !important;
 }
 .polaris-filter-pill-btn:hover,
 .polaris-filter-pill-btn.active {
@@ -1176,8 +1195,8 @@ body.modal-open .admin-mobile-menu-toggle {
         </div>
 
         {{-- ── STAT CARDS ──────────────────────────────────────────── --}}
-        <div class="row row-cols-1 row-cols-md-3 g-3 mb-4">
-            <div class="col">
+        <div class="txn-stat-card-row">
+            <div class="txn-stat-card-col">
                 <div class="txn-stat-card">
                     <div class="txn-stat-icon" style="background:rgba(124,58,237,0.15);color:#7c3aed"><i class="fas fa-receipt"></i></div>
                     <div>
@@ -1189,7 +1208,7 @@ body.modal-open .admin-mobile-menu-toggle {
                     </div>
                 </div>
             </div>
-            <div class="col">
+            <div class="txn-stat-card-col">
                 <div class="txn-stat-card">
                     <div class="txn-stat-icon" style="background:rgba(245,158,11,0.15);color:#f59e0b"><i class="fas fa-dollar-sign"></i></div>
                     <div>
@@ -1201,7 +1220,7 @@ body.modal-open .admin-mobile-menu-toggle {
                     </div>
                 </div>
             </div>
-            <div class="col" style="display:none !important;">
+            <div class="txn-stat-card-col" style="display:none !important;">
                 <div class="txn-stat-card">
                     <div class="txn-stat-icon" style="background:rgba(249,115,22,0.15);color:#f97316"><i class="fas fa-clock"></i></div>
                     <div>
@@ -1211,7 +1230,7 @@ body.modal-open .admin-mobile-menu-toggle {
                     </div>
                 </div>
             </div>
-            <div class="col">
+            <div class="txn-stat-card-col">
                 <div class="txn-stat-card">
                     <div class="txn-stat-icon" style="background:rgba(56,189,248,0.15);color:#38bdf8"><i class="fas fa-users"></i></div>
                     <div>
