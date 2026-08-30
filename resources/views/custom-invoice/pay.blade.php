@@ -541,7 +541,7 @@
                                             <option value="11:30 PM" {{ $selTimeAuth == '11:30 PM' ? 'selected' : '' }}>11:30 PM</option>
                                             <option value="12:00 AM" {{ $selTimeAuth == '12:00 AM' ? 'selected' : '' }}>12:00 AM (Midnight)</option>
                                             <option value="12:30 AM" {{ $selTimeAuth == '12:30 AM' ? 'selected' : '' }}>12:30 AM</option>
-                                            <option value="1:00 AM" {{ $selTime == '1:00 AM' ? 'selected' : '' }}>1:00 AM</option>
+                                            <option value="1:00 AM" {{ $selTimeAuth == '1:00 AM' ? 'selected' : '' }}>1:00 AM</option>
                                             <option value="1:30 AM" {{ $selTimeAuth == '1:30 AM' ? 'selected' : '' }}>1:30 AM</option>
                                             <option value="2:00 AM" {{ $selTimeAuth == '2:00 AM' ? 'selected' : '' }}>2:00 AM</option>
                                             <option value="2:30 AM" {{ $selTimeAuth == '2:30 AM' ? 'selected' : '' }}>2:30 AM</option>
