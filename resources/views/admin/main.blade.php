@@ -2136,7 +2136,7 @@
         box-shadow: 0 8px 20px rgba(18, 27, 46, 0.25);
       }
 
-      body .content-wrapper form .form-label {
+      body .content-wrapper:not(:has(.custom-invoice-page-wrapper)) form .form-label {
         color: var(--admin-section-label) !important;
         font-weight: 700;
         letter-spacing: 0.01em;
