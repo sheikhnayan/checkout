@@ -50,6 +50,21 @@
 .btn-has-note i {
     color: #0f172a !important;
 }
+/* Sticky Action Column */
+.txn-table th:last-child,
+.txn-table td:last-child {
+    position: sticky;
+    right: 0;
+    background: #0f172a !important;
+    z-index: 4;
+    box-shadow: -4px 0 10px rgba(0, 0, 0, 0.5);
+}
+.txn-table tbody tr.even td:last-child {
+    background: #111827 !important;
+}
+.txn-table tbody tr:hover td:last-child {
+    background: #1e293b !important;
+}
 /* Stat Cards */
 .txn-stat-card {
     background: linear-gradient(145deg, rgba(255,255,255,0.05), rgba(255,255,255,0.02));
