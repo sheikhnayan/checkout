@@ -45,13 +45,22 @@ class CustomInvoiceController extends Controller
                                     })
                                     ->latest()
                                     ->get();
+        } elseif ($user->isAffiliate() || $user->isEntertainer() || $user->affiliate || $user->entertainer) {
+            // Promoters, Sub-promoters, and Entertainers only see custom invoices created by themselves.
+            $invoices = CustomInvoice::where('user_id', $user->id)
+                                    ->when(!$includeArchived, function ($query) {
+                                        $query->whereNull('archived_at');
+                                    })
+                                    ->with(['website', 'items'])
+                                    ->latest()
+                                    ->get();
         } else {
             $accessibleIds = $user->accessibleCustomInvoiceWebsiteIds();
             $invoices = CustomInvoice::whereIn('website_id', $accessibleIds)
                                     ->when(!$includeArchived, function ($query) {
                                         $query->whereNull('archived_at');
                                     })
-                                    ->with(['items'])
+                                    ->with(['website', 'items'])
                                     ->latest()
                                     ->get();
         }

@@ -309,6 +309,12 @@
                     <span>${{ number_format($invoice->gratuity, 2) }}</span>
                 </div>
                 @endif
+                @if($invoice->processing_fee > 0)
+                <div class="total-row">
+                    <label>{{ $invoice->processing_fee_name ?? 'Processing Fee' }}</label>
+                    <span>${{ number_format($invoice->processing_fee, 2) }}</span>
+                </div>
+                @endif
                 <div class="total-row grand-total">
                     <label>TOTAL DUE</label>
                     <span id="totalAmount">${{ number_format($invoice->total, 2) }}</span>

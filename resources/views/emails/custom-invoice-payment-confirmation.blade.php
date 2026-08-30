@@ -64,6 +64,9 @@
         @if((float) $invoice->gratuity > 0)
             <tr><th>{{ $invoice->gratuity_name ?: 'Gratuity' }}</th><td class="right">${{ number_format((float) $invoice->gratuity, 2) }}</td></tr>
         @endif
+        @if((float) $invoice->processing_fee > 0)
+            <tr><th>{{ $invoice->processing_fee_name ?: 'Processing Fee' }}</th><td class="right">${{ number_format((float) $invoice->processing_fee, 2) }}</td></tr>
+        @endif
         <tr class="total-row"><th>Order Total</th><td class="right">${{ number_format((float) $invoice->total, 2) }}</td></tr>
         <tr><th>Amount Paid</th><td class="right">${{ number_format((float) $transaction->total, 2) }}</td></tr>
     </table>

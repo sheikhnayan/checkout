@@ -259,8 +259,15 @@
 
             @if((float)($invoice->tax ?? 0) > 0)
             <div class="total-row">
-                <span>Tax</span>
+                <span>{{ $invoice->sales_tax_name ?? 'Tax' }}</span>
                 <span>${{ number_format((float)($invoice->tax ?? 0), 2) }}</span>
+            </div>
+            @endif
+
+            @if((float)($invoice->processing_fee ?? 0) > 0)
+            <div class="total-row">
+                <span>{{ $invoice->processing_fee_name ?? 'Processing Fee' }}</span>
+                <span>${{ number_format((float)($invoice->processing_fee ?? 0), 2) }}</span>
             </div>
             @endif
 

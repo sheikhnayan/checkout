@@ -23,6 +23,8 @@ class CustomInvoice extends Model
         'tax',
         'service_charge',
         'service_charge_name',
+        'processing_fee',
+        'processing_fee_name',
         'total',
         'status',
         'payment_token',
@@ -42,6 +44,7 @@ class CustomInvoice extends Model
         'sales_tax' => 'decimal:2',
         'tax' => 'decimal:2',
         'service_charge' => 'decimal:2',
+        'processing_fee' => 'decimal:2',
         'total' => 'decimal:2',
     ];
 
@@ -102,6 +105,19 @@ class CustomInvoice extends Model
             $gratuityName = $website->gratuity_name ?: 'Gratuity Fee';
         }
 
+        // Calculate processing fee
+        $processingFee = 0;
+        $processingFeeName = null;
+        if ($website && $website->processing_fee > 0) {
+            $processingFeeType = strtolower((string) ($website->processing_fee_type ?? 'percentage'));
+            if ($processingFeeType === 'flat') {
+                $processingFee = round((float) $website->processing_fee, 2);
+            } else {
+                $processingFee = round($subtotal * ((float) $website->processing_fee / 100), 2);
+            }
+            $processingFeeName = 'Processing Fee';
+        }
+
         // Calculate refundable fee (stored for reference but NOT added to total)
         // This represents a non-refundable deposit in the main system
         $refundable = 0;
@@ -111,8 +127,8 @@ class CustomInvoice extends Model
             $refundableName = $website->refundable_name ?: 'Non-Refundable Deposit';
         }
 
-        // Calculate total without refundable (matches main system behavior)
-        $total = $subtotal + $salesTax + $serviceCharge + $gratuity;
+        // Calculate total (subtotal + sales tax + service charge + gratuity + processing fee)
+        $total = $subtotal + $salesTax + $serviceCharge + $gratuity + $processingFee;
 
         $this->subtotal = $subtotal;
         $this->gratuity = $gratuity;
@@ -124,6 +140,8 @@ class CustomInvoice extends Model
         $this->tax = $salesTax; // Backward compatibility
         $this->service_charge = $serviceCharge;
         $this->service_charge_name = $serviceChargeName;
+        $this->processing_fee = $processingFee;
+        $this->processing_fee_name = $processingFeeName;
         $this->total = $total;
 
         return $this;

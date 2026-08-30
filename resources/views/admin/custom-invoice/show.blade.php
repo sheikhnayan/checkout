@@ -142,6 +142,12 @@
                                                 <span>${{ number_format($customInvoice->gratuity, 2) }}</span>
                                             </div>
                                             @endif
+                                            @if($customInvoice->processing_fee > 0)
+                                            <div style="display: flex; justify-content: space-between; margin-bottom: 10px;">
+                                                <span>{{ $customInvoice->processing_fee_name ?? 'Processing Fee' }}:</span>
+                                                <span>${{ number_format($customInvoice->processing_fee, 2) }}</span>
+                                            </div>
+                                            @endif
                                             <div style="display: flex; justify-content: space-between; margin-top: 15px; padding-top: 15px; border-top: 1px solid rgba(255,255,255,0.12); font-weight: bold; font-size: 18px; color: #ffffff;">
                                                 <span>TOTAL:</span>
                                                 <span>${{ number_format($customInvoice->total, 2) }}</span>
