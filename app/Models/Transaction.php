@@ -86,6 +86,11 @@ class Transaction extends Model
         return $this->belongsTo(Website::class);
     }
 
+    public function user()
+    {
+        return $this->belongsTo(User::class);
+    }
+
     public function getPackageTableLabelAttribute(): string
     {
         $cartItems = is_array($this->cart_items) ? $this->cart_items : [];
