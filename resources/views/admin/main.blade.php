@@ -939,9 +939,24 @@
 
   @php
       $canAccessNightlyReports = $authUser && ((isset($canAccessRoute) && is_callable($canAccessRoute) && $canAccessRoute('admin.nightly-reports.dashboard')) || $authUser->isAdmin());
+      $canAccessFormBuilder = $authUser && (isset($canAccessRoute) && is_callable($canAccessRoute) && $canAccessRoute('admin.forms.index'));
+      $canAccessCustomInvoice = $authUser && (isset($canAccessRoute) && is_callable($canAccessRoute) && $canAccessRoute('admin.custom-invoice.index'));
+      
+      $userHasHelpCenterAccess = false;
+      if (isset($authUser) && $authUser) {
+          if ($authUser->isAdmin() || (isset($canAccessRoute) && is_callable($canAccessRoute) && $canAccessRoute('admin.help-center.index'))) {
+              $userHasHelpCenterAccess = true;
+          } else {
+              $userHasHelpCenterAccess = \App\Models\HelpCenterPage::where('user_id', $authUser->id)->exists()
+                  || \App\Models\HelpCenterCollaborator::where(function($q) use ($authUser) {
+                          $q->where('user_id', $authUser->id)
+                            ->orWhereRaw('LOWER(email) = ?', [strtolower(trim($authUser->email))]);
+                      })->whereIn('status', ['accepted', 'pending'])->exists();
+          }
+      }
   @endphp
   
-  @if($canAccessIncidentPortal || $canAccessJobMarketplace || $canAccessNightlyReports || ($authUser && $canAccessRoute('admin.custom-invoice.index')))
+  @if($canAccessIncidentPortal || $canAccessJobMarketplace || $canAccessNightlyReports || $canAccessFormBuilder || $canAccessCustomInvoice || $userHasHelpCenterAccess)
   <li class="menu-header small text-uppercase">
     <span class="menu-header-text">Manager Portal</span>
   </li>
@@ -969,26 +984,14 @@
     </a>
   </li>
   @endif
+  @if($canAccessFormBuilder)
   <li class="menu-item {{ request()->is('admins/forms*') || request()->is('admin/forms*') ? 'active' : '' }}">
     <a href="{{ route('admin.forms.index') }}" class="menu-link">
       <i class="menu-icon tf-icons bx bx-list-check"></i>
       <div class="text-truncate">Form Builder</div>
     </a>
   </li>
-  @php
-      $userHasHelpCenterAccess = false;
-      if (isset($authUser) && $authUser) {
-          if ($authUser->isAdmin() || (isset($canAccessRoute) && is_callable($canAccessRoute) && $canAccessRoute('admin.help-center.index'))) {
-              $userHasHelpCenterAccess = true;
-          } else {
-              $userHasHelpCenterAccess = \App\Models\HelpCenterPage::where('user_id', $authUser->id)->exists()
-                  || \App\Models\HelpCenterCollaborator::where(function($q) use ($authUser) {
-                          $q->where('user_id', $authUser->id)
-                            ->orWhereRaw('LOWER(email) = ?', [strtolower(trim($authUser->email))]);
-                      })->whereIn('status', ['accepted', 'pending'])->exists();
-          }
-      }
-  @endphp
+  @endif
 
   @if($userHasHelpCenterAccess)
   <li class="menu-item {{ request()->is('admins/help-center*') || request()->is('admin/help-center*') || request()->is('help-center*') ? 'active' : '' }}">
@@ -999,8 +1002,8 @@
   </li>
   @endif
 
-  @if($authUser && $canAccessRoute('admin.custom-invoice.index'))
-  <li class="menu-item {{ request()->is('admins/custom-invoice') ? 'active' : '' }}">
+  @if($canAccessCustomInvoice)
+  <li class="menu-item {{ request()->is('admins/custom-invoice*') ? 'active' : '' }}">
     <a href="{{ route('admin.custom-invoice.index') }}" class="menu-link">
       <i class="menu-icon tf-icons bx bx-file"></i>
       <div class="text-truncate">Custom Invoices</div>
