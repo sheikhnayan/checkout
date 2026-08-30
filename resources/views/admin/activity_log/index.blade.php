@@ -2,162 +2,171 @@
 
 @section('content')
 <style>
-    .activity-stat-card {
-        background: var(--admin-surface, #1e293b);
-        border: 1px solid rgba(255, 255, 255, 0.15);
-        border-radius: 12px;
-        padding: 1.25rem;
-        display: flex;
-        align-items: center;
-        gap: 1rem;
-        transition: transform 0.2s ease, border-color 0.2s ease;
-    }
-    .activity-stat-card:hover {
-        border-color: rgba(124, 58, 237, 0.6);
-        transform: translateY(-2px);
-    }
-    .activity-stat-icon {
-        width: 48px;
-        height: 48px;
-        border-radius: 10px;
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        font-size: 1.25rem;
-        flex-shrink: 0;
-    }
-    .activity-stat-value {
-        font-size: 1.6rem;
-        font-weight: 800;
-        color: #ffffff !important;
-        line-height: 1.2;
-    }
-    .activity-stat-label {
-        font-size: 0.8rem;
-        color: #ffffff !important;
-        font-weight: 700;
-        text-transform: uppercase;
-        letter-spacing: 0.05em;
-        margin-bottom: 2px;
-        opacity: 0.95;
-    }
-    .activity-filter-card {
-        background: var(--admin-surface, #1e293b);
-        border: 1px solid rgba(255, 255, 255, 0.15);
-        border-radius: 12px;
-        padding: 1.25rem;
-        margin-bottom: 1.5rem;
-    }
-    .activity-filter-card .form-control,
-    .activity-filter-card .form-select {
-        background: rgba(15, 23, 42, 0.8) !important;
-        border: 1px solid rgba(255, 255, 255, 0.25) !important;
-        color: #ffffff !important;
-        border-radius: 8px;
-        padding: 0.55rem 0.75rem;
-        font-size: 0.875rem;
-        font-weight: 500;
-    }
-    .activity-filter-card .form-control::placeholder {
-        color: rgba(255, 255, 255, 0.6) !important;
-    }
-    .activity-filter-card .form-control:focus,
-    .activity-filter-card .form-select:focus {
-        background: rgba(15, 23, 42, 0.95) !important;
-        border-color: #a78bfa !important;
-        box-shadow: 0 0 0 2px rgba(167, 139, 250, 0.3) !important;
-        color: #ffffff !important;
-    }
-    .activity-filter-card label {
-        font-size: 0.78rem;
-        font-weight: 700;
-        color: #ffffff !important;
-        text-transform: uppercase;
-        letter-spacing: 0.05em;
-        margin-bottom: 0.4rem;
-        display: block;
-    }
-    .activity-table-card {
-        background: var(--admin-surface, #1e293b);
-        border: 1px solid rgba(255, 255, 255, 0.15);
-        border-radius: 12px;
-        overflow: hidden;
-    }
-    .activity-table {
-        width: 100%;
-        margin-bottom: 0;
-        color: #ffffff !important;
-        border-collapse: separate;
-        border-spacing: 0;
-    }
-    .activity-table th {
-        background: rgba(15, 23, 42, 0.95);
-        padding: 0.95rem 1rem;
-        font-size: 0.78rem;
-        font-weight: 800;
-        text-transform: uppercase;
-        letter-spacing: 0.06em;
-        color: #ffffff !important;
-        border-bottom: 1px solid rgba(255, 255, 255, 0.15);
-    }
-    .activity-table td {
-        padding: 1rem;
-        vertical-align: middle;
-        border-bottom: 1px solid rgba(255, 255, 255, 0.08);
-        font-size: 0.875rem;
-        color: #ffffff !important;
-    }
-    .activity-table tbody tr:hover {
-        background: rgba(255, 255, 255, 0.04);
-    }
-    .action-badge {
-        display: inline-flex;
-        align-items: center;
-        gap: 0.35rem;
-        padding: 0.3rem 0.7rem;
-        border-radius: 20px;
-        font-size: 0.78rem;
-        font-weight: 700;
-        text-transform: uppercase;
-        letter-spacing: 0.04em;
-    }
-    .action-badge-login { background: rgba(16, 185, 129, 0.25); color: #34d399 !important; border: 1px solid rgba(52, 211, 153, 0.4); }
-    .action-badge-logout { background: rgba(245, 158, 11, 0.25); color: #fbbf24 !important; border: 1px solid rgba(251, 191, 36, 0.4); }
-    .action-badge-failed_login { background: rgba(239, 68, 68, 0.25); color: #f87171 !important; border: 1px solid rgba(248, 113, 113, 0.4); }
-    .action-badge-create { background: rgba(59, 130, 246, 0.25); color: #60a5fa !important; border: 1px solid rgba(96, 165, 250, 0.4); }
-    .action-badge-update { background: rgba(168, 85, 247, 0.25); color: #c084fc !important; border: 1px solid rgba(192, 132, 252, 0.4); }
-    .action-badge-delete { background: rgba(239, 68, 68, 0.25); color: #f87171 !important; border: 1px solid rgba(248, 113, 113, 0.4); }
-    .action-badge-check_in { background: rgba(6, 182, 212, 0.25); color: #38bdf8 !important; border: 1px solid rgba(56, 189, 248, 0.4); }
-    .action-badge-default { background: rgba(148, 163, 184, 0.25); color: #e2e8f0 !important; border: 1px solid rgba(226, 232, 240, 0.4); }
-    
-    .role-badge {
-        font-size: 0.72rem;
-        padding: 0.18rem 0.5rem;
-        border-radius: 4px;
-        font-weight: 700;
-        background: rgba(255, 255, 255, 0.2);
-        color: #ffffff !important;
-        border: 1px solid rgba(255, 255, 255, 0.3);
-    }
-    .club-badge {
-        font-size: 0.78rem;
-        padding: 0.25rem 0.6rem;
-        border-radius: 6px;
-        font-weight: 600;
-        background: rgba(124, 58, 237, 0.25);
-        color: #e9d5ff !important;
-        border: 1px solid rgba(192, 132, 252, 0.4);
-    }
-    .ip-pill {
-        font-family: monospace;
-        font-size: 0.78rem;
-        font-weight: 600;
-        color: #ffffff !important;
-        background: rgba(0, 0, 0, 0.5);
-        padding: 0.2rem 0.5rem;
-        border-radius: 4px;
-        border: 1px solid rgba(255, 255, 255, 0.15);
-    }
+    @import url('https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;500&display=swap');
+
+.activity-log-page,
+.activity-log-page *,
+.activity-table,
+.activity-table th,
+.activity-table td {
+    font-family: 'Plus Jakarta Sans', -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif !important;
+}
+
+.activity-stat-card {
+    background: var(--admin-surface, #1e293b);
+    border: 1px solid rgba(255, 255, 255, 0.12);
+    border-radius: 12px;
+    padding: 1.25rem;
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+    transition: transform 0.2s ease, border-color 0.2s ease;
+}
+.activity-stat-card:hover {
+    border-color: rgba(124, 58, 237, 0.5);
+    transform: translateY(-2px);
+}
+.activity-stat-icon {
+    width: 46px;
+    height: 46px;
+    border-radius: 10px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 1.2rem;
+    flex-shrink: 0;
+}
+.activity-stat-value {
+    font-size: 1.5rem;
+    font-weight: 700;
+    color: #f8fafc !important;
+    line-height: 1.2;
+    letter-spacing: -0.02em;
+}
+.activity-stat-label {
+    font-size: 0.75rem;
+    color: #94a3b8 !important;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.06em;
+    margin-bottom: 3px;
+}
+.activity-filter-card {
+    background: var(--admin-surface, #1e293b);
+    border: 1px solid rgba(255, 255, 255, 0.12);
+    border-radius: 12px;
+    padding: 1.25rem;
+    margin-bottom: 1.5rem;
+}
+.activity-filter-card .form-control,
+.activity-filter-card .form-select {
+    background: rgba(15, 23, 42, 0.8) !important;
+    border: 1px solid rgba(255, 255, 255, 0.2) !important;
+    color: #f8fafc !important;
+    border-radius: 8px;
+    padding: 0.5rem 0.75rem;
+    font-size: 0.85rem;
+    font-weight: 500;
+}
+.activity-filter-card .form-control::placeholder {
+    color: #64748b !important;
+}
+.activity-filter-card .form-control:focus,
+.activity-filter-card .form-select:focus {
+    background: rgba(15, 23, 42, 0.95) !important;
+    border-color: #a78bfa !important;
+    box-shadow: 0 0 0 2px rgba(167, 139, 250, 0.25) !important;
+    color: #ffffff !important;
+}
+.activity-filter-card label {
+    font-size: 0.72rem;
+    font-weight: 700;
+    color: #94a3b8 !important;
+    text-transform: uppercase;
+    letter-spacing: 0.06em;
+    margin-bottom: 0.4rem;
+    display: block;
+}
+.activity-table-card {
+    background: var(--admin-surface, #1e293b);
+    border: 1px solid rgba(255, 255, 255, 0.12);
+    border-radius: 12px;
+    overflow: hidden;
+}
+.activity-table {
+    width: 100%;
+    margin-bottom: 0;
+    color: #f8fafc !important;
+    border-collapse: separate;
+    border-spacing: 0;
+}
+.activity-table th {
+    background: #0f172a;
+    padding: 0.85rem 1.1rem;
+    font-size: 0.72rem;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.07em;
+    color: #94a3b8 !important;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+}
+.activity-table td {
+    padding: 0.95rem 1.1rem;
+    vertical-align: middle;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.06);
+    font-size: 0.85rem;
+    color: #f8fafc !important;
+}
+.activity-table tbody tr:hover {
+    background: rgba(255, 255, 255, 0.03);
+}
+.action-badge {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.35rem;
+    padding: 0.25rem 0.65rem;
+    border-radius: 20px;
+    font-size: 0.75rem;
+    font-weight: 600;
+    letter-spacing: 0.02em;
+}
+.action-badge-login { background: rgba(16, 185, 129, 0.18); color: #34d399 !important; border: 1px solid rgba(52, 211, 153, 0.35); }
+.action-badge-logout { background: rgba(245, 158, 11, 0.18); color: #fbbf24 !important; border: 1px solid rgba(251, 191, 36, 0.35); }
+.action-badge-failed_login { background: rgba(239, 68, 68, 0.18); color: #f87171 !important; border: 1px solid rgba(248, 113, 113, 0.35); }
+.action-badge-create { background: rgba(59, 130, 246, 0.18); color: #60a5fa !important; border: 1px solid rgba(96, 165, 250, 0.35); }
+.action-badge-update { background: rgba(168, 85, 247, 0.18); color: #c084fc !important; border: 1px solid rgba(192, 132, 252, 0.35); }
+.action-badge-delete { background: rgba(239, 68, 68, 0.18); color: #f87171 !important; border: 1px solid rgba(248, 113, 113, 0.35); }
+.action-badge-check_in { background: rgba(6, 182, 212, 0.18); color: #38bdf8 !important; border: 1px solid rgba(56, 189, 248, 0.35); }
+.action-badge-default { background: rgba(148, 163, 184, 0.18); color: #cbd5e1 !important; border: 1px solid rgba(203, 213, 225, 0.3); }
+
+.role-badge {
+    font-size: 0.7rem;
+    padding: 0.15rem 0.45rem;
+    border-radius: 4px;
+    font-weight: 500;
+    background: rgba(255, 255, 255, 0.1);
+    color: #cbd5e1 !important;
+    border: 1px solid rgba(255, 255, 255, 0.18);
+}
+.club-badge {
+    font-size: 0.78rem;
+    padding: 0.22rem 0.55rem;
+    border-radius: 6px;
+    font-weight: 600;
+    background: rgba(124, 58, 237, 0.18);
+    color: #e9d5ff !important;
+    border: 1px solid rgba(192, 132, 252, 0.35);
+}
+.ip-pill {
+    font-family: 'JetBrains Mono', monospace !important;
+    font-size: 0.75rem;
+    font-weight: 500;
+    color: #94a3b8 !important;
+    background: rgba(15, 23, 42, 0.6);
+    padding: 0.2rem 0.5rem;
+    border-radius: 5px;
+    border: 1px solid rgba(255, 255, 255, 0.1);
+}
 </style>
 
 <div class="container-fluid px-4 py-4">
@@ -290,17 +299,23 @@
                     @forelse($activityLogs as $log)
                     <tr>
                         <td style="white-space: nowrap;">
-                            <div class="fw-bold text-white" style="font-size:0.9rem;">{{ $log->created_at ? $log->created_at->format('M d, Y') : 'N/A' }}</div>
-                            <div style="font-size:0.8rem; color:#ffffff !important; opacity:0.8;">{{ $log->created_at ? $log->created_at->format('h:i:s A') : '' }}</div>
+                            @php
+                                $ptTime = $log->created_at ? $log->created_at->timezone('America/Los_Angeles') : null;
+                            @endphp
+                            <div style="font-size:0.85rem; font-weight:600; color:#f8fafc; letter-spacing:-0.01em;">{{ $ptTime ? $ptTime->format('M d, Y') : 'N/A' }}</div>
+                            <div style="font-size:0.78rem; font-weight:400; color:#94a3b8; margin-top:2px; font-variant-numeric: tabular-nums;">
+                                {{ $ptTime ? $ptTime->format('h:i:s A') : '' }}
+                                <span style="font-size:0.65rem; font-weight:600; background:rgba(148,163,184,0.15); color:#cbd5e1; border:1px solid rgba(148,163,184,0.25); border-radius:4px; padding:1px 5px; margin-left:4px;">PT</span>
+                            </div>
                         </td>
                         <td>
                             <div class="d-flex align-items-center gap-2">
-                                <div class="avatar-sm rounded-circle d-flex align-items-center justify-content-center fw-bold" style="width:34px;height:34px;font-size:0.85rem;background:rgba(124,58,237,0.3);color:#e9d5ff;border:1px solid rgba(192,132,252,0.4);">
+                                <div class="avatar-sm rounded-circle d-flex align-items-center justify-content-center fw-semibold" style="width:34px;height:34px;font-size:0.85rem;background:rgba(124,58,237,0.2);color:#e9d5ff;border:1px solid rgba(192,132,252,0.3);flex-shrink:0;">
                                     {{ strtoupper(substr($log->user_name ?? 'U', 0, 1)) }}
                                 </div>
                                 <div>
-                                    <div class="fw-bold text-white" style="font-size:0.9rem;">{{ $log->user_name ?? 'System' }}</div>
-                                    <div style="font-size:0.78rem; color:#ffffff !important; opacity:0.85;">
+                                    <div style="font-size:0.85rem; font-weight:600; color:#f8fafc; letter-spacing:-0.01em;">{{ $log->user_name ?? 'System' }}</div>
+                                    <div style="font-size:0.78rem; font-weight:400; color:#94a3b8; margin-top:1px;">
                                         {{ $log->user_email ?? 'N/A' }}
                                         @if($log->user_type)
                                             <span class="role-badge ms-1">{{ ucfirst($log->user_type) }}</span>
