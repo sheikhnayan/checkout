@@ -269,24 +269,58 @@ html body .custom-invoice-page-wrapper .dataTables_paginate .paginate_button:hov
     border-color: #0f172a !important;
 }
 
-/* Action Buttons */
-html body .custom-invoice-page-wrapper .btn-primary {
-    background-color: #0f172a !important;
-    background: #0f172a !important;
-    border-color: #0f172a !important;
+/* Badges & Status Pills: White Text Inside All Badges */
+html body .custom-invoice-page-wrapper .badge,
+html body .custom-invoice-page-wrapper .badge *,
+html body .custom-invoice-page-wrapper span.badge,
+html body .custom-invoice-page-wrapper span.badge *,
+html body .custom-invoice-page-wrapper .badge-success,
+html body .custom-invoice-page-wrapper .badge-info,
+html body .custom-invoice-page-wrapper .badge-primary,
+html body .custom-invoice-page-wrapper .badge-danger,
+html body .custom-invoice-page-wrapper .badge-warning,
+html body .custom-invoice-page-wrapper .badge-secondary,
+html body .custom-invoice-page-wrapper .badge-dark {
     color: #ffffff !important;
     font-weight: 700 !important;
-    border-radius: 8px !important;
+    opacity: 1 !important;
 }
 
+/* Colored / Dark Action Buttons: White Text & Icons */
+html body .custom-invoice-page-wrapper .btn-primary,
+html body .custom-invoice-page-wrapper .btn-primary *,
+html body .custom-invoice-page-wrapper .btn-primary i,
+html body .custom-invoice-page-wrapper .btn-success,
+html body .custom-invoice-page-wrapper .btn-success *,
+html body .custom-invoice-page-wrapper .btn-success i,
+html body .custom-invoice-page-wrapper .btn-danger,
+html body .custom-invoice-page-wrapper .btn-danger *,
+html body .custom-invoice-page-wrapper .btn-danger i,
+html body .custom-invoice-page-wrapper .btn-warning,
+html body .custom-invoice-page-wrapper .btn-warning *,
+html body .custom-invoice-page-wrapper .btn-warning i,
+html body .custom-invoice-page-wrapper .btn-info,
+html body .custom-invoice-page-wrapper .btn-info *,
+html body .custom-invoice-page-wrapper .btn-info i,
+html body .custom-invoice-page-wrapper .btn-dark,
+html body .custom-invoice-page-wrapper .btn-dark *,
+html body .custom-invoice-page-wrapper .btn-dark i {
+    color: #ffffff !important;
+    opacity: 1 !important;
+}
+
+/* White Background Buttons: Keep Dark Text & Dark Icons */
 html body .custom-invoice-page-wrapper .btn-outline-secondary,
-html body .custom-invoice-page-wrapper .btn-secondary {
-    background-color: #ffffff !important;
-    background: #ffffff !important;
+html body .custom-invoice-page-wrapper .btn-outline-secondary *,
+html body .custom-invoice-page-wrapper .btn-outline-secondary i,
+html body .custom-invoice-page-wrapper .btn-secondary,
+html body .custom-invoice-page-wrapper .btn-secondary *,
+html body .custom-invoice-page-wrapper .btn-secondary i,
+html body .custom-invoice-page-wrapper .btn-light,
+html body .custom-invoice-page-wrapper .btn-light *,
+html body .custom-invoice-page-wrapper .btn-light i {
     color: #000000 !important;
-    border: 1px solid #cbd5e1 !important;
-    font-weight: 700 !important;
-    border-radius: 8px !important;
+    opacity: 1 !important;
 }
 </style>
 
