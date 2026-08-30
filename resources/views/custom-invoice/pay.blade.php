@@ -12,139 +12,132 @@
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
     <style>
         body {
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            background: #f8fafc;
+            color: #1e293b;
             min-height: 100vh;
             display: flex;
             align-items: center;
             justify-content: center;
-            padding: 20px;
+            padding: 30px 15px;
+            font-family: 'Segoe UI', -apple-system, BlinkMacSystemFont, Roboto, sans-serif;
         }
         .payment-container {
-            background: white;
-            border-radius: 10px;
-            box-shadow: 0 10px 40px rgba(0,0,0,0.2);
-            max-width: 700px;
+            background: #ffffff;
+            border-radius: 12px;
+            border: 1px solid #e2e8f0;
+            box-shadow: 0 10px 35px rgba(15, 23, 42, 0.06);
+            max-width: 720px;
             width: 100%;
             overflow: hidden;
         }
         .payment-header {
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-            color: white;
-            padding: 30px;
+            background: #0f172a;
+            color: #ffffff;
+            padding: 28px 30px;
             text-align: center;
         }
-        .payment-header h1 {
+        .payment-header .header-title {
             margin: 0;
-            font-size: 24px;
+            font-size: 22px;
+            font-weight: 800;
+            letter-spacing: -0.02em;
+            color: #ffffff;
         }
-        .invoice-details {
-            padding: 30px;
-            border-bottom: 1px solid #eee;
+        .payment-header .header-subtitle {
+            margin-top: 6px;
+            font-size: 13px;
+            color: #94a3b8;
+            font-weight: 600;
+            letter-spacing: 0.02em;
         }
-        .invoice-details h3 {
-            font-size: 16px;
-            margin-bottom: 20px;
-            color: #333;
+        .invoice-details, .items-section, .totals-section, .payment-section {
+            padding: 28px 30px;
+            border-bottom: 1px solid #f1f5f9;
+        }
+        .section-heading {
+            font-size: 14px;
+            font-weight: 700;
+            color: #0f172a;
+            margin-bottom: 16px;
+            text-transform: uppercase;
+            letter-spacing: 0.03em;
         }
         .detail-row {
             display: flex;
             justify-content: space-between;
-            padding: 8px 0;
-            border-bottom: 1px solid #f0f0f0;
+            padding: 10px 0;
+            border-bottom: 1px solid #f1f5f9;
+            font-size: 14px;
         }
         .detail-row label {
             font-weight: 600;
-            color: #666;
+            color: #64748b;
         }
         .detail-row span {
-            color: #333;
+            color: #0f172a;
+            font-weight: 600;
         }
         .items-section {
-            padding: 30px;
-            border-bottom: 1px solid #eee;
-        }
-        .items-section h3 {
-            font-size: 16px;
-            margin-bottom: 15px;
-            color: #333;
+            padding: 28px 30px;
         }
         .items-table {
             width: 100%;
             border-collapse: collapse;
         }
         .items-table thead {
-            background-color: #f9f9f9;
+            background-color: #f8fafc;
         }
         .items-table th {
-            padding: 10px;
+            padding: 10px 12px;
             text-align: left;
-            font-weight: 600;
-            color: #666;
-            border-bottom: 2px solid #eee;
-            font-size: 13px;
+            font-weight: 700;
+            color: #475569;
+            border-bottom: 2px solid #e2e8f0;
+            font-size: 12px;
+            text-transform: uppercase;
+            letter-spacing: 0.03em;
         }
         .items-table td {
-            padding: 12px 10px;
-            border-bottom: 1px solid #f0f0f0;
+            padding: 12px;
+            border-bottom: 1px solid #f1f5f9;
             font-size: 14px;
+            color: #1e293b;
         }
         .text-right {
             text-align: right;
         }
         .totals-section {
-            padding: 30px;
-            border-bottom: 1px solid #eee;
+            background: #f8fafc;
+            padding: 24px 30px;
         }
         .total-row {
             display: flex;
             justify-content: flex-end;
-            margin-bottom: 10px;
+            margin-bottom: 8px;
+            font-size: 14px;
         }
         .total-row label {
-            width: 150px;
+            width: 180px;
             text-align: right;
             margin-right: 20px;
-            color: #666;
+            color: #64748b;
+            font-weight: 600;
         }
         .total-row span {
-            width: 100px;
+            width: 110px;
             text-align: right;
-            color: #333;
+            color: #0f172a;
+            font-weight: 600;
         }
         .total-row.grand-total {
-            font-weight: bold;
+            font-weight: 800;
             font-size: 18px;
-            padding-top: 10px;
-            border-top: 2px solid #667eea;
-            color: #667eea;
+            padding-top: 12px;
+            border-top: 2px solid #cbd5e1;
+            color: #0f172a;
         }
         .payment-section {
-            padding: 30px;
-        }
-        .payment-method-selector {
-            display: flex;
-            gap: 15px;
-            margin-bottom: 20px;
-        }
-        .payment-method {
-            flex: 1;
-        }
-        .payment-method input[type="radio"] {
-            display: none;
-        }
-        .payment-method label {
-            display: block;
-            padding: 15px;
-            border: 2px solid #ddd;
-            border-radius: 5px;
-            text-align: center;
-            cursor: pointer;
-            transition: all 0.3s;
-            margin: 0;
-        }
-        .payment-method input[type="radio"]:checked + label {
-            border-color: #667eea;
-            background-color: #f0f4ff;
+            padding: 28px 30px;
         }
         .payment-form {
             display: none;
@@ -153,70 +146,89 @@
             display: block;
         }
         .form-group {
-            margin-bottom: 15px;
+            margin-bottom: 16px;
         }
         .form-group label {
             display: block;
-            margin-bottom: 5px;
-            color: #333;
-            font-weight: 500;
-            font-size: 14px;
+            margin-bottom: 6px;
+            font-weight: 600;
+            color: #334155;
+            font-size: 13px;
         }
-        .form-group input,
-        .form-group select {
+        .form-control, .form-select {
             width: 100%;
-            padding: 10px;
-            border: 1px solid #ddd;
-            border-radius: 5px;
+            border: 1px solid #cbd5e1;
+            border-radius: 6px;
+            padding: 10px 12px;
             font-size: 14px;
+            color: #0f172a;
+            background: #ffffff;
+            box-sizing: border-box;
         }
-        .form-row {
-            display: grid;
-            grid-template-columns: 1fr 1fr;
-            gap: 15px;
+        .form-control:focus, .form-select:focus {
+            outline: none;
+            border-color: #0f172a;
+            box-shadow: 0 0 0 3px rgba(15, 23, 42, 0.1);
         }
         .pay-button {
+            display: block;
             width: 100%;
+            background: #0f172a;
+            color: #ffffff;
             padding: 15px;
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-            color: white;
             border: none;
-            border-radius: 5px;
+            border-radius: 8px;
             font-size: 16px;
-            font-weight: bold;
+            font-weight: 700;
             cursor: pointer;
-            margin-top: 20px;
-            transition: opacity 0.3s;
+            transition: background 0.2s ease;
+            margin-top: 24px;
         }
         .pay-button:hover {
-            opacity: 0.9;
-        }
-        .pay-button:disabled {
-            opacity: 0.6;
-            cursor: not-allowed;
+            background: #1e293b;
+            color: #ffffff;
         }
         .alert {
-            border-radius: 5px;
-            padding: 15px;
+            padding: 14px 16px;
+            border-radius: 6px;
             margin-bottom: 20px;
+            font-size: 14px;
         }
         .alert-danger {
-            background-color: #fee;
-            color: #c33;
-            border: 1px solid #fcc;
+            background-color: #fef2f2;
+            color: #991b1b;
+            border: 1px solid #fecaca;
         }
-        .alert-warning {
-            background-color: #ffeaa7;
-            color: #856404;
-            border: 1px solid #ffd966;
+        .alert-success {
+            background-color: #f0fdf4;
+            color: #166534;
+            border: 1px solid #bbf7d0;
         }
     </style>
 </head>
 <body>
+    @php
+        $payLogoUrl = null;
+        if ($website && !empty($website->logo)) {
+            $logo = ltrim((string) $website->logo, '/');
+            if (str_starts_with($logo, 'http://') || str_starts_with($logo, 'https://')) {
+                $payLogoUrl = $logo;
+            } else {
+                $logoPath = str_starts_with($logo, 'storage/') ? $logo : ('storage/' . $logo);
+                $payLogoUrl = url($logoPath);
+            }
+        }
+    @endphp
+
     <div class="payment-container">
         <div class="payment-header">
-            <h1><i class="fas fa-file-invoice"></i> Invoice #{{ $invoice->id }}</h1>
-            <p style="margin-bottom: 0;">Payment Required</p>
+            @if($payLogoUrl)
+                <div style="margin-bottom: 10px;">
+                    <img src="{{ $payLogoUrl }}" alt="{{ $website->name ?? 'Venue' }}" style="max-height: 48px; max-width: 220px; object-fit: contain;">
+                </div>
+            @endif
+            <h1 class="header-title">{{ $website->name ?? 'CartVIP' }}</h1>
+            <div class="header-subtitle">Invoice #{{ $invoice->id }} &bull; Secure Payment Portal</div>
         </div>
 
         @if($invoice->status === 'paid')

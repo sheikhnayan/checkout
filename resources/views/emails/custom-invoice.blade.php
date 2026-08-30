@@ -6,68 +6,67 @@
     <title>Invoice #{{ $invoice->id }} - Payment Required</title>
     <style>
         body {
-            font-family: 'Segoe UI', Helvetica, Arial, sans-serif;
-            background-color: #0b0f19;
-            color: #e2e8f0;
+            font-family: 'Segoe UI', -apple-system, BlinkMacSystemFont, Roboto, Helvetica, Arial, sans-serif;
+            background-color: #f4f6f8;
+            color: #1e293b;
             margin: 0;
-            padding: 20px 0;
+            padding: 30px 0;
             line-height: 1.6;
         }
         .email-wrapper {
-            max-width: 650px;
+            max-width: 620px;
             margin: 0 auto;
-            background-color: #1e293b;
-            border-radius: 16px;
+            background-color: #ffffff;
+            border-radius: 12px;
             overflow: hidden;
-            border: 1px solid rgba(255, 204, 0, 0.25);
-            box-shadow: 0 12px 40px rgba(0, 0, 0, 0.6);
+            border: 1px solid #e2e8f0;
+            box-shadow: 0 4px 16px rgba(15, 23, 42, 0.05);
         }
         .email-header {
-            background: linear-gradient(135deg, #0f172a 0%, #1e293b 100%);
-            padding: 35px 30px;
+            background-color: #ffffff;
+            padding: 32px 30px 24px 30px;
             text-align: center;
-            border-bottom: 2px solid #ffcc00;
+            border-bottom: 1px solid #f1f5f9;
         }
         .club-name {
-            color: #ffcc00;
-            font-size: 24px;
+            color: #0f172a;
+            font-size: 22px;
             font-weight: 800;
-            letter-spacing: 0.05em;
-            text-transform: uppercase;
-            margin: 0 0 8px 0;
+            letter-spacing: -0.02em;
+            margin: 0 0 6px 0;
         }
         .invoice-tag {
             display: inline-block;
-            background: rgba(255, 204, 0, 0.15);
-            color: #ffcc00;
-            border: 1px solid rgba(255, 204, 0, 0.35);
+            background: #eff6ff;
+            color: #1d4ed8;
+            border: 1px solid #bfdbfe;
             padding: 4px 14px;
-            border-radius: 20px;
+            border-radius: 999px;
             font-size: 12px;
             font-weight: 700;
-            letter-spacing: 0.05em;
+            letter-spacing: 0.03em;
         }
         .email-body {
-            padding: 35px 30px;
+            padding: 32px 30px;
         }
         .greeting {
             font-size: 18px;
             font-weight: 700;
-            color: #f8fafc;
+            color: #0f172a;
             margin-top: 0;
-            margin-bottom: 12px;
+            margin-bottom: 8px;
         }
         .intro-text {
-            color: #cbd5e1;
+            color: #475569;
             font-size: 15px;
-            margin-bottom: 25px;
+            margin-bottom: 24px;
         }
         .details-card {
-            background: rgba(15, 23, 42, 0.6);
-            border: 1px solid rgba(255, 255, 255, 0.08);
-            border-radius: 12px;
-            padding: 20px;
-            margin-bottom: 25px;
+            background: #f8fafc;
+            border: 1px solid #e2e8f0;
+            border-radius: 10px;
+            padding: 18px 20px;
+            margin-bottom: 24px;
         }
         .details-table {
             width: 100%;
@@ -76,33 +75,33 @@
         }
         .details-table td {
             padding: 6px 0;
-            color: #cbd5e1;
+            color: #334155;
         }
         .details-table td.label {
             font-weight: 600;
-            color: #94a3b8;
+            color: #64748b;
             width: 35%;
         }
         .items-table {
             width: 100%;
             border-collapse: collapse;
-            margin-bottom: 25px;
+            margin-bottom: 24px;
         }
         .items-table th {
-            background: #0f172a;
-            color: #ffcc00;
+            background: #f1f5f9;
+            color: #475569;
             font-size: 12px;
             font-weight: 700;
             text-transform: uppercase;
-            letter-spacing: 0.05em;
-            padding: 12px 14px;
+            letter-spacing: 0.04em;
+            padding: 10px 12px;
             text-align: left;
-            border-bottom: 1px solid rgba(255, 204, 0, 0.3);
+            border-bottom: 2px solid #cbd5e1;
         }
         .items-table td {
-            padding: 14px;
-            border-bottom: 1px solid rgba(255, 255, 255, 0.07);
-            color: #e2e8f0;
+            padding: 12px;
+            border-bottom: 1px solid #e2e8f0;
+            color: #1e293b;
             font-size: 14px;
         }
         .text-right {
@@ -112,11 +111,11 @@
             text-align: center;
         }
         .totals-card {
-            background: rgba(15, 23, 42, 0.7);
-            border-radius: 12px;
-            padding: 20px;
-            margin-bottom: 30px;
-            border: 1px solid rgba(255, 255, 255, 0.08);
+            background: #f8fafc;
+            border-radius: 10px;
+            padding: 18px 20px;
+            margin-bottom: 28px;
+            border: 1px solid #e2e8f0;
         }
         .totals-table {
             width: 100%;
@@ -124,63 +123,79 @@
             font-size: 14px;
         }
         .totals-table td {
-            padding: 7px 0;
-            color: #cbd5e1;
+            padding: 6px 0;
+            color: #475569;
         }
         .totals-table tr.grand-total-row td {
-            padding-top: 14px;
-            border-top: 1px solid rgba(255, 204, 0, 0.4);
+            padding-top: 12px;
+            border-top: 2px solid #cbd5e1;
             font-size: 18px;
             font-weight: 800;
-            color: #ffcc00;
+            color: #0f172a;
         }
         .cta-container {
             text-align: center;
-            margin: 35px 0 25px 0;
+            margin: 30px 0 20px 0;
         }
         .pay-button {
             display: inline-block;
-            background: linear-gradient(135deg, #ffcc00 0%, #e6b800 100%);
-            color: #0f172a !important;
-            padding: 16px 42px;
-            border-radius: 30px;
-            font-weight: 800;
-            font-size: 16px;
+            background: #0f172a;
+            color: #ffffff !important;
+            padding: 15px 40px;
+            border-radius: 8px;
+            font-weight: 700;
+            font-size: 15px;
             text-decoration: none !important;
-            letter-spacing: 0.05em;
-            text-transform: uppercase;
-            box-shadow: 0 8px 25px rgba(255, 204, 0, 0.3);
+            letter-spacing: 0.02em;
+            box-shadow: 0 4px 12px rgba(15, 23, 42, 0.15);
         }
         .notes-box {
-            background: rgba(255, 204, 0, 0.05);
-            border-left: 4px solid #ffcc00;
+            background: #f8fafc;
+            border-left: 4px solid #0f172a;
             border-radius: 4px;
-            padding: 16px;
-            margin-top: 25px;
-            color: #cbd5e1;
+            padding: 14px 16px;
+            margin-top: 24px;
+            color: #334155;
             font-size: 14px;
         }
         .notes-title {
-            color: #ffcc00;
+            color: #0f172a;
             font-weight: 700;
-            margin: 0 0 6px 0;
-            font-size: 14px;
+            margin: 0 0 4px 0;
+            font-size: 13px;
+            text-transform: uppercase;
+            letter-spacing: 0.03em;
         }
         .email-footer {
-            background-color: #0f172a;
-            padding: 25px 30px;
+            background-color: #f8fafc;
+            padding: 22px 30px;
             text-align: center;
             font-size: 12px;
             color: #64748b;
-            border-top: 1px solid rgba(255, 255, 255, 0.08);
+            border-top: 1px solid #e2e8f0;
         }
     </style>
 </head>
 <body>
+    @php
+        $logoUrl = null;
+        if ($invoice->website && !empty($invoice->website->logo)) {
+            $logo = ltrim((string) $invoice->website->logo, '/');
+            if (str_starts_with($logo, 'http://') || str_starts_with($logo, 'https://')) {
+                $logoUrl = $logo;
+            } else {
+                $logoPath = str_starts_with($logo, 'storage/') ? $logo : ('storage/' . $logo);
+                $logoUrl = url($logoPath);
+            }
+        }
+    @endphp
+
     <div class="email-wrapper">
         <div class="email-header">
-            @if($invoice->website && $invoice->website->logo)
-                <img src="{{ asset('storage/' . $invoice->website->logo) }}" alt="{{ $invoice->website->name }}" style="max-height: 50px; margin-bottom: 12px;">
+            @if($logoUrl)
+                <div style="margin-bottom: 12px;">
+                    <img src="{{ $logoUrl }}" alt="{{ $invoice->website->name ?? 'Venue' }}" style="max-height: 48px; max-width: 220px; object-fit: contain;">
+                </div>
             @endif
             <h1 class="club-name">{{ $invoice->website->name ?? 'CartVIP' }}</h1>
             <span class="invoice-tag">INVOICE #{{ $invoice->id }} &bull; PAYMENT REQUIRED</span>
@@ -189,7 +204,7 @@
         <div class="email-body">
             <h2 class="greeting">Hello {{ $invoice->client_name }},</h2>
             <p class="intro-text">
-                An invoice has been issued to you by <strong>{{ $invoice->website->name ?? 'CartVIP' }}</strong>. Please review your order summary below and complete your payment using the secure link.
+                An invoice has been prepared for you by <strong>{{ $invoice->website->name ?? 'CartVIP' }}</strong>. Please review your order details below and complete payment via the secure link.
             </p>
 
             <div class="details-card">
@@ -208,12 +223,12 @@
                     </tr>
                     <tr>
                         <td class="label">Payment Status:</td>
-                        <td><span style="color: #ffcc00; font-weight: 700;">UNPAID</span></td>
+                        <td><span style="color: #d97706; font-weight: 700;">UNPAID</span></td>
                     </tr>
                 </table>
             </div>
 
-            <h3 style="color: #f8fafc; font-size: 16px; margin: 25px 0 12px 0;">Itemized Details</h3>
+            <h3 style="color: #0f172a; font-size: 15px; margin: 24px 0 10px 0; font-weight: 700;">Itemized Summary</h3>
 
             <table class="items-table">
                 <thead>
@@ -267,7 +282,7 @@
                     </tr>
                     @endif
                     <tr class="grand-total-row">
-                        <td class="label" style="color:#ffcc00;">TOTAL DUE:</td>
+                        <td class="label" style="color:#0f172a;">TOTAL DUE:</td>
                         <td class="text-right">${{ number_format($invoice->total, 2) }}</td>
                     </tr>
                 </table>
@@ -276,27 +291,27 @@
             @if($invoice->notes)
             <div class="notes-box">
                 <p class="notes-title">Additional Notes:</p>
-                <p style="margin: 0; font-size: 14px;">{{ $invoice->notes }}</p>
+                <p style="margin: 0;">{{ $invoice->notes }}</p>
             </div>
             @endif
 
             <div class="cta-container">
                 <a href="{{ $invoice->getPaymentUrl() }}" class="pay-button" target="_blank">
-                    PAY NOW &bull; ${{ number_format($invoice->total, 2) }}
+                    PAY INVOICE &bull; ${{ number_format($invoice->total, 2) }}
                 </a>
             </div>
 
-            <p style="color: #94a3b8; font-size: 13px; text-align: center; margin-top: 25px;">
-                If you have questions regarding this invoice, please reach out to us directly.
+            <p style="color: #64748b; font-size: 13px; text-align: center; margin-top: 24px;">
+                If you have any questions regarding this invoice, please contact {{ $invoice->website->name ?? 'us' }} directly.
             </p>
         </div>
 
         <div class="email-footer">
-            <p style="margin: 0 0 5px 0;">
+            <p style="margin: 0 0 4px 0;">
                 &copy; {{ now()->year }} {{ $invoice->website->name ?? 'CartVIP' }}. All rights reserved.
             </p>
             <p style="margin: 0; font-size: 11px;">
-                This is an automated invoice email. Please do not reply with credit card information.
+                This is an automated invoice communication. Please do not reply with credit card credentials.
             </p>
         </div>
     </div>

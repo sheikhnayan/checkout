@@ -19,7 +19,7 @@
             display: flex;
             justify-content: space-between;
             align-items: flex-start;
-            border-bottom: 2px solid #667eea;
+            border-bottom: 2px solid #0f172a;
             padding-bottom: 20px;
             margin-bottom: 30px;
         }
@@ -29,7 +29,7 @@
         .header-title {
             font-size: 28px;
             font-weight: bold;
-            color: #667eea;
+            color: #0f172a;
             margin: 0 0 10px 0;
         }
         .header-subtitle {
@@ -116,7 +116,7 @@
         .total-section {
             background-color: #f9f9f9;
             padding: 15px;
-            border-left: 3px solid #667eea;
+            border-left: 3px solid #0f172a;
             margin-top: 20px;
         }
         .total-row {
@@ -128,7 +128,7 @@
         .total-row.grand-total {
             font-size: 16px;
             font-weight: 700;
-            color: #667eea;
+            color: #0f172a;
             border-top: 1px solid #ddd;
             padding-top: 12px;
             margin-top: 8px;
