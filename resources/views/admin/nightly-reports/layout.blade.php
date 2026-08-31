@@ -245,6 +245,21 @@
       border-color: var(--nr-border-gold);
     }
 
+    /* KPI Card Icon Animation */
+    @keyframes nrIconPop {
+        0% { transform: scale(0.2) rotate(-12deg); opacity: 0; }
+        50% { transform: scale(1.18) rotate(4deg); opacity: 1; }
+        75% { transform: scale(0.92) rotate(-2deg); }
+        100% { transform: scale(1) rotate(0deg); opacity: 1; }
+    }
+    .nr-kpi-card .avatar {
+        animation: nrIconPop 0.7s cubic-bezier(0.34, 1.56, 0.64, 1) both;
+    }
+    .row > div:nth-child(1) .nr-kpi-card .avatar { animation-delay: 0.08s; }
+    .row > div:nth-child(2) .nr-kpi-card .avatar { animation-delay: 0.16s; }
+    .row > div:nth-child(3) .nr-kpi-card .avatar { animation-delay: 0.24s; }
+    .row > div:nth-child(4) .nr-kpi-card .avatar { animation-delay: 0.32s; }
+
     .nr-kpi-card::after {
       content: '';
       position: absolute;
@@ -646,6 +661,55 @@
   <script>
     $('#nr-toggle-btn, #nr-sidebar-overlay').on('click', function() {
       $('body').toggleClass('nr-mobile-open');
+    });
+
+    document.addEventListener('DOMContentLoaded', function() {
+        const targets = document.querySelectorAll('.nr-kpi-value');
+        targets.forEach((el, idx) => {
+            if (el.dataset.countAnimated) return;
+            el.dataset.countAnimated = 'true';
+
+            const originalText = el.innerText.trim();
+            if (!originalText) return;
+
+            const match = originalText.match(/^([^0-9.-]*)([0-9,]+(?:\.[0-9]+)?)(.*)$/);
+            if (!match) return;
+
+            const prefix = match[1] || '';
+            const rawNumber = parseFloat(match[2].replace(/,/g, ''));
+            const suffix = match[4] || '';
+            const hasDecimals = match[2].includes('.');
+            const decimals = hasDecimals ? (match[2].split('.')[1] || '').length : 0;
+
+            if (isNaN(rawNumber)) return;
+
+            const delay = idx * 100;
+            const duration = 1200;
+
+            setTimeout(() => {
+                const startTime = performance.now();
+                function step(currentTime) {
+                    const elapsed = currentTime - startTime;
+                    const progress = Math.min(elapsed / duration, 1);
+                    const easeOut = 1 - Math.pow(1 - progress, 3);
+                    const currentNum = rawNumber * easeOut;
+
+                    const formattedNum = currentNum.toLocaleString('en-US', {
+                        minimumFractionDigits: decimals,
+                        maximumFractionDigits: decimals
+                    });
+
+                    el.innerText = prefix + formattedNum + suffix;
+
+                    if (progress < 1) {
+                        requestAnimationFrame(step);
+                    } else {
+                        el.innerText = originalText;
+                    }
+                }
+                requestAnimationFrame(step);
+            }, delay);
+        });
     });
   </script>
   @stack('scripts')

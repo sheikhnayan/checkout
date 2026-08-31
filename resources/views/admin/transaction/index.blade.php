@@ -41,6 +41,23 @@
 .trend-up { color: #10b981; }
 .trend-down { color: #ef4444; }
 
+/* Stat Card Entrance & Icon Pop Animation */
+@keyframes iconPopEntrance {
+    0% { transform: scale(0.2) rotate(-12deg); opacity: 0; }
+    50% { transform: scale(1.18) rotate(4deg); opacity: 1; }
+    75% { transform: scale(0.92) rotate(-2deg); }
+    100% { transform: scale(1) rotate(0deg); opacity: 1; }
+}
+.txn-stat-card .txn-stat-icon {
+    animation: iconPopEntrance 0.7s cubic-bezier(0.34, 1.56, 0.64, 1) both;
+}
+.row > div:nth-child(1) .txn-stat-icon { animation-delay: 0.08s; }
+.row > div:nth-child(2) .txn-stat-icon { animation-delay: 0.16s; }
+.row > div:nth-child(3) .txn-stat-icon { animation-delay: 0.24s; }
+.row > div:nth-child(4) .txn-stat-icon { animation-delay: 0.32s; }
+.row > div:nth-child(5) .txn-stat-icon { animation-delay: 0.40s; }
+.row > div:nth-child(6) .txn-stat-icon { animation-delay: 0.48s; }
+
 @keyframes notePulseGlow {
     0% {
         box-shadow: 0 0 0 0 rgba(245, 158, 11, 0.7);
@@ -2540,6 +2557,57 @@ body.modal-open .admin-mobile-menu-toggle {
 
             <script>
             $(document).ready(function() {
+
+                // Stat Card Number Count-Up Animation
+                function runStatCardCountUp() {
+                    $('.txn-stat-value').each(function(idx) {
+                        const $el = $(this);
+                        if ($el.data('count-animated')) return;
+                        $el.data('count-animated', true);
+
+                        const originalText = $el.text().trim();
+                        if (!originalText) return;
+
+                        const match = originalText.match(/^([^0-9.-]*)([0-9,]+(?:\.[0-9]+)?)(.*)$/);
+                        if (!match) return;
+
+                        const prefix = match[1] || '';
+                        const rawNumber = parseFloat(match[2].replace(/,/g, ''));
+                        const suffix = match[4] || '';
+                        const hasDecimals = match[2].includes('.');
+                        const decimals = hasDecimals ? (match[2].split('.')[1] || '').length : 0;
+
+                        if (isNaN(rawNumber)) return;
+
+                        const delay = idx * 100;
+                        const duration = 1200;
+
+                        setTimeout(function() {
+                            const startTime = performance.now();
+                            function step(currentTime) {
+                                const elapsed = currentTime - startTime;
+                                const progress = Math.min(elapsed / duration, 1);
+                                const easeOut = 1 - Math.pow(1 - progress, 3);
+                                const currentNum = rawNumber * easeOut;
+
+                                const formattedNum = currentNum.toLocaleString('en-US', {
+                                    minimumFractionDigits: decimals,
+                                    maximumFractionDigits: decimals
+                                });
+
+                                $el.text(prefix + formattedNum + suffix);
+
+                                if (progress < 1) {
+                                    requestAnimationFrame(step);
+                                } else {
+                                    $el.text(originalText);
+                                }
+                            }
+                            requestAnimationFrame(step);
+                        }, delay);
+                    });
+                }
+                runStatCardCountUp();
 
                 const actionColumnIndex = $('#txnDataTable thead th').filter(function() {
                     return $(this).text().trim().toLowerCase() === 'action';
