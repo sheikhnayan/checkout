@@ -713,16 +713,22 @@
       #adminSkeletonLoader {
         position: fixed;
         top: 0;
-        left: 0;
+        left: 260px;
         right: 0;
         bottom: 0;
-        z-index: 999999;
+        z-index: 9999;
         background: #0b0e1a;
         display: flex;
         flex-direction: column;
         padding: 1.75rem 2.25rem;
         pointer-events: auto;
         transition: opacity 0.35s ease, visibility 0.35s ease;
+        overflow-y: auto;
+      }
+      @media (max-width: 1199.98px) {
+        #adminSkeletonLoader {
+          left: 0;
+        }
       }
       #adminSkeletonLoader.loaded {
         opacity: 0;
@@ -778,97 +784,6 @@
   </head>
 
   <body>
-    <!-- Admin Platform Skeleton Page Loader -->
-    <div id="adminSkeletonLoader">
-      <div class="d-flex align-items-center justify-content-between flex-wrap gap-3 mb-4">
-        <div>
-          <div class="skeleton-shimmer skeleton-header-title"></div>
-          <div class="skeleton-shimmer skeleton-header-sub"></div>
-        </div>
-        <div class="d-flex gap-2">
-          <div class="skeleton-shimmer" style="width: 120px; height: 38px; border-radius: 10px;"></div>
-          <div class="skeleton-shimmer" style="width: 120px; height: 38px; border-radius: 10px;"></div>
-        </div>
-      </div>
-
-      <!-- KPI Cards Skeleton -->
-      <div class="row g-3 mb-4">
-        <div class="col-xl-3 col-md-6">
-          <div class="skeleton-card">
-            <div class="skeleton-shimmer skeleton-card-icon"></div>
-            <div class="flex-grow-1">
-              <div class="skeleton-shimmer skeleton-line w-50 mb-2"></div>
-              <div class="skeleton-shimmer skeleton-line w-75" style="height: 22px;"></div>
-            </div>
-          </div>
-        </div>
-        <div class="col-xl-3 col-md-6">
-          <div class="skeleton-card">
-            <div class="skeleton-shimmer skeleton-card-icon"></div>
-            <div class="flex-grow-1">
-              <div class="skeleton-shimmer skeleton-line w-50 mb-2"></div>
-              <div class="skeleton-shimmer skeleton-line w-75" style="height: 22px;"></div>
-            </div>
-          </div>
-        </div>
-        <div class="col-xl-3 col-md-6">
-          <div class="skeleton-card">
-            <div class="skeleton-shimmer skeleton-card-icon"></div>
-            <div class="flex-grow-1">
-              <div class="skeleton-shimmer skeleton-line w-50 mb-2"></div>
-              <div class="skeleton-shimmer skeleton-line w-75" style="height: 22px;"></div>
-            </div>
-          </div>
-        </div>
-        <div class="col-xl-3 col-md-6">
-          <div class="skeleton-card">
-            <div class="skeleton-shimmer skeleton-card-icon"></div>
-            <div class="flex-grow-1">
-              <div class="skeleton-shimmer skeleton-line w-50 mb-2"></div>
-              <div class="skeleton-shimmer skeleton-line w-75" style="height: 22px;"></div>
-            </div>
-          </div>
-        </div>
-      </div>
-
-      <!-- Main Content / Table Skeleton -->
-      <div class="skeleton-table-card">
-        <div class="d-flex align-items-center gap-2 mb-4 flex-wrap">
-          <div class="skeleton-shimmer" style="width: 240px; height: 38px; border-radius: 8px;"></div>
-          <div class="skeleton-shimmer" style="width: 100px; height: 38px; border-radius: 8px;"></div>
-          <div class="skeleton-shimmer" style="width: 100px; height: 38px; border-radius: 8px;"></div>
-          <div class="skeleton-shimmer" style="width: 100px; height: 38px; border-radius: 8px;"></div>
-          <div class="skeleton-shimmer ms-auto" style="width: 90px; height: 38px; border-radius: 8px;"></div>
-        </div>
-        <div class="d-flex flex-column gap-3">
-          <div class="skeleton-shimmer" style="height: 40px; border-radius: 8px;"></div>
-          <div class="skeleton-shimmer" style="height: 48px; border-radius: 8px;"></div>
-          <div class="skeleton-shimmer" style="height: 48px; border-radius: 8px;"></div>
-          <div class="skeleton-shimmer" style="height: 48px; border-radius: 8px;"></div>
-          <div class="skeleton-shimmer" style="height: 48px; border-radius: 8px;"></div>
-          <div class="skeleton-shimmer" style="height: 48px; border-radius: 8px;"></div>
-        </div>
-      </div>
-    </div>
-    <script>
-      (function() {
-        function hideAdminSkeleton() {
-          var loader = document.getElementById('adminSkeletonLoader');
-          if (loader && !loader.classList.contains('loaded')) {
-            setTimeout(function() {
-              loader.classList.add('loaded');
-            }, 100);
-          }
-        }
-        if (document.readyState === 'complete' || document.readyState === 'interactive') {
-          hideAdminSkeleton();
-        } else {
-          window.addEventListener('DOMContentLoaded', hideAdminSkeleton);
-          window.addEventListener('load', hideAdminSkeleton);
-        }
-        setTimeout(hideAdminSkeleton, 1500);
-      })();
-    </script>
 
     <button
       type="button"
@@ -1457,6 +1372,97 @@
 
         <!-- Layout container -->
         <div class="layout-page">
+          <!-- Admin Platform Skeleton Page Loader -->
+          <div id="adminSkeletonLoader">
+            <div class="d-flex align-items-center justify-content-between flex-wrap gap-3 mb-4">
+              <div>
+                <div class="skeleton-shimmer skeleton-header-title"></div>
+                <div class="skeleton-shimmer skeleton-header-sub"></div>
+              </div>
+              <div class="d-flex gap-2">
+                <div class="skeleton-shimmer" style="width: 120px; height: 38px; border-radius: 10px;"></div>
+                <div class="skeleton-shimmer" style="width: 120px; height: 38px; border-radius: 10px;"></div>
+              </div>
+            </div>
+
+            <!-- KPI Cards Skeleton -->
+            <div class="row g-3 mb-4">
+              <div class="col-xl-3 col-md-6">
+                <div class="skeleton-card">
+                  <div class="skeleton-shimmer skeleton-card-icon"></div>
+                  <div class="flex-grow-1">
+                    <div class="skeleton-shimmer skeleton-line w-50 mb-2"></div>
+                    <div class="skeleton-shimmer skeleton-line w-75" style="height: 22px;"></div>
+                  </div>
+                </div>
+              </div>
+              <div class="col-xl-3 col-md-6">
+                <div class="skeleton-card">
+                  <div class="skeleton-shimmer skeleton-card-icon"></div>
+                  <div class="flex-grow-1">
+                    <div class="skeleton-shimmer skeleton-line w-50 mb-2"></div>
+                    <div class="skeleton-shimmer skeleton-line w-75" style="height: 22px;"></div>
+                  </div>
+                </div>
+              </div>
+              <div class="col-xl-3 col-md-6">
+                <div class="skeleton-card">
+                  <div class="skeleton-shimmer skeleton-card-icon"></div>
+                  <div class="flex-grow-1">
+                    <div class="skeleton-shimmer skeleton-line w-50 mb-2"></div>
+                    <div class="skeleton-shimmer skeleton-line w-75" style="height: 22px;"></div>
+                  </div>
+                </div>
+              </div>
+              <div class="col-xl-3 col-md-6">
+                <div class="skeleton-card">
+                  <div class="skeleton-shimmer skeleton-card-icon"></div>
+                  <div class="flex-grow-1">
+                    <div class="skeleton-shimmer skeleton-line w-50 mb-2"></div>
+                    <div class="skeleton-shimmer skeleton-line w-75" style="height: 22px;"></div>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            <!-- Main Content / Table Skeleton -->
+            <div class="skeleton-table-card">
+              <div class="d-flex align-items-center gap-2 mb-4 flex-wrap">
+                <div class="skeleton-shimmer" style="width: 240px; height: 38px; border-radius: 8px;"></div>
+                <div class="skeleton-shimmer" style="width: 100px; height: 38px; border-radius: 8px;"></div>
+                <div class="skeleton-shimmer" style="width: 100px; height: 38px; border-radius: 8px;"></div>
+                <div class="skeleton-shimmer" style="width: 100px; height: 38px; border-radius: 8px;"></div>
+                <div class="skeleton-shimmer ms-auto" style="width: 90px; height: 38px; border-radius: 8px;"></div>
+              </div>
+              <div class="d-flex flex-column gap-3">
+                <div class="skeleton-shimmer" style="height: 40px; border-radius: 8px;"></div>
+                <div class="skeleton-shimmer" style="height: 48px; border-radius: 8px;"></div>
+                <div class="skeleton-shimmer" style="height: 48px; border-radius: 8px;"></div>
+                <div class="skeleton-shimmer" style="height: 48px; border-radius: 8px;"></div>
+                <div class="skeleton-shimmer" style="height: 48px; border-radius: 8px;"></div>
+                <div class="skeleton-shimmer" style="height: 48px; border-radius: 8px;"></div>
+              </div>
+            </div>
+          </div>
+          <script>
+            (function() {
+              function hideAdminSkeleton() {
+                var loader = document.getElementById('adminSkeletonLoader');
+                if (loader && !loader.classList.contains('loaded')) {
+                  setTimeout(function() {
+                    loader.classList.add('loaded');
+                  }, 100);
+                }
+              }
+              if (document.readyState === 'complete' || document.readyState === 'interactive') {
+                hideAdminSkeleton();
+              } else {
+                window.addEventListener('DOMContentLoaded', hideAdminSkeleton);
+                window.addEventListener('load', hideAdminSkeleton);
+              }
+              setTimeout(hideAdminSkeleton, 1500);
+            })();
+          </script>
           <!-- Navbar -->
           @if(session('success') || session('error') || session('warning') || session('info') || $errors->any())
           <div class="container-xxl mt-3">
