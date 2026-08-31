@@ -118,6 +118,15 @@
     padding: 10px 12px; border-bottom: 1px solid rgba(255,255,255,0.07);
     background: transparent; white-space: nowrap;
 }
+.txn-cat-header-row th {
+    font-size: 0.65rem !important;
+    font-weight: 800 !important;
+    letter-spacing: 0.09em !important;
+    color: rgba(255,255,255,0.45) !important;
+    text-transform: uppercase;
+    padding: 6px 12px !important;
+    border-bottom: 1px solid rgba(255,255,255,0.08) !important;
+}
 .txn-table tbody tr { border-bottom: 1px solid rgba(255,255,255,0.04); transition: background 0.15s; }
 .txn-table tbody tr.odd  { background: transparent; }
 .txn-table tbody tr.even { background: rgba(255,255,255,0.015); }
@@ -1065,51 +1074,26 @@ body.modal-open .admin-mobile-menu-toggle {
         </div>
 
         {{-- ── TRANSACTIONS TABLE ──────────────────────────────────── --}}
+        {{-- ── TRANSACTIONS TABLE ──────────────────────────────────── --}}
         <div class="txn-table-card mb-5">
-            <div class="d-flex align-items-center justify-content-between flex-wrap gap-3 mb-3">
-                <div class="fw-semibold text-white" style="font-size:0.85rem;letter-spacing:0.05em">RECENT TRANSACTIONS</div>
-                <div class="txn-table-actions-group d-flex align-items-center gap-2 flex-wrap justify-content-end">
-                    <div class="txn-search-wrap">
-                        <i class="fas fa-search txn-search-icon"></i>
-                        <input type="text" id="txnSearch" class="txn-search-input" placeholder="Search by name, email, order ID…">
-                    </div>
-                    <div class="txn-action-buttons-wrap d-flex align-items-center gap-2 flex-wrap">
-                        <div class="dropdown">
-                            <button class="txn-export-btn btn dropdown-toggle" data-bs-toggle="dropdown" type="button">
-                                <i class="fas fa-download me-2"></i>Export Table
-                            </button>
-                            <ul class="dropdown-menu dropdown-menu-end" style="background:#1e293b;border:1px solid rgba(255,255,255,0.1)">
-                                <li><a class="dropdown-item" style="color:rgba(255,255,255,0.7);font-size:0.85rem" id="expCsv"   href="#"><i class="fas fa-file-csv me-2"></i>Export CSV</a></li>
-                                <li><a class="dropdown-item" style="color:rgba(255,255,255,0.7);font-size:0.85rem" id="expExcel" href="#"><i class="fas fa-file-excel me-2"></i>Export Excel</a></li>
-                                <li><a class="dropdown-item" style="color:rgba(255,255,255,0.7);font-size:0.85rem" id="expPdf"   href="#"><i class="fas fa-file-pdf me-2"></i>Export PDF</a></li>
-                                <li><a class="dropdown-item" style="color:rgba(255,255,255,0.7);font-size:0.85rem" id="expPrint" href="#"><i class="fas fa-print me-2"></i>Print</a></li>
-                            </ul>
-                        </div>
-                        @if($canArchiveTransactions)
-                        <button type="button" id="selectAllPagesBtn" class="txn-export-btn btn">
-                            <i class="fas fa-check-square me-2"></i>Select All Pages
-                        </button>
-                        <button type="button" id="clearSelectionBtn" class="txn-export-btn btn">
-                            <i class="fas fa-square me-2"></i>Clear Selection
-                        </button>
+            {{-- Header Row with Title, Subtitle, and Top-Right View Archived Action --}}
+            <div class="d-flex align-items-center justify-content-between flex-wrap gap-3 mb-4">
+                <div>
+                    <h2 class="fw-bold text-white mb-1" style="font-size: 1.5rem; letter-spacing: -0.02em;">Recent Transactions</h2>
+                    <p class="text-white-50 mb-0" style="font-size: 0.85rem;">View and manage all recent reservations and transactions</p>
+                </div>
+                <div>
+                    @if($canArchiveTransactions)
                         @if($isArchivedView)
-                        <button type="button" id="bulkUnarchiveBtn" class="txn-export-btn btn" style="border-color:rgba(16,185,129,0.35);color:#34d399;">
-                            <i class="fas fa-box-open me-2"></i>Unarchive Selected
-                        </button>
-                        <a href="{{ route('admin.transaction.index') }}" class="txn-export-btn btn" style="text-decoration:none;">
-                            <i class="fas fa-list me-2"></i>Back To Active
+                        <a href="{{ route('admin.transaction.index') }}" class="txn-export-btn btn d-inline-flex align-items-center gap-2" style="text-decoration:none;">
+                            <i class="fas fa-list me-1"></i> Back To Active
                         </a>
                         @else
-                        <button type="button" id="bulkArchiveBtn" class="txn-export-btn btn" style="border-color:rgba(245,158,11,0.35);color:#fbbf24;">
-                            <i class="fas fa-archive me-2"></i>Archive Selected
-                        </button>
-                        <a href="{{ route('admin.transaction.index', array_merge(request()->except('page'), ['archived' => 1])) }}" class="txn-export-btn btn" style="text-decoration:none;">
-                            <i class="fas fa-box-open me-2"></i>View Archived
+                        <a href="{{ route('admin.transaction.index', array_merge(request()->except('page'), ['archived' => 1])) }}" class="txn-export-btn btn d-inline-flex align-items-center gap-2" style="text-decoration:none;">
+                            <i class="fas fa-box-archive me-1"></i> View Archived
                         </a>
                         @endif
-                        <span id="selectionCount" style="font-size:0.8rem;color:rgba(255,255,255,0.65);">0 selected</span>
-                        @endif
-                    </div>
+                    @endif
                 </div>
             </div>
 
@@ -1130,247 +1114,302 @@ body.modal-open .admin-mobile-menu-toggle {
             </form>
             @endif
 
-            {{-- Shopify Polaris Style Multi-Select Filter Toolbar --}}
+            {{-- ── ROW 1: SEARCH & FILTERS BAR ───────────────────────── --}}
             @php
                 $accessibleSitesList = isset($accessibleWebsites) && $accessibleWebsites->count() > 0 
                     ? $accessibleWebsites 
                     : (auth()->user()->isAdmin() ? \App\Models\Website::where('is_archieved', 0)->get() : collect());
             @endphp
             <div class="position-relative mb-3">
-                <div class="polaris-filter-bar mb-0" id="polarisFilterContainer">
-                @if($accessibleSitesList->count() > 1)
-                {{-- 1. Venue Filter --}}
-                <div class="dropdown">
-                    <button class="polaris-filter-pill-btn dropdown-toggle" type="button" data-bs-toggle="dropdown" data-bs-auto-close="outside" id="pillVenueBtn">
-                        <i class="fas fa-store"></i> Venue <span class="polaris-filter-pill-count d-none" id="countVenue">0</span>
-                    </button>
-                    <div class="dropdown-menu polaris-popover-menu">
-                        <div class="polaris-popover-header">
-                            <span class="polaris-popover-title me-3">Filter by Venue</span>
-                            <div>
-                                <a href="javascript:void(0)" class="polaris-popover-action me-2" onclick="polarisToggleSelectAll('venue', true)">Select All</a>
-                                <a href="javascript:void(0)" class="polaris-popover-action" onclick="polarisToggleSelectAll('venue', false)">Clear</a>
+                <div class="polaris-filter-bar mb-0 d-flex align-items-center gap-2 flex-wrap" id="polarisFilterContainer">
+                    
+                    {{-- Search Input (Left aligned in Filter Bar) --}}
+                    <div class="txn-search-wrap position-relative flex-grow-1" style="max-width: 360px; min-width: 240px;">
+                        <i class="fas fa-search txn-search-icon"></i>
+                        <input type="text" id="txnSearch" class="txn-search-input pe-4 w-100" placeholder="Search by name, email, order ID, or confirmation #…">
+                        <span class="position-absolute end-0 top-50 translate-middle-y me-2 px-2 py-0 rounded text-white-50 pointer-events-none" style="font-size:0.75rem; background:rgba(255,255,255,0.1); border:1px solid rgba(255,255,255,0.15);">/</span>
+                    </div>
+
+                    @if($accessibleSitesList->count() > 1)
+                    {{-- 1. Venue Filter --}}
+                    <div class="dropdown">
+                        <button class="polaris-filter-pill-btn dropdown-toggle" type="button" data-bs-toggle="dropdown" data-bs-auto-close="outside" id="pillVenueBtn">
+                            <i class="fas fa-store"></i> Venue <span class="polaris-filter-pill-count d-none" id="countVenue">0</span>
+                        </button>
+                        <div class="dropdown-menu polaris-popover-menu">
+                            <div class="polaris-popover-header">
+                                <span class="polaris-popover-title me-3">Filter by Venue</span>
+                                <div>
+                                    <a href="javascript:void(0)" class="polaris-popover-action me-2" onclick="polarisToggleSelectAll('venue', true)">Select All</a>
+                                    <a href="javascript:void(0)" class="polaris-popover-action" onclick="polarisToggleSelectAll('venue', false)">Clear</a>
+                                </div>
                             </div>
-                        </div>
-                        <div class="polaris-popover-body">
-                            @foreach($accessibleSitesList as $site)
-                            <label class="polaris-checkbox-label">
-                                <input type="checkbox" class="polaris-filter-cb" data-category="venue" value="{{ $site->name }}" {{ $filterWebsite === $site->name ? 'checked' : '' }}>
-                                <span>{{ $site->name }}</span>
-                            </label>
-                            @endforeach
+                            <div class="polaris-popover-body">
+                                @foreach($accessibleSitesList as $site)
+                                <label class="polaris-checkbox-label">
+                                    <input type="checkbox" class="polaris-filter-cb" data-category="venue" value="{{ $site->name }}" {{ $filterWebsite === $site->name ? 'checked' : '' }}>
+                                    <span>{{ $site->name }}</span>
+                                </label>
+                                @endforeach
+                            </div>
                         </div>
                     </div>
-                </div>
-                @endif
+                    @endif
 
-                {{-- 2. Date Filter --}}
-                <div class="dropdown">
-                    <button class="polaris-filter-pill-btn dropdown-toggle" type="button" data-bs-toggle="dropdown" data-bs-auto-close="outside" id="pillDateRangeBtn">
-                        <i class="fas fa-calendar-alt"></i> Date Filter <span class="polaris-filter-pill-count d-none" id="countDateRange">0</span>
-                    </button>
-                    <div class="dropdown-menu polaris-popover-menu" style="min-width: 280px !important;">
-                        <div class="polaris-popover-header">
-                            <span class="polaris-popover-title me-3">Filter by Date</span>
-                            <div>
-                                <a href="javascript:void(0)" class="polaris-popover-action" onclick="clearPolarisDateRange()">Clear</a>
+                    {{-- 2. Date Filter --}}
+                    <div class="dropdown">
+                        <button class="polaris-filter-pill-btn dropdown-toggle" type="button" data-bs-toggle="dropdown" data-bs-auto-close="outside" id="pillDateRangeBtn">
+                            <i class="fas fa-calendar-alt"></i> Date <span class="polaris-filter-pill-count d-none" id="countDateRange">0</span>
+                        </button>
+                        <div class="dropdown-menu polaris-popover-menu" style="min-width: 280px !important;">
+                            <div class="polaris-popover-header">
+                                <span class="polaris-popover-title me-3">Filter by Date</span>
+                                <div>
+                                    <a href="javascript:void(0)" class="polaris-popover-action" onclick="clearPolarisDateRange()">Clear</a>
+                                </div>
                             </div>
-                        </div>
-                        <div class="polaris-popover-body">
-                            <div class="mb-2">
-                                <label class="form-label text-white-50 small mb-1">Date Target:</label>
-                                <select id="dateTargetSelect" class="form-select form-select-sm" style="background:rgba(255,255,255,0.08);border:1px solid rgba(255,255,255,0.15);color:#fff;font-size:0.8rem;border-radius:6px;">
-                                    <option value="either" selected>Either (Sale or Reservation Date)</option>
-                                    <option value="sale">Sale Date (Transaction Date)</option>
-                                    <option value="reservation">Reservation Date (Usage Date)</option>
-                                </select>
-                            </div>
-                            <div>
-                                <label class="form-label text-white-50 small mb-1">Date Range:</label>
-                                <div class="txn-date-range-wrap w-100" id="txnDateRangeWrap" style="background:rgba(255,255,255,0.08);border-color:rgba(255,255,255,0.15);">
-                                    <i class="fas fa-calendar-alt me-2" style="color:rgba(255,255,255,0.4);font-size:0.85rem"></i>
-                                    <input type="text" id="txnDateRange" class="txn-date-input w-100" readonly placeholder="All time" value="{{ $initialDateRange }}">
+                            <div class="polaris-popover-body">
+                                <div class="mb-2">
+                                    <label class="form-label text-white-50 small mb-1">Date Target:</label>
+                                    <select id="dateTargetSelect" class="form-select form-select-sm" style="background:rgba(255,255,255,0.08);border:1px solid rgba(255,255,255,0.15);color:#fff;font-size:0.8rem;border-radius:6px;">
+                                        <option value="either" selected>Either (Sale or Reservation Date)</option>
+                                        <option value="sale">Sale Date (Transaction Date)</option>
+                                        <option value="reservation">Reservation Date (Usage Date)</option>
+                                    </select>
+                                </div>
+                                <div>
+                                    <label class="form-label text-white-50 small mb-1">Date Range:</label>
+                                    <div class="txn-date-range-wrap w-100" id="txnDateRangeWrap" style="background:rgba(255,255,255,0.08);border-color:rgba(255,255,255,0.15);">
+                                        <i class="fas fa-calendar-alt me-2" style="color:rgba(255,255,255,0.4);font-size:0.85rem"></i>
+                                        <input type="text" id="txnDateRange" class="txn-date-input w-100" readonly placeholder="All time" value="{{ $initialDateRange }}">
+                                    </div>
                                 </div>
                             </div>
                         </div>
                     </div>
-                </div>
 
-                {{-- 3. Reservation Status --}}
-                <div class="dropdown">
-                    <button class="polaris-filter-pill-btn dropdown-toggle" type="button" data-bs-toggle="dropdown" data-bs-auto-close="outside" id="pillReservationBtn">
-                        <i class="fas fa-calendar-check"></i> Reservation Status <span class="polaris-filter-pill-count d-none" id="countReservation">0</span>
-                    </button>
-                    <div class="dropdown-menu polaris-popover-menu">
-                        <div class="polaris-popover-header">
-                            <span class="polaris-popover-title me-3">Reservation State</span>
-                            <div>
-                                <a href="javascript:void(0)" class="polaris-popover-action me-2" onclick="polarisToggleSelectAll('reservation', true)">Select All</a>
-                                <a href="javascript:void(0)" class="polaris-popover-action" onclick="polarisToggleSelectAll('reservation', false)">Clear</a>
+                    {{-- 3. Reservation Status --}}
+                    <div class="dropdown">
+                        <button class="polaris-filter-pill-btn dropdown-toggle" type="button" data-bs-toggle="dropdown" data-bs-auto-close="outside" id="pillReservationBtn">
+                            <i class="fas fa-tasks"></i> Reservation Status <span class="polaris-filter-pill-count d-none" id="countReservation">0</span>
+                        </button>
+                        <div class="dropdown-menu polaris-popover-menu">
+                            <div class="polaris-popover-header">
+                                <span class="polaris-popover-title me-3">Reservation State</span>
+                                <div>
+                                    <a href="javascript:void(0)" class="polaris-popover-action me-2" onclick="polarisToggleSelectAll('reservation', true)">Select All</a>
+                                    <a href="javascript:void(0)" class="polaris-popover-action" onclick="polarisToggleSelectAll('reservation', false)">Clear</a>
+                                </div>
+                            </div>
+                            <div class="polaris-popover-body">
+                                <label class="polaris-checkbox-label">
+                                    <input type="checkbox" class="polaris-filter-cb" data-category="reservation" value="upcoming" {{ $filterReservation === 'upcoming' ? 'checked' : '' }}>
+                                    <span>Upcoming</span>
+                                </label>
+                                <label class="polaris-checkbox-label">
+                                    <input type="checkbox" class="polaris-filter-cb" data-category="reservation" value="today" {{ $filterReservation === 'today' ? 'checked' : '' }}>
+                                    <span>Today</span>
+                                </label>
+                                <label class="polaris-checkbox-label">
+                                    <input type="checkbox" class="polaris-filter-cb" data-category="reservation" value="past" {{ $filterReservation === 'past' ? 'checked' : '' }}>
+                                    <span>Past</span>
+                                </label>
+                                <label class="polaris-checkbox-label">
+                                    <input type="checkbox" class="polaris-filter-cb" data-category="reservation" value="checked_in" {{ $filterReservation === 'checked_in' ? 'checked' : '' }}>
+                                    <span>Checked In</span>
+                                </label>
+                                <label class="polaris-checkbox-label">
+                                    <input type="checkbox" class="polaris-filter-cb" data-category="reservation" value="not_checked_in" {{ $filterReservation === 'not_checked_in' ? 'checked' : '' }}>
+                                    <span>Not Checked In</span>
+                                </label>
+                                <label class="polaris-checkbox-label">
+                                    <input type="checkbox" class="polaris-filter-cb" data-category="reservation" value="no_show" {{ $filterReservation === 'no_show' ? 'checked' : '' }}>
+                                    <span>No Show</span>
+                                </label>
                             </div>
                         </div>
-                        <div class="polaris-popover-body">
-                            <label class="polaris-checkbox-label">
-                                <input type="checkbox" class="polaris-filter-cb" data-category="reservation" value="upcoming" {{ $filterReservation === 'upcoming' ? 'checked' : '' }}>
-                                <span>Upcoming</span>
-                            </label>
-                            <label class="polaris-checkbox-label">
-                                <input type="checkbox" class="polaris-filter-cb" data-category="reservation" value="today" {{ $filterReservation === 'today' ? 'checked' : '' }}>
-                                <span>Today</span>
-                            </label>
-                            <label class="polaris-checkbox-label">
-                                <input type="checkbox" class="polaris-filter-cb" data-category="reservation" value="past" {{ $filterReservation === 'past' ? 'checked' : '' }}>
-                                <span>Past</span>
-                            </label>
-                            <label class="polaris-checkbox-label">
-                                <input type="checkbox" class="polaris-filter-cb" data-category="reservation" value="checked_in" {{ $filterReservation === 'checked_in' ? 'checked' : '' }}>
-                                <span>Checked In</span>
-                            </label>
-                            <label class="polaris-checkbox-label">
-                                <input type="checkbox" class="polaris-filter-cb" data-category="reservation" value="not_checked_in" {{ $filterReservation === 'not_checked_in' ? 'checked' : '' }}>
-                                <span>Not Checked In</span>
-                            </label>
-                            <label class="polaris-checkbox-label">
-                                <input type="checkbox" class="polaris-filter-cb" data-category="reservation" value="no_show" {{ $filterReservation === 'no_show' ? 'checked' : '' }}>
-                                <span>No Show</span>
-                            </label>
-                        </div>
                     </div>
-                </div>
 
-                {{-- 4. Sales Channel --}}
-                <div class="dropdown">
-                    <button class="polaris-filter-pill-btn dropdown-toggle" type="button" data-bs-toggle="dropdown" data-bs-auto-close="outside" id="pillAffiliateBtn">
-                        <i class="fas fa-user-tag"></i> Sales Channel <span class="polaris-filter-pill-count d-none" id="countAffiliate">0</span>
-                    </button>
-                    <div class="dropdown-menu polaris-popover-menu">
-                        <div class="polaris-popover-header">
-                            <span class="polaris-popover-title me-3">Sales Channel / Source</span>
-                            <div>
-                                <a href="javascript:void(0)" class="polaris-popover-action me-2" onclick="polarisToggleSelectAll('affiliate', true)">Select All</a>
-                                <a href="javascript:void(0)" class="polaris-popover-action" onclick="polarisToggleSelectAll('affiliate', false)">Clear</a>
+                    {{-- 4. Sales Channel --}}
+                    <div class="dropdown">
+                        <button class="polaris-filter-pill-btn dropdown-toggle" type="button" data-bs-toggle="dropdown" data-bs-auto-close="outside" id="pillAffiliateBtn">
+                            <i class="fas fa-user-tag"></i> Sales Channel <span class="polaris-filter-pill-count d-none" id="countAffiliate">0</span>
+                        </button>
+                        <div class="dropdown-menu polaris-popover-menu">
+                            <div class="polaris-popover-header">
+                                <span class="polaris-popover-title me-3">Sales Channel / Source</span>
+                                <div>
+                                    <a href="javascript:void(0)" class="polaris-popover-action me-2" onclick="polarisToggleSelectAll('affiliate', true)">Select All</a>
+                                    <a href="javascript:void(0)" class="polaris-popover-action" onclick="polarisToggleSelectAll('affiliate', false)">Clear</a>
+                                </div>
+                            </div>
+                            <div class="polaris-popover-body">
+                                <label class="polaris-checkbox-label">
+                                    <input type="checkbox" class="polaris-filter-cb" data-category="affiliate" value="Direct" {{ $filterAffiliate === 'Direct' ? 'checked' : '' }}>
+                                    <span>Direct (No promoter)</span>
+                                </label>
+                                @foreach($referralRows as $rn)
+                                <label class="polaris-checkbox-label">
+                                    <input type="checkbox" class="polaris-filter-cb" data-category="affiliate" value="{{ $rn }}" {{ $filterAffiliate === $rn ? 'checked' : '' }}>
+                                    <span>{{ $rn }}</span>
+                                </label>
+                                @endforeach
                             </div>
                         </div>
-                        <div class="polaris-popover-body">
-                            <label class="polaris-checkbox-label">
-                                <input type="checkbox" class="polaris-filter-cb" data-category="affiliate" value="Direct" {{ $filterAffiliate === 'Direct' ? 'checked' : '' }}>
-                                <span>Direct (No promoter)</span>
-                            </label>
-                            @foreach($referralRows as $rn)
-                            <label class="polaris-checkbox-label">
-                                <input type="checkbox" class="polaris-filter-cb" data-category="affiliate" value="{{ $rn }}" {{ $filterAffiliate === $rn ? 'checked' : '' }}>
-                                <span>{{ $rn }}</span>
-                            </label>
-                            @endforeach
-                        </div>
                     </div>
-                </div>
 
-                {{-- 5. Transaction Type --}}
-                <div class="dropdown">
-                    <button class="polaris-filter-pill-btn dropdown-toggle" type="button" data-bs-toggle="dropdown" data-bs-auto-close="outside" id="pillTypeBtn">
-                        <i class="fas fa-tags"></i> Transaction Type <span class="polaris-filter-pill-count d-none" id="countType">0</span>
-                    </button>
-                    <div class="dropdown-menu polaris-popover-menu">
-                        <div class="polaris-popover-header">
-                            <span class="polaris-popover-title me-3">Transaction Type</span>
-                            <div>
-                                <a href="javascript:void(0)" class="polaris-popover-action me-2" onclick="polarisToggleSelectAll('type', true)">Select All</a>
-                                <a href="javascript:void(0)" class="polaris-popover-action" onclick="polarisToggleSelectAll('type', false)">Clear</a>
+                    {{-- 5. Payment Status --}}
+                    <div class="dropdown">
+                        <button class="polaris-filter-pill-btn dropdown-toggle" type="button" data-bs-toggle="dropdown" data-bs-auto-close="outside" id="pillStatusBtn">
+                            <i class="fas fa-credit-card"></i> Payment Status <span class="polaris-filter-pill-count d-none" id="countStatus">0</span>
+                        </button>
+                        <div class="dropdown-menu polaris-popover-menu">
+                            <div class="polaris-popover-header">
+                                <span class="polaris-popover-title me-3">Payment Status</span>
+                                <div>
+                                    <a href="javascript:void(0)" class="polaris-popover-action me-2" onclick="polarisToggleSelectAll('status', true)">Select All</a>
+                                    <a href="javascript:void(0)" class="polaris-popover-action" onclick="polarisToggleSelectAll('status', false)">Clear</a>
+                                </div>
+                            </div>
+                            <div class="polaris-popover-body">
+                                <label class="polaris-checkbox-label">
+                                    <input type="checkbox" class="polaris-filter-cb" data-category="status" value="Completed" {{ $filterStatus === 'Completed' ? 'checked' : '' }}>
+                                    <span><i class="fas fa-circle text-success me-1" style="font-size:0.6rem;"></i> Completed</span>
+                                </label>
+                                <label class="polaris-checkbox-label">
+                                    <input type="checkbox" class="polaris-filter-cb" data-category="status" value="Canceled" {{ $filterStatus === 'Canceled' ? 'checked' : '' }}>
+                                    <span><i class="fas fa-circle text-danger me-1" style="font-size:0.6rem;"></i> Canceled</span>
+                                </label>
+                                <label class="polaris-checkbox-label">
+                                    <input type="checkbox" class="polaris-filter-cb" data-category="status" value="Refunded" {{ $filterStatus === 'Refunded' ? 'checked' : '' }}>
+                                    <span><i class="fas fa-circle text-warning me-1" style="font-size:0.6rem;"></i> Refunded</span>
+                                </label>
                             </div>
                         </div>
-                        <div class="polaris-popover-body">
-                            <label class="polaris-checkbox-label">
-                                <input type="checkbox" class="polaris-filter-cb" data-category="type" value="Package" {{ $filterType === 'Package' ? 'checked' : '' }}>
-                                <span>Package Purchase</span>
-                            </label>
-                            <label class="polaris-checkbox-label">
-                                <input type="checkbox" class="polaris-filter-cb" data-category="type" value="Reservation" {{ $filterType === 'Reservation' ? 'checked' : '' }}>
-                                <span>Table Reservation</span>
-                            </label>
-                            <label class="polaris-checkbox-label">
-                                <input type="checkbox" class="polaris-filter-cb" data-category="type" value="Custom Invoice" {{ $filterType === 'Custom Invoice' || $filterType === 'custom_invoice' ? 'checked' : '' }}>
-                                <span>Custom Invoice</span>
-                            </label>
-                        </div>
                     </div>
-                </div>
 
-                {{-- 6. Payment Status --}}
-                <div class="dropdown">
-                    <button class="polaris-filter-pill-btn dropdown-toggle" type="button" data-bs-toggle="dropdown" data-bs-auto-close="outside" id="pillStatusBtn">
-                        <i class="fas fa-check-circle"></i> Payment Status <span class="polaris-filter-pill-count d-none" id="countStatus">0</span>
-                    </button>
-                    <div class="dropdown-menu polaris-popover-menu">
-                        <div class="polaris-popover-header">
-                            <span class="polaris-popover-title me-3">Payment Status</span>
-                            <div>
-                                <a href="javascript:void(0)" class="polaris-popover-action me-2" onclick="polarisToggleSelectAll('status', true)">Select All</a>
-                                <a href="javascript:void(0)" class="polaris-popover-action" onclick="polarisToggleSelectAll('status', false)">Clear</a>
+                    {{-- 6. Host Name Filter --}}
+                    <div class="dropdown">
+                        <button class="polaris-filter-pill-btn dropdown-toggle" type="button" data-bs-toggle="dropdown" data-bs-auto-close="outside" id="pillHostBtn">
+                            <i class="fas fa-user-circle"></i> Host Name <span class="polaris-filter-pill-count d-none" id="countHost">0</span>
+                        </button>
+                        <div class="dropdown-menu polaris-popover-menu">
+                            <div class="polaris-popover-header">
+                                <span class="polaris-popover-title me-3">Filter by Host Name</span>
+                                <div>
+                                    <a href="javascript:void(0)" class="polaris-popover-action me-2" onclick="polarisToggleSelectAll('host', true)">Select All</a>
+                                    <a href="javascript:void(0)" class="polaris-popover-action" onclick="polarisToggleSelectAll('host', false)">Clear</a>
+                                </div>
+                            </div>
+                            <div class="polaris-popover-body">
+                                <label class="polaris-checkbox-label">
+                                    <input type="checkbox" class="polaris-filter-cb" data-category="host" value="has_host">
+                                    <span><i class="fas fa-check text-success me-1"></i> Has Host Name</span>
+                                </label>
+                                <label class="polaris-checkbox-label">
+                                    <input type="checkbox" class="polaris-filter-cb" data-category="host" value="no_host">
+                                    <span><i class="fas fa-times text-muted me-1"></i> No Host Name</span>
+                                </label>
                             </div>
                         </div>
-                        <div class="polaris-popover-body">
-                            <label class="polaris-checkbox-label">
-                                <input type="checkbox" class="polaris-filter-cb" data-category="status" value="Completed" {{ $filterStatus === 'Completed' ? 'checked' : '' }}>
-                                <span><i class="fas fa-circle text-success me-1" style="font-size:0.6rem;"></i> Completed</span>
-                            </label>
-                            <label class="polaris-checkbox-label">
-                                <input type="checkbox" class="polaris-filter-cb" data-category="status" value="Canceled" {{ $filterStatus === 'Canceled' ? 'checked' : '' }}>
-                                <span><i class="fas fa-circle text-danger me-1" style="font-size:0.6rem;"></i> Canceled</span>
-                            </label>
-                            <label class="polaris-checkbox-label">
-                                <input type="checkbox" class="polaris-filter-cb" data-category="status" value="Refunded" {{ $filterStatus === 'Refunded' ? 'checked' : '' }}>
-                                <span><i class="fas fa-circle text-warning me-1" style="font-size:0.6rem;"></i> Refunded</span>
-                            </label>
-                        </div>
+                    </div>
+
+                    {{-- Filters Summary Badge (Far Right) --}}
+                    <div class="ms-auto">
+                        <button class="polaris-filter-pill-btn active d-inline-flex align-items-center gap-2" type="button" id="btnActiveFiltersSummary">
+                            <i class="fas fa-sliders-h"></i> Filters <span class="polaris-filter-pill-count" id="totalActiveFiltersBadge" style="background:#7c3aed;color:#fff;">0</span>
+                        </button>
+                    </div>
+
+                    {{-- Hidden legacy compatibility elements --}}
+                    <div class="d-none" id="txnFiltersRow">
+                        <select id="websiteFilter"><option value="">All</option></select>
+                        <select id="typeFilter"><option value="">All</option></select>
+                        <select id="affiliateFilter"><option value="">All</option></select>
+                        <select id="statusFilter"><option value="">All</option></select>
+                        <select id="reservationFilter"><option value="">All</option></select>
                     </div>
                 </div>
-
-                {{-- 7. Host Name Filter --}}
-                <div class="dropdown">
-                    <button class="polaris-filter-pill-btn dropdown-toggle" type="button" data-bs-toggle="dropdown" data-bs-auto-close="outside" id="pillHostBtn">
-                        <i class="fas fa-user-tie"></i> Host Name <span class="polaris-filter-pill-count d-none" id="countHost">0</span>
-                    </button>
-                    <div class="dropdown-menu polaris-popover-menu">
-                        <div class="polaris-popover-header">
-                            <span class="polaris-popover-title me-3">Filter by Host Name</span>
-                            <div>
-                                <a href="javascript:void(0)" class="polaris-popover-action me-2" onclick="polarisToggleSelectAll('host', true)">Select All</a>
-                                <a href="javascript:void(0)" class="polaris-popover-action" onclick="polarisToggleSelectAll('host', false)">Clear</a>
-                            </div>
-                        </div>
-                        <div class="polaris-popover-body">
-                            <label class="polaris-checkbox-label">
-                                <input type="checkbox" class="polaris-filter-cb" data-category="host" value="has_host">
-                                <span><i class="fas fa-check text-success me-1"></i> Has Host Name</span>
-                            </label>
-                            <label class="polaris-checkbox-label">
-                                <input type="checkbox" class="polaris-filter-cb" data-category="host" value="no_host">
-                                <span><i class="fas fa-times text-muted me-1"></i> No Host Name</span>
-                            </label>
-                        </div>
-                    </div>
-                </div>
-
-                {{-- Hidden legacy compatibility elements --}}
-                <div class="d-none" id="txnFiltersRow">
-                    <select id="websiteFilter"><option value="">All</option></select>
-                    <select id="typeFilter"><option value="">All</option></select>
-                    <select id="affiliateFilter"><option value="">All</option></select>
-                    <select id="statusFilter"><option value="">All</option></select>
-                    <select id="reservationFilter"><option value="">All</option></select>
-                </div>
-            </div>
                 <button type="button" id="polarisScrollLeftBtn" class="polaris-scroll-btn polaris-scroll-left d-md-none d-none" aria-label="Scroll left"><i class="fas fa-chevron-left"></i></button>
                 <button type="button" id="polarisScrollRightBtn" class="polaris-scroll-btn polaris-scroll-right d-md-none d-none" aria-label="Scroll right"><i class="fas fa-chevron-right"></i></button>
             </div>
 
-            {{-- Active Filter Chips Container (rendered below the filter bar) --}}
+            {{-- Active Filter Chips Container --}}
             <div class="polaris-chips-bar d-none mb-3" id="activeFilterChips">
                 <!-- Dynamically rendered active chips -->
             </div>
 
-            <!-- Stat Cards -->
+            {{-- ── ROW 2: BULK SELECTION & ACTIONS TOOLBAR ────────────── --}}
+            <div class="d-flex align-items-center justify-content-between flex-wrap gap-2 mb-3 py-2 px-3 rounded-3" style="background: rgba(15, 23, 42, 0.5); border: 1px solid rgba(255, 255, 255, 0.08);">
+                <div class="d-flex align-items-center gap-2 flex-wrap">
+                    @if($canArchiveTransactions)
+                    {{-- Selection Count Dropdown Pill --}}
+                    <div class="dropdown">
+                        <button class="txn-export-btn btn dropdown-toggle d-inline-flex align-items-center gap-2" data-bs-toggle="dropdown" type="button" style="font-size:0.82rem; padding: 6px 12px;">
+                            <input type="checkbox" id="selectionToolbarCb" class="form-check-input mt-0 me-1" style="cursor:pointer;" onclick="event.stopPropagation();">
+                            <span id="selectionCount" style="font-size:0.82rem; color:#fff;">0 selected</span>
+                        </button>
+                        <ul class="dropdown-menu" style="background:#1e293b;border:1px solid rgba(255,255,255,0.1)">
+                            <li><a class="dropdown-item text-white-50 small" href="javascript:void(0)" onclick="$('#selectAllPagesBtn').click()"><i class="fas fa-check-double me-2"></i>Select All Pages</a></li>
+                            <li><a class="dropdown-item text-white-50 small" href="javascript:void(0)" onclick="$('#clearSelectionBtn').click()"><i class="fas fa-times me-2"></i>Clear Selection</a></li>
+                        </ul>
+                    </div>
+
+                    {{-- Highlighted Archive Selected CTA Button --}}
+                    @if($isArchivedView)
+                    <button type="button" id="bulkUnarchiveBtn" class="btn d-inline-flex align-items-center gap-2" style="background:rgba(16,185,129,0.18);border:1px solid rgba(16,185,129,0.4);color:#34d399;border-radius:10px;font-size:0.82rem;padding:6px 14px;font-weight:600;">
+                        <i class="fas fa-box-open"></i> Unarchive Selected
+                    </button>
+                    @else
+                    <button type="button" id="bulkArchiveBtn" class="btn d-inline-flex align-items-center gap-2" style="background: #b45309; border: 1px solid #f59e0b; color: #fff; border-radius:10px; font-size:0.82rem; padding:6px 14px; font-weight:600; box-shadow: 0 2px 8px rgba(245, 158, 11, 0.25);">
+                        <i class="fas fa-archive"></i> Archive Selected
+                    </button>
+                    @endif
+
+                    {{-- Export Table --}}
+                    <div class="dropdown">
+                        <button class="txn-export-btn btn dropdown-toggle d-inline-flex align-items-center gap-2" data-bs-toggle="dropdown" type="button" style="font-size:0.82rem; padding:6px 14px;">
+                            <i class="fas fa-download"></i> Export Table
+                        </button>
+                        <ul class="dropdown-menu dropdown-menu-end" style="background:#1e293b;border:1px solid rgba(255,255,255,0.1)">
+                            <li><a class="dropdown-item" style="color:rgba(255,255,255,0.7);font-size:0.85rem" id="expCsv"   href="#"><i class="fas fa-file-csv me-2"></i>Export CSV</a></li>
+                            <li><a class="dropdown-item" style="color:rgba(255,255,255,0.7);font-size:0.85rem" id="expExcel" href="#"><i class="fas fa-file-excel me-2"></i>Export Excel</a></li>
+                            <li><a class="dropdown-item" style="color:rgba(255,255,255,0.7);font-size:0.85rem" id="expPdf"   href="#"><i class="fas fa-file-pdf me-2"></i>Export PDF</a></li>
+                            <li><a class="dropdown-item" style="color:rgba(255,255,255,0.7);font-size:0.85rem" id="expPrint" href="#"><i class="fas fa-print me-2"></i>Print</a></li>
+                        </ul>
+                    </div>
+
+                    {{-- Select All Pages --}}
+                    <button type="button" id="selectAllPagesBtn" class="txn-export-btn btn d-inline-flex align-items-center gap-2" style="font-size:0.82rem; padding:6px 14px;">
+                        <i class="fas fa-check-square"></i> Select All Pages
+                    </button>
+
+                    {{-- Clear Selection --}}
+                    <button type="button" id="clearSelectionBtn" class="txn-export-btn btn d-inline-flex align-items-center gap-2" style="font-size:0.82rem; padding:6px 14px;">
+                        <i class="fas fa-times-circle"></i> Clear Selection
+                    </button>
+                    @endif
+                </div>
+
+                {{-- Columns Visibility Dropdown (Far Right) --}}
+                <div class="ms-auto">
+                    <div class="dropdown">
+                        <button class="txn-export-btn btn dropdown-toggle d-inline-flex align-items-center gap-2" data-bs-toggle="dropdown" data-bs-auto-close="outside" type="button" style="font-size:0.82rem; padding:6px 14px;">
+                            <i class="fas fa-th-large"></i> Columns
+                        </button>
+                        <div class="dropdown-menu dropdown-menu-end polaris-popover-menu" style="min-width: 210px;">
+                            <div class="polaris-popover-header">
+                                <span class="polaris-popover-title">Toggle Columns</span>
+                            </div>
+                            <div class="polaris-popover-body" id="colToggleContainer">
+                                <!-- Dynamically filled column toggle checkboxes -->
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Hidden Stat Cards for legacy computation -->
             @php
                 $pendingCommission = $reportableData->sum(function($item) {
                     $comm = (float)($item->affiliate_commission_amount ?? 0) + (float)($item->entertainer_commission_amount ?? 0);
@@ -1387,33 +1426,19 @@ body.modal-open .admin-mobile-menu-toggle {
                     return (float)($item->affiliate_commission_amount ?? 0) + (float)($item->entertainer_commission_amount ?? 0);
                 });
             @endphp
-            <div style="display:none !important;grid-template-columns:repeat(auto-fit,minmax(280px,1fr));gap:16px;margin-bottom:24px;">
-                <div class="txn-stat-card">
-                    <div class="txn-stat-icon" style="background:rgba(249,115,22,0.2);">⏳</div>
-                    <div>
-                        <div class="txn-stat-label">Pending Fee</div>
-                        <div class="txn-stat-value">${{ number_format($pendingCommission, 2) }}</div>
-                    </div>
-                </div>
-                <div class="txn-stat-card">
-                    <div class="txn-stat-icon" style="background:rgba(16,185,129,0.2);">✓</div>
-                    <div>
-                        <div class="txn-stat-label">Available Now</div>
-                        <div class="txn-stat-value">${{ number_format($availableNow, 2) }}</div>
-                    </div>
-                </div>
-                <div class="txn-stat-card">
-                    <div class="txn-stat-icon" style="background:rgba(59,130,246,0.2);">💰</div>
-                    <div>
-                        <div class="txn-stat-label">Lifetime Earned</div>
-                        <div class="txn-stat-value">${{ number_format($lifetimeEarned, 2) }}</div>
-                    </div>
-                </div>
-            </div>
 
             <div class="table-responsive">
                 <table class="txn-table w-100" id="txnDataTable">
                     <thead>
+                        <tr class="txn-cat-header-row" style="border-bottom: 1px solid rgba(255,255,255,0.08); background: rgba(255,255,255,0.02);">
+                            <th style="width: 38px;"></th>
+                            <th colspan="3" class="text-uppercase fw-bold text-white-50 py-2 px-3" style="font-size: 0.68rem; letter-spacing: 0.08em;">TRANSACTION</th>
+                            <th colspan="3" class="text-uppercase fw-bold text-white-50 py-2 px-3" style="font-size: 0.68rem; letter-spacing: 0.08em;">RESERVATION</th>
+                            <th colspan="5" class="text-uppercase fw-bold text-white-50 py-2 px-3" style="font-size: 0.68rem; letter-spacing: 0.08em;">FINANCIAL</th>
+                            <th colspan="3" class="text-uppercase fw-bold text-white-50 py-2 px-3" style="font-size: 0.68rem; letter-spacing: 0.08em;">STATUS</th>
+                            <th colspan="1" class="text-uppercase fw-bold text-white-50 py-2 px-3 text-center" style="font-size: 0.68rem; letter-spacing: 0.08em;">ACTIONS</th>
+                            <th class="d-none" colspan="4"></th>
+                        </tr>
                         <tr>
                             <th><input type="checkbox" id="selectAll"></th>
                             <th>Order ID</th>
@@ -2581,6 +2606,7 @@ body.modal-open .admin-mobile-menu-toggle {
                         activeChipsContainer.addClass('d-none');
                     }
 
+                    $('#totalActiveFiltersBadge').text(totalActiveFilters);
                     table.draw();
                 }
 
@@ -2601,6 +2627,51 @@ body.modal-open .admin-mobile-menu-toggle {
                     table.search('').draw();
                     updatePolarisUiAndFilterTable();
                 };
+
+                // Column Visibility Dropdown Controller
+                function initColumnToggleDropdown() {
+                    const container = $('#colToggleContainer');
+                    if (!container.length || !table) return;
+                    container.empty();
+
+                    const headers = $('#txnDataTable thead tr:last-child th');
+                    headers.each(function(idx) {
+                        if (idx === 0 || $(this).hasClass('d-none')) return;
+                        const colTitle = $(this).text().trim();
+                        if (!colTitle || colTitle.startsWith('_')) return;
+
+                        const isVisible = table.column(idx).visible();
+                        const itemHtml = `
+                            <label class="polaris-checkbox-label">
+                                <input type="checkbox" class="col-toggle-cb" data-column-idx="${idx}" ${isVisible ? 'checked' : ''}>
+                                <span>${colTitle}</span>
+                            </label>
+                        `;
+                        container.append(itemHtml);
+                    });
+                }
+                initColumnToggleDropdown();
+
+                $(document).on('change', '.col-toggle-cb', function() {
+                    const idx = parseInt($(this).data('column-idx'), 10);
+                    if (!isNaN(idx) && table) {
+                        table.column(idx).visible(this.checked);
+                    }
+                });
+
+                // Selection toolbar checkbox sync
+                $(document).on('change', '#selectionToolbarCb', function() {
+                    const isChecked = this.checked;
+                    $('#selectAll').prop('checked', isChecked).trigger('change');
+                });
+
+                // Keyboard shortcut / for Search input focus
+                $(document).on('keydown', function(e) {
+                    if (e.key === '/' && !$(e.target).is('input, textarea, select')) {
+                        e.preventDefault();
+                        $('#txnSearch').focus();
+                    }
+                });
 
                 $(document).on('change', '.polaris-filter-cb, #dateTargetSelect', function() {
                     updatePolarisUiAndFilterTable();
