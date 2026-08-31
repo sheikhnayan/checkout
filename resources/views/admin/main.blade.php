@@ -708,11 +708,168 @@
           white-space: nowrap;
         }
       }
+
+      /* ─── ADMIN SKELETON PAGE LOADER ─── */
+      #adminSkeletonLoader {
+        position: fixed;
+        top: 0;
+        left: 0;
+        right: 0;
+        bottom: 0;
+        z-index: 999999;
+        background: #0b0e1a;
+        display: flex;
+        flex-direction: column;
+        padding: 1.75rem 2.25rem;
+        pointer-events: auto;
+        transition: opacity 0.35s ease, visibility 0.35s ease;
+      }
+      #adminSkeletonLoader.loaded {
+        opacity: 0;
+        visibility: hidden;
+        pointer-events: none;
+      }
+      @keyframes skeletonShimmer {
+        0% { background-position: -200% 0; }
+        100% { background-position: 200% 0; }
+      }
+      .skeleton-shimmer {
+        background: linear-gradient(
+          90deg,
+          rgba(255, 255, 255, 0.03) 25%,
+          rgba(255, 255, 255, 0.08) 50%,
+          rgba(255, 255, 255, 0.03) 75%
+        );
+        background-size: 200% 100%;
+        animation: skeletonShimmer 1.6s infinite ease-in-out;
+        border-radius: 8px;
+      }
+      .skeleton-header-title { height: 34px; width: 240px; margin-bottom: 8px; }
+      .skeleton-header-sub { height: 16px; width: 360px; margin-bottom: 24px; }
+      .skeleton-card {
+        background: rgba(18, 23, 38, 0.8);
+        border: 1px solid rgba(255, 255, 255, 0.07);
+        border-radius: 16px;
+        padding: 20px;
+        display: flex;
+        align-items: center;
+        gap: 16px;
+        height: 100%;
+      }
+      .skeleton-card-icon {
+        width: 50px;
+        height: 50px;
+        border-radius: 14px;
+        flex-shrink: 0;
+      }
+      .skeleton-line {
+        height: 14px;
+        border-radius: 6px;
+      }
+      .skeleton-table-card {
+        background: rgba(18, 23, 38, 0.8);
+        border: 1px solid rgba(255, 255, 255, 0.07);
+        border-radius: 16px;
+        padding: 22px;
+        flex: 1;
+      }
     </style>
     @stack('styles')
   </head>
 
   <body>
+    <!-- Admin Platform Skeleton Page Loader -->
+    <div id="adminSkeletonLoader">
+      <div class="d-flex align-items-center justify-content-between flex-wrap gap-3 mb-4">
+        <div>
+          <div class="skeleton-shimmer skeleton-header-title"></div>
+          <div class="skeleton-shimmer skeleton-header-sub"></div>
+        </div>
+        <div class="d-flex gap-2">
+          <div class="skeleton-shimmer" style="width: 120px; height: 38px; border-radius: 10px;"></div>
+          <div class="skeleton-shimmer" style="width: 120px; height: 38px; border-radius: 10px;"></div>
+        </div>
+      </div>
+
+      <!-- KPI Cards Skeleton -->
+      <div class="row g-3 mb-4">
+        <div class="col-xl-3 col-md-6">
+          <div class="skeleton-card">
+            <div class="skeleton-shimmer skeleton-card-icon"></div>
+            <div class="flex-grow-1">
+              <div class="skeleton-shimmer skeleton-line w-50 mb-2"></div>
+              <div class="skeleton-shimmer skeleton-line w-75" style="height: 22px;"></div>
+            </div>
+          </div>
+        </div>
+        <div class="col-xl-3 col-md-6">
+          <div class="skeleton-card">
+            <div class="skeleton-shimmer skeleton-card-icon"></div>
+            <div class="flex-grow-1">
+              <div class="skeleton-shimmer skeleton-line w-50 mb-2"></div>
+              <div class="skeleton-shimmer skeleton-line w-75" style="height: 22px;"></div>
+            </div>
+          </div>
+        </div>
+        <div class="col-xl-3 col-md-6">
+          <div class="skeleton-card">
+            <div class="skeleton-shimmer skeleton-card-icon"></div>
+            <div class="flex-grow-1">
+              <div class="skeleton-shimmer skeleton-line w-50 mb-2"></div>
+              <div class="skeleton-shimmer skeleton-line w-75" style="height: 22px;"></div>
+            </div>
+          </div>
+        </div>
+        <div class="col-xl-3 col-md-6">
+          <div class="skeleton-card">
+            <div class="skeleton-shimmer skeleton-card-icon"></div>
+            <div class="flex-grow-1">
+              <div class="skeleton-shimmer skeleton-line w-50 mb-2"></div>
+              <div class="skeleton-shimmer skeleton-line w-75" style="height: 22px;"></div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Main Content / Table Skeleton -->
+      <div class="skeleton-table-card">
+        <div class="d-flex align-items-center gap-2 mb-4 flex-wrap">
+          <div class="skeleton-shimmer" style="width: 240px; height: 38px; border-radius: 8px;"></div>
+          <div class="skeleton-shimmer" style="width: 100px; height: 38px; border-radius: 8px;"></div>
+          <div class="skeleton-shimmer" style="width: 100px; height: 38px; border-radius: 8px;"></div>
+          <div class="skeleton-shimmer" style="width: 100px; height: 38px; border-radius: 8px;"></div>
+          <div class="skeleton-shimmer ms-auto" style="width: 90px; height: 38px; border-radius: 8px;"></div>
+        </div>
+        <div class="d-flex flex-column gap-3">
+          <div class="skeleton-shimmer" style="height: 40px; border-radius: 8px;"></div>
+          <div class="skeleton-shimmer" style="height: 48px; border-radius: 8px;"></div>
+          <div class="skeleton-shimmer" style="height: 48px; border-radius: 8px;"></div>
+          <div class="skeleton-shimmer" style="height: 48px; border-radius: 8px;"></div>
+          <div class="skeleton-shimmer" style="height: 48px; border-radius: 8px;"></div>
+          <div class="skeleton-shimmer" style="height: 48px; border-radius: 8px;"></div>
+        </div>
+      </div>
+    </div>
+    <script>
+      (function() {
+        function hideAdminSkeleton() {
+          var loader = document.getElementById('adminSkeletonLoader');
+          if (loader && !loader.classList.contains('loaded')) {
+            setTimeout(function() {
+              loader.classList.add('loaded');
+            }, 100);
+          }
+        }
+        if (document.readyState === 'complete' || document.readyState === 'interactive') {
+          hideAdminSkeleton();
+        } else {
+          window.addEventListener('DOMContentLoaded', hideAdminSkeleton);
+          window.addEventListener('load', hideAdminSkeleton);
+        }
+        setTimeout(hideAdminSkeleton, 1500);
+      })();
+    </script>
+
     <button
       type="button"
       class="admin-mobile-menu-toggle"
