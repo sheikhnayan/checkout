@@ -162,14 +162,58 @@
 .txn-action-more { background: rgba(255,255,255,0.06); border: 1px solid rgba(255,255,255,0.1); color: rgba(255,255,255,0.55); border-radius: 8px; width: 32px; height: 32px; display: inline-flex; align-items: center; justify-content: center; font-size: 0.82rem; transition: background 0.2s; }
 .txn-action-more:hover { background: rgba(255,255,255,0.12); color: #fff; }
 /* DataTable overrides */
-.dataTables_wrapper .dataTables_paginate .paginate_button { color: rgba(255,255,255,0.55) !important; border-radius: 6px !important; border: 1px solid transparent !important; padding: 4px 9px !important; font-size: 0.82rem !important; }
-.dataTables_wrapper .dataTables_paginate .paginate_button.current { background: rgba(124,58,237,0.3) !important; color: #fff !important; border-color: rgba(124,58,237,0.4) !important; }
-.dataTables_wrapper .dataTables_paginate .paginate_button:hover { background: rgba(255,255,255,0.08) !important; color: #fff !important; }
-.dataTables_wrapper .dataTables_info { color: rgba(255,255,255,0.4) !important; font-size: 0.8rem; }
-.dataTables_wrapper .dataTables_length select { background: rgba(255,255,255,0.07); border: 1px solid rgba(255,255,255,0.1); color: #fff; border-radius: 6px; padding: 3px 6px; }
-.dataTables_wrapper .dataTables_length label { color: rgba(255,255,255,0.45); font-size: 0.8rem; }
-.table-responsive { padding-bottom: 20px; }
-.dataTables_wrapper .dataTables_paginate { padding-top: 14px; margin-bottom: 0; }
+.txn-table-footer {
+    padding-top: 16px;
+    margin-top: 16px;
+}
+.dataTables_wrapper .dataTables_length {
+    color: rgba(255, 255, 255, 0.6) !important;
+    font-size: 0.82rem !important;
+}
+.dataTables_wrapper .dataTables_length select {
+    background: rgba(255, 255, 255, 0.08) !important;
+    border: 1px solid rgba(255, 255, 255, 0.15) !important;
+    color: #fff !important;
+    border-radius: 8px !important;
+    padding: 4px 10px !important;
+    font-size: 0.82rem !important;
+    outline: none !important;
+    margin: 0 6px !important;
+    cursor: pointer !important;
+}
+.dataTables_wrapper .dataTables_length select option {
+    background: #1e293b !important;
+    color: #fff !important;
+}
+.dataTables_wrapper .dataTables_paginate {
+    padding-top: 0 !important;
+    margin-bottom: 0 !important;
+    display: flex !important;
+    align-items: center !important;
+    justify-content: center !important;
+}
+.dataTables_wrapper .dataTables_paginate .paginate_button {
+    color: rgba(255,255,255,0.55) !important;
+    border-radius: 6px !important;
+    border: 1px solid transparent !important;
+    padding: 4px 9px !important;
+    font-size: 0.82rem !important;
+}
+.dataTables_wrapper .dataTables_paginate .paginate_button.current {
+    background: rgba(124,58,237,0.3) !important;
+    color: #fff !important;
+    border-color: rgba(124,58,237,0.4) !important;
+}
+.dataTables_wrapper .dataTables_paginate .paginate_button:hover {
+    background: rgba(255,255,255,0.08) !important;
+    color: #fff !important;
+}
+.dataTables_wrapper .dataTables_info {
+    color: rgba(255,255,255,0.5) !important;
+    font-size: 0.82rem !important;
+    padding-top: 0 !important;
+}
+.table-responsive { padding-bottom: 10px; }
 .dt-buttons, .dataTables_filter { display: none !important; }
 
 /* ─── Shopify Polaris Style Multi-Select Filters ─── */
@@ -1314,11 +1358,24 @@ body.modal-open .admin-mobile-menu-toggle {
                         </div>
                     </div>
 
-                    {{-- Filters Summary Badge (Far Right) --}}
+                    {{-- Filters Summary Dropdown (Far Right) --}}
                     <div class="ms-auto">
-                        <button class="polaris-filter-pill-btn active d-inline-flex align-items-center gap-2" type="button" id="btnActiveFiltersSummary">
-                            <i class="fas fa-sliders-h"></i> Filters <span class="polaris-filter-pill-count" id="totalActiveFiltersBadge" style="background:#7c3aed;color:#fff;">0</span>
-                        </button>
+                        <div class="dropdown">
+                            <button class="polaris-filter-pill-btn active dropdown-toggle d-inline-flex align-items-center gap-2" type="button" data-bs-toggle="dropdown" data-bs-auto-close="outside" id="btnActiveFiltersSummary">
+                                <i class="fas fa-sliders-h"></i> Filters <span class="polaris-filter-pill-count" id="totalActiveFiltersBadge" style="background:#7c3aed;color:#fff;">0</span>
+                            </button>
+                            <div class="dropdown-menu dropdown-menu-end polaris-popover-menu" id="activeFiltersPopoverMenu" style="min-width: 280px !important;">
+                                <div class="polaris-popover-header d-flex align-items-center justify-content-between">
+                                    <span class="polaris-popover-title me-3 mb-0">Active Filters</span>
+                                    <div>
+                                        <a href="javascript:void(0)" class="polaris-popover-action" onclick="clearAllPolarisFilters()">Clear All</a>
+                                    </div>
+                                </div>
+                                <div class="polaris-popover-body" id="activeFiltersPopoverBody">
+                                    <div class="text-white-50 small p-2 text-center" id="noActiveFiltersText">No active filters applied</div>
+                                </div>
+                            </div>
+                        </div>
                     </div>
 
                     {{-- Hidden legacy compatibility elements --}}
@@ -2495,8 +2552,19 @@ body.modal-open .admin-mobile-menu-toggle {
                     info: true,
                     lengthChange: true,
                     autoWidth: false,
+                    dom: '<"top">rt<"txn-table-footer d-flex align-items-center justify-content-between flex-wrap gap-3 mt-3 pt-3 border-top border-secondary border-opacity-10"<"txn-footer-left d-flex align-items-center"l><"txn-footer-center d-flex justify-content-center flex-grow-1"p><"txn-footer-right text-end"i>>',
                     language: {
-                        emptyTable: 'No transactions found.'
+                        emptyTable: 'No transactions found.',
+                        lengthMenu: 'Showing _MENU_ per page',
+                        info: '_START_ - _END_ of _TOTAL_ transactions',
+                        infoEmpty: '0 - 0 of 0 transactions',
+                        infoFiltered: '(filtered from _MAX_ total transactions)',
+                        paginate: {
+                            first: '«',
+                            previous: '‹',
+                            next: '›',
+                            last: '»'
+                        }
                     },
                     columnDefs: [
                         { orderable: false, targets: nonOrderableTargets }
@@ -2529,8 +2597,21 @@ body.modal-open .admin-mobile-menu-toggle {
 
                     const categories = ['venue', 'status', 'type', 'affiliate', 'reservation', 'host'];
                     const activeChipsContainer = $('#activeFilterChips');
+                    const activePopoverBody = $('#activeFiltersPopoverBody');
+
                     activeChipsContainer.empty();
+                    if (activePopoverBody.length) activePopoverBody.empty();
+
                     let totalActiveFilters = 0;
+
+                    const categoryNameMap = {
+                        venue: 'Venue',
+                        status: 'Status',
+                        type: 'Type',
+                        affiliate: 'Referral',
+                        reservation: 'Reservation',
+                        host: 'Host Name'
+                    };
 
                     categories.forEach(function(cat) {
                         const checkedBoxes = $('.polaris-filter-cb[data-category="' + cat + '"]:checked');
@@ -2549,15 +2630,6 @@ body.modal-open .admin-mobile-menu-toggle {
                                 labels.push($(this).parent().text().trim());
                             });
 
-                            const categoryNameMap = {
-                                venue: 'Venue',
-                                status: 'Status',
-                                type: 'Type',
-                                affiliate: 'Referral',
-                                reservation: 'Reservation',
-                                host: 'Host Name'
-                            };
-
                             const chipHtml = `
                                 <div class="polaris-chip">
                                     <span>${categoryNameMap[cat]}: ${labels.join(', ')}</span>
@@ -2565,6 +2637,19 @@ body.modal-open .admin-mobile-menu-toggle {
                                 </div>
                             `;
                             activeChipsContainer.append(chipHtml);
+
+                            if (activePopoverBody.length) {
+                                const popoverItemHtml = `
+                                    <div class="d-flex align-items-center justify-content-between p-2 rounded mb-1" style="background:rgba(255,255,255,0.06);font-size:0.8rem;">
+                                        <div>
+                                            <span class="text-white-50 fw-bold me-1">${categoryNameMap[cat]}:</span>
+                                            <span class="text-white">${labels.join(', ')}</span>
+                                        </div>
+                                        <i class="fas fa-times text-danger ms-2 cursor-pointer" style="cursor:pointer;" onclick="clearPolarisCategory('${cat}')" title="Remove filter"></i>
+                                    </div>
+                                `;
+                                activePopoverBody.append(popoverItemHtml);
+                            }
                         } else {
                             pillBtn.removeClass('active');
                             countBadge.text('0').addClass('d-none');
@@ -2586,12 +2671,26 @@ body.modal-open .admin-mobile-menu-toggle {
                         const currentTarget = String($('#dateTargetSelect').val() || 'either').toLowerCase();
                         const targetLabel = targetLabelMap[currentTarget] || 'Sale/Usage';
 
-                        activeChipsContainer.append(`
+                        const dateChipHtml = `
                             <div class="polaris-chip">
                                 <span>Date (${targetLabel}): ${dateRangeVal}</span>
                                 <i class="fas fa-times polaris-chip-remove" onclick="clearPolarisDateRange()"></i>
                             </div>
-                        `);
+                        `;
+                        activeChipsContainer.append(dateChipHtml);
+
+                        if (activePopoverBody.length) {
+                            const datePopoverHtml = `
+                                <div class="d-flex align-items-center justify-content-between p-2 rounded mb-1" style="background:rgba(255,255,255,0.06);font-size:0.8rem;">
+                                    <div>
+                                        <span class="text-white-50 fw-bold me-1">Date (${targetLabel}):</span>
+                                        <span class="text-white">${dateRangeVal}</span>
+                                    </div>
+                                    <i class="fas fa-times text-danger ms-2 cursor-pointer" style="cursor:pointer;" onclick="clearPolarisDateRange()" title="Remove date filter"></i>
+                                </div>
+                            `;
+                            activePopoverBody.append(datePopoverHtml);
+                        }
                     } else {
                         $('#pillDateRangeBtn').removeClass('active');
                         $('#countDateRange').text('0').addClass('d-none');
@@ -2604,6 +2703,9 @@ body.modal-open .admin-mobile-menu-toggle {
                         activeChipsContainer.removeClass('d-none');
                     } else {
                         activeChipsContainer.addClass('d-none');
+                        if (activePopoverBody.length) {
+                            activePopoverBody.html('<div class="text-white-50 small p-2 text-center" id="noActiveFiltersText">No active filters applied</div>');
+                        }
                     }
 
                     $('#totalActiveFiltersBadge').text(totalActiveFilters);
