@@ -96,12 +96,12 @@
     background: linear-gradient(145deg, rgba(255,255,255,0.05), rgba(255,255,255,0.02));
     border: 1px solid rgba(255,255,255,0.08); border-radius: 16px; padding: 22px;
 }
-.txn-search-wrap { position: relative; }
+.txn-search-wrap { position: relative; flex-shrink: 0; }
 .txn-search-icon { position: absolute; left: 12px; top: 50%; transform: translateY(-50%); color: rgba(255,255,255,0.3); font-size: 0.8rem; }
 .txn-search-input {
-    background: rgba(255,255,255,0.06); border: 1px solid rgba(255,255,255,0.1);
-    border-radius: 10px; color: #fff; font-size: 0.85rem;
-    padding: 8px 14px 8px 34px; outline: none; width: 300px; transition: border-color 0.2s;
+    background: rgba(255,255,255,0.06); border: 1px solid rgba(255,255,255,0.12);
+    border-radius: 8px; color: #fff; font-size: 0.82rem;
+    padding: 6px 12px 6px 32px; outline: none; width: 240px; transition: border-color 0.2s;
 }
 .txn-search-input:focus { border-color: rgba(124,58,237,0.6); }
 .txn-search-input::placeholder { color: rgba(255,255,255,0.3); }
@@ -1177,7 +1177,7 @@ body.modal-open .admin-mobile-menu-toggle {
                 <div class="polaris-filter-bar mb-0 d-flex align-items-center gap-2" id="polarisFilterContainer">
                     
                     {{-- Search Input (Left aligned in Filter Bar) --}}
-                    <div class="txn-search-wrap position-relative flex-grow-1" style="max-width: 360px; min-width: 240px;">
+                    <div class="txn-search-wrap position-relative" style="max-width: 260px; min-width: 180px;">
                         <i class="fas fa-search txn-search-icon"></i>
                         <input type="text" id="txnSearch" class="txn-search-input pe-4 w-100" placeholder="Search by name, email, order ID, or confirmation #…">
                         <span class="position-absolute end-0 top-50 translate-middle-y me-2 px-2 py-0 rounded text-white-50 pointer-events-none" style="font-size:0.75rem; background:rgba(255,255,255,0.1); border:1px solid rgba(255,255,255,0.15);">/</span>
