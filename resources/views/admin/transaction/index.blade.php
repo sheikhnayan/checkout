@@ -219,7 +219,7 @@
 /* ─── Shopify Polaris Style Multi-Select Filters ─── */
 .polaris-filter-bar {
     display: flex;
-    flex-wrap: wrap;
+    flex-wrap: nowrap !important;
     align-items: center;
     gap: 8px;
     background: rgba(15, 23, 42, 0.65);
@@ -227,6 +227,15 @@
     border-radius: 12px;
     padding: 10px 14px;
     margin-bottom: 14px;
+    overflow-x: auto !important;
+    -webkit-overflow-scrolling: touch !important;
+    scrollbar-width: none !important;
+}
+.polaris-filter-bar::-webkit-scrollbar {
+    display: none !important;
+}
+.polaris-filter-bar > * {
+    flex-shrink: 0 !important;
 }
 .polaris-filter-pill-btn {
     background: rgba(255, 255, 255, 0.06);
@@ -1165,7 +1174,7 @@ body.modal-open .admin-mobile-menu-toggle {
                     : (auth()->user()->isAdmin() ? \App\Models\Website::where('is_archieved', 0)->get() : collect());
             @endphp
             <div class="position-relative mb-3">
-                <div class="polaris-filter-bar mb-0 d-flex align-items-center gap-2 flex-wrap" id="polarisFilterContainer">
+                <div class="polaris-filter-bar mb-0 d-flex align-items-center gap-2" id="polarisFilterContainer">
                     
                     {{-- Search Input (Left aligned in Filter Bar) --}}
                     <div class="txn-search-wrap position-relative flex-grow-1" style="max-width: 360px; min-width: 240px;">
@@ -1391,10 +1400,7 @@ body.modal-open .admin-mobile-menu-toggle {
                 <button type="button" id="polarisScrollRightBtn" class="polaris-scroll-btn polaris-scroll-right d-md-none d-none" aria-label="Scroll right"><i class="fas fa-chevron-right"></i></button>
             </div>
 
-            {{-- Active Filter Chips Container --}}
-            <div class="polaris-chips-bar d-none mb-3" id="activeFilterChips">
-                <!-- Dynamically rendered active chips -->
-            </div>
+
 
             {{-- ── ROW 2: BULK SELECTION & ACTIONS TOOLBAR ────────────── --}}
             <div class="d-flex align-items-center justify-content-between flex-wrap gap-2 mb-3 py-2 px-3 rounded-3" style="background: rgba(15, 23, 42, 0.5); border: 1px solid rgba(255, 255, 255, 0.08);">
@@ -2596,10 +2602,8 @@ body.modal-open .admin-mobile-menu-toggle {
                     if (!table) return;
 
                     const categories = ['venue', 'status', 'type', 'affiliate', 'reservation', 'host'];
-                    const activeChipsContainer = $('#activeFilterChips');
                     const activePopoverBody = $('#activeFiltersPopoverBody');
 
-                    activeChipsContainer.empty();
                     if (activePopoverBody.length) activePopoverBody.empty();
 
                     let totalActiveFilters = 0;
@@ -2630,14 +2634,6 @@ body.modal-open .admin-mobile-menu-toggle {
                                 labels.push($(this).parent().text().trim());
                             });
 
-                            const chipHtml = `
-                                <div class="polaris-chip">
-                                    <span>${categoryNameMap[cat]}: ${labels.join(', ')}</span>
-                                    <i class="fas fa-times polaris-chip-remove" onclick="clearPolarisCategory('${cat}')"></i>
-                                </div>
-                            `;
-                            activeChipsContainer.append(chipHtml);
-
                             if (activePopoverBody.length) {
                                 const popoverItemHtml = `
                                     <div class="d-flex align-items-center justify-content-between p-2 rounded mb-1" style="background:rgba(255,255,255,0.06);font-size:0.8rem;">
@@ -2656,7 +2652,7 @@ body.modal-open .admin-mobile-menu-toggle {
                         }
                     });
 
-                    // Handle Date Range Chip
+                    // Handle Date Range Filter in Popover
                     const dateRangeVal = String($('#txnDateRange').val() || '').trim();
                     if (dateRangeVal) {
                         totalActiveFilters += 1;
@@ -2670,14 +2666,6 @@ body.modal-open .admin-mobile-menu-toggle {
                         };
                         const currentTarget = String($('#dateTargetSelect').val() || 'either').toLowerCase();
                         const targetLabel = targetLabelMap[currentTarget] || 'Sale/Usage';
-
-                        const dateChipHtml = `
-                            <div class="polaris-chip">
-                                <span>Date (${targetLabel}): ${dateRangeVal}</span>
-                                <i class="fas fa-times polaris-chip-remove" onclick="clearPolarisDateRange()"></i>
-                            </div>
-                        `;
-                        activeChipsContainer.append(dateChipHtml);
 
                         if (activePopoverBody.length) {
                             const datePopoverHtml = `
@@ -2696,16 +2684,8 @@ body.modal-open .admin-mobile-menu-toggle {
                         $('#countDateRange').text('0').addClass('d-none');
                     }
 
-                    if (totalActiveFilters > 0) {
-                        activeChipsContainer.append(`
-                            <button type="button" class="polaris-clear-all-btn" onclick="clearAllPolarisFilters()">Clear all filters</button>
-                        `);
-                        activeChipsContainer.removeClass('d-none');
-                    } else {
-                        activeChipsContainer.addClass('d-none');
-                        if (activePopoverBody.length) {
-                            activePopoverBody.html('<div class="text-white-50 small p-2 text-center" id="noActiveFiltersText">No active filters applied</div>');
-                        }
+                    if (totalActiveFilters === 0 && activePopoverBody.length) {
+                        activePopoverBody.html('<div class="text-white-50 small p-2 text-center" id="noActiveFiltersText">No active filters applied</div>');
                     }
 
                     $('#totalActiveFiltersBadge').text(totalActiveFilters);
