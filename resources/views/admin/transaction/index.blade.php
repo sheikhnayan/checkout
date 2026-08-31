@@ -2620,6 +2620,7 @@ body.modal-open .admin-mobile-menu-toggle {
                 // Initialize DataTable with pagination
                 let table = $('#txnDataTable').DataTable({
                     pageLength: 25,
+                    deferRender: true,
                     searching: true,
                     ordering: true,
                     paging: true,
