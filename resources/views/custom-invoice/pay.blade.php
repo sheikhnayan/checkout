@@ -157,18 +157,60 @@
         }
         .form-control, .form-select {
             width: 100%;
+            padding: 12px;
             border: 1px solid #cbd5e1;
             border-radius: 6px;
-            padding: 10px 12px;
             font-size: 14px;
             color: #0f172a;
-            background: #ffffff;
-            box-sizing: border-box;
+            background-color: #fff;
         }
+
+        .schedule-hours-badge {
+            background: #f0f7ff;
+            border: 1px solid #bfdbfe;
+            border-radius: 8px;
+            padding: 10px 14px;
+            margin-top: 10px;
+            font-size: 13px;
+            color: #1e3a8a;
+        }
+        .schedule-hours-badge .hours-title {
+            font-weight: 700;
+            font-size: 11px;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            color: #1d4ed8;
+            margin-bottom: 6px;
+            display: flex;
+            align-items: center;
+            gap: 6px;
+        }
+        .schedule-hours-badge .hours-list {
+            display: flex;
+            flex-direction: column;
+            gap: 4px;
+        }
+        .schedule-hours-badge .hours-line {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            font-size: 12px;
+            line-height: 1.4;
+        }
+        .schedule-hours-badge .hours-days {
+            font-weight: 700;
+            color: #1e293b;
+        }
+        .schedule-hours-badge .hours-time {
+            font-weight: 500;
+            color: #334155;
+        }
+
         .form-control:focus, .form-select:focus {
             outline: none;
             border-color: #0f172a;
             box-shadow: 0 0 0 3px rgba(15, 23, 42, 0.1);
+            box-sizing: border-box;
         }
         .pay-button {
             display: block;
@@ -407,25 +449,12 @@
                                     <div class="form-group" style="flex: 1; margin-bottom: 0;">
                                         <label style="font-weight: 600; color: #1e3a8a;">Estimated Arrival Time <span style="color:red;">*</span></label>
                                         <select name="transportation_arrival_time" class="form-select" style="width:100%; padding:10px; border:1px solid #cbd5e1; border-radius:5px; background:white;" required>
-                                            <option value="" disabled {{ empty($invoice->transportation_arrival_time) ? 'selected' : '' }}>Select Arrival Time</option>
-                                            @php $selTime = old('transportation_arrival_time', $invoice->transportation_arrival_time); @endphp
-                                            <option value="9:00 PM" {{ $selTime == '9:00 PM' ? 'selected' : '' }}>9:00 PM</option>
-                                            <option value="9:30 PM" {{ $selTime == '9:30 PM' ? 'selected' : '' }}>9:30 PM</option>
-                                            <option value="10:00 PM" {{ $selTime == '10:00 PM' ? 'selected' : '' }}>10:00 PM</option>
-                                            <option value="10:30 PM" {{ $selTime == '10:30 PM' ? 'selected' : '' }}>10:30 PM</option>
-                                            <option value="11:00 PM" {{ $selTime == '11:00 PM' ? 'selected' : '' }}>11:00 PM</option>
-                                            <option value="11:30 PM" {{ $selTime == '11:30 PM' ? 'selected' : '' }}>11:30 PM</option>
-                                            <option value="12:00 AM" {{ $selTime == '12:00 AM' ? 'selected' : '' }}>12:00 AM (Midnight)</option>
-                                            <option value="12:30 AM" {{ $selTime == '12:30 AM' ? 'selected' : '' }}>12:30 AM</option>
-                                            <option value="1:00 AM" {{ $selTime == '1:00 AM' ? 'selected' : '' }}>1:00 AM</option>
-                                            <option value="1:30 AM" {{ $selTime == '1:30 AM' ? 'selected' : '' }}>1:30 AM</option>
-                                            <option value="2:00 AM" {{ $selTime == '2:00 AM' ? 'selected' : '' }}>2:00 AM</option>
-                                            <option value="2:30 AM" {{ $selTime == '2:30 AM' ? 'selected' : '' }}>2:30 AM</option>
-                                            <option value="3:00 AM" {{ $selTime == '3:00 AM' ? 'selected' : '' }}>3:00 AM</option>
+                                            <option value="" disabled selected>Select Arrival Time</option>
                                         </select>
                                         <small style="font-size: 11px; color: #475569;">Expected arrival time</small>
                                     </div>
                                 </div>
+                                <div class="arrival-hours-badge-container schedule-hours-badge" style="margin-top: 10px; display: none;"></div>
                             </div>
 
                             <div class="form-row" style="display: flex; gap: 15px;">
@@ -531,25 +560,12 @@
                                     <div class="form-group" style="flex: 1; margin-bottom: 0;">
                                         <label style="font-weight: 600; color: #1e3a8a;">Estimated Arrival Time <span style="color:red;">*</span></label>
                                         <select name="transportation_arrival_time" class="form-select" style="width:100%; padding:10px; border:1px solid #cbd5e1; border-radius:5px; background:white;" required>
-                                            <option value="" disabled {{ empty($invoice->transportation_arrival_time) ? 'selected' : '' }}>Select Arrival Time</option>
-                                            @php $selTimeAuth = old('transportation_arrival_time', $invoice->transportation_arrival_time); @endphp
-                                            <option value="9:00 PM" {{ $selTimeAuth == '9:00 PM' ? 'selected' : '' }}>9:00 PM</option>
-                                            <option value="9:30 PM" {{ $selTimeAuth == '9:30 PM' ? 'selected' : '' }}>9:30 PM</option>
-                                            <option value="10:00 PM" {{ $selTimeAuth == '10:00 PM' ? 'selected' : '' }}>10:00 PM</option>
-                                            <option value="10:30 PM" {{ $selTimeAuth == '10:30 PM' ? 'selected' : '' }}>10:30 PM</option>
-                                            <option value="11:00 PM" {{ $selTimeAuth == '11:00 PM' ? 'selected' : '' }}>11:00 PM</option>
-                                            <option value="11:30 PM" {{ $selTimeAuth == '11:30 PM' ? 'selected' : '' }}>11:30 PM</option>
-                                            <option value="12:00 AM" {{ $selTimeAuth == '12:00 AM' ? 'selected' : '' }}>12:00 AM (Midnight)</option>
-                                            <option value="12:30 AM" {{ $selTimeAuth == '12:30 AM' ? 'selected' : '' }}>12:30 AM</option>
-                                            <option value="1:00 AM" {{ $selTimeAuth == '1:00 AM' ? 'selected' : '' }}>1:00 AM</option>
-                                            <option value="1:30 AM" {{ $selTimeAuth == '1:30 AM' ? 'selected' : '' }}>1:30 AM</option>
-                                            <option value="2:00 AM" {{ $selTimeAuth == '2:00 AM' ? 'selected' : '' }}>2:00 AM</option>
-                                            <option value="2:30 AM" {{ $selTimeAuth == '2:30 AM' ? 'selected' : '' }}>2:30 AM</option>
-                                            <option value="3:00 AM" {{ $selTimeAuth == '3:00 AM' ? 'selected' : '' }}>3:00 AM</option>
+                                            <option value="" disabled selected>Select Arrival Time</option>
                                         </select>
                                         <small style="font-size: 11px; color: #475569;">Expected arrival time</small>
                                     </div>
                                 </div>
+                                <div class="arrival-hours-badge-container schedule-hours-badge" style="margin-top: 10px; display: none;"></div>
                             </div>
 
                             <div class="form-row" style="display: flex; gap: 15px;">
@@ -849,6 +865,197 @@
                         }
                     });
                 });
+            });
+
+            // Dynamic Club Operating Hours & Arrival Time Slot Population
+            const dailyOperatingHoursMap = @json($website ? $website->getDailyOperatingHoursMap() : []);
+            const websiteStartDefault = @json($website->operating_start_time ?? null);
+            const websiteEndDefault = @json($website->operating_end_time ?? null);
+            const preselectedArrivalTime = @json(old('transportation_arrival_time', $invoice->transportation_arrival_time ?? ''));
+
+            function parseTimeToMinutes(timeValue) {
+                if (!timeValue) return null;
+                const trimmed = String(timeValue).trim().replace(/[\u00A0\u202F]/g, ' ');
+                const twelveHourMatch = trimmed.match(/^(\d{1,2}):(\d{2})(?::\d{2})?\s*([AaPp])\.?\s*[Mm]\.?$/);
+                if (twelveHourMatch) {
+                    let hours = parseInt(twelveHourMatch[1], 10) % 12;
+                    const minutes = parseInt(twelveHourMatch[2], 10);
+                    if (twelveHourMatch[3].toUpperCase() === 'P') {
+                        hours += 12;
+                    }
+                    return (hours * 60) + minutes;
+                }
+                const twentyFourHourMatch = trimmed.match(/^(\d{1,2}):(\d{2})(?::\d{2})?$/);
+                if (twentyFourHourMatch) {
+                    return (parseInt(twentyFourHourMatch[1], 10) * 60) + parseInt(twentyFourHourMatch[2], 10);
+                }
+                return null;
+            }
+
+            function formatMinutesToTwelveHour(totalMinutes) {
+                const normalized = ((totalMinutes % 1440) + 1440) % 1440;
+                const hours24 = Math.floor(normalized / 60);
+                const minutes = normalized % 60;
+                const meridiem = hours24 >= 12 ? 'PM' : 'AM';
+                const hours12 = (hours24 % 12) || 12;
+                const minStr = String(minutes).padStart(2, '0');
+                if (hours12 === 12 && minutes === 0 && meridiem === 'AM') {
+                    return '12:00 AM (Midnight)';
+                }
+                return hours12 + ':' + minStr + ' ' + meridiem;
+            }
+
+            function getDayOfWeekFromDateString(dateStr) {
+                if (!dateStr || typeof dateStr !== 'string') return null;
+                const parts = dateStr.trim().split('-');
+                if (parts.length !== 3) return null;
+                const year = parseInt(parts[0], 10);
+                const month = parseInt(parts[1], 10) - 1;
+                const day = parseInt(parts[2], 10);
+                const dateObj = new Date(year, month, day);
+                if (isNaN(dateObj.getTime())) return null;
+                const days = ['sunday', 'monday', 'tuesday', 'wednesday', 'thursday', 'friday', 'saturday'];
+                return days[dateObj.getDay()];
+            }
+
+            function generateTimeSlotOptions(startTimeStr, endTimeStr) {
+                let startMin = parseTimeToMinutes(startTimeStr);
+                let endMin = parseTimeToMinutes(endTimeStr);
+
+                if (startMin === null) startMin = 1260; // 9:00 PM default fallback
+                if (endMin === null) endMin = 180;    // 3:00 AM default fallback
+
+                if (endMin <= startMin) {
+                    endMin += 1440; // Overnight
+                }
+
+                const options = [];
+                for (let cur = startMin; cur <= endMin; cur += 30) {
+                    const timeFormatted = formatMinutesToTwelveHour(cur);
+                    const timeVal = timeFormatted.replace(' (Midnight)', '');
+                    options.push({ value: timeVal, label: timeFormatted });
+                }
+                return options;
+            }
+
+            function updateArrivalTimesForDate(dateStr) {
+                const dayName = getDayOfWeekFromDateString(dateStr);
+                let startStr = websiteStartDefault;
+                let endStr = websiteEndDefault;
+
+                if (dayName && dailyOperatingHoursMap && dailyOperatingHoursMap[dayName]) {
+                    const dayCfg = dailyOperatingHoursMap[dayName];
+                    if (dayCfg.operating_start_time) startStr = dayCfg.operating_start_time;
+                    if (dayCfg.operating_end_time) endStr = dayCfg.operating_end_time;
+                }
+
+                const timeOptions = generateTimeSlotOptions(startStr, endStr);
+
+                $('select[name="transportation_arrival_time"]').each(function() {
+                    const $select = $(this);
+                    const currentVal = $select.val() || preselectedArrivalTime;
+
+                    $select.empty();
+                    $select.append('<option value="" disabled>Select Arrival Time</option>');
+
+                    let foundMatch = false;
+                    timeOptions.forEach(opt => {
+                        const isSel = (currentVal && (currentVal === opt.value || currentVal === opt.label || currentVal.replace(' (Midnight)', '') === opt.value));
+                        if (isSel) foundMatch = true;
+                        $select.append(`<option value="${opt.value}" ${isSel ? 'selected' : ''}>${opt.label}</option>`);
+                    });
+
+                    if (!foundMatch && currentVal) {
+                        $select.append(`<option value="${currentVal}" selected>${currentVal}</option>`);
+                    }
+
+                    if (!currentVal && !$select.find('option[selected]').length) {
+                        $select.val('');
+                    }
+                });
+            }
+
+            function renderDayWiseOperatingHoursBadge() {
+                const daysOrder = [
+                    { key: 'monday', label: 'Mon' },
+                    { key: 'tuesday', label: 'Tue' },
+                    { key: 'wednesday', label: 'Wed' },
+                    { key: 'thursday', label: 'Thu' },
+                    { key: 'friday', label: 'Fri' },
+                    { key: 'saturday', label: 'Sat' },
+                    { key: 'sunday', label: 'Sun' }
+                ];
+
+                const daySchedules = [];
+                daysOrder.forEach((dayObj, idx) => {
+                    const cfg = dailyOperatingHoursMap ? dailyOperatingHoursMap[dayObj.key] : null;
+                    const sTime = (cfg && cfg.operating_start_time) ? cfg.operating_start_time : websiteStartDefault;
+                    const eTime = (cfg && cfg.operating_end_time) ? cfg.operating_end_time : websiteEndDefault;
+
+                    if (sTime && eTime) {
+                        const startDisp = formatMinutesToTwelveHour(parseTimeToMinutes(sTime) || 0).replace(' (Midnight)', '');
+                        const endDisp = formatMinutesToTwelveHour(parseTimeToMinutes(eTime) || 0).replace(' (Midnight)', '');
+                        daySchedules.push({
+                            index: idx,
+                            label: dayObj.label,
+                            timeStr: startDisp + ' to ' + endDisp
+                        });
+                    }
+                });
+
+                $('.arrival-hours-badge-container').each(function() {
+                    const $badgeContainer = $(this);
+                    if (daySchedules.length === 0) {
+                        $badgeContainer.hide();
+                        return;
+                    }
+
+                    const groupsByTime = {};
+                    const timeOrder = [];
+                    daySchedules.forEach(item => {
+                        if (!groupsByTime[item.timeStr]) {
+                            groupsByTime[item.timeStr] = [];
+                            timeOrder.push(item.timeStr);
+                        }
+                        groupsByTime[item.timeStr].push(item);
+                    });
+
+                    let htmlLines = '';
+                    timeOrder.forEach(timeStr => {
+                        const daysGroup = groupsByTime[timeStr];
+                        let dayRangeStr = '';
+                        if (daysGroup.length === 1) {
+                            dayRangeStr = daysGroup[0].label;
+                        } else {
+                            dayRangeStr = daysGroup[0].label + '-' + daysGroup[daysGroup.length - 1].label;
+                        }
+                        htmlLines += `
+                            <div class="hours-line">
+                                <span class="hours-days">${dayRangeStr}</span>
+                                <span class="hours-time">${timeStr}</span>
+                            </div>
+                        `;
+                    });
+
+                    $badgeContainer.html(`
+                        <div class="hours-title"><i class="fas fa-clock me-1"></i> Club Operating Hours</div>
+                        <div class="hours-list">${htmlLines}</div>
+                    `).show();
+                });
+            }
+
+            $(document).ready(function() {
+                renderDayWiseOperatingHoursBadge();
+                
+                const $dateInput = $('input[name="package_use_date"]');
+                if ($dateInput.length) {
+                    updateArrivalTimesForDate($dateInput.first().val());
+                    $dateInput.on('change input', function() {
+                        updateArrivalTimesForDate($(this).val());
+                    });
+                } else {
+                    updateArrivalTimesForDate('');
+                }
             });
         })();
     </script>
