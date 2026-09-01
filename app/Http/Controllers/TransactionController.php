@@ -2221,10 +2221,58 @@ class TransactionController extends Controller
         $website = session('website');
         $paymentType = session('paymentType');
 
+        if (!$transaction && request()->filled('transaction_id')) {
+            $transaction = Transaction::where('transaction_id', request('transaction_id'))->first();
+            if ($transaction) {
+                $website = Website::find($transaction->website_id);
+                if ($transaction->type === 'custom_invoice' && $transaction->custom_invoice_id) {
+                    $invoice = \App\Models\CustomInvoice::find($transaction->custom_invoice_id);
+                }
+            }
+        }
+
         $priceBreakdown = null;
-        if ($transaction instanceof Transaction && (string) $transaction->type === 'package') {
-            $breakdownWebsite = $website instanceof Website ? $website : Website::find($transaction->website_id);
-            $priceBreakdown = $this->buildPackagePriceBreakdown($transaction, $breakdownWebsite);
+        if ($transaction instanceof Transaction) {
+            if ((string) $transaction->type === 'package') {
+                $breakdownWebsite = $website instanceof Website ? $website : Website::find($transaction->website_id);
+                $priceBreakdown = $this->buildPackagePriceBreakdown($transaction, $breakdownWebsite);
+            } elseif ((string) $transaction->type === 'custom_invoice') {
+                if (!$invoice && $transaction->custom_invoice_id) {
+                    $invoice = \App\Models\CustomInvoice::find($transaction->custom_invoice_id);
+                }
+                if ($invoice) {
+                    $priceBreakdown = [
+                        'items_subtotal' => (float) $invoice->subtotal,
+                        'sales_tax' => [
+                            'enabled' => (float) $invoice->sales_tax > 0,
+                            'name' => 'Sales Tax',
+                            'rate' => (float) ($invoice->sales_tax_percentage ?? 0),
+                            'amount' => (float) $invoice->sales_tax,
+                        ],
+                        'service_charge' => [
+                            'enabled' => (float) $invoice->service_charge > 0,
+                            'name' => 'Service Charge',
+                            'rate' => (float) ($invoice->service_charge_percentage ?? 0),
+                            'amount' => (float) $invoice->service_charge,
+                        ],
+                        'gratuity' => [
+                            'enabled' => (float) $invoice->gratuity > 0,
+                            'name' => 'Gratuity',
+                            'rate' => (float) ($invoice->gratuity_percentage ?? 0),
+                            'amount' => (float) $invoice->gratuity,
+                        ],
+                        'processing_fee' => [
+                            'enabled' => (float) $invoice->processing_fee > 0,
+                            'name' => $invoice->processing_fee_name ?: 'Processing Fee',
+                            'rate' => (float) ($invoice->processing_fee_percentage ?? 0),
+                            'amount' => (float) $invoice->processing_fee,
+                        ],
+                        'grand_total' => (float) $invoice->total,
+                        'amount_paid_now' => (float) $transaction->total,
+                        'remaining_due' => max((float) $invoice->total - (float) $transaction->total, 0),
+                    ];
+                }
+            }
         }
 
         return view('thank-you', compact('transaction', 'invoice', 'website', 'paymentType', 'priceBreakdown'));

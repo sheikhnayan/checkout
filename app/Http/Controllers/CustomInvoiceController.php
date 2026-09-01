@@ -420,18 +420,6 @@ class CustomInvoiceController extends Controller
     {
         $invoice = CustomInvoice::where('payment_token', $token)->firstOrFail();
 
-        if ($invoice->archived_at) {
-            return redirect('/')->with('error', 'This invoice is archived and no longer available for payment.');
-        }
-
-        if ($invoice->status === 'paid') {
-            return redirect('/')->with('error', 'This invoice has already been paid!');
-        }
-
-        if ($invoice->status === 'expired') {
-            return redirect('/')->with('error', 'This invoice has expired!');
-        }
-
         $website = $invoice->website;
 
         return view('custom-invoice.pay', compact('invoice', 'website'));
@@ -445,7 +433,7 @@ class CustomInvoiceController extends Controller
         $invoice = CustomInvoice::where('payment_token', $token)->firstOrFail();
 
         if ($invoice->status === 'paid') {
-            return redirect()->back()->with('error', 'This invoice has already been paid!');
+            return redirect()->route('custom-invoice.pay', $token)->with('error', 'This invoice has already been paid!');
         }
 
         $useDate = $request->input('package_use_date', $invoice->package_use_date);
@@ -454,7 +442,9 @@ class CustomInvoiceController extends Controller
         if (empty($useDate) || empty($arrivalTime)) {
             $rules = [];
             if (empty($useDate)) {
-                $rules['package_use_date'] = 'required|date|after_or_equal:today';
+                $clubTz = optional($invoice->website)->resolved_timezone ?? 'America/Los_Angeles';
+                $minDateStr = \Carbon\Carbon::now($clubTz)->format('Y-m-d');
+                $rules['package_use_date'] = 'required|date|after_or_equal:' . $minDateStr;
             }
             if (empty($arrivalTime)) {
                 $rules['transportation_arrival_time'] = 'required|string';
@@ -495,7 +485,7 @@ class CustomInvoiceController extends Controller
                 'error' => $e->getMessage(),
                 'trace' => $e->getTraceAsString(),
             ]);
-            return redirect()->back()->with('error', 'Payment processing failed: ' . $e->getMessage());
+            return redirect()->route('custom-invoice.pay', $token)->with('error', 'Payment processing failed: ' . $e->getMessage());
         }
     }
 
@@ -534,27 +524,30 @@ class CustomInvoiceController extends Controller
                 }
             }
 
-            // Update invoice status based on payment type
-            $status = $paymentType === 'full' ? 'paid' : 'sent'; // Partial payment keeps it as 'sent'
-            
-            $invoice->update([
-                'status' => $status,
-                'paid_at' => $paymentType === 'full' ? now() : $invoice->paid_at,
-                'payment_transaction_id' => $charge->id,
-            ]);
+            $transaction = \DB::transaction(function () use ($invoice, $website, $request, $charge, $amount, $paymentType, $stripeCardLast4, $stripeCardBrand) {
+                // Build and persist Transaction record FIRST
+                $txn = $this->buildTransactionFromCustomInvoice(
+                    $invoice,
+                    $website,
+                    $request,
+                    $charge->id,
+                    (float) $amount,
+                    (string) $paymentType,
+                    $stripeCardLast4,
+                    $stripeCardBrand,
+                    'stripe'
+                );
 
-            // Create Transaction record fully aligned with main checkout system
-            $transaction = $this->buildTransactionFromCustomInvoice(
-                $invoice,
-                $website,
-                $request,
-                $charge->id,
-                (float) $amount,
-                (string) $paymentType,
-                $stripeCardLast4,
-                $stripeCardBrand,
-                'stripe'
-            );
+                // Update invoice status ONLY after transaction is successfully persisted
+                $status = $paymentType === 'full' ? 'paid' : 'sent';
+                $invoice->update([
+                    'status' => $status,
+                    'paid_at' => $paymentType === 'full' ? now() : $invoice->paid_at,
+                    'payment_transaction_id' => $charge->id,
+                ]);
+
+                return $txn;
+            });
 
             $this->sendCustomInvoicePaymentConfirmation($invoice, $transaction, $website, $paymentType, $request);
 
@@ -563,14 +556,14 @@ class CustomInvoiceController extends Controller
                 : 'Payment processed successfully!';
 
             // Redirect to thank you page with transaction details
-            return redirect()->route('thank-you')
+            return redirect()->route('thank-you', ['transaction_id' => $transaction->transaction_id])
                 ->with('transaction', $transaction)
                 ->with('invoice', $invoice)
                 ->with('website', $website)
                 ->with('paymentType', $paymentType)
                 ->with('success', $message);
         } catch (\Exception $e) {
-            return redirect()->back()->with('error', $e->getMessage());
+            return redirect()->route('custom-invoice.pay', $invoice->payment_token)->with('error', $e->getMessage());
         }
     }
 
@@ -596,7 +589,7 @@ class CustomInvoiceController extends Controller
         }
 
         if (empty($loginId) || empty($transactionKey)) {
-            return redirect()->back()->with('error', 'Payment processing failed: Authorize.Net credentials are not configured.');
+            return redirect()->route('custom-invoice.pay', $invoice->payment_token)->with('error', 'Payment processing failed: Authorize.Net credentials are not configured.');
         }
 
         $merchantAuthentication = new AnetAPI\MerchantAuthenticationType();
@@ -710,27 +703,30 @@ class CustomInvoiceController extends Controller
                         : null;
                     $authCardBrand = trim((string) ($tresponse->getAccountType() ?? '')) ?: null;
 
-                    // Update invoice status based on payment type
-                    $status = $paymentType === 'full' ? 'paid' : 'sent';
-                    
-                    $invoice->update([
-                        'status' => $status,
-                        'paid_at' => $paymentType === 'full' ? now() : $invoice->paid_at,
-                        'payment_transaction_id' => $tresponse->getTransId(),
-                    ]);
+                    $transaction = \DB::transaction(function () use ($invoice, $website, $request, $tresponse, $amount, $paymentType, $authCardLast4, $authCardBrand) {
+                        // Build and persist Transaction record FIRST
+                        $txn = $this->buildTransactionFromCustomInvoice(
+                            $invoice,
+                            $website,
+                            $request,
+                            (string) $tresponse->getTransId(),
+                            (float) $amount,
+                            (string) $paymentType,
+                            $authCardLast4,
+                            $authCardBrand,
+                            'authorize'
+                        );
 
-                    // Create Transaction record fully aligned with main checkout system
-                    $transaction = $this->buildTransactionFromCustomInvoice(
-                        $invoice,
-                        $website,
-                        $request,
-                        (string) $tresponse->getTransId(),
-                        (float) $amount,
-                        (string) $paymentType,
-                        $authCardLast4,
-                        $authCardBrand,
-                        'authorize'
-                    );
+                        // Update invoice status ONLY after transaction is successfully persisted
+                        $status = $paymentType === 'full' ? 'paid' : 'sent';
+                        $invoice->update([
+                            'status' => $status,
+                            'paid_at' => $paymentType === 'full' ? now() : $invoice->paid_at,
+                            'payment_transaction_id' => $tresponse->getTransId(),
+                        ]);
+
+                        return $txn;
+                    });
 
                     $this->sendCustomInvoicePaymentConfirmation($invoice, $transaction, $website, $paymentType, $request);
 
@@ -739,7 +735,7 @@ class CustomInvoiceController extends Controller
                         : 'Payment processed successfully!';
 
                     // Redirect to thank you page with transaction details
-                    return redirect()->route('thank-you')
+                    return redirect()->route('thank-you', ['transaction_id' => $transaction->transaction_id])
                         ->with('transaction', $transaction)
                         ->with('invoice', $invoice)
                         ->with('website', $website)
@@ -761,7 +757,7 @@ class CustomInvoiceController extends Controller
                         'error_text' => $text,
                     ]);
 
-                    return redirect()->back()->with('error', $errorMessage);
+                    return redirect()->route('custom-invoice.pay', $invoice->payment_token)->with('error', $errorMessage);
                 }
             }
 
@@ -777,7 +773,7 @@ class CustomInvoiceController extends Controller
                     'message' => $gatewayMessage,
                 ]);
 
-                return redirect()->back()->with('error', 'Payment processing failed: ' . $gatewayMessage);
+                return redirect()->route('custom-invoice.pay', $invoice->payment_token)->with('error', 'Payment processing failed: ' . $gatewayMessage);
             }
         }
 
@@ -787,7 +783,7 @@ class CustomInvoiceController extends Controller
             'sandbox_mode' => (bool) $useSandbox,
         ]);
 
-        return redirect()->back()->with('error', 'Payment processing failed: empty response from Authorize.Net.');
+        return redirect()->route('custom-invoice.pay', $invoice->payment_token)->with('error', 'Payment processing failed: empty response from Authorize.Net.');
     }
 
     /**
@@ -829,6 +825,8 @@ class CustomInvoiceController extends Controller
         $transaction = new \App\Models\Transaction();
         $transaction->transaction_id = $transactionId;
         $transaction->status = \App\Models\Transaction::STATUS_COMPLETED; // 1 = Completed
+        $transaction->payment_status = 'approved';
+        $transaction->gateway_response_code = $paymentMethod === 'stripe' ? 'stripe_succeeded' : 'authorize_approved';
         $transaction->type = 'custom_invoice';
         $transaction->custom_invoice_id = $invoice->id;
         $transaction->website_id = $invoice->website_id;
@@ -852,20 +850,12 @@ class CustomInvoiceController extends Controller
         $transaction->payment_state = $state;
         $transaction->payment_zip_code = $zip;
         $transaction->payment_country = $country;
-        $transaction->payment_method = $paymentMethod;
         $transaction->payment_card_last4 = $cardLast4;
         $transaction->payment_card_brand = $cardBrand;
 
         // Financial totals
-        $transaction->sub_total = (float) $invoice->subtotal;
-        $transaction->sales_tax = (float) $invoice->sales_tax;
-        $transaction->service_charge = (float) $invoice->service_charge;
-        $transaction->gratuity = (float) $invoice->gratuity;
-        $transaction->processing_fee = (float) $invoice->processing_fee;
-        $transaction->refundable = (float) $invoice->refundable;
         $transaction->total = $amount;
         $transaction->actual_total = (float) $invoice->total;
-        $transaction->due = max((float) $invoice->total - $amount, 0);
 
         // Cart items & Ticket QR Code
         $transaction->cart_items = $cartItems;
@@ -875,8 +865,6 @@ class CustomInvoiceController extends Controller
         // Connect Creator / Promoter / Sub-promoter / Entertainer / Staff
         $creator = $invoice->user;
         if ($creator) {
-            $transaction->user_id = $creator->id;
-
             // 1. Check Affiliate (Promoter / Sub-promoter)
             $affiliate = $creator->affiliate;
             if (!$affiliate) {
@@ -937,7 +925,7 @@ class CustomInvoiceController extends Controller
         if (!empty($noteContent)) {
             $transaction->package_note = $noteContent;
             $transaction->admin_notes = $noteContent;
-            $transaction->admin_notes_by = auth()->user()->name ?? 'System (Custom Invoice)';
+            $transaction->admin_notes_by = auth()->check() ? auth()->user()->name : 'System (Custom Invoice)';
             $transaction->admin_notes_at = now();
         }
 
@@ -949,7 +937,7 @@ class CustomInvoiceController extends Controller
     private function sendCustomInvoicePaymentConfirmation($invoice, $transaction, $website, string $paymentType, Request $request): void
     {
         try {
-            $this->applyInvoiceSmtpConfig($invoice, auth()->user() ?? $invoice->user);
+            $this->applyInvoiceSmtpConfig($invoice, auth()->check() ? auth()->user() : ($invoice->user ?? null));
 
             $clientMail = new CustomInvoicePaymentConfirmationMail(
                 $invoice,

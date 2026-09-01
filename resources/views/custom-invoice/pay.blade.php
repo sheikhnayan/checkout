@@ -277,11 +277,18 @@
             <div class="header-subtitle">Invoice #{{ $invoice->id }} &bull; Secure Payment Portal</div>
         </div>
 
-        @if($invoice->status === 'paid')
+        @if($invoice->archived_at)
+            <div class="invoice-details">
+                <div class="alert alert-warning" style="background-color: #fff3cd; color: #856404; border: 1px solid #ffeeba;">
+                    <i class="fas fa-archive"></i> <strong>Invoice Archived</strong>
+                    <p style="margin-bottom: 0; margin-top: 5px;">This invoice has been archived and is no longer available for payment. Please contact support or your account representative.</p>
+                </div>
+            </div>
+        @elseif($invoice->status === 'paid')
             <div class="invoice-details">
                 <div class="alert alert-success" style="background-color: #d4edda; color: #155724; border: 1px solid #c3e6cb;">
                     <i class="fas fa-check-circle"></i> <strong>Payment Already Received</strong>
-                    <p style="margin-bottom: 0; margin-top: 5px;">This invoice has been paid on {{ $invoice->paid_at->format('M d, Y H:i') }}.</p>
+                    <p style="margin-bottom: 0; margin-top: 5px;">This invoice was paid on {{ $invoice->paid_at ? $invoice->paid_at->format('M d, Y H:i') : 'an earlier date' }}.</p>
                 </div>
             </div>
         @elseif($invoice->status === 'expired')

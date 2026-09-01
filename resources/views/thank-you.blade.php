@@ -329,16 +329,17 @@
                         @foreach($cartItems as $cartItem)
                             @php
                                 $isMultiple = !empty($cartItem['is_multiple']);
-                                $guests = max(1, (int) ($cartItem['guests'] ?? 1));
-                                $unitPrice = (float) ($cartItem['unit_price'] ?? 0);
-                                $pkgSubtotal = $isMultiple ? $unitPrice * $guests : $unitPrice;
+                                $guests = max(1, (int) ($cartItem['guests'] ?? $cartItem['quantity'] ?? 1));
+                                $unitPrice = (float) ($cartItem['unit_price'] ?? $cartItem['price'] ?? 0);
+                                $pkgSubtotal = (float) ($cartItem['line_total'] ?? $cartItem['total'] ?? ($isMultiple ? $unitPrice * $guests : $unitPrice * $guests));
                                 $addonsTotal = collect($cartItem['addons'] ?? [])->sum(fn($a) => (float)($a['price'] ?? 0));
-                                $itemTotal = (float) ($cartItem['line_total'] ?? ($pkgSubtotal + $addonsTotal));
+                                $itemTotal = $pkgSubtotal + $addonsTotal;
                                 $grandTotal += $itemTotal;
+                                $itemName = $cartItem['name'] ?? $cartItem['package_name'] ?? ('Package #' . ($cartItem['package_id'] ?? ''));
                             @endphp
                             {{-- Package row --}}
                             <tr class="breakdown-item-header">
-                                <td>{{ $cartItem['package_name'] ?? ('Package #' . ($cartItem['package_id'] ?? '')) }}</td>
+                                <td>{{ $itemName }}</td>
                                 <td class="price-right">{{ $guests }}</td>
                                 <td class="price-right">${{ number_format($unitPrice, 2) }}</td>
                                 <td class="price-right">${{ number_format($pkgSubtotal, 2) }}</td>
@@ -483,12 +484,6 @@
                 @else
                     <a href="/" class="btn-primary-custom">
                         <i class="fas fa-home"></i> Return Home
-                    </a>
-                @endif
-                
-                @if(isset($transaction) && $transaction->type === 'custom_invoice' && isset($invoice))
-                    <a href="{{ route('custom-invoice.pay', $invoice->payment_token) }}" class="btn-secondary-custom">
-                        <i class="fas fa-file-invoice"></i> View Invoice
                     </a>
                 @endif
             </div>
