@@ -4542,16 +4542,17 @@ class TransactionController extends Controller
     public function sendRepayEmail(Request $request, $id)
     {
         $transaction = Transaction::findOrFail($id);
-        $this->ensureCanAccess($transaction);
+
+        $user = auth()->user();
+        if (!$user) {
+            return response()->json(['success' => false, 'message' => 'Unauthenticated access.'], 401);
+        }
 
         $website = $transaction->website ?: optional($transaction->event)->website ?: optional($transaction->package)->website;
         $recipientEmail = trim((string) ($request->input('email') ?: $transaction->package_email ?: $transaction->payment_email));
 
         if (empty($recipientEmail) || !filter_var($recipientEmail, FILTER_VALIDATE_EMAIL)) {
-            if ($request->ajax() || $request->wantsJson()) {
-                return response()->json(['success' => false, 'message' => 'Valid recipient email address is required.'], 422);
-            }
-            return back()->with('error', 'Valid recipient email address is required.');
+            return response()->json(['success' => false, 'message' => 'Valid recipient email address is required.'], 422);
         }
 
         $transaction->ensureRepayToken();
@@ -4562,31 +4563,29 @@ class TransactionController extends Controller
                 $this->applyWebsiteSmtpConfig($website);
             }
 
-            \Mail::purge('smtp');
-            \Log::info('Dispatching TransactionRepayMail', [
+            \Log::info('Dispatching TransactionRepayMail to: ' . $recipientEmail, [
                 'transaction_id' => $transaction->id,
-                'recipient' => $recipientEmail,
                 'repay_url' => $transaction->repay_url,
             ]);
 
             \Mail::to($recipientEmail)->send(new \App\Mail\TransactionRepayMail($transaction, $website, $customNote));
 
             $msg = "Payment recovery (repay) email sent successfully to {$recipientEmail}!";
-            if ($request->ajax() || $request->wantsJson()) {
-                return response()->json(['success' => true, 'message' => $msg, 'repay_url' => $transaction->repay_url]);
-            }
-            return back()->with('success', $msg);
+            return response()->json([
+                'success' => true,
+                'message' => $msg,
+                'repay_url' => $transaction->repay_url,
+            ]);
         } catch (\Throwable $e) {
-            \Log::error('Failed to send TransactionRepayMail', [
+            \Log::error('Failed to send TransactionRepayMail: ' . $e->getMessage(), [
                 'transaction_id' => $transaction->id,
                 'error' => $e->getMessage(),
             ]);
 
-            $errMsg = 'Failed to send repayment email: ' . $e->getMessage();
-            if ($request->ajax() || $request->wantsJson()) {
-                return response()->json(['success' => false, 'message' => $errMsg], 500);
-            }
-            return back()->with('error', $errMsg);
+            return response()->json([
+                'success' => false,
+                'message' => 'Failed to send repayment email: ' . $e->getMessage(),
+            ], 500);
         }
     }
 

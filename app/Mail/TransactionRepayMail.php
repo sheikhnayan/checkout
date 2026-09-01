@@ -34,12 +34,9 @@ class TransactionRepayMail extends Mailable
 
     public function envelope(): Envelope
     {
-        $clubName = $this->website->name ?? 'CartVIP';
-        $fromAddress = config('mail.from.address') ?: 'info@gobestvip.com';
-        $fromName = ($this->website->name ?? 'CartVIP') . ' via CartVIP';
+        $clubName = optional($this->website)->name ?? 'CartVIP';
 
         return new Envelope(
-            from: new \Illuminate\Mail\Mailables\Address($fromAddress, $fromName),
             subject: 'Complete Your Reservation Payment for CartVIP - ' . $clubName,
         );
     }

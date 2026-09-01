@@ -2161,7 +2161,8 @@ body.modal-open .admin-mobile-menu-toggle {
                                                    data-txnid="{{ $item->transaction_id ?? $item->id }}"
                                                    data-email="{{ $item->package_email ?: $item->payment_email }}"
                                                    data-amount="${{ number_format((float)$item->total, 2) }}"
-                                                   data-repay-url="{{ $item->repay_url }}">
+                                                   data-repay-url="{{ $item->repay_url }}"
+                                                   data-send-url="{{ route('admin.transaction.send-repay-email', $item->id) }}">
                                                     <i class="fas fa-paper-plane me-2 text-warning"></i>Send Payment (Repay) Link
                                                 </a>
                                             </li>
@@ -6113,12 +6114,14 @@ body.modal-open .admin-mobile-menu-toggle {
                 const email = $(this).data('email');
                 const amount = $(this).data('amount');
                 const repayUrl = $(this).data('repay-url');
+                const sendUrl = $(this).data('send-url');
 
                 $('#repayModalTxnId').val(id);
                 $('#repayModalTxnNum').text(txnid);
                 $('#repayModalAmount').text(amount);
                 $('#repayModalEmail').val(email);
                 $('#repayModalUrl').val(repayUrl);
+                $('#formSendRepayEmail').data('send-url', sendUrl);
                 $('#repayModalCustomNote').val('');
                 $('#repayModalAlert').hide();
 
@@ -6126,42 +6129,47 @@ body.modal-open .admin-mobile-menu-toggle {
                 modal.show();
             });
 
-            // Robust Copy Link Handler
-            $('#btnCopyRepayLink').on('click', function(e) {
-                e.preventDefault();
-                const input = document.getElementById('repayModalUrl');
-                if (!input) return;
+            // Universal Copy Link Function
+            window.copyRepayUrlToClipboard = function(btn) {
+                var input = document.getElementById('repayModalUrl');
+                if (!input || !input.value) return;
 
-                input.focus();
-                input.select();
-                input.setSelectionRange(0, 99999);
+                var urlText = input.value;
 
-                let copied = false;
+                var temp = document.createElement("textarea");
+                temp.value = urlText;
+                temp.style.position = "fixed";
+                temp.style.left = "-9999px";
+                temp.style.top = "0";
+                document.body.appendChild(temp);
+                temp.focus();
+                temp.select();
+
+                var successful = false;
                 try {
-                    copied = document.execCommand('copy');
-                } catch (err) {
-                    copied = false;
+                    successful = document.execCommand("copy");
+                } catch (e) {
+                    successful = false;
                 }
 
-                if (!copied && navigator.clipboard && window.isSecureContext) {
-                    navigator.clipboard.writeText(input.value).then(function() {
-                        showCopyFeedback();
-                    }).catch(function() {
-                        showCopyFeedback();
-                    });
-                } else {
-                    showCopyFeedback();
+                document.body.removeChild(temp);
+
+                if (!successful && navigator.clipboard && window.isSecureContext) {
+                    navigator.clipboard.writeText(urlText);
+                    successful = true;
                 }
 
-                function showCopyFeedback() {
-                    const btn = $('#btnCopyRepayLink');
-                    const origHtml = btn.html();
-                    btn.html('<i class="fas fa-check me-1"></i> Copied!').removeClass('btn-outline-warning').addClass('btn-success text-white');
-                    setTimeout(function() {
-                        btn.html(origHtml).removeClass('btn-success text-white').addClass('btn-outline-warning');
-                    }, 2200);
+                var $btn = $(btn);
+                var origText = '<i class="fas fa-copy me-1"></i> Copy';
+                $btn.html('<i class="fas fa-check me-1"></i> Copied!').removeClass('btn-outline-warning').addClass('btn-success text-white');
+                setTimeout(function() {
+                    $btn.html(origText).removeClass('btn-success text-white').addClass('btn-outline-warning');
+                }, 2500);
+
+                if (!successful) {
+                    prompt("Copy repayment link:", urlText);
                 }
-            });
+            };
 
             $('#formSendRepayEmail').on('submit', function(e) {
                 e.preventDefault();
@@ -6169,11 +6177,12 @@ body.modal-open .admin-mobile-menu-toggle {
                 const email = $('#repayModalEmail').val();
                 const customNote = $('#repayModalCustomNote').val();
                 const btn = $('#btnSubmitSendRepay');
+                const targetUrl = $('#formSendRepayEmail').data('send-url') || ('{{ url("/admins/transaction") }}/' + txnId + '/send-repay-email');
 
                 btn.prop('disabled', true).html('<span class="spinner-border spinner-border-sm me-2"></span>Sending Email...');
 
                 $.ajax({
-                    url: '{{ url("/admins/transaction") }}/' + txnId + '/send-repay-email',
+                    url: targetUrl,
                     method: 'POST',
                     data: {
                         _token: '{{ csrf_token() }}',
@@ -6185,7 +6194,9 @@ body.modal-open .admin-mobile-menu-toggle {
                         if (res.success) {
                             $('#repayModalAlert').removeClass('alert-danger').addClass('alert-success').html('<i class="fas fa-check-circle me-1"></i> ' + res.message).show();
                             setTimeout(function() {
-                                bootstrap.Modal.getInstance(document.getElementById('sendRepayModal')).hide();
+                                var modalEl = document.getElementById('sendRepayModal');
+                                var modalInst = bootstrap.Modal.getInstance(modalEl);
+                                if (modalInst) modalInst.hide();
                             }, 1800);
                         } else {
                             $('#repayModalAlert').removeClass('alert-success').addClass('alert-danger').html('<i class="fas fa-exclamation-circle me-1"></i> ' + res.message).show();
@@ -6193,7 +6204,7 @@ body.modal-open .admin-mobile-menu-toggle {
                     },
                     error: function(xhr) {
                         btn.prop('disabled', false).html('<i class="fas fa-paper-plane me-1"></i> Send Repayment Email');
-                        const msg = (xhr.responseJSON && xhr.responseJSON.message) ? xhr.responseJSON.message : 'Error sending email. Please check server logs.';
+                        const msg = (xhr.responseJSON && xhr.responseJSON.message) ? xhr.responseJSON.message : ('Error (' + xhr.status + '): Failed to send email.');
                         $('#repayModalAlert').removeClass('alert-success').addClass('alert-danger').html('<i class="fas fa-exclamation-circle me-1"></i> ' + msg).show();
                     }
                 });
@@ -6263,7 +6274,9 @@ body.modal-open .admin-mobile-menu-toggle {
                                     <label class="form-label text-muted small fw-bold">Direct Payment URL</label>
                                     <div class="input-group">
                                         <input type="text" class="form-control form-control-sm" id="repayModalUrl" readonly style="background:rgba(0,0,0,0.25);color:#94a3b8;border-color:rgba(255,255,255,0.15);font-size:12px;">
-                                        <button type="button" class="btn btn-outline-warning btn-sm" id="btnCopyRepayLink"><i class="fas fa-copy"></i> Copy</button>
+                                        <button type="button" class="btn btn-outline-warning btn-sm" id="btnCopyRepayLink" onclick="copyRepayUrlToClipboard(this)">
+                                            <i class="fas fa-copy me-1"></i> Copy
+                                        </button>
                                     </div>
                                 </div>
 
