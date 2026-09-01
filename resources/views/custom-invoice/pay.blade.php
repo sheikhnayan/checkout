@@ -10,6 +10,8 @@
     <link rel="shortcut icon" href="{{ asset('user/assets/img/favicon/favicon.ico') }}?v={{ time() }}" />
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/flatpickr/dist/flatpickr.min.css">
+    <script src="https://cdn.jsdelivr.net/npm/flatpickr"></script>
     <style>
         body {
             background: #f8fafc;
@@ -1045,18 +1047,45 @@
                 });
             }
 
+            function getPacificTodayDateString(tz) {
+                try {
+                    const formatter = new Intl.DateTimeFormat('en-CA', {
+                        timeZone: tz || 'America/Los_Angeles',
+                        year: 'numeric',
+                        month: '2-digit',
+                        day: '2-digit'
+                    });
+                    return formatter.format(new Date());
+                } catch (error) {
+                    const now = new Date();
+                    const year = now.getFullYear();
+                    const month = String(now.getMonth() + 1).padStart(2, '0');
+                    const day = String(now.getDate()).padStart(2, '0');
+                    return year + '-' + month + '-' + day;
+                }
+            }
+
             $(document).ready(function() {
                 renderDayWiseOperatingHoursBadge();
                 
-                try {
-                    const nowClubStr = new Date().toLocaleString('en-US', { timeZone: clubTz });
-                    const nowClub = new Date(nowClubStr);
-                    const nowYear = nowClub.getFullYear();
-                    const nowMonth = String(nowClub.getMonth() + 1).padStart(2, '0');
-                    const nowDate = String(nowClub.getDate()).padStart(2, '0');
-                    const todayInClub = nowYear + '-' + nowMonth + '-' + nowDate;
-                    $('input[name="package_use_date"]').attr('min', todayInClub);
-                } catch (e) {}
+                const pacificToday = getPacificTodayDateString(clubTz);
+                $('input[name="package_use_date"]').attr('min', pacificToday);
+
+                if (typeof flatpickr === 'function') {
+                    $('input[name="package_use_date"]').each(function() {
+                        const inputEl = this;
+                        flatpickr(inputEl, {
+                            dateFormat: "Y-m-d",
+                            minDate: pacificToday,
+                            allowInput: false,
+                            clickOpens: true,
+                            onChange: function(selectedDates, dateStr) {
+                                inputEl.value = dateStr;
+                                updateArrivalTimesForDate(dateStr);
+                            }
+                        });
+                    });
+                }
 
                 const $dateInput = $('input[name="package_use_date"]');
                 if ($dateInput.length) {

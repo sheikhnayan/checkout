@@ -4,6 +4,8 @@
 <link rel="stylesheet" href="{{ asset('user/extra.css') }}">
 <!-- Font Awesome -->
 <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/flatpickr/dist/flatpickr.min.css">
+<script src="https://cdn.jsdelivr.net/npm/flatpickr"></script>
 
 <style>
 /* Executive Light Professional Workspace - Zero Dark Backgrounds & Crisp Solid Black Fonts */
@@ -728,7 +730,27 @@ html body .custom-invoice-page-wrapper .btn-light i {
     </script>
     <script>
         (function() {
-            function parseTimeToMinutes(timeValue) {
+        let adminFpPickerInstance = null;
+
+        function getPacificTodayDateString(tz) {
+            try {
+                const formatter = new Intl.DateTimeFormat('en-CA', {
+                    timeZone: tz || 'America/Los_Angeles',
+                    year: 'numeric',
+                    month: '2-digit',
+                    day: '2-digit'
+                });
+                return formatter.format(new Date());
+            } catch (error) {
+                const now = new Date();
+                const year = now.getFullYear();
+                const month = String(now.getMonth() + 1).padStart(2, '0');
+                const day = String(now.getDate()).padStart(2, '0');
+                return year + '-' + month + '-' + day;
+            }
+        }
+
+        function parseTimeToMinutes(timeValue) {
                 if (!timeValue) return null;
                 const trimmed = String(timeValue).trim().replace(/[\u00A0\u202F]/g, ' ');
                 const twelveHourMatch = trimmed.match(/^(\d{1,2}):(\d{2})(?::\d{2})?\s*([AaPp])\.?\s*[Mm]\.?$/);
@@ -812,15 +834,25 @@ html body .custom-invoice-page-wrapper .btn-light i {
                 }
 
                 const dateInput = document.getElementById('package_use_date');
+                const pacificToday = getPacificTodayDateString(clubTz);
                 if (dateInput) {
-                    try {
-                        const nowClubStr = new Date().toLocaleString('en-US', { timeZone: clubTz });
-                        const nowClub = new Date(nowClubStr);
-                        const nowYear = nowClub.getFullYear();
-                        const nowMonth = String(nowClub.getMonth() + 1).padStart(2, '0');
-                        const nowDate = String(nowClub.getDate()).padStart(2, '0');
-                        dateInput.min = nowYear + '-' + nowMonth + '-' + nowDate;
-                    } catch(e) {}
+                    dateInput.min = pacificToday;
+                    if (typeof flatpickr === 'function') {
+                        if (adminFpPickerInstance) {
+                            adminFpPickerInstance.set('minDate', pacificToday);
+                        } else {
+                            adminFpPickerInstance = flatpickr(dateInput, {
+                                dateFormat: "Y-m-d",
+                                minDate: pacificToday,
+                                allowInput: false,
+                                clickOpens: true,
+                                onChange: function(selectedDates, dateStr) {
+                                    dateInput.value = dateStr;
+                                    updateAdminInvoiceArrivalTimes();
+                                }
+                            });
+                        }
+                    }
                 }
 
                 const dateStr = dateInput ? dateInput.value : '';
