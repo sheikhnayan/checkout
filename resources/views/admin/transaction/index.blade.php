@@ -6182,7 +6182,7 @@ body.modal-open .admin-mobile-menu-toggle {
                 }
             };
 
-            $('#formSendRepayEmail').on('submit', function(e) {
+            $(document).on('submit', '#formSendRepayEmail', function(e) {
                 e.preventDefault();
                 const txnId = $('#repayModalTxnId').val();
                 const email = $('#repayModalEmail').val();
