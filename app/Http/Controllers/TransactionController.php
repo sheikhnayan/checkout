@@ -4544,8 +4544,8 @@ class TransactionController extends Controller
         $transaction = Transaction::findOrFail($id);
 
         $user = auth()->user();
-        if (!$user) {
-            return response()->json(['success' => false, 'message' => 'Unauthenticated access.'], 401);
+        if (!$user || !$user->isAdmin()) {
+            return response()->json(['success' => false, 'message' => 'Unauthorized: Only Super Admins can send payment recovery emails.'], 403);
         }
 
         $website = $transaction->website ?: optional($transaction->event)->website ?: optional($transaction->package)->website;
@@ -4598,6 +4598,16 @@ class TransactionController extends Controller
                 'recipient' => $recipientEmail,
                 'send_result' => $sendResult,
             ]);
+
+            // Log action in ActivityLog
+            \App\Services\ActivityLogger::log(
+                'send_repay_email',
+                "Sent payment recovery link to {$recipientEmail} for Order #{$transaction->transaction_id} ($" . number_format((float)$transaction->total, 2) . ")",
+                'transactions',
+                $transaction,
+                $website?->id,
+                $user
+            );
 
             $msg = "Payment recovery (repay) email sent successfully to {$recipientEmail}!";
             return response()->json([
@@ -4769,6 +4779,21 @@ class TransactionController extends Controller
             ]);
         }
 
+        // Log repayment activity
+        \App\Services\ActivityLogger::log(
+            'repay_payment_success',
+            "Repayment completed successfully via Authorize.Net Live for Order #{$transaction->transaction_id} ($" . number_format($amount, 2) . "). Gateway Trans ID: {$anet['trans_id']}",
+            'transactions',
+            $transaction,
+            $website?->id,
+            null,
+            [
+                'gateway_trans_id' => (string) $anet['trans_id'],
+                'amount' => $amount,
+                'is_sandbox' => false,
+            ]
+        );
+
         try {
             $mailData = [
                 'transaction_id' => $transaction->transaction_id,
@@ -4803,12 +4828,26 @@ class TransactionController extends Controller
     public function toggleSandboxFlag(Request $request, $id)
     {
         $transaction = Transaction::findOrFail($id);
-        $this->ensureCanAccess($transaction);
+
+        $user = auth()->user();
+        if (!$user || !$user->isAdmin()) {
+            return response()->json(['success' => false, 'message' => 'Unauthorized: Only Super Admins can toggle transaction sandbox status.'], 403);
+        }
 
         $transaction->is_sandbox = !$transaction->is_sandbox;
         $transaction->save();
 
         $statusText = $transaction->is_sandbox ? 'Sandbox (Test)' : 'Live';
+
+        // Log action in ActivityLog
+        \App\Services\ActivityLogger::log(
+            'toggle_sandbox_status',
+            "Toggled Sandbox status for Order #{$transaction->transaction_id} to {$statusText}",
+            'transactions',
+            $transaction,
+            $transaction->website_id,
+            $user
+        );
 
         if ($request->ajax() || $request->wantsJson()) {
             return response()->json([

@@ -2155,6 +2155,7 @@ body.modal-open .admin-mobile-menu-toggle {
                                             <li><a class="dropdown-item" style="color:rgba(255,255,255,0.7);font-size:0.82rem" href="{{ route('admin.transaction.update', ['id' => $item->id, 'status' => 0]) }}"><i class="fas fa-times me-2 text-danger"></i>Mark Canceled</a></li>
                                             <li><a class="dropdown-item" style="color:rgba(255,255,255,0.7);font-size:0.82rem" href="{{ route('admin.transaction.update', ['id' => $item->id, 'status' => 2]) }}"><i class="fas fa-undo me-2 text-warning"></i>Mark Refunded</a></li>
                                             <li><hr class="dropdown-divider" style="border-color:rgba(255,255,255,0.12)"></li>
+                                            @if(auth()->check() && auth()->user()->isAdmin())
                                             <li>
                                                 <a class="dropdown-item btn-send-repay-trigger" style="color:#fbbf24;font-size:0.82rem" href="javascript:void(0)"
                                                    data-id="{{ $item->id }}"
