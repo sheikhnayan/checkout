@@ -13,10 +13,18 @@ html body .content-wrapper,
 html body .app-main__inner,
 html body .layout-page,
 html body .custom-invoice-page-wrapper .row,
-html body .custom-invoice-page-wrapper div {
+html body .custom-invoice-page-wrapper div:not(.alert):not(.alert *) {
     background-color: #ffffff !important;
     background: #ffffff !important;
     color: #000000 !important;
+}
+
+html body .custom-invoice-page-wrapper .alert-success {
+    background-color: #d1e7dd !important;
+    background: #d1e7dd !important;
+    border-color: #badbcc !important;
+    color: #0f5132 !important;
+    font-weight: 600 !important;
 }
 
 /* Card & Box Containers */
