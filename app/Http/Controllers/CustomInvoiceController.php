@@ -963,19 +963,21 @@ class CustomInvoiceController extends Controller
                     'order_id' => $transaction->id,
                     'website_name' => $website->name ?? 'Venue',
                     'club_name' => $website->name ?? 'Venue',
+                    'website_slug' => $website->slug ?? '',
                     'package_first_name' => $transaction->package_first_name,
                     'package_last_name' => $transaction->package_last_name,
                     'package_email' => $transaction->package_email,
                     'package_phone' => $transaction->package_phone,
+                    'ticket_qr_code' => $transaction->ticket_qr_code,
                     'type' => 'custom_invoice',
                     'cart_items' => $transaction->cart_items,
                     'price_breakdown' => [
-                        'sub_total' => $transaction->sub_total,
-                        'sales_tax' => $transaction->sales_tax,
-                        'service_charge' => $transaction->service_charge,
-                        'gratuity' => $transaction->gratuity,
-                        'processing_fee' => $transaction->processing_fee,
-                        'total' => $transaction->total,
+                        'sub_total' => (float) $invoice->subtotal,
+                        'sales_tax' => (float) $invoice->sales_tax,
+                        'service_charge' => (float) $invoice->service_charge,
+                        'gratuity' => (float) $invoice->gratuity,
+                        'processing_fee' => (float) $invoice->processing_fee,
+                        'total' => (float) $invoice->total,
                     ],
                 ];
 
@@ -985,23 +987,35 @@ class CustomInvoiceController extends Controller
                 Log::warning('Custom invoice TransactionMail dispatch failed', ['error' => $txnMailEx->getMessage()]);
             }
 
-            // Dispatch Telnyx SMS confirmation if configured
-            if (!empty($transaction->package_phone)) {
+            // Dispatch Telnyx SMS notification alongside standard checkout
+            $recipientPhone = $transaction->package_phone ?: ($transaction->payment_phone ?: ($invoice->client_phone ?? ''));
+            if (!empty($recipientPhone)) {
                 try {
                     $telnyx = new \App\Services\TelnyxSmsService();
-                    if ($telnyx->isConfigured()) {
-                        $msg = "Payment Confirmed: Thank you for your payment of $" . number_format($transaction->total, 2) . " to " . ($website->name ?? 'Venue') . ". Confirmation #: " . $transaction->transaction_id . ". View ticket: " . url('/custom-invoice/' . $invoice->payment_token . '/pay');
-                        $telnyx->sendSms($transaction->package_phone, $msg);
-                    }
+                    $telnyxData = array_merge($mailData ?? [], [
+                        'package_first_name' => $transaction->package_first_name,
+                        'package_last_name' => $transaction->package_last_name,
+                        'transaction_id' => $transaction->transaction_id,
+                        'ticket_qr_code' => $transaction->ticket_qr_code,
+                    ]);
+                    $telnyx->sendTransactionNotification($recipientPhone, $telnyxData, 'custom_invoice');
                 } catch (\Throwable $smsEx) {
                     Log::warning('Custom invoice payment SMS failed', ['error' => $smsEx->getMessage()]);
                 }
             }
 
-            $managerEmails = collect($website->emails ?? [])->pluck('email')
+            // Send manager/admin notifications to all club emails + hello@cartvip.com + invoice creator
+            $creatorEmail = optional($invoice->user)->email;
+            $managerEmails = collect($website->emails ?? [])
+                ->pluck('email')
                 ->filter(fn ($email) => filter_var($email, FILTER_VALIDATE_EMAIL))
-                ->unique()
-                ->values();
+                ->push('hello@cartvip.com');
+
+            if ($creatorEmail && filter_var($creatorEmail, FILTER_VALIDATE_EMAIL)) {
+                $managerEmails->push($creatorEmail);
+            }
+
+            $managerEmails = $managerEmails->unique()->values();
 
             foreach ($managerEmails as $managerEmail) {
                 Mail::to($managerEmail)->send(clone $managerMail);
