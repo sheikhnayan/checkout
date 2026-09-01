@@ -205,15 +205,17 @@
 
     <!-- Purchased Items & Breakdown -->
     <div class="section-box">
-        <div class="section-heading">Order Summary</div>
+        <div class="section-heading">Order Summary &amp; Breakdown</div>
         @php
             $cartItems = is_array($transaction->cart_items) ? $transaction->cart_items : (json_decode($transaction->cart_items, true) ?: []);
+            $breakdown = is_array($transaction->price_breakdown) ? $transaction->price_breakdown : (json_decode($transaction->price_breakdown, true) ?: []);
+            $customInvoice = !empty($transaction->custom_invoice_id) ? \App\Models\CustomInvoice::find($transaction->custom_invoice_id) : null;
         @endphp
         @if(!empty($cartItems))
         <table class="items-table">
             <thead>
                 <tr>
-                    <th>Item</th>
+                    <th>Item &amp; Inclusions</th>
                     <th class="text-center">Qty</th>
                     <th class="text-end">Unit Price</th>
                     <th class="text-end">Amount</th>
@@ -228,17 +230,126 @@
                     $itemTotal = (float) ($item['line_total'] ?? $item['total'] ?? ($itemUnitPrice * $itemQty));
                 @endphp
                 <tr>
-                    <td>{{ $itemName }}</td>
+                    <td class="fw-bold text-dark">{{ html_entity_decode($itemName, ENT_QUOTES | ENT_HTML5, 'UTF-8') }}</td>
                     <td class="text-center">{{ $itemQty }}</td>
                     <td class="text-end">${{ number_format($itemUnitPrice, 2) }}</td>
-                    <td class="text-end">${{ number_format($itemTotal, 2) }}</td>
+                    <td class="text-end fw-bold">${{ number_format($itemTotal, 2) }}</td>
                 </tr>
+                @if(!empty($item['addons']))
+                    @foreach($item['addons'] as $addon)
+                        @if(!empty($addon['name']))
+                        <tr style="background:#f8fafc;font-size:13px;color:#475569;">
+                            <td style="padding-left:24px;">
+                                <i class="fas fa-plus text-warning me-1" style="font-size:11px;"></i> {{ $addon['name'] }}
+                            </td>
+                            <td class="text-center">{{ $addon['qty'] ?? 1 }}</td>
+                            <td class="text-end">
+                                @if((float) ($addon['unit_price'] ?? 0) > 0)
+                                    ${{ number_format((float) ($addon['unit_price'] ?? 0), 2) }}
+                                @else
+                                    <em class="text-muted">Included</em>
+                                @endif
+                            </td>
+                            <td class="text-end">
+                                @if((float) ($addon['price'] ?? 0) > 0)
+                                    ${{ number_format((float) ($addon['price'] ?? 0), 2) }}
+                                @else
+                                    <em class="text-muted">Included</em>
+                                @endif
+                            </td>
+                        </tr>
+                        @endif
+                    @endforeach
+                @endif
                 @endforeach
             </tbody>
         </table>
         @endif
 
         <div class="price-summary">
+            @if($customInvoice)
+                {{-- Custom Invoice Complete Fee Breakdown --}}
+                <div class="summary-row">
+                    <span>Subtotal</span>
+                    <span>${{ number_format((float) $customInvoice->subtotal, 2) }}</span>
+                </div>
+                @if((float) ($customInvoice->tax ?? 0) > 0)
+                <div class="summary-row">
+                    <span>Sales Tax</span>
+                    <span>${{ number_format((float) $customInvoice->tax, 2) }}</span>
+                </div>
+                @endif
+                @if((float) ($customInvoice->service_charge ?? 0) > 0)
+                <div class="summary-row">
+                    <span>Service Charge</span>
+                    <span>${{ number_format((float) $customInvoice->service_charge, 2) }}</span>
+                </div>
+                @endif
+                @if((float) ($customInvoice->gratuity ?? 0) > 0)
+                <div class="summary-row">
+                    <span>Gratuity</span>
+                    <span>${{ number_format((float) $customInvoice->gratuity, 2) }}</span>
+                </div>
+                @endif
+                @if((float) ($customInvoice->processing_fee ?? 0) > 0)
+                <div class="summary-row">
+                    <span>Processing Fee</span>
+                    <span>${{ number_format((float) $customInvoice->processing_fee, 2) }}</span>
+                </div>
+                @endif
+                @if((float) ($customInvoice->deposit_amount ?? 0) > 0 && $customInvoice->status !== 'paid')
+                <div class="summary-row" style="color:#d97706;font-weight:600;">
+                    <span>Required Deposit Due Now</span>
+                    <span>${{ number_format((float) ($transaction->total ?? $customInvoice->deposit_amount), 2) }}</span>
+                </div>
+                <div class="summary-row text-muted" style="font-size:12px;">
+                    <span>Remaining Balance (Due on Arrival)</span>
+                    <span>${{ number_format((float) $customInvoice->remaining_balance, 2) }}</span>
+                </div>
+                @endif
+            @else
+                {{-- Standard Checkout Complete Fee Breakdown --}}
+                @php
+                    $pkgSubtotal = (float) ($breakdown['packages_subtotal'] ?? 0);
+                    $addonSubtotal = (float) ($breakdown['addons_subtotal'] ?? 0);
+                    $totalSubtotal = ($pkgSubtotal + $addonSubtotal) > 0 ? ($pkgSubtotal + $addonSubtotal) : (float) ($transaction->actual_total ?: $transaction->total);
+                @endphp
+                <div class="summary-row">
+                    <span>Items Subtotal</span>
+                    <span>${{ number_format($totalSubtotal, 2) }}</span>
+                </div>
+                @if(!empty($breakdown['sales_tax']['enabled']) && (float) ($breakdown['sales_tax']['amount'] ?? 0) > 0)
+                <div class="summary-row">
+                    <span>{{ $breakdown['sales_tax']['name'] ?? 'Sales Tax' }} ({{ number_format((float) ($breakdown['sales_tax']['rate'] ?? 0), 2) }}%)</span>
+                    <span>${{ number_format((float) ($breakdown['sales_tax']['amount'] ?? 0), 2) }}</span>
+                </div>
+                @endif
+                @if(!empty($breakdown['service_charge']['enabled']) && (float) ($breakdown['service_charge']['amount'] ?? 0) > 0)
+                <div class="summary-row">
+                    <span>{{ $breakdown['service_charge']['name'] ?? 'Service Charge' }} ({{ number_format((float) ($breakdown['service_charge']['rate'] ?? 0), 2) }}%)</span>
+                    <span>${{ number_format((float) ($breakdown['service_charge']['amount'] ?? 0), 2) }}</span>
+                </div>
+                @endif
+                @if(!empty($breakdown['gratuity']['enabled']) && (float) ($breakdown['gratuity']['amount'] ?? 0) > 0)
+                <div class="summary-row">
+                    <span>{{ $breakdown['gratuity']['name'] ?? 'Gratuity' }} ({{ number_format((float) ($breakdown['gratuity']['rate'] ?? 0), 2) }}%)</span>
+                    <span>${{ number_format((float) ($breakdown['gratuity']['amount'] ?? 0), 2) }}</span>
+                </div>
+                @endif
+                @if(!empty($breakdown['processing_fee']['enabled']) && (float) ($breakdown['processing_fee']['amount'] ?? 0) > 0)
+                <div class="summary-row">
+                    <span>{{ $breakdown['processing_fee']['name'] ?? 'Processing Fee' }}</span>
+                    <span>${{ number_format((float) ($breakdown['processing_fee']['amount'] ?? 0), 2) }}</span>
+                </div>
+                @endif
+                @if((float) ($breakdown['promo_discount'] ?? $transaction->discounted_amount ?? 0) > 0)
+                <div class="summary-row text-success">
+                    <span>Promo Discount</span>
+                    <span>-${{ number_format((float) ($breakdown['promo_discount'] ?? $transaction->discounted_amount), 2) }}</span>
+                </div>
+                @endif
+            @endif
+
             <div class="summary-row total">
                 <span>Total Due Now</span>
                 <span class="text-warning-emphasis">${{ number_format((float) $transaction->total, 2) }}</span>

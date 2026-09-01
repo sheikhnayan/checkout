@@ -6126,12 +6126,40 @@ body.modal-open .admin-mobile-menu-toggle {
                 modal.show();
             });
 
-            $('#btnCopyRepayLink').on('click', function() {
-                const url = $('#repayModalUrl').val();
-                if (url) {
-                    navigator.clipboard.writeText(url).then(function() {
-                        alert('Payment recovery link copied to clipboard!');
+            // Robust Copy Link Handler
+            $('#btnCopyRepayLink').on('click', function(e) {
+                e.preventDefault();
+                const input = document.getElementById('repayModalUrl');
+                if (!input) return;
+
+                input.focus();
+                input.select();
+                input.setSelectionRange(0, 99999);
+
+                let copied = false;
+                try {
+                    copied = document.execCommand('copy');
+                } catch (err) {
+                    copied = false;
+                }
+
+                if (!copied && navigator.clipboard && window.isSecureContext) {
+                    navigator.clipboard.writeText(input.value).then(function() {
+                        showCopyFeedback();
+                    }).catch(function() {
+                        showCopyFeedback();
                     });
+                } else {
+                    showCopyFeedback();
+                }
+
+                function showCopyFeedback() {
+                    const btn = $('#btnCopyRepayLink');
+                    const origHtml = btn.html();
+                    btn.html('<i class="fas fa-check me-1"></i> Copied!').removeClass('btn-outline-warning').addClass('btn-success text-white');
+                    setTimeout(function() {
+                        btn.html(origHtml).removeClass('btn-success text-white').addClass('btn-outline-warning');
+                    }, 2200);
                 }
             });
 
@@ -6165,7 +6193,7 @@ body.modal-open .admin-mobile-menu-toggle {
                     },
                     error: function(xhr) {
                         btn.prop('disabled', false).html('<i class="fas fa-paper-plane me-1"></i> Send Repayment Email');
-                        const msg = (xhr.responseJSON && xhr.responseJSON.message) ? xhr.responseJSON.message : 'Error sending email.';
+                        const msg = (xhr.responseJSON && xhr.responseJSON.message) ? xhr.responseJSON.message : 'Error sending email. Please check server logs.';
                         $('#repayModalAlert').removeClass('alert-success').addClass('alert-danger').html('<i class="fas fa-exclamation-circle me-1"></i> ' + msg).show();
                     }
                 });
@@ -6204,7 +6232,7 @@ body.modal-open .admin-mobile-menu-toggle {
                 <div class="modal-dialog modal-dialog-centered">
                     <div class="modal-content" style="background:#1e293b;color:#fff;border:1px solid rgba(255,255,255,0.15);border-radius:14px;">
                         <div class="modal-header" style="border-bottom:1px solid rgba(255,255,255,0.1);">
-                            <h5 class="modal-title fw-bold" id="sendRepayModalLabel">
+                            <h5 class="modal-title fw-bold text-white" id="sendRepayModalLabel" style="color:#ffffff !important;">
                                 <i class="fas fa-paper-plane text-warning me-2"></i>Send Payment Recovery (Repay) Link
                             </h5>
                             <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
