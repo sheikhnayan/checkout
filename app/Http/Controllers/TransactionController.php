@@ -4554,5 +4554,246 @@ class TransactionController extends Controller
         ]);
     }
 
+    public function sendRepayEmail(Request $request, $id)
+    {
+        $transaction = Transaction::findOrFail($id);
+        $this->ensureCanAccess($transaction);
+
+        $website = $transaction->website ?: optional($transaction->event)->website ?: optional($transaction->package)->website;
+        $recipientEmail = trim((string) ($request->input('email') ?: $transaction->package_email ?: $transaction->payment_email));
+
+        if (empty($recipientEmail) || !filter_var($recipientEmail, FILTER_VALIDATE_EMAIL)) {
+            if ($request->ajax() || $request->wantsJson()) {
+                return response()->json(['success' => false, 'message' => 'Valid recipient email address is required.'], 422);
+            }
+            return back()->with('error', 'Valid recipient email address is required.');
+        }
+
+        $transaction->ensureRepayToken();
+        $customNote = $request->input('custom_note');
+
+        try {
+            if ($website) {
+                $this->applyWebsiteSmtpConfig($website);
+            }
+
+            \Mail::to($recipientEmail)->send(new \App\Mail\TransactionRepayMail($transaction, $website, $customNote));
+
+            $msg = "Payment recovery (repay) email sent successfully to {$recipientEmail}!";
+            if ($request->ajax() || $request->wantsJson()) {
+                return response()->json(['success' => true, 'message' => $msg, 'repay_url' => $transaction->repay_url]);
+            }
+            return back()->with('success', $msg);
+        } catch (\Throwable $e) {
+            \Log::error('Failed to send TransactionRepayMail', [
+                'transaction_id' => $transaction->id,
+                'error' => $e->getMessage(),
+            ]);
+
+            $errMsg = 'Failed to send repayment email: ' . $e->getMessage();
+            if ($request->ajax() || $request->wantsJson()) {
+                return response()->json(['success' => false, 'message' => $errMsg], 500);
+            }
+            return back()->with('error', $errMsg);
+        }
+    }
+
+    public function showRepayPage($token)
+    {
+        $transaction = Transaction::where('repay_token', $token)->firstOrFail();
+        $website = $transaction->website ?: optional($transaction->event)->website ?: optional($transaction->package)->website;
+
+        if ($transaction->repay_paid_at && !$transaction->is_sandbox) {
+            return redirect()->route('thank-you', ['transaction_id' => $transaction->transaction_id])
+                ->with('success', 'This reservation payment has already been completed successfully.');
+        }
+
+        return view('transaction.repay', [
+            'transaction' => $transaction,
+            'website' => $website,
+        ]);
+    }
+
+    public function processRepayPayment(Request $request, $token)
+    {
+        $transaction = Transaction::where('repay_token', $token)->firstOrFail();
+        $website = $transaction->website ?: optional($transaction->event)->website ?: optional($transaction->package)->website;
+        $setting = Setting::first();
+
+        $amount = (float) $transaction->total;
+        if ($amount <= 0) {
+            return back()->with('error', 'Invalid transaction amount.');
+        }
+
+        $request->validate([
+            'firstName' => 'required|string|max:100',
+            'lastName' => 'required|string|max:100',
+            'cardNumber' => 'required|string',
+            'expirationDate' => 'required|string',
+            'cvv' => 'required|string|min:3|max:4',
+        ]);
+
+        $rawCardNumber = preg_replace('/\D/', '', (string) $request->input('cardNumber'));
+        $rawExp = preg_replace('/\D/', '', (string) $request->input('expirationDate'));
+        $cvv = preg_replace('/\D/', '', (string) $request->input('cvv'));
+
+        if (strlen($rawCardNumber) < 12 || strlen($rawCardNumber) > 19 || !$this->passesLuhnCheck($rawCardNumber)) {
+            return back()->with('error', 'Invalid card number. Please check your card details.');
+        }
+
+        if (strlen($rawExp) === 4) {
+            $formattedExp = '20' . substr($rawExp, 2, 2) . '-' . substr($rawExp, 0, 2);
+        } else {
+            $formattedExp = $request->input('expirationDate');
+        }
+
+        // Credentials resolution (repayment enforces live credentials)
+        $usesGlobalKeys = false;
+        if ($website && !empty($website->authorize_app_login_id) && !empty($website->authorize_transaction_key)) {
+            $app = $website->authorize_app_login_id;
+            $secret = $website->authorize_transaction_key;
+        } elseif ($setting && !empty($setting->authorize_app_login_id) && !empty($setting->authorize_transaction_key)) {
+            $app = $setting->authorize_app_login_id;
+            $secret = $setting->authorize_transaction_key;
+            $usesGlobalKeys = true;
+        } else {
+            return back()->with('error', 'Payment gateway credentials are not configured. Please contact the club.');
+        }
+
+        $merchantAuthentication = new \net\authorize\api\contract\v1\MerchantAuthenticationType();
+        $merchantAuthentication->setName($app);
+        $merchantAuthentication->setTransactionKey($secret);
+
+        $creditCard = new \net\authorize\api\contract\v1\CreditCardType();
+        $creditCard->setCardNumber($rawCardNumber);
+        $creditCard->setExpirationDate($formattedExp);
+        $creditCard->setCardCode($cvv);
+
+        $payment = new \net\authorize\api\contract\v1\PaymentType();
+        $payment->setCreditCard($creditCard);
+
+        $transactionRequestType = new \net\authorize\api\contract\v1\TransactionRequestType();
+        $transactionRequestType->setTransactionType('authCaptureTransaction');
+        $transactionRequestType->setAmount(number_format($amount, 2, '.', ''));
+        $transactionRequestType->setPayment($payment);
+
+        $billTo = new \net\authorize\api\contract\v1\CustomerAddressType();
+        $billTo->setFirstName((string) $request->input('firstName'));
+        $billTo->setLastName((string) $request->input('lastName'));
+        $billTo->setAddress((string) $request->input('billing_address', $transaction->payment_address));
+        $billTo->setCity((string) $request->input('billing_city', $transaction->payment_city));
+        $billTo->setState((string) $request->input('billing_state', $transaction->payment_state));
+        $billTo->setZip((string) $request->input('billing_zip', $transaction->payment_zip_code));
+        $billTo->setCountry('US');
+        $transactionRequestType->setBillTo($billTo);
+
+        $transactionRequestType->setCustomerIP($request->ip());
+
+        $requests = new \net\authorize\api\contract\v1\CreateTransactionRequest();
+        $requests->setMerchantAuthentication($merchantAuthentication);
+        $requests->setRefId('repay_' . $transaction->id . '_' . uniqid());
+        $requests->setTransactionRequest($transactionRequestType);
+
+        $controller = new \net\authorize\api\controller\CreateTransactionController($requests);
+
+        // Always process in PRODUCTION for repayment recovery
+        $apiUrl = \net\authorize\api\constants\ANetEnvironment::PRODUCTION;
+
+        try {
+            $response = $controller->executeWithApiResponse($apiUrl);
+        } catch (\Throwable $gatewayEx) {
+            \Log::error('Repay Authorize.Net gateway exception', [
+                'transaction_id' => $transaction->id,
+                'error' => $gatewayEx->getMessage(),
+            ]);
+            return back()->with('error', 'We could not connect to the payment processor. You have not been charged. Please try again.');
+        }
+
+        $anet = $this->interpretAuthorizeNetResponse($response);
+
+        if (!$anet['ok']) {
+            return back()->with('error', 'Payment failed: ' . ($anet['message'] ?? 'Declined by bank.'));
+        }
+
+        // Successful Live Charge!
+        $accountDigits = preg_replace('/\D/', '', (string) ($anet['account_number'] ?? $rawCardNumber));
+        $last4 = strlen($accountDigits) >= 4 ? substr($accountDigits, -4) : substr($rawCardNumber, -4);
+        $cardBrand = $anet['account_type'] ?: 'Card';
+
+        $transaction->is_sandbox = false;
+        $transaction->repay_paid_at = now();
+        $transaction->repay_gateway_trans_id = (string) $anet['trans_id'];
+        $transaction->payment_status = 'approved';
+        $transaction->gateway_response_code = 'authorize_approved';
+        $transaction->payment_first_name = $request->input('firstName');
+        $transaction->payment_last_name = $request->input('lastName');
+        $transaction->payment_address = $request->input('billing_address', $transaction->payment_address);
+        $transaction->payment_city = $request->input('billing_city', $transaction->payment_city);
+        $transaction->payment_state = $request->input('billing_state', $transaction->payment_state);
+        $transaction->payment_zip_code = $request->input('billing_zip', $transaction->payment_zip_code);
+        $transaction->payment_card_last4 = $last4;
+        $transaction->payment_card_brand = $cardBrand;
+        $transaction->save();
+
+        if (!empty($transaction->custom_invoice_id)) {
+            CustomInvoice::where('id', $transaction->custom_invoice_id)->update([
+                'status' => 'paid',
+                'paid_at' => now(),
+                'payment_transaction_id' => (string) $anet['trans_id'],
+            ]);
+        }
+
+        try {
+            $mailData = [
+                'transaction_id' => $transaction->transaction_id,
+                'order_id' => $transaction->id,
+                'website_name' => $website->name ?? 'Venue',
+                'club_name' => $website->name ?? 'Venue',
+                'website_slug' => $website->slug ?? '',
+                'package_first_name' => $transaction->package_first_name,
+                'package_last_name' => $transaction->package_last_name,
+                'package_email' => $transaction->package_email,
+                'package_phone' => $transaction->package_phone,
+                'ticket_qr_code' => $transaction->ticket_qr_code,
+                'type' => $transaction->type,
+                'cart_items' => $transaction->cart_items,
+                'price_breakdown' => $transaction->price_breakdown ?? [],
+            ];
+
+            if ($website) {
+                $this->applyWebsiteSmtpConfig($website);
+            }
+
+            $txnMail = new \App\Mail\TransactionMail($mailData, $transaction, $transaction->cart_items, $mailData['price_breakdown'], $website, true, 'guest');
+            \Mail::to($transaction->package_email)->send($txnMail);
+        } catch (\Throwable $mailEx) {
+            \Log::warning('Repay confirmation email dispatch failed', ['error' => $mailEx->getMessage()]);
+        }
+
+        return redirect()->route('thank-you', ['transaction_id' => $transaction->transaction_id])
+            ->with('success', 'Your reservation payment of $' . number_format($amount, 2) . ' has been completed successfully!');
+    }
+
+    public function toggleSandboxFlag(Request $request, $id)
+    {
+        $transaction = Transaction::findOrFail($id);
+        $this->ensureCanAccess($transaction);
+
+        $transaction->is_sandbox = !$transaction->is_sandbox;
+        $transaction->save();
+
+        $statusText = $transaction->is_sandbox ? 'Sandbox (Test)' : 'Live';
+
+        if ($request->ajax() || $request->wantsJson()) {
+            return response()->json([
+                'success' => true,
+                'is_sandbox' => $transaction->is_sandbox,
+                'status_text' => $statusText,
+                'message' => "Transaction #{$transaction->id} flagged as {$statusText}.",
+            ]);
+        }
+
+        return back()->with('success', "Transaction #{$transaction->id} flagged as {$statusText}.");
+    }
 }
 

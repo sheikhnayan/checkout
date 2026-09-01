@@ -76,6 +76,10 @@ Route::get('/thank-you', [TransactionController::class, 'thankYou'])->name('than
 Route::get('/custom-invoice/{token}/pay', [CustomInvoiceController::class, 'showPayment'])->name('custom-invoice.pay');
 Route::post('/custom-invoice/{token}/process-payment', [CustomInvoiceController::class, 'processPayment'])->name('custom-invoice.process-payment');
 
+// Transaction Repayment / Payment Recovery public routes
+Route::get('/pay/repay/{token}', [TransactionController::class, 'showRepayPage'])->name('transaction.repay.show');
+Route::post('/pay/repay/{token}/process', [TransactionController::class, 'processRepayPayment'])->name('transaction.repay.process');
+
 // W-9 Form routes (client-facing, no auth required)
 // MUST be before slug route to avoid 404
 use App\Http\Controllers\W9FormController;
@@ -311,6 +315,8 @@ Route::group(['prefix'=> 'admins', 'as' => 'admin.', 'middleware' => ['admin.or.
         Route::post('/bulk-unarchive', [TransactionController::class, 'bulkUnarchive'])->name('bulk-unarchive');
         Route::post('/{id}/archive', [TransactionController::class, 'archive'])->name('archive');
         Route::post('/{id}/unarchive', [TransactionController::class, 'unarchive'])->name('unarchive');
+        Route::post('/{id}/send-repay-email', [TransactionController::class, 'sendRepayEmail'])->name('send-repay-email');
+        Route::post('/{id}/toggle-sandbox', [TransactionController::class, 'toggleSandboxFlag'])->name('toggle-sandbox');
         Route::get('/show/{id}', [TransactionController::class,'show'])->name('show');
         Route::get('/{id}/details', [TransactionController::class,'details'])->name('details');
         Route::get('/change/{id}/{status}', [TransactionController::class,'update'])->name('update');

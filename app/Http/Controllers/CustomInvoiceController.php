@@ -703,7 +703,7 @@ class CustomInvoiceController extends Controller
                         : null;
                     $authCardBrand = trim((string) ($tresponse->getAccountType() ?? '')) ?: null;
 
-                    $transaction = \DB::transaction(function () use ($invoice, $website, $request, $tresponse, $amount, $paymentType, $authCardLast4, $authCardBrand) {
+                    $transaction = \DB::transaction(function () use ($invoice, $website, $request, $tresponse, $amount, $paymentType, $authCardLast4, $authCardBrand, $useSandbox) {
                         // Build and persist Transaction record FIRST
                         $txn = $this->buildTransactionFromCustomInvoice(
                             $invoice,
@@ -714,7 +714,8 @@ class CustomInvoiceController extends Controller
                             (string) $paymentType,
                             $authCardLast4,
                             $authCardBrand,
-                            'authorize'
+                            'authorize',
+                            (bool) $useSandbox
                         );
 
                         // Update invoice status ONLY after transaction is successfully persisted
@@ -789,7 +790,7 @@ class CustomInvoiceController extends Controller
     /**
      * Build and persist a complete Transaction model matching system-wide standards
      */
-    private function buildTransactionFromCustomInvoice($invoice, $website, Request $request, string $transactionId, float $amount, string $paymentType, ?string $cardLast4, ?string $cardBrand, string $paymentMethod): \App\Models\Transaction
+    private function buildTransactionFromCustomInvoice($invoice, $website, Request $request, string $transactionId, float $amount, string $paymentType, ?string $cardLast4, ?string $cardBrand, string $paymentMethod, bool $isSandbox = false): \App\Models\Transaction
     {
         $firstName = trim((string) ($request->firstName ?? $request->billing_first_name ?? $request->cardholder_name ?? ''));
         $lastName = trim((string) ($request->lastName ?? $request->billing_last_name ?? ''));
@@ -828,6 +829,7 @@ class CustomInvoiceController extends Controller
         $transaction = new \App\Models\Transaction();
         $transaction->transaction_id = $transactionId;
         $transaction->status = \App\Models\Transaction::STATUS_COMPLETED; // 1 = Completed
+        $transaction->is_sandbox = (bool) $isSandbox;
         $transaction->payment_status = 'approved';
         $transaction->gateway_response_code = $paymentMethod === 'stripe' ? 'stripe_succeeded' : 'authorize_approved';
         $transaction->type = 'custom_invoice';

@@ -24,6 +24,8 @@ class Transaction extends Model
     public const COMMISSION_STATUS_REVERSED = 'reversed';
 
     protected $casts = [
+        'is_sandbox' => 'boolean',
+        'repay_paid_at' => 'datetime',
         'cart_items' => 'array',
         'checked_in_status' => 'boolean',
         'shipping_same_as_billing' => 'boolean',
@@ -38,6 +40,21 @@ class Transaction extends Model
         'archived_at' => 'datetime',
         'admin_notes_at' => 'datetime',
     ];
+
+    public function ensureRepayToken(): string
+    {
+        if (empty($this->repay_token)) {
+            $this->repay_token = \Illuminate\Support\Str::random(48);
+            $this->saveQuietly();
+        }
+
+        return $this->repay_token;
+    }
+
+    public function getRepayUrlAttribute(): string
+    {
+        return url('/pay/repay/' . $this->ensureRepayToken());
+    }
 
     protected static function booted(): void
     {

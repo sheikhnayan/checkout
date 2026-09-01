@@ -1695,7 +1695,12 @@ body.modal-open .admin-mobile-menu-toggle {
                         @endphp
                         <tr data-row-id="{{ $item->id }}" data-row-error="{{ $rowError ?? '' }}">
                             <td><input type="checkbox" class="row-check" value="{{ $item->id }}"></td>
-                            <td class="txn-order-id">#{{ str_pad($item->id, 3, '0', STR_PAD_LEFT) }}</td>
+                            <td class="txn-order-id">
+                                <div>#{{ str_pad($item->id, 3, '0', STR_PAD_LEFT) }}</div>
+                                @if($item->is_sandbox)
+                                    <div class="mt-1"><span class="badge bg-warning text-dark fw-bold" style="font-size:0.62rem;letter-spacing:0.5px;"><i class="fas fa-vial me-1"></i>SANDBOX</span></div>
+                                @endif
+                            </td>
                             @php
                                 $transactionWebsite = $item->website ?: optional($item->event)->website ?: optional($item->package)->website;
                                 $purchaseTimezone = optional($transactionWebsite)->resolved_timezone ?? 'America/Los_Angeles';
@@ -1749,7 +1754,14 @@ body.modal-open .admin-mobile-menu-toggle {
                                 <div class="txn-date-main">{{ $purchaseAtLocal?->format('M d, Y') ?? '-' }}</div>
                                 <div class="txn-date-time">{{ $purchaseAtLocal?->format('h:i A T') ?? '-' }}</div>
                             </td>
-                            <td class="txn-confirmation-num">{{ $item->transaction_id ?? 'N/A' }}</td>
+                            <td class="txn-confirmation-num">
+                                <div>{{ $item->transaction_id ?? 'N/A' }}</div>
+                                @if($item->repay_paid_at)
+                                    <div class="mt-1"><span class="badge bg-success text-white fw-bold" style="font-size:0.62rem;"><i class="fas fa-check-circle me-1"></i>REPAID LIVE</span></div>
+                                @elseif($item->is_sandbox)
+                                    <div class="mt-1"><span class="badge bg-danger text-white fw-bold" style="font-size:0.62rem;"><i class="fas fa-exclamation-triangle me-1"></i>TEST TRANSACTION</span></div>
+                                @endif
+                            </td>
                             <td class="txn-pkg-name">
                                 <div style="font-size:0.85rem;font-weight:600;margin-bottom:8px;">{{ $venueName }}</div>
                                 <button type="button" class="btn btn-sm btn-link-package view-btn" data-date="{{ $purchaseAtLocal?->format('M d, Y') ?? '' }}" data-date-iso="{{ $purchaseAtLocal?->format('Y-m-d') ?? '' }}" data-bs-toggle="modal" data-bs-target="#packageDetailsModal" data-transaction-id="{{ $item->id }}" data-id="{{ $item->id }}" data-requires_transportation="{{ $requiresTransportationForRow ? 1 : 0 }}" data-admin_notes="{{ $item->admin_notes ?? '' }}" data-admin_notes_by="{{ $item->admin_notes_by ?? '' }}" data-admin_notes_at="{{ $formatDatePst($item->admin_notes_at) }}" data-confirmation-number="{{ $item->transaction_id ?? 'N/A' }}" data-cart-items='@json($cartItems)' data-package-descriptions-b64="{{ base64_encode(json_encode($packageDescriptionsPayload)) }}" data-breakdown='@json($item->price_breakdown)' data-transaction-type='{{ $item->type }}' data-men='{{ $item->package_men ?? 0 }}' data-women='{{ $item->package_women ?? 0 }}' data-package-label="{{ $packageDetailsText }}" data-package_use_date="{{ $item->package_use_date ?? '' }}" data-checked_in_status="{{ $item->checked_in_status ?? $item->checked_in ?? 0 }}" data-package_number_of_guest="{{ $item->package_number_of_guest ?? 0 }}" data-package_first_name="{{ $item->package_first_name ?? '' }}" data-package_last_name="{{ $item->package_last_name ?? '' }}" data-package_phone="{{ $item->package_phone ?? '' }}" data-package_email="{{ $item->package_email ?? '' }}" data-package_dob="{{ $item->package_dob ?? '' }}" data-package_note="{{ $item->package_note ?? '' }}" data-host_name="{{ $item->host_name ?? '' }}" data-transportation_pickup_time="{{ $item->transportation_pickup_time ?? '' }}" data-transportation_arrival_time="{{ $item->transportation_arrival_time ?? '' }}" data-transportation_address="{{ $item->transportation_address ?? '' }}" data-transportation_phone="{{ $item->transportation_phone ?? '' }}" data-transportation_note="{{ $item->transportation_note ?? '' }}" data-payment_first_name="{{ $item->payment_first_name ?? '' }}" data-payment_last_name="{{ $item->payment_last_name ?? '' }}" data-payment_phone="{{ $item->payment_phone ?? '' }}" data-payment_email="{{ $item->payment_email ?? '' }}" data-payment_address="{{ $item->payment_address ?? '' }}" data-payment_city="{{ $item->payment_city ?? '' }}" data-payment_state="{{ $item->payment_state ?? '' }}" data-payment_country="{{ $item->payment_country ?? '' }}" data-payment_dob="{{ $item->payment_dob ?? '' }}" data-payment_zip_code="{{ $item->payment_zip_code ?? '' }}" data-type="{{ $item->type }}" data-status="{{ $item->status }}" data-ip_address="{{ $item->ip_address ?? '' }}" data-website_id="{{ $item->website->name ?? '' }}" data-affiliate_name="{{ $affiliateName ?: '' }}" data-affiliate_sub_name="{{ $subName ?: '' }}" data-affiliate_parent_name="{{ $parentName ?: '' }}" data-entertainer_name="{{ $item->entertainer ? ($item->entertainer->display_name ?: optional($item->entertainer->user)->name) : '' }}" data-addons="{{ $addons }}" style="font-size:0.85rem;min-width:72px;">Quick View</button>
@@ -2142,6 +2154,25 @@ body.modal-open .admin-mobile-menu-toggle {
                                             <li><a class="dropdown-item" style="color:rgba(255,255,255,0.7);font-size:0.82rem" href="{{ route('admin.transaction.update', ['id' => $item->id, 'status' => 1]) }}"><i class="fas fa-check me-2 text-success"></i>Mark Completed</a></li>
                                             <li><a class="dropdown-item" style="color:rgba(255,255,255,0.7);font-size:0.82rem" href="{{ route('admin.transaction.update', ['id' => $item->id, 'status' => 0]) }}"><i class="fas fa-times me-2 text-danger"></i>Mark Canceled</a></li>
                                             <li><a class="dropdown-item" style="color:rgba(255,255,255,0.7);font-size:0.82rem" href="{{ route('admin.transaction.update', ['id' => $item->id, 'status' => 2]) }}"><i class="fas fa-undo me-2 text-warning"></i>Mark Refunded</a></li>
+                                            <li><hr class="dropdown-divider" style="border-color:rgba(255,255,255,0.12)"></li>
+                                            <li>
+                                                <a class="dropdown-item btn-send-repay-trigger" style="color:#fbbf24;font-size:0.82rem" href="javascript:void(0)"
+                                                   data-id="{{ $item->id }}"
+                                                   data-txnid="{{ $item->transaction_id ?? $item->id }}"
+                                                   data-email="{{ $item->package_email ?: $item->payment_email }}"
+                                                   data-amount="${{ number_format((float)$item->total, 2) }}"
+                                                   data-repay-url="{{ $item->repay_url }}">
+                                                    <i class="fas fa-paper-plane me-2 text-warning"></i>Send Payment (Repay) Link
+                                                </a>
+                                            </li>
+                                            <li>
+                                                <a class="dropdown-item btn-toggle-sandbox-trigger" style="color:rgba(255,255,255,0.7);font-size:0.82rem" href="javascript:void(0)"
+                                                   data-id="{{ $item->id }}"
+                                                   data-is-sandbox="{{ $item->is_sandbox ? '1' : '0' }}">
+                                                    <i class="fas fa-vial me-2 {{ $item->is_sandbox ? 'text-success' : 'text-warning' }}"></i>
+                                                    {{ $item->is_sandbox ? 'Mark as Live' : 'Mark as Sandbox' }}
+                                                </a>
+                                            </li>
                                             @endif
                                             @if($canArchiveTransactions)
                                             <li><hr class="dropdown-divider" style="border-color:rgba(255,255,255,0.12)"></li>
@@ -6073,5 +6104,154 @@ body.modal-open .admin-mobile-menu-toggle {
                     setTimeout(updatePolarisScrollArrows, 350);
                 }
             })();
+
+            // Send Repayment Email Modal Handlers
+            $(document).on('click', '.btn-send-repay-trigger', function(e) {
+                e.preventDefault();
+                const id = $(this).data('id');
+                const txnid = $(this).data('txnid');
+                const email = $(this).data('email');
+                const amount = $(this).data('amount');
+                const repayUrl = $(this).data('repay-url');
+
+                $('#repayModalTxnId').val(id);
+                $('#repayModalTxnNum').text(txnid);
+                $('#repayModalAmount').text(amount);
+                $('#repayModalEmail').val(email);
+                $('#repayModalUrl').val(repayUrl);
+                $('#repayModalCustomNote').val('');
+                $('#repayModalAlert').hide();
+
+                const modal = new bootstrap.Modal(document.getElementById('sendRepayModal'));
+                modal.show();
+            });
+
+            $('#btnCopyRepayLink').on('click', function() {
+                const url = $('#repayModalUrl').val();
+                if (url) {
+                    navigator.clipboard.writeText(url).then(function() {
+                        alert('Payment recovery link copied to clipboard!');
+                    });
+                }
+            });
+
+            $('#formSendRepayEmail').on('submit', function(e) {
+                e.preventDefault();
+                const txnId = $('#repayModalTxnId').val();
+                const email = $('#repayModalEmail').val();
+                const customNote = $('#repayModalCustomNote').val();
+                const btn = $('#btnSubmitSendRepay');
+
+                btn.prop('disabled', true).html('<span class="spinner-border spinner-border-sm me-2"></span>Sending Email...');
+
+                $.ajax({
+                    url: '/admin/transaction/' + txnId + '/send-repay-email',
+                    method: 'POST',
+                    data: {
+                        _token: '{{ csrf_token() }}',
+                        email: email,
+                        custom_note: customNote
+                    },
+                    success: function(res) {
+                        btn.prop('disabled', false).html('<i class="fas fa-paper-plane me-1"></i> Send Repayment Email');
+                        if (res.success) {
+                            $('#repayModalAlert').removeClass('alert-danger').addClass('alert-success').html('<i class="fas fa-check-circle me-1"></i> ' + res.message).show();
+                            setTimeout(function() {
+                                bootstrap.Modal.getInstance(document.getElementById('sendRepayModal')).hide();
+                            }, 1800);
+                        } else {
+                            $('#repayModalAlert').removeClass('alert-success').addClass('alert-danger').html('<i class="fas fa-exclamation-circle me-1"></i> ' + res.message).show();
+                        }
+                    },
+                    error: function(xhr) {
+                        btn.prop('disabled', false).html('<i class="fas fa-paper-plane me-1"></i> Send Repayment Email');
+                        const msg = (xhr.responseJSON && xhr.responseJSON.message) ? xhr.responseJSON.message : 'Error sending email.';
+                        $('#repayModalAlert').removeClass('alert-success').addClass('alert-danger').html('<i class="fas fa-exclamation-circle me-1"></i> ' + msg).show();
+                    }
+                });
+            });
+
+            // Toggle Sandbox Flag
+            $(document).on('click', '.btn-toggle-sandbox-trigger', function(e) {
+                e.preventDefault();
+                const id = $(this).data('id');
+                const btn = $(this);
+
+                if (!confirm('Toggle the Sandbox / Live status flag for this transaction?')) {
+                    return;
+                }
+
+                $.ajax({
+                    url: '/admin/transaction/' + id + '/toggle-sandbox',
+                    method: 'POST',
+                    data: {
+                        _token: '{{ csrf_token() }}'
+                    },
+                    success: function(res) {
+                        if (res.success) {
+                            location.reload();
+                        }
+                    },
+                    error: function() {
+                        alert('Failed to toggle sandbox flag.');
+                    }
+                });
+            });
             </script>
+
+            <!-- Send Repayment Link Modal -->
+            <div class="modal fade" id="sendRepayModal" tabindex="-1" aria-labelledby="sendRepayModalLabel" aria-hidden="true">
+                <div class="modal-dialog modal-dialog-centered">
+                    <div class="modal-content" style="background:#1e293b;color:#fff;border:1px solid rgba(255,255,255,0.15);border-radius:14px;">
+                        <div class="modal-header" style="border-bottom:1px solid rgba(255,255,255,0.1);">
+                            <h5 class="modal-title fw-bold" id="sendRepayModalLabel">
+                                <i class="fas fa-paper-plane text-warning me-2"></i>Send Payment Recovery (Repay) Link
+                            </h5>
+                            <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
+                        </div>
+                        <form id="formSendRepayEmail">
+                            <div class="modal-body">
+                                <div id="repayModalAlert" class="alert alert-success" style="display:none;font-size:13px;"></div>
+
+                                <input type="hidden" id="repayModalTxnId" name="txn_id">
+
+                                <div class="p-3 mb-3" style="background:rgba(255,255,255,0.04);border-radius:10px;border:1px solid rgba(255,255,255,0.08);">
+                                    <div class="d-flex justify-content-between mb-1" style="font-size:13px;">
+                                        <span class="text-muted">Transaction / Order:</span>
+                                        <strong id="repayModalTxnNum" class="text-warning"></strong>
+                                    </div>
+                                    <div class="d-flex justify-content-between" style="font-size:13px;">
+                                        <span class="text-muted">Total Amount To Pay:</span>
+                                        <strong id="repayModalAmount" class="text-success fs-6"></strong>
+                                    </div>
+                                </div>
+
+                                <div class="mb-3">
+                                    <label class="form-label text-muted small fw-bold">Recipient Email Address <span class="text-danger">*</span></label>
+                                    <input type="email" class="form-control" id="repayModalEmail" required style="background:rgba(255,255,255,0.08);color:#fff;border-color:rgba(255,255,255,0.15);">
+                                </div>
+
+                                <div class="mb-3">
+                                    <label class="form-label text-muted small fw-bold">Direct Payment URL</label>
+                                    <div class="input-group">
+                                        <input type="text" class="form-control form-control-sm" id="repayModalUrl" readonly style="background:rgba(0,0,0,0.25);color:#94a3b8;border-color:rgba(255,255,255,0.15);font-size:12px;">
+                                        <button type="button" class="btn btn-outline-warning btn-sm" id="btnCopyRepayLink"><i class="fas fa-copy"></i> Copy</button>
+                                    </div>
+                                </div>
+
+                                <div class="mb-3">
+                                    <label class="form-label text-muted small fw-bold">Optional Custom Message for Customer</label>
+                                    <textarea class="form-control" id="repayModalCustomNote" rows="2" placeholder="Add an optional personal message to include in the email..." style="background:rgba(255,255,255,0.08);color:#fff;border-color:rgba(255,255,255,0.15);font-size:13px;"></textarea>
+                                </div>
+                            </div>
+                            <div class="modal-footer" style="border-top:1px solid rgba(255,255,255,0.1);">
+                                <button type="button" class="btn btn-secondary btn-sm" data-bs-dismiss="modal">Cancel</button>
+                                <button type="submit" class="btn btn-warning btn-sm fw-bold" id="btnSubmitSendRepay">
+                                    <i class="fas fa-paper-plane me-1"></i> Send Repayment Email
+                                </button>
+                            </div>
+                        </form>
+                    </div>
+                </div>
+            </div>
 @endpush
