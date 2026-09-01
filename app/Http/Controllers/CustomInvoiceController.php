@@ -812,13 +812,16 @@ class CustomInvoiceController extends Controller
         $cartItems = $invoice->items->map(function ($item) use (&$totalGuests) {
             $qty = max(1, (int) $item->quantity);
             $totalGuests += $qty;
+            $lineTotal = (float) $item->getLineTotal();
             return [
                 'name' => $item->name,
                 'package_name' => $item->name,
                 'guests' => $qty,
-                'price' => (float) $item->price,
                 'quantity' => $qty,
-                'total' => (float) $item->getLineTotal(),
+                'price' => (float) $item->price,
+                'unit_price' => (float) $item->price,
+                'total' => $lineTotal,
+                'line_total' => $lineTotal,
             ];
         })->toArray();
 
@@ -873,7 +876,6 @@ class CustomInvoiceController extends Controller
 
             if ($affiliate) {
                 $transaction->affiliate_id = $affiliate->id;
-                $transaction->promoter_id = $affiliate->parent_id ?: $affiliate->id;
 
                 $affWeb = \App\Models\AffiliateWebsite::where('affiliate_id', $affiliate->id)
                     ->where('website_id', $invoice->website_id)

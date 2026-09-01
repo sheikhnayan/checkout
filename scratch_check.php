@@ -6,13 +6,13 @@ $kernel->bootstrap();
 
 use App\Models\CustomInvoice;
 
-$inv = CustomInvoice::find(9);
-if ($inv) {
-    $inv->status = 'sent';
-    $inv->paid_at = null;
-    $inv->payment_transaction_id = null;
-    $inv->save();
-    echo "Reset Invoice #9 status back to 'sent' successfully.\n";
-} else {
-    echo "Invoice #9 not found.\n";
+$invoices = CustomInvoice::all();
+foreach ($invoices as $inv) {
+    if ($inv->status === 'paid' && !\App\Models\Transaction::where('custom_invoice_id', $inv->id)->exists()) {
+        $inv->status = 'sent';
+        $inv->paid_at = null;
+        $inv->payment_transaction_id = null;
+        $inv->save();
+        echo "Reset Invoice #{$inv->id} status back to 'sent'.\n";
+    }
 }
