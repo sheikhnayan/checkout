@@ -2176,6 +2176,7 @@ body.modal-open .admin-mobile-menu-toggle {
                                                 </a>
                                             </li>
                                             @endif
+                                            @endif
                                             @if($canArchiveTransactions)
                                             <li><hr class="dropdown-divider" style="border-color:rgba(255,255,255,0.12)"></li>
                                             @if($isArchivedView)

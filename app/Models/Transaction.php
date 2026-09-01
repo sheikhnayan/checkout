@@ -274,4 +274,19 @@ class Transaction extends Model
 
         return [$stringValue];
     }
+
+    public function resolvePriceBreakdown(?Website $website = null): array
+    {
+        $breakdown = is_array($this->price_breakdown) ? $this->price_breakdown : (json_decode($this->price_breakdown, true) ?: []);
+        if (!empty($breakdown) && (isset($breakdown['service_charge']) || isset($breakdown['items_subtotal']) || isset($breakdown['packages_subtotal']))) {
+            return $breakdown;
+        }
+
+        $targetWebsite = $website ?: $this->website;
+        if (!$targetWebsite && !empty($this->website_id)) {
+            $targetWebsite = Website::find($this->website_id);
+        }
+
+        return (new \App\Http\Controllers\TransactionController())->buildPackagePriceBreakdown($this, $targetWebsite);
+    }
 }

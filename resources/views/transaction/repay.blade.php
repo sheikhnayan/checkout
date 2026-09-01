@@ -208,7 +208,7 @@
         <div class="section-heading">Order Summary &amp; Breakdown</div>
         @php
             $cartItems = is_array($transaction->cart_items) ? $transaction->cart_items : (json_decode($transaction->cart_items, true) ?: []);
-            $breakdown = is_array($transaction->price_breakdown) ? $transaction->price_breakdown : (json_decode($transaction->price_breakdown, true) ?: []);
+            $breakdown = $transaction->resolvePriceBreakdown($website);
             $customInvoice = !empty($transaction->custom_invoice_id) ? \App\Models\CustomInvoice::find($transaction->custom_invoice_id) : null;
         @endphp
         @if(!empty($cartItems))

@@ -3793,7 +3793,7 @@ class TransactionController extends Controller
         return strtoupper($rawCode);
     }
 
-    private function buildPackagePriceBreakdown(Transaction $transaction, ?Website $website): array
+    public function buildPackagePriceBreakdown(Transaction $transaction, ?Website $website): array
     {
         $cartItems = $this->normalizeStoredCartItems($transaction->cart_items);
 
