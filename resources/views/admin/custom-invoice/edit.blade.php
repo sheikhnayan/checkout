@@ -337,6 +337,7 @@ html body .custom-invoice-page-wrapper .btn-light i {
                                                     @foreach($websites as $website)
                                                         <option value="{{ $website->id }}" 
                                                             {{ $customInvoice->website_id == $website->id ? 'selected' : '' }}
+                                                            data-timezone="{{ $website->resolved_timezone ?? 'America/Los_Angeles' }}"
                                                             data-operating-start="{{ $website->operating_start_time ?? '' }}"
                                                             data-operating-end="{{ $website->operating_end_time ?? '' }}"
                                                             data-daily-hours="{{ htmlspecialchars(json_encode($website->getDailyOperatingHoursMap()), ENT_QUOTES, 'UTF-8') }}"
@@ -388,7 +389,7 @@ html body .custom-invoice-page-wrapper .btn-light i {
                                                  <div class="col-md-6">
                                                      <div class="form-group mb-3">
                                                          <label for="package_use_date" class="form-label">Reservation / Visit Date (Optional Pre-selection) <i class="fas fa-circle-info ms-1 field-tip" data-bs-toggle="tooltip" data-bs-placement="top" title="Preselect visit date for client. If left blank, client must select date at checkout."></i></label>
-                                                         <input type="date" name="package_use_date" id="package_use_date" class="form-control" value="{{ old('package_use_date', $customInvoice->package_use_date) }}" min="{{ date('Y-m-d') }}">
+                                                         <input type="date" name="package_use_date" id="package_use_date" class="form-control" value="{{ old('package_use_date', $customInvoice->package_use_date) }}" min="{{ \Carbon\Carbon::now(optional($customInvoice->website)->resolved_timezone ?? 'America/Los_Angeles')->format('Y-m-d') }}">
                                                          <small class="text-muted">Optional: Preselect date or leave empty for client to pick at payment.</small>
                                                      </div>
                                                  </div>
@@ -799,6 +800,7 @@ html body .custom-invoice-page-wrapper .btn-light i {
                 let dailyHoursMap = {};
                 let websiteStartDefault = null;
                 let websiteEndDefault = null;
+                let clubTz = 'America/Los_Angeles';
 
                 if (selectedOpt && selectedOpt.value) {
                     try {
@@ -806,9 +808,21 @@ html body .custom-invoice-page-wrapper .btn-light i {
                     } catch(e) { dailyHoursMap = {}; }
                     websiteStartDefault = selectedOpt.getAttribute('data-operating-start') || null;
                     websiteEndDefault = selectedOpt.getAttribute('data-operating-end') || null;
+                    clubTz = selectedOpt.getAttribute('data-timezone') || 'America/Los_Angeles';
                 }
 
                 const dateInput = document.getElementById('package_use_date');
+                if (dateInput) {
+                    try {
+                        const nowClubStr = new Date().toLocaleString('en-US', { timeZone: clubTz });
+                        const nowClub = new Date(nowClubStr);
+                        const nowYear = nowClub.getFullYear();
+                        const nowMonth = String(nowClub.getMonth() + 1).padStart(2, '0');
+                        const nowDate = String(nowClub.getDate()).padStart(2, '0');
+                        dateInput.min = nowYear + '-' + nowMonth + '-' + nowDate;
+                    } catch(e) {}
+                }
+
                 const dateStr = dateInput ? dateInput.value : '';
                 const dayName = getDayOfWeekFromDateString(dateStr);
 

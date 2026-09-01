@@ -443,7 +443,7 @@
                                 <div style="display: flex; gap: 15px;">
                                     <div class="form-group" style="flex: 1; margin-bottom: 0;">
                                         <label style="font-weight: 600; color: #1e3a8a;">Reservation / Visit Date <span style="color:red;">*</span></label>
-                                        <input type="date" name="package_use_date" class="form-control" min="{{ date('Y-m-d') }}" value="{{ old('package_use_date', $invoice->package_use_date ?? '') }}" required>
+                                        <input type="date" name="package_use_date" class="form-control" min="{{ \Carbon\Carbon::now(optional($website)->resolved_timezone ?? 'America/Los_Angeles')->format('Y-m-d') }}" value="{{ old('package_use_date', $invoice->package_use_date ?? '') }}" required>
                                         <small style="font-size: 11px; color: #475569;">Planned date of visit</small>
                                     </div>
                                     <div class="form-group" style="flex: 1; margin-bottom: 0;">
@@ -554,7 +554,7 @@
                                 <div style="display: flex; gap: 15px;">
                                     <div class="form-group" style="flex: 1; margin-bottom: 0;">
                                         <label style="font-weight: 600; color: #1e3a8a;">Reservation / Visit Date <span style="color:red;">*</span></label>
-                                        <input type="date" name="package_use_date" class="form-control" min="{{ date('Y-m-d') }}" value="{{ old('package_use_date', $invoice->package_use_date ?? '') }}" required>
+                                        <input type="date" name="package_use_date" class="form-control" min="{{ \Carbon\Carbon::now(optional($website)->resolved_timezone ?? 'America/Los_Angeles')->format('Y-m-d') }}" value="{{ old('package_use_date', $invoice->package_use_date ?? '') }}" required>
                                         <small style="font-size: 11px; color: #475569;">Planned date of visit</small>
                                     </div>
                                     <div class="form-group" style="flex: 1; margin-bottom: 0;">
@@ -868,6 +868,7 @@
             });
 
             // Dynamic Club Operating Hours & Arrival Time Slot Population
+            const clubTz = @json(optional($website)->resolved_timezone ?? 'America/Los_Angeles');
             const dailyOperatingHoursMap = @json($website ? $website->getDailyOperatingHoursMap() : []);
             const websiteStartDefault = @json($website->operating_start_time ?? null);
             const websiteEndDefault = @json($website->operating_end_time ?? null);
@@ -1047,6 +1048,16 @@
             $(document).ready(function() {
                 renderDayWiseOperatingHoursBadge();
                 
+                try {
+                    const nowClubStr = new Date().toLocaleString('en-US', { timeZone: clubTz });
+                    const nowClub = new Date(nowClubStr);
+                    const nowYear = nowClub.getFullYear();
+                    const nowMonth = String(nowClub.getMonth() + 1).padStart(2, '0');
+                    const nowDate = String(nowClub.getDate()).padStart(2, '0');
+                    const todayInClub = nowYear + '-' + nowMonth + '-' + nowDate;
+                    $('input[name="package_use_date"]').attr('min', todayInClub);
+                } catch (e) {}
+
                 const $dateInput = $('input[name="package_use_date"]');
                 if ($dateInput.length) {
                     updateArrivalTimesForDate($dateInput.first().val());
