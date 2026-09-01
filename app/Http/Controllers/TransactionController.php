@@ -4577,6 +4577,13 @@ class TransactionController extends Controller
                 $this->applyWebsiteSmtpConfig($website);
             }
 
+            \Mail::purge('smtp');
+            \Log::info('Dispatching TransactionRepayMail', [
+                'transaction_id' => $transaction->id,
+                'recipient' => $recipientEmail,
+                'repay_url' => $transaction->repay_url,
+            ]);
+
             \Mail::to($recipientEmail)->send(new \App\Mail\TransactionRepayMail($transaction, $website, $customNote));
 
             $msg = "Payment recovery (repay) email sent successfully to {$recipientEmail}!";

@@ -6145,7 +6145,7 @@ body.modal-open .admin-mobile-menu-toggle {
                 btn.prop('disabled', true).html('<span class="spinner-border spinner-border-sm me-2"></span>Sending Email...');
 
                 $.ajax({
-                    url: '/admin/transaction/' + txnId + '/send-repay-email',
+                    url: '{{ url("/admins/transaction") }}/' + txnId + '/send-repay-email',
                     method: 'POST',
                     data: {
                         _token: '{{ csrf_token() }}',
@@ -6182,7 +6182,7 @@ body.modal-open .admin-mobile-menu-toggle {
                 }
 
                 $.ajax({
-                    url: '/admin/transaction/' + id + '/toggle-sandbox',
+                    url: '{{ url("/admins/transaction") }}/' + id + '/toggle-sandbox',
                     method: 'POST',
                     data: {
                         _token: '{{ csrf_token() }}'
