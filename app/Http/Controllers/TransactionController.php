@@ -4558,17 +4558,46 @@ class TransactionController extends Controller
         $transaction->ensureRepayToken();
         $customNote = $request->input('custom_note');
 
+        \Log::info('=== SEND REPAY EMAIL INIT ===', [
+            'transaction_id' => $transaction->id,
+            'confirmation_number' => $transaction->transaction_id,
+            'recipient' => $recipientEmail,
+            'website_id' => optional($website)->id,
+            'website_name' => optional($website)->name,
+            'repay_url' => $transaction->repay_url,
+            'mail_default_driver' => config('mail.default'),
+            'smtp_host_before' => config('mail.mailers.smtp.host'),
+            'from_address_before' => config('mail.from.address'),
+        ]);
+
         try {
             if ($website) {
                 $this->applyWebsiteSmtpConfig($website);
             }
 
-            \Log::info('Dispatching TransactionRepayMail to: ' . $recipientEmail, [
-                'transaction_id' => $transaction->id,
-                'repay_url' => $transaction->repay_url,
+            \Log::info('=== SMTP CONFIG AFTER RESOLUTION ===', [
+                'mail_default_driver' => config('mail.default'),
+                'smtp_host' => config('mail.mailers.smtp.host'),
+                'smtp_port' => config('mail.mailers.smtp.port'),
+                'smtp_username' => config('mail.mailers.smtp.username'),
+                'from_address' => config('mail.from.address'),
+                'from_name' => config('mail.from.name'),
             ]);
 
-            \Mail::to($recipientEmail)->send(new \App\Mail\TransactionRepayMail($transaction, $website, $customNote));
+            $mailable = new \App\Mail\TransactionRepayMail($transaction, $website, $customNote);
+
+            \Log::info('=== DISPATCHING MAILABLE ===', [
+                'recipient' => $recipientEmail,
+                'mailable' => get_class($mailable),
+            ]);
+
+            $sendResult = \Mail::to($recipientEmail)->send($mailable);
+
+            \Log::info('=== REPAY EMAIL DISPATCH SUCCESS ===', [
+                'transaction_id' => $transaction->id,
+                'recipient' => $recipientEmail,
+                'send_result' => $sendResult,
+            ]);
 
             $msg = "Payment recovery (repay) email sent successfully to {$recipientEmail}!";
             return response()->json([
@@ -4577,14 +4606,20 @@ class TransactionController extends Controller
                 'repay_url' => $transaction->repay_url,
             ]);
         } catch (\Throwable $e) {
-            \Log::error('Failed to send TransactionRepayMail: ' . $e->getMessage(), [
+            \Log::error('=== REPAY EMAIL DISPATCH EXCEPTION ===', [
                 'transaction_id' => $transaction->id,
-                'error' => $e->getMessage(),
+                'recipient' => $recipientEmail,
+                'error_message' => $e->getMessage(),
+                'error_file' => $e->getFile(),
+                'error_line' => $e->getLine(),
+                'trace' => $e->getTraceAsString(),
             ]);
 
+            $detailMsg = 'Failed to send repayment email: ' . $e->getMessage() . ' (' . basename($e->getFile()) . ':' . $e->getLine() . ')';
             return response()->json([
                 'success' => false,
-                'message' => 'Failed to send repayment email: ' . $e->getMessage(),
+                'message' => $detailMsg,
+                'error_code' => $e->getCode(),
             ], 500);
         }
     }

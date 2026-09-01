@@ -6135,39 +6135,50 @@ body.modal-open .admin-mobile-menu-toggle {
                 if (!input || !input.value) return;
 
                 var urlText = input.value;
-
-                var temp = document.createElement("textarea");
-                temp.value = urlText;
-                temp.style.position = "fixed";
-                temp.style.left = "-9999px";
-                temp.style.top = "0";
-                document.body.appendChild(temp);
-                temp.focus();
-                temp.select();
-
-                var successful = false;
-                try {
-                    successful = document.execCommand("copy");
-                } catch (e) {
-                    successful = false;
-                }
-
-                document.body.removeChild(temp);
-
-                if (!successful && navigator.clipboard && window.isSecureContext) {
-                    navigator.clipboard.writeText(urlText);
-                    successful = true;
-                }
-
                 var $btn = $(btn);
-                var origText = '<i class="fas fa-copy me-1"></i> Copy';
-                $btn.html('<i class="fas fa-check me-1"></i> Copied!').removeClass('btn-outline-warning').addClass('btn-success text-white');
-                setTimeout(function() {
-                    $btn.html(origText).removeClass('btn-success text-white').addClass('btn-outline-warning');
-                }, 2500);
 
-                if (!successful) {
-                    prompt("Copy repayment link:", urlText);
+                function setSuccessState() {
+                    var origText = '<i class="fas fa-copy me-1"></i> Copy';
+                    $btn.html('<i class="fas fa-check me-1"></i> Copied!').removeClass('btn-outline-warning').addClass('btn-success text-white');
+                    setTimeout(function() {
+                        $btn.html(origText).removeClass('btn-success text-white').addClass('btn-outline-warning');
+                    }, 2500);
+                }
+
+                if (navigator.clipboard && window.isSecureContext) {
+                    navigator.clipboard.writeText(urlText).then(function() {
+                        setSuccessState();
+                    }).catch(function() {
+                        doFallbackCopy();
+                    });
+                } else {
+                    doFallbackCopy();
+                }
+
+                function doFallbackCopy() {
+                    var temp = document.createElement("textarea");
+                    temp.value = urlText;
+                    temp.style.position = "fixed";
+                    temp.style.left = "0";
+                    temp.style.top = "0";
+                    temp.style.opacity = "0.01";
+                    document.body.appendChild(temp);
+                    temp.focus();
+                    temp.select();
+
+                    var copied = false;
+                    try {
+                        copied = document.execCommand("copy");
+                    } catch (e) {
+                        copied = false;
+                    }
+                    document.body.removeChild(temp);
+
+                    if (copied) {
+                        setSuccessState();
+                    } else {
+                        prompt("Copy repayment link to clipboard:", urlText);
+                    }
                 }
             };
 
