@@ -333,9 +333,12 @@ html body .custom-invoice-page-wrapper .btn-light i {
                                                 <label for="website_id" class="form-label">Website <span class="text-danger">*</span> <i class="fas fa-circle-info ms-1 field-tip" data-bs-toggle="tooltip" data-bs-placement="top" title="The club or venue this invoice is being issued on behalf of."></i></label>
                                                 <select name="website_id" id="website_id" class="form-select @error('website_id') is-invalid @enderror" required>
                                                     <option value="">-- Select Website --</option>
-                                                    @foreach($websites as $website)
+                                                     @foreach($websites as $website)
                                                         <option value="{{ $website->id }}" 
                                                             {{ old('website_id') == $website->id ? 'selected' : '' }}
+                                                            data-operating-start="{{ $website->operating_start_time ?? '' }}"
+                                                            data-operating-end="{{ $website->operating_end_time ?? '' }}"
+                                                            data-daily-hours="{{ htmlspecialchars(json_encode($website->getDailyOperatingHoursMap()), ENT_QUOTES, 'UTF-8') }}"
                                                             data-gratuity-fee="{{ $website->gratuity_fee ?? 0 }}"
                                                             data-gratuity-name="{{ $website->gratuity_name ?? 'Gratuity Fee' }}"
                                                             data-refundable-fee="{{ $website->refundable_fee ?? 0 }}"
@@ -348,7 +351,7 @@ html body .custom-invoice-page-wrapper .btn-light i {
                                                             data-processing-fee-type="{{ $website->processing_fee_type ?? 'percentage' }}">
                                                             {{ $website->name }}
                                                         </option>
-                                                    @endforeach
+                                                     @endforeach
                                                 </select>
                                                 @error('website_id')
                                                     <span class="invalid-feedback d-block">{{ $message }}</span>
@@ -379,38 +382,32 @@ html body .custom-invoice-page-wrapper .btn-light i {
                                                 </div>
                                             </div>
 
-                                            <!-- Reservation Date & Arrival Time (Optional Pre-selection) -->
-                                            <div class="row mb-3">
-                                                <div class="col-md-6">
-                                                    <div class="form-group mb-3">
-                                                        <label for="package_use_date" class="form-label">Reservation / Visit Date (Optional Pre-selection) <i class="fas fa-circle-info ms-1 field-tip" data-bs-toggle="tooltip" data-bs-placement="top" title="Preselect visit date for client. If left blank, client must select date at checkout."></i></label>
-                                                        <input type="date" name="package_use_date" id="package_use_date" class="form-control" value="{{ old('package_use_date') }}" min="{{ date('Y-m-d') }}">
-                                                        <small class="text-muted">Optional: Preselect date or leave empty for client to pick at payment.</small>
-                                                    </div>
-                                                </div>
-                                                <div class="col-md-6">
-                                                    <div class="form-group mb-3">
-                                                        <label for="transportation_arrival_time" class="form-label">Estimated Arrival Time (Optional Pre-selection) <i class="fas fa-circle-info ms-1 field-tip" data-bs-toggle="tooltip" data-bs-placement="top" title="Preselect arrival time for client. If left blank, client must select time at checkout."></i></label>
-                                                        <select name="transportation_arrival_time" id="transportation_arrival_time" class="form-select">
-                                                            <option value="">-- Client Will Select at Checkout --</option>
-                                                            <option value="9:00 PM" {{ old('transportation_arrival_time') == '9:00 PM' ? 'selected' : '' }}>9:00 PM</option>
-                                                            <option value="9:30 PM" {{ old('transportation_arrival_time') == '9:30 PM' ? 'selected' : '' }}>9:30 PM</option>
-                                                            <option value="10:00 PM" {{ old('transportation_arrival_time') == '10:00 PM' ? 'selected' : '' }}>10:00 PM</option>
-                                                            <option value="10:30 PM" {{ old('transportation_arrival_time') == '10:30 PM' ? 'selected' : '' }}>10:30 PM</option>
-                                                            <option value="11:00 PM" {{ old('transportation_arrival_time') == '11:00 PM' ? 'selected' : '' }}>11:00 PM</option>
-                                                            <option value="11:30 PM" {{ old('transportation_arrival_time') == '11:30 PM' ? 'selected' : '' }}>11:30 PM</option>
-                                                            <option value="12:00 AM" {{ old('transportation_arrival_time') == '12:00 AM' ? 'selected' : '' }}>12:00 AM (Midnight)</option>
-                                                            <option value="12:30 AM" {{ old('transportation_arrival_time') == '12:30 AM' ? 'selected' : '' }}>12:30 AM</option>
-                                                            <option value="1:00 AM" {{ old('transportation_arrival_time') == '1:00 AM' ? 'selected' : '' }}>1:00 AM</option>
-                                                            <option value="1:30 AM" {{ old('transportation_arrival_time') == '1:30 AM' ? 'selected' : '' }}>1:30 AM</option>
-                                                            <option value="2:00 AM" {{ old('transportation_arrival_time') == '2:00 AM' ? 'selected' : '' }}>2:00 AM</option>
-                                                            <option value="2:30 AM" {{ old('transportation_arrival_time') == '2:30 AM' ? 'selected' : '' }}>2:30 AM</option>
-                                                            <option value="3:00 AM" {{ old('transportation_arrival_time') == '3:00 AM' ? 'selected' : '' }}>3:00 AM</option>
-                                                        </select>
-                                                        <small class="text-muted">Optional: Preselect time or leave empty for client to pick at payment.</small>
-                                                    </div>
-                                                </div>
-                                            </div>
+                                             <!-- Reservation Date & Arrival Time (Optional Pre-selection) -->
+                                             <div class="row mb-3">
+                                                 <div class="col-md-6">
+                                                     <div class="form-group mb-3">
+                                                         <label for="package_use_date" class="form-label">Reservation / Visit Date (Optional Pre-selection) <i class="fas fa-circle-info ms-1 field-tip" data-bs-toggle="tooltip" data-bs-placement="top" title="Preselect visit date for client. If left blank, client must select date at checkout."></i></label>
+                                                         <input type="date" name="package_use_date" id="package_use_date" class="form-control" value="{{ old('package_use_date') }}" min="{{ date('Y-m-d') }}">
+                                                         <small class="text-muted">Optional: Preselect date or leave empty for client to pick at payment.</small>
+                                                     </div>
+                                                 </div>
+                                                 <div class="col-md-6">
+                                                     <div class="form-group mb-3">
+                                                         <label for="transportation_arrival_time" class="form-label">Estimated Arrival Time (Optional Pre-selection) <i class="fas fa-circle-info ms-1 field-tip" data-bs-toggle="tooltip" data-bs-placement="top" title="Preselect arrival time for client. If left blank, client must select time at checkout."></i></label>
+                                                         <select name="transportation_arrival_time" id="transportation_arrival_time" class="form-select">
+                                                             <option value="">-- Client Will Select at Checkout --</option>
+                                                         </select>
+                                                         <small class="text-muted">Optional: Preselect time or leave empty for client to pick at payment.</small>
+                                                     </div>
+                                                 </div>
+                                             </div>
+                                             
+                                             <!-- Day-Wise Venue Operating Hours Badge -->
+                                             <div class="row mb-3" id="arrival-hours-badge-row" style="display: none;">
+                                                 <div class="col-12">
+                                                     <div id="arrival-hours-badge" class="schedule-hours-badge"></div>
+                                                 </div>
+                                             </div>
 
                                             <!-- Customer Notes & Internal Notes -->
                                             <div class="row mb-3">
@@ -711,5 +708,220 @@ html body .custom-invoice-page-wrapper .btn-light i {
 
         // Initial summary
         updateSummary();
+    </script>
+    <script>
+        (function() {
+            function parseTimeToMinutes(timeValue) {
+                if (!timeValue) return null;
+                const trimmed = String(timeValue).trim().replace(/[\u00A0\u202F]/g, ' ');
+                const twelveHourMatch = trimmed.match(/^(\d{1,2}):(\d{2})(?::\d{2})?\s*([AaPp])\.?\s*[Mm]\.?$/);
+                if (twelveHourMatch) {
+                    let hours = parseInt(twelveHourMatch[1], 10) % 12;
+                    const minutes = parseInt(twelveHourMatch[2], 10);
+                    if (twelveHourMatch[3].toUpperCase() === 'P') {
+                        hours += 12;
+                    }
+                    return (hours * 60) + minutes;
+                }
+                const twentyFourHourMatch = trimmed.match(/^(\d{1,2}):(\d{2})(?::\d{2})?$/);
+                if (twentyFourHourMatch) {
+                    return (parseInt(twentyFourHourMatch[1], 10) * 60) + parseInt(twentyFourHourMatch[2], 10);
+                }
+                return null;
+            }
+
+            function formatMinutesToTwelveHour(totalMinutes) {
+                const normalized = ((totalMinutes % 1440) + 1440) % 1440;
+                const hours24 = Math.floor(normalized / 60);
+                const minutes = normalized % 60;
+                const meridiem = hours24 >= 12 ? 'PM' : 'AM';
+                const hours12 = (hours24 % 12) || 12;
+                const minStr = String(minutes).padStart(2, '0');
+                if (hours12 === 12 && minutes === 0 && meridiem === 'AM') {
+                    return '12:00 AM (Midnight)';
+                }
+                return hours12 + ':' + minStr + ' ' + meridiem;
+            }
+
+            function getDayOfWeekFromDateString(dateStr) {
+                if (!dateStr || typeof dateStr !== 'string') return null;
+                const parts = dateStr.trim().split('-');
+                if (parts.length !== 3) return null;
+                const year = parseInt(parts[0], 10);
+                const month = parseInt(parts[1], 10) - 1;
+                const day = parseInt(parts[2], 10);
+                const dateObj = new Date(year, month, day);
+                if (isNaN(dateObj.getTime())) return null;
+                const days = ['sunday', 'monday', 'tuesday', 'wednesday', 'thursday', 'friday', 'saturday'];
+                return days[dateObj.getDay()];
+            }
+
+            function generateTimeSlotOptions(startTimeStr, endTimeStr) {
+                let startMin = parseTimeToMinutes(startTimeStr);
+                let endMin = parseTimeToMinutes(endTimeStr);
+
+                if (startMin === null) startMin = 1260; // 9:00 PM
+                if (endMin === null) endMin = 180;    // 3:00 AM
+
+                if (endMin <= startMin) {
+                    endMin += 1440; // Overnight
+                }
+
+                const options = [];
+                for (let cur = startMin; cur <= endMin; cur += 30) {
+                    const timeFormatted = formatMinutesToTwelveHour(cur);
+                    const timeVal = timeFormatted.replace(' (Midnight)', '');
+                    options.push({ value: timeVal, label: timeFormatted });
+                }
+                return options;
+            }
+
+            function updateAdminInvoiceArrivalTimes() {
+                const websiteSelect = document.getElementById('website_id');
+                const selectedOpt = websiteSelect ? websiteSelect.options[websiteSelect.selectedIndex] : null;
+                
+                let dailyHoursMap = {};
+                let websiteStartDefault = null;
+                let websiteEndDefault = null;
+
+                if (selectedOpt && selectedOpt.value) {
+                    try {
+                        dailyHoursMap = JSON.parse(selectedOpt.getAttribute('data-daily-hours') || '{}');
+                    } catch(e) { dailyHoursMap = {}; }
+                    websiteStartDefault = selectedOpt.getAttribute('data-operating-start') || null;
+                    websiteEndDefault = selectedOpt.getAttribute('data-operating-end') || null;
+                }
+
+                const dateInput = document.getElementById('package_use_date');
+                const dateStr = dateInput ? dateInput.value : '';
+                const dayName = getDayOfWeekFromDateString(dateStr);
+
+                let startStr = websiteStartDefault;
+                let endStr = websiteEndDefault;
+
+                if (dayName && dailyHoursMap && dailyHoursMap[dayName]) {
+                    const dayCfg = dailyHoursMap[dayName];
+                    if (dayCfg.operating_start_time) startStr = dayCfg.operating_start_time;
+                    if (dayCfg.operating_end_time) endStr = dayCfg.operating_end_time;
+                }
+
+                const timeOptions = generateTimeSlotOptions(startStr, endStr);
+                const arrivalSelect = document.getElementById('transportation_arrival_time');
+
+                if (arrivalSelect) {
+                    const currentVal = arrivalSelect.value || @json(old('transportation_arrival_time', ''));
+                    arrivalSelect.innerHTML = '<option value="">-- Client Will Select at Checkout --</option>';
+
+                    let foundMatch = false;
+                    timeOptions.forEach(opt => {
+                        const isSel = (currentVal && (currentVal === opt.value || currentVal === opt.label || currentVal.replace(' (Midnight)', '') === opt.value));
+                        if (isSel) foundMatch = true;
+                        const newOpt = document.createElement('option');
+                        newOpt.value = opt.value;
+                        newOpt.textContent = opt.label;
+                        if (isSel) newOpt.selected = true;
+                        arrivalSelect.appendChild(newOpt);
+                    });
+
+                    if (!foundMatch && currentVal) {
+                        const customOpt = document.createElement('option');
+                        customOpt.value = currentVal;
+                        customOpt.textContent = currentVal;
+                        customOpt.selected = true;
+                        arrivalSelect.appendChild(customOpt);
+                    }
+                }
+
+                // Render Day-Wise Operating Hours Badge
+                const badgeRow = document.getElementById('arrival-hours-badge-row');
+                const badgeEl = document.getElementById('arrival-hours-badge');
+                if (badgeRow && badgeEl) {
+                    if (!selectedOpt || !selectedOpt.value) {
+                        badgeRow.style.display = 'none';
+                        return;
+                    }
+
+                    const daysOrder = [
+                        { key: 'monday', label: 'Mon' },
+                        { key: 'tuesday', label: 'Tue' },
+                        { key: 'wednesday', label: 'Wed' },
+                        { key: 'thursday', label: 'Thu' },
+                        { key: 'friday', label: 'Fri' },
+                        { key: 'saturday', label: 'Sat' },
+                        { key: 'sunday', label: 'Sun' }
+                    ];
+
+                    const daySchedules = [];
+                    daysOrder.forEach((dayObj, idx) => {
+                        const cfg = dailyHoursMap ? dailyHoursMap[dayObj.key] : null;
+                        const sTime = (cfg && cfg.operating_start_time) ? cfg.operating_start_time : websiteStartDefault;
+                        const eTime = (cfg && cfg.operating_end_time) ? cfg.operating_end_time : websiteEndDefault;
+
+                        if (sTime && eTime) {
+                            const startDisp = formatMinutesToTwelveHour(parseTimeToMinutes(sTime) || 0).replace(' (Midnight)', '');
+                            const endDisp = formatMinutesToTwelveHour(parseTimeToMinutes(eTime) || 0).replace(' (Midnight)', '');
+                            daySchedules.push({
+                                index: idx,
+                                label: dayObj.label,
+                                timeStr: startDisp + ' to ' + endDisp
+                            });
+                        }
+                    });
+
+                    if (daySchedules.length === 0) {
+                        badgeRow.style.display = 'none';
+                        return;
+                    }
+
+                    const groupsByTime = {};
+                    const timeOrder = [];
+                    daySchedules.forEach(item => {
+                        if (!groupsByTime[item.timeStr]) {
+                            groupsByTime[item.timeStr] = [];
+                            timeOrder.push(item.timeStr);
+                        }
+                        groupsByTime[item.timeStr].push(item);
+                    });
+
+                    let htmlLines = '';
+                    timeOrder.forEach(timeStr => {
+                        const daysGroup = groupsByTime[timeStr];
+                        let dayRangeStr = '';
+                        if (daysGroup.length === 1) {
+                            dayRangeStr = daysGroup[0].label;
+                        } else {
+                            dayRangeStr = daysGroup[0].label + '-' + daysGroup[daysGroup.length - 1].label;
+                        }
+                        htmlLines += `
+                            <div class="hours-line">
+                                <span class="hours-days">${dayRangeStr}</span>
+                                <span class="hours-time">${timeStr}</span>
+                            </div>
+                        `;
+                    });
+
+                    badgeEl.innerHTML = `
+                        <div class="hours-title"><i class="fas fa-clock me-1"></i> Venue Operating Hours</div>
+                        <div class="hours-list">${htmlLines}</div>
+                    `;
+                    badgeRow.style.display = 'flex';
+                }
+            }
+
+            document.addEventListener('DOMContentLoaded', function() {
+                updateAdminInvoiceArrivalTimes();
+                
+                const websiteSelect = document.getElementById('website_id');
+                if (websiteSelect) {
+                    websiteSelect.addEventListener('change', updateAdminInvoiceArrivalTimes);
+                }
+
+                const dateInput = document.getElementById('package_use_date');
+                if (dateInput) {
+                    dateInput.addEventListener('change', updateAdminInvoiceArrivalTimes);
+                    dateInput.addEventListener('input', updateAdminInvoiceArrivalTimes);
+                }
+            });
+        })();
     </script>
 @endsection
