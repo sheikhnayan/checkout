@@ -69,11 +69,25 @@ class CustomInvoicePaymentConfirmationMail extends Mailable
         }
 
         try {
+            $qrCodeBase64 = null;
+            if (!empty($this->transaction->ticket_qr_code)) {
+                try {
+                    $qrUrl = 'https://api.qrserver.com/v1/create-qr-code/?size=150x150&data=' . urlencode($this->transaction->ticket_qr_code);
+                    $qrImageData = @file_get_contents($qrUrl);
+                    if ($qrImageData !== false) {
+                        $qrCodeBase64 = 'data:image/png;base64,' . base64_encode($qrImageData);
+                    }
+                } catch (\Throwable $qrEx) {
+                    // Fallback
+                }
+            }
+
             $pdf = Pdf::loadView('custom-invoice-pdf', [
                 'invoice' => $this->invoice,
                 'transaction' => $this->transaction,
                 'paymentType' => $this->paymentType,
                 'website' => $this->website,
+                'qrCodeBase64' => $qrCodeBase64,
             ]);
 
             return [

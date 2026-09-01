@@ -4,15 +4,14 @@ $app = require_once __DIR__ . '/bootstrap/app.php';
 $kernel = $app->make(\Illuminate\Contracts\Console\Kernel::class);
 $kernel->bootstrap();
 
-use App\Models\CustomInvoice;
+use App\Models\Website;
 
-$invoices = CustomInvoice::all();
-foreach ($invoices as $inv) {
-    if ($inv->status === 'paid' && !\App\Models\Transaction::where('custom_invoice_id', $inv->id)->exists()) {
-        $inv->status = 'sent';
-        $inv->paid_at = null;
-        $inv->payment_transaction_id = null;
-        $inv->save();
-        echo "Reset Invoice #{$inv->id} status back to 'sent'.\n";
-    }
+$websites = Website::all();
+echo "=== WEBSITES OPERATING HOURS ===\n";
+foreach ($websites as $w) {
+    echo "Website ID {$w->id}: {$w->name}\n";
+    echo "  operating_start_time: " . ($w->operating_start_time ?: 'NULL') . "\n";
+    echo "  operating_end_time: " . ($w->operating_end_time ?: 'NULL') . "\n";
+    $daily = $w->getDailyOperatingHoursMap();
+    echo "  Daily hours: " . json_encode($daily) . "\n\n";
 }

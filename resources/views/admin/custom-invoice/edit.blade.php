@@ -588,6 +588,10 @@ html body .custom-invoice-page-wrapper .btn-light i {
             
             // Update subtotal
             document.getElementById('summarySubtotal').textContent = '$' + subtotal.toFixed(2);
+
+            if (typeof window.updateAdminInvoiceArrivalTimes === 'function') {
+                window.updateAdminInvoiceArrivalTimes();
+            }
             
             // Calculate and display fees if website is selected
             if (selectedOption && selectedOption.value) {
@@ -823,23 +827,30 @@ html body .custom-invoice-page-wrapper .btn-light i {
                 return options;
             }
 
-            function updateAdminInvoiceArrivalTimes() {
+            window.updateAdminInvoiceArrivalTimes = function() {
                 const websiteSelect = document.getElementById('website_id');
-                const selectedOpt = websiteSelect ? websiteSelect.options[websiteSelect.selectedIndex] : null;
+                const selectedOpt = websiteSelect ? (websiteSelect.selectedOptions[0] || websiteSelect.options[websiteSelect.selectedIndex]) : null;
+                const arrivalSelect = document.getElementById('transportation_arrival_time');
+                const badgeRow = document.getElementById('arrival-hours-badge-row');
                 
-                let dailyHoursMap = {};
-                let websiteStartDefault = null;
-                let websiteEndDefault = null;
-                let clubTz = 'America/Los_Angeles';
-
-                if (selectedOpt && selectedOpt.value) {
-                    try {
-                        dailyHoursMap = JSON.parse(selectedOpt.getAttribute('data-daily-hours') || '{}');
-                    } catch(e) { dailyHoursMap = {}; }
-                    websiteStartDefault = selectedOpt.getAttribute('data-operating-start') || null;
-                    websiteEndDefault = selectedOpt.getAttribute('data-operating-end') || null;
-                    clubTz = selectedOpt.getAttribute('data-timezone') || 'America/Los_Angeles';
+                if (!selectedOpt || !selectedOpt.value) {
+                    if (arrivalSelect) {
+                        arrivalSelect.innerHTML = '<option value="">-- Client Will Select at Checkout --</option>';
+                    }
+                    if (badgeRow) {
+                        badgeRow.style.display = 'none';
+                    }
+                    return;
                 }
+
+                let dailyHoursMap = {};
+                let websiteStartDefault = selectedOpt.getAttribute('data-operating-start') || '9:00 PM';
+                let websiteEndDefault = selectedOpt.getAttribute('data-operating-end') || '3:00 AM';
+                let clubTz = selectedOpt.getAttribute('data-timezone') || 'America/Los_Angeles';
+
+                try {
+                    dailyHoursMap = JSON.parse(selectedOpt.getAttribute('data-daily-hours') || '{}');
+                } catch(e) { dailyHoursMap = {}; }
 
                 const dateInput = document.getElementById('package_use_date');
                 const pacificToday = getPacificTodayDateString(clubTz);
@@ -856,7 +867,7 @@ html body .custom-invoice-page-wrapper .btn-light i {
                                 clickOpens: true,
                                 onChange: function(selectedDates, dateStr) {
                                     dateInput.value = dateStr;
-                                    updateAdminInvoiceArrivalTimes();
+                                    window.updateAdminInvoiceArrivalTimes();
                                 }
                             });
                         }
@@ -876,7 +887,6 @@ html body .custom-invoice-page-wrapper .btn-light i {
                 }
 
                 const timeOptions = generateTimeSlotOptions(startStr, endStr);
-                const arrivalSelect = document.getElementById('transportation_arrival_time');
 
                 if (arrivalSelect) {
                     const currentVal = arrivalSelect.value || @json(old('transportation_arrival_time', $customInvoice->transportation_arrival_time ?? ''));
@@ -903,14 +913,8 @@ html body .custom-invoice-page-wrapper .btn-light i {
                 }
 
                 // Render Day-Wise Operating Hours Badge
-                const badgeRow = document.getElementById('arrival-hours-badge-row');
                 const badgeEl = document.getElementById('arrival-hours-badge');
                 if (badgeRow && badgeEl) {
-                    if (!selectedOpt || !selectedOpt.value) {
-                        badgeRow.style.display = 'none';
-                        return;
-                    }
-
                     const daysOrder = [
                         { key: 'monday', label: 'Mon' },
                         { key: 'tuesday', label: 'Tue' },
@@ -974,24 +978,39 @@ html body .custom-invoice-page-wrapper .btn-light i {
                         <div class="hours-title"><i class="fas fa-clock me-1"></i> Venue Operating Hours</div>
                         <div class="hours-list">${htmlLines}</div>
                     `;
-                    badgeRow.style.display = 'flex';
+                    badgeRow.style.display = 'block';
                 }
-            }
+            };
 
-            document.addEventListener('DOMContentLoaded', function() {
-                updateAdminInvoiceArrivalTimes();
+            function initAdminInvoiceArrivalEvents() {
+                window.updateAdminInvoiceArrivalTimes();
                 
                 const websiteSelect = document.getElementById('website_id');
                 if (websiteSelect) {
-                    websiteSelect.addEventListener('change', updateAdminInvoiceArrivalTimes);
+                    websiteSelect.addEventListener('change', window.updateAdminInvoiceArrivalTimes);
                 }
 
                 const dateInput = document.getElementById('package_use_date');
                 if (dateInput) {
-                    dateInput.addEventListener('change', updateAdminInvoiceArrivalTimes);
-                    dateInput.addEventListener('input', updateAdminInvoiceArrivalTimes);
+                    dateInput.addEventListener('change', window.updateAdminInvoiceArrivalTimes);
+                    dateInput.addEventListener('input', window.updateAdminInvoiceArrivalTimes);
                 }
-            });
+
+                if (window.jQuery) {
+                    window.jQuery(document).on('change select2:select', '#website_id', function() {
+                        window.updateAdminInvoiceArrivalTimes();
+                    });
+                    window.jQuery(document).on('change input', '#package_use_date', function() {
+                        window.updateAdminInvoiceArrivalTimes();
+                    });
+                }
+            }
+
+            if (document.readyState === 'loading') {
+                document.addEventListener('DOMContentLoaded', initAdminInvoiceArrivalEvents);
+            } else {
+                initAdminInvoiceArrivalEvents();
+            }
         })();
     </script>
 @endsection

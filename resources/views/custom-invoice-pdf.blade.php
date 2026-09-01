@@ -168,11 +168,25 @@
             <p class="header-subtitle">Invoice #{{ $invoice->id }} | Confirmation ID: {{ $transaction->transaction_id }}</p>
             <p class="header-subtitle">Order ID: {{ $transaction->id ?? 'N/A' }}</p>
         </div>
-        @if($transaction && $transaction->ticket_qr_code)
+        @if(!empty($qrCodeBase64) || (!empty($transaction) && !empty($transaction->ticket_qr_code)))
+        @php
+            $qrSrc = $qrCodeBase64 ?? null;
+            if (!$qrSrc && !empty($transaction->ticket_qr_code)) {
+                try {
+                    $qrImg = @file_get_contents('https://api.qrserver.com/v1/create-qr-code/?size=150x150&data=' . urlencode($transaction->ticket_qr_code));
+                    if ($qrImg !== false) {
+                        $qrSrc = 'data:image/png;base64,' . base64_encode($qrImg);
+                    }
+                } catch (\Throwable $e) {}
+            }
+        @endphp
+        @if($qrSrc)
         <div class="header-qr">
-            <img src="https://api.qrserver.com/v1/create-qr-code/?size=120x120&data={{ urlencode($transaction->ticket_qr_code) }}" alt="QR Code">
+            <img src="{{ $qrSrc }}" alt="Ticket QR Code" width="110" height="110">
             <div class="header-qr-label">Scan for Details</div>
+            <div style="font-size: 8px; font-weight: bold; color: #333; margin-top: 3px;">{{ $transaction->ticket_qr_code }}</div>
         </div>
+        @endif
         @endif
     </div>
 
@@ -228,11 +242,17 @@
             <tbody>
                 @if($invoice->items && count($invoice->items) > 0)
                     @foreach($invoice->items as $item)
+                    @php
+                        $itemName = $item->name ?? $item->description ?? 'Item';
+                        $itemQty = max(1, (int) ($item->quantity ?? 1));
+                        $itemUnitPrice = (float) ($item->price ?? $item->unit_price ?? 0);
+                        $itemAmount = method_exists($item, 'getLineTotal') ? (float) $item->getLineTotal() : ($itemUnitPrice * $itemQty);
+                    @endphp
                     <tr>
-                        <td>{{ $item->description ?? 'Item' }}</td>
-                        <td class="text-right">{{ $item->quantity ?? 1 }}</td>
-                        <td class="text-right">${{ number_format((float)($item->unit_price ?? 0), 2) }}</td>
-                        <td class="text-right">${{ number_format((float)($item->total ?? 0), 2) }}</td>
+                        <td>{{ $itemName }}</td>
+                        <td class="text-right">{{ $itemQty }}</td>
+                        <td class="text-right">${{ number_format($itemUnitPrice, 2) }}</td>
+                        <td class="text-right">${{ number_format($itemAmount, 2) }}</td>
                     </tr>
                     @endforeach
                 @else
@@ -257,10 +277,24 @@
             </div>
             @endif
 
-            @if((float)($invoice->tax ?? 0) > 0)
+            @if((float)($invoice->sales_tax ?? $invoice->tax ?? 0) > 0)
             <div class="total-row">
-                <span>{{ $invoice->sales_tax_name ?? 'Tax' }}</span>
-                <span>${{ number_format((float)($invoice->tax ?? 0), 2) }}</span>
+                <span>{{ $invoice->sales_tax_name ?? 'Sales Tax' }}</span>
+                <span>${{ number_format((float)($invoice->sales_tax ?? $invoice->tax ?? 0), 2) }}</span>
+            </div>
+            @endif
+
+            @if((float)($invoice->service_charge ?? 0) > 0)
+            <div class="total-row">
+                <span>{{ $invoice->service_charge_name ?? 'Service Charge' }}</span>
+                <span>${{ number_format((float)($invoice->service_charge ?? 0), 2) }}</span>
+            </div>
+            @endif
+
+            @if((float)($invoice->gratuity ?? 0) > 0)
+            <div class="total-row">
+                <span>{{ $invoice->gratuity_name ?? 'Gratuity' }}</span>
+                <span>${{ number_format((float)($invoice->gratuity ?? 0), 2) }}</span>
             </div>
             @endif
 
@@ -283,7 +317,7 @@
             </div>
             <div class="total-row">
                 <span>Remaining Balance Due</span>
-                <span>${{ number_format((float)($invoice->total - $transaction->total), 2) }}</span>
+                <span>${{ number_format(max((float)($invoice->total - $transaction->total), 0), 2) }}</span>
             </div>
             @else
             <div class="total-row" style="margin-top: 12px; padding-top: 12px; border-top: 1px solid #ddd;">

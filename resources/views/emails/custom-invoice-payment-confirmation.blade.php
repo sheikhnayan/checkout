@@ -28,7 +28,22 @@
         <tr><th>Email</th><td>{{ $invoice->client_email }}</td></tr>
         <tr><th>Payment Type</th><td>{{ $paymentType === 'deposit' ? 'Deposit' : 'Full Payment' }}</td></tr>
         <tr><th>Status</th><td>{{ strtoupper((string) $invoice->status) }}</td></tr>
+        @if(!empty($invoice->package_use_date))
+        <tr><th>Visit / Reservation Date</th><td>{{ \Carbon\Carbon::parse($invoice->package_use_date)->format('M d, Y') }}</td></tr>
+        @endif
+        @if(!empty($invoice->transportation_arrival_time))
+        <tr><th>Estimated Arrival Time</th><td>{{ $invoice->transportation_arrival_time }}</td></tr>
+        @endif
     </table>
+
+    @if(!empty($transaction->ticket_qr_code))
+    <div class="section-title">Check-In Ticket QR Code</div>
+    <div style="text-align: center; margin: 16px 0; padding: 18px; border: 1px solid #cbd5e1; border-radius: 8px; background: #f8fafc;">
+        <img src="https://api.qrserver.com/v1/create-qr-code/?size=200x200&data={{ urlencode($transaction->ticket_qr_code) }}" alt="Ticket QR Code" width="200" height="200" style="border-radius: 8px; border: 1px solid #cbd5e1; display: inline-block; max-width: 100%; height: auto;">
+        <div style="margin-top: 10px; font-weight: bold; font-size: 15px; letter-spacing: 1px; color: #0f172a;">{{ $transaction->ticket_qr_code }}</div>
+        <div style="font-size: 12px; color: #64748b; margin-top: 5px;">Present this QR code upon arrival at the venue for check-in</div>
+    </div>
+    @endif
 
     <div class="section-title">Invoice Items</div>
     <table>
