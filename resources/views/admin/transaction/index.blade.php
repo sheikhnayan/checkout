@@ -2643,7 +2643,7 @@ body.modal-open .admin-mobile-menu-toggle {
                 }
                 runStatCardCountUp();
 
-                const actionColumnIndex = $('#txnDataTable thead th').filter(function() {
+                const actionColumnIndex = $('#txnDataTable thead tr:last-child th').filter(function() {
                     return $(this).text().trim().toLowerCase() === 'action';
                 }).first().index();
                 const nonOrderableTargets = [0];
@@ -3221,13 +3221,12 @@ body.modal-open .admin-mobile-menu-toggle {
                 // and internal underscore helper columns out of exports.
                 function getExportColumnIndexes() {
                     const indexes = [];
-                    $('#txnDataTable thead th').each(function (idx) {
+                    $('#txnDataTable thead tr:last-child th').each(function (idx) {
                         const $th = $(this);
                         const headerText = $th.text().trim().toLowerCase();
                         if (idx === 0) return;
                         if (headerText === 'action') return;
                         if (headerText === 'reservation status') return;
-                        if (headerText === 'entry status') return;
                         if (headerText.startsWith('_')) return;
 
                         // Keep any real data column, even if the responsive layout hides it.
@@ -3280,7 +3279,7 @@ body.modal-open .admin-mobile-menu-toggle {
                     const packageLabel = String($button.data('package-label') || packageButton.getAttribute('data-package-label') || '').trim();
                     const menCount = parseInt($button.data('men') || 0, 10) || 0;
                     const womenCount = parseInt($button.data('women') || 0, 10) || 0;
-                    const totalGuests = menCount + womenCount;
+                    const totalGenderGuests = menCount + womenCount;
 
                     let cartItems = $button.data('cart-items');
                     if (!Array.isArray(cartItems)) {
@@ -3288,42 +3287,55 @@ body.modal-open .admin-mobile-menu-toggle {
                     }
 
                     const packageParts = [];
-                    if (Array.isArray(cartItems)) {
+                    if (Array.isArray(cartItems) && cartItems.length > 0) {
                         cartItems.forEach(function (item) {
                             if (!item || typeof item !== 'object') {
                                 return;
                             }
 
-                            const packageName = String(item.package_name || item.packageName || item.pkgName || '').trim();
+                            const packageName = String(item.name || item.package_name || item.packageName || item.pkgName || '').trim();
                             if (!packageName) {
                                 return;
                             }
 
                             const quantity = Math.max(1, parseInt(item.guests || item.quantity || 1, 10) || 1);
                             const packageType = String(item.package_type || item.type || item.packageType || '').toLowerCase();
+                            const unitLabel = (packageType === 'ticket') ? (quantity === 1 ? 'ticket' : 'tickets') : (quantity === 1 ? 'guest' : 'guests');
 
-                            if (packageType === 'ticket') {
-                                packageParts.push(packageName + ' x' + quantity + ' tickets');
-                            } else {
-                                packageParts.push(packageName + ' x' + quantity + ' guests');
+                            let itemAddonStr = '';
+                            if (Array.isArray(item.addons) && item.addons.length > 0) {
+                                const addonNames = item.addons.map(function(a) {
+                                    return typeof a === 'object' ? (a.name || '') : String(a);
+                                }).filter(Boolean);
+                                if (addonNames.length > 0) {
+                                    itemAddonStr = ' + Add-ons: ' + addonNames.join(', ');
+                                }
                             }
+
+                            packageParts.push(packageName + ' (' + quantity + ' ' + unitLabel + ')' + itemAddonStr);
                         });
                     }
 
-                    const summary = packageParts.length > 0 ? packageParts.join('; ') : packageLabel;
-                    const details = [];
-
-                    if (summary) {
-                        details.push(summary);
+                    if (packageParts.length > 0) {
+                        let detailsText = packageParts.join('; ');
+                        if (totalGenderGuests > 0 && (transactionType === 'reservation' || menCount > 0 || womenCount > 0)) {
+                            detailsText += ' [Guests Breakdown: M ' + menCount + ', F ' + womenCount + ', Total ' + totalGenderGuests + ']';
+                        }
+                        return detailsText;
                     }
 
-                    if (transactionType === 'reservation' && totalGuests > 0) {
-                        details.push('Guests: M ' + menCount + ', F ' + womenCount + ', Total ' + totalGuests);
-                    } else if (totalGuests > 0) {
-                        details.push('Guests: ' + totalGuests);
+                    // Fallback if no cartItems array
+                    let summary = packageLabel || 'N/A';
+                    const pkgGuests = parseInt($button.data('package_number_of_guest') || 0, 10) || 0;
+                    const guestTotal = totalGenderGuests > 0 ? totalGenderGuests : pkgGuests;
+
+                    if (totalGenderGuests > 0 && (transactionType === 'reservation' || menCount > 0 || womenCount > 0)) {
+                        summary += ' (Guests: M ' + menCount + ', F ' + womenCount + ', Total ' + totalGenderGuests + ')';
+                    } else if (guestTotal > 0) {
+                        summary += ' (' + guestTotal + ' guests)';
                     }
 
-                    return details.join(' | ');
+                    return summary;
                 }
 
                 function getRowGuestCountFromButton($viewBtn) {
@@ -3343,7 +3355,55 @@ body.modal-open .admin-mobile-menu-toggle {
                         const $td = $(rowNode).children('td').eq(colIdx);
                         if ($td.length) {
                             const $clone = $td.clone();
-                            $clone.find('button, .btn, .view-btn, .dropdown, script, style').remove();
+                            $clone.find('button, .btn, .view-btn, .dropdown, script, style, input[type="checkbox"]').remove();
+
+                            // Order ID (colIdx 1)
+                            if (colIdx === 1) {
+                                const orderText = $td.find('.txn-order-id div').first().text().trim() || $td.text().trim();
+                                const isSandbox = $td.find('.badge').text().toUpperCase().includes('SANDBOX');
+                                return isSandbox ? (orderText + ' (SANDBOX)') : orderText;
+                            }
+
+                            // Sale Date (colIdx 2)
+                            if (colIdx === 2) {
+                                const mainDate = $td.find('.txn-date-main').text().trim();
+                                const dateTime = $td.find('.txn-date-time').text().trim();
+                                if (mainDate && dateTime) return mainDate + ' ' + dateTime;
+                                if (mainDate) return mainDate;
+                            }
+
+                            // Confirmation # (colIdx 3)
+                            if (colIdx === 3) {
+                                const confText = $td.find('div').first().text().trim() || $td.text().trim();
+                                const isRepaid = $td.find('.badge').text().toUpperCase().includes('REPAID');
+                                return isRepaid ? (confText + ' (REPAID LIVE)') : confText;
+                            }
+
+                            // Source (colIdx 6)
+                            if (colIdx === 6) {
+                                const mainText = $td.find('a, span').first().text().trim();
+                                const subText = $td.find('div').text().trim();
+                                if (mainText && subText) {
+                                    return mainText + ' (' + subText + ')';
+                                }
+                                if (mainText) return mainText;
+                            }
+
+                            // Customer details (colIdx 7)
+                            if (colIdx === 7) {
+                                const nameNode = $td.find('.txn-customer-name').contents().filter(function() {
+                                    return this.nodeType === 3;
+                                }).text().trim();
+                                const fullCustomerName = nameNode || $td.find('.txn-customer-name').text().replace(/x\d+/, '').trim();
+                                const email = $td.find('.txn-customer-email').text().trim();
+                                const phone = $td.find('.txn-customer-phone').text().trim();
+                                const parts = [];
+                                if (fullCustomerName) parts.push(fullCustomerName);
+                                if (email) parts.push(email);
+                                if (phone) parts.push(phone);
+                                if (parts.length) return parts.join(' | ');
+                            }
+
                             const text = $clone.text().replace(/\s+/g, ' ').trim();
                             if (text !== '') {
                                 return text;
@@ -3374,10 +3434,10 @@ body.modal-open .admin-mobile-menu-toggle {
                     const selectedOnly = selected.length > 0;
 
                     const headers = exportColumnIndexes.map(function (idx) {
-                        return stripHtml($('#txnDataTable thead th').eq(idx).text());
+                        return stripHtml($('#txnDataTable thead tr:last-child th').eq(idx).text());
                     });
                     headers.push('Guest Count');
-                    headers.push('Package Details');
+                    headers.push('Packages & Guests');
 
                     const rows = [];
                     const summary = {
@@ -3468,7 +3528,7 @@ body.modal-open .admin-mobile-menu-toggle {
                                 }
 
                                 const row = exportColumnIndexes.map(function (colIdx) {
-                                    return getCleanCellContent(rowNode, colIdx, rowData ? rowData[colIdx] : null);
+                                    return getCleanCellContent(rowNode, colIdx, rawData ? rawData[colIdx] : null);
                                 });
                                 row.push(String(guestCount));
                                 row.push(getExportPackageDetails(rowNode));
