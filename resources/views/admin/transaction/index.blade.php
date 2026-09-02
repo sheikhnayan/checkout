@@ -3430,8 +3430,7 @@ body.modal-open .admin-mobile-menu-toggle {
 
                 function getExportDataset() {
                     const exportColumnIndexes = getExportColumnIndexes();
-                    const selected = $('.row-check:checked');
-                    const selectedOnly = selected.length > 0;
+                    const selectedOnly = typeof selectedTransactionIds !== 'undefined' && selectedTransactionIds.size > 0;
 
                     const headers = exportColumnIndexes.map(function (idx) {
                         return stripHtml($('#txnDataTable thead tr:last-child th').eq(idx).text());
@@ -3476,13 +3475,14 @@ body.modal-open .admin-mobile-menu-toggle {
                             exportRowsApi.every(function (rowIndex) {
                                 const rowNode = this.node();
                                 const rowData = this.data();
+                                const $rowNode = $(rowNode);
+                                const rowId = String($rowNode.attr('data-row-id') || $rowNode.find('.row-check').val() || '');
 
-                                // If checkboxes selected, only export checked rows
-                                if (selectedOnly && !$(rowNode).find('.row-check').prop('checked')) {
+                                // If checkboxes selected, only export checked rows across all pages
+                                if (selectedOnly && !selectedTransactionIds.has(rowId)) {
                                     return true; // continue
                                 }
 
-                                const $rowNode = $(rowNode);
                                 const $viewBtn = $rowNode.find('.view-btn').first();
                                 const guestCount = getRowGuestCountFromButton($viewBtn);
 
@@ -3544,7 +3544,7 @@ body.modal-open .admin-mobile-menu-toggle {
                         rows,
                         summary,
                         selectedOnly,
-                        selectedCount: selected.length,
+                        selectedCount: selectedOnly ? selectedTransactionIds.size : 0,
                     };
                 }
 
