@@ -1363,11 +1363,11 @@ body.modal-open .admin-mobile-menu-toggle {
                         </li>
                     </ul>
 
-                    <div class="d-flex align-items-center gap-2">
+                    <!-- <div class="d-flex align-items-center gap-2">
                         <span class="badge bg-primary bg-opacity-25 text-info px-3 py-2 rounded-pill" style="border: 1px solid rgba(56, 189, 248, 0.3); font-weight: 600; font-size: 0.75rem;">
                             <i class="fas fa-bolt me-1"></i> FILTER SYNCED
                         </span>
-                    </div>
+                    </div> -->
                 </div>
 
                 {{-- Tab Panes Container --}}
