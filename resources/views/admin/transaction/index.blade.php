@@ -3715,13 +3715,11 @@ body.modal-open .admin-mobile-menu-toggle {
                         head: [dataset.headers],
                         body: dataset.rows,
                         startY: (doc.lastAutoTable && doc.lastAutoTable.finalY ? doc.lastAutoTable.finalY + 4 : 40),
-                        margin: { left: 5, right: 5, top: 10, bottom: 10 },
-                        styles: { fontSize: 5, cellPadding: 1, overflow: 'linebreak', valign: 'middle' },
-                        headStyles: { fillColor: [41, 128, 185], fontSize: 5.5, fontStyle: 'bold' },
+                        margin: { left: 4, right: 4, top: 10, bottom: 10 },
+                        styles: { fontSize: 4, cellPadding: 0.6, overflow: 'linebreak', valign: 'middle' },
+                        headStyles: { fillColor: [41, 128, 185], fontSize: 4.5, fontStyle: 'bold' },
                         bodyStyles: { textColor: [25, 25, 25] },
                         theme: 'grid',
-                        horizontalPageBreak: true,
-                        horizontalPageBreakRepeat: 0,
                     });
                     doc.save('transactions.pdf');
                 }
