@@ -448,6 +448,159 @@
 .polaris-clear-all-btn:hover {
     color: #fca5a5;
 }
+
+/* ─── Mobile Filter Drawer & Touch UI Styles ─── */
+.mobile-filter-toolbar {
+    background: rgba(15, 23, 42, 0.85);
+    border: 1px solid rgba(255, 255, 255, 0.12);
+    border-radius: 14px;
+    padding: 12px;
+    backdrop-filter: blur(12px);
+}
+.mobile-filter-trigger-btn {
+    background: linear-gradient(135deg, rgba(124, 58, 237, 0.3) 0%, rgba(99, 102, 241, 0.3) 100%);
+    border: 1px solid rgba(124, 58, 237, 0.5);
+    color: #ffffff;
+    font-weight: 700;
+    font-size: 0.88rem;
+    padding: 10px 16px;
+    border-radius: 10px;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+    transition: all 0.2s ease;
+    box-shadow: 0 4px 14px rgba(124, 58, 237, 0.2);
+    cursor: pointer;
+}
+.mobile-filter-trigger-btn:active {
+    transform: scale(0.98);
+}
+.mobile-active-badge {
+    background: #7c3aed;
+    color: #ffffff;
+    font-size: 0.72rem;
+    font-weight: 800;
+    padding: 2px 8px;
+    border-radius: 999px;
+    box-shadow: 0 2px 6px rgba(124, 58, 237, 0.4);
+}
+.mobile-active-chips-bar {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    overflow-x: auto;
+    -webkit-overflow-scrolling: touch;
+    padding: 6px 0 8px 0;
+    scrollbar-width: none;
+}
+.mobile-active-chips-bar::-webkit-scrollbar {
+    display: none;
+}
+.mobile-filter-chip {
+    background: rgba(124, 58, 237, 0.22);
+    border: 1px solid rgba(124, 58, 237, 0.45);
+    color: #d8b4fe;
+    font-size: 0.78rem;
+    font-weight: 600;
+    padding: 4px 10px;
+    border-radius: 20px;
+    white-space: nowrap;
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    flex-shrink: 0;
+}
+.mobile-filter-chip i.remove-chip {
+    color: #f43f5e;
+    cursor: pointer;
+    font-size: 0.8rem;
+    padding: 2px;
+}
+.mobile-filter-chip i.remove-chip:hover {
+    color: #ffffff;
+}
+
+/* Mobile Bottom Sheet Modal / Drawer */
+#mobileFilterModal .modal-dialog {
+    margin: 0;
+    max-width: 100%;
+    position: fixed;
+    bottom: 0;
+    left: 0;
+    right: 0;
+    top: auto;
+}
+#mobileFilterModal .modal-content {
+    border-radius: 20px 20px 0 0 !important;
+    background: #0f172a !important;
+    border: 1px solid rgba(255, 255, 255, 0.15) !important;
+    max-height: 85vh;
+    display: flex;
+    flex-direction: column;
+}
+#mobileFilterModal .modal-header {
+    border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+    padding: 14px 18px;
+    background: rgba(15, 23, 42, 0.95);
+    border-radius: 20px 20px 0 0;
+}
+#mobileFilterModal .drawer-handle {
+    width: 42px;
+    height: 5px;
+    background: rgba(255, 255, 255, 0.3);
+    border-radius: 4px;
+    margin: 0 auto 10px auto;
+}
+#mobileFilterModal .modal-body {
+    overflow-y: auto;
+    padding: 16px 18px 90px 18px;
+}
+.mobile-filter-group-card {
+    background: rgba(30, 41, 59, 0.6);
+    border: 1px solid rgba(255, 255, 255, 0.08);
+    border-radius: 14px;
+    padding: 14px;
+    margin-bottom: 14px;
+}
+.mobile-filter-group-title {
+    font-size: 0.8rem;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.06em;
+    color: #94a3b8;
+    margin-bottom: 10px;
+    display: flex;
+    align-items: center;
+    gap: 6px;
+}
+.mobile-preset-btn {
+    background: rgba(255, 255, 255, 0.06);
+    border: 1px solid rgba(255, 255, 255, 0.12);
+    color: #e2e8f0;
+    font-size: 0.78rem;
+    font-weight: 600;
+    padding: 6px 12px;
+    border-radius: 8px;
+    transition: all 0.15s ease;
+    cursor: pointer;
+}
+.mobile-preset-btn.active, .mobile-preset-btn:active {
+    background: #7c3aed;
+    border-color: #a78bfa;
+    color: #ffffff;
+}
+.mobile-filter-sticky-footer {
+    position: absolute;
+    bottom: 0;
+    left: 0;
+    right: 0;
+    background: rgba(15, 23, 42, 0.95);
+    border-top: 1px solid rgba(255, 255, 255, 0.12);
+    padding: 12px 18px;
+    backdrop-filter: blur(10px);
+    z-index: 10;
+}
 #viewTransactionModal .modal-header { background: #0f172a; border-bottom: 1px solid #1e293b; }
 #viewTransactionModal .modal-content,
 #viewTransactionModal .modal-body { background: #0f172a; }
@@ -1190,7 +1343,36 @@ body.modal-open .admin-mobile-menu-toggle {
                     ? $accessibleWebsites 
                     : (auth()->user()->isAdmin() ? \App\Models\Website::where('is_archieved', 0)->get() : collect());
             @endphp
-            <div class="position-relative mb-3">
+            {{-- ── MOBILE SEARCH & FILTER TOOLBAR (< 768px) ───────────────── --}}
+            <div class="d-block d-md-none mb-3">
+                <div class="mobile-filter-toolbar d-flex flex-column gap-2">
+                    {{-- 1. Full-width Mobile Search Input --}}
+                    <div class="mobile-search-input-wrap position-relative">
+                        <i class="fas fa-search txn-search-icon"></i>
+                        <input type="text" id="mobileTxnSearch" class="txn-search-input pe-4 w-100" style="background:rgba(255,255,255,0.08);border-radius:10px;height:42px;" placeholder="Search name, email, order ID, or #…">
+                        <button type="button" id="mobileSearchClearBtn" class="btn btn-sm text-white-50 position-absolute end-0 top-50 translate-middle-y me-1 d-none" style="border:none;background:none;"><i class="fas fa-times-circle"></i></button>
+                    </div>
+
+                    {{-- 2. Filter Drawer Trigger & Clear All Row --}}
+                    <div class="d-flex align-items-center justify-content-between gap-2">
+                        <button type="button" class="mobile-filter-trigger-btn flex-grow-1" data-bs-toggle="modal" data-bs-target="#mobileFilterModal">
+                            <i class="fas fa-sliders-h"></i> Filter & Refine
+                            <span class="mobile-active-badge" id="mobileActiveFiltersBadge">0</span>
+                        </button>
+                        <button type="button" class="btn btn-outline-danger btn-sm px-3 py-2 rounded-3 d-none" id="mobileClearAllBtn" onclick="clearAllPolarisFilters()" style="height:42px;font-size:0.8rem;font-weight:600;">
+                            <i class="fas fa-undo me-1"></i> Reset
+                        </button>
+                    </div>
+
+                    {{-- 3. Mobile Active Filter Chips Bar --}}
+                    <div class="mobile-active-chips-bar d-none" id="mobileActiveChipsBar">
+                        <!-- Dynamic active filter chips inserted here via JS -->
+                    </div>
+                </div>
+            </div>
+
+            {{-- ── DESKTOP SEARCH & FILTERS BAR (≥ 768px) ───────────────── --}}
+            <div class="position-relative mb-3 d-none d-md-block">
                 <div class="polaris-filter-bar mb-0 d-flex align-items-center gap-2" id="polarisFilterContainer">
                     
                     {{-- Search Input (Left aligned in Filter Bar) --}}
@@ -2288,6 +2470,193 @@ body.modal-open .admin-mobile-menu-toggle {
                     </div>
                 </div>
             </div>
+
+            <!-- Mobile Filter Bottom Sheet Modal / Drawer -->
+            <div class="modal fade" id="mobileFilterModal" tabindex="-1" aria-labelledby="mobileFilterModalLabel" aria-hidden="true">
+                <div class="modal-dialog modal-dialog-scrollable">
+                    <div class="modal-content">
+                        <div class="modal-header flex-column align-items-stretch border-bottom-0 pb-1">
+                            <div class="drawer-handle"></div>
+                            <div class="d-flex align-items-center justify-content-between w-100 mb-1">
+                                <h5 class="modal-title text-white fw-bold d-flex align-items-center gap-2 mb-0" style="font-size:1.1rem;" id="mobileFilterModalLabel">
+                                    <i class="fas fa-sliders-h text-primary"></i> Filter Transactions
+                                    <span class="badge bg-primary rounded-pill" style="font-size:0.75rem;" id="mobileDrawerTotalBadge">0</span>
+                                </h5>
+                                <div class="d-flex align-items-center gap-2">
+                                    <button type="button" class="btn btn-sm btn-link text-danger text-decoration-none px-1" onclick="clearAllPolarisFilters()" style="font-size:0.82rem;font-weight:600;">Reset All</button>
+                                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close" style="filter:invert(1);"></button>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="modal-body">
+                            {{-- 1. Date Range & Target --}}
+                            <div class="mobile-filter-group-card">
+                                <div class="mobile-filter-group-title">
+                                    <i class="fas fa-calendar-alt text-warning"></i> Date Filter
+                                </div>
+                                <div class="mb-3">
+                                    <label class="form-label text-white-50 small mb-1">Target Date Mode:</label>
+                                    <select id="mobileDateTargetSelect" class="form-select form-select-sm bg-dark text-white border-secondary">
+                                        <option value="either" selected>Either (Sale or Usage Date)</option>
+                                        <option value="sale">Sale Date (Transaction Date)</option>
+                                        <option value="reservation">Reservation Date (Usage Date)</option>
+                                    </select>
+                                </div>
+                                <div class="mb-3">
+                                    <label class="form-label text-white-50 small mb-1">Quick Date Presets:</label>
+                                    <div class="d-flex flex-wrap gap-2">
+                                        <button type="button" class="mobile-preset-btn" onclick="applyMobileDatePreset('today')">Today</button>
+                                        <button type="button" class="mobile-preset-btn" onclick="applyMobileDatePreset('yesterday')">Yesterday</button>
+                                        <button type="button" class="mobile-preset-btn" onclick="applyMobileDatePreset('7days')">Last 7 Days</button>
+                                        <button type="button" class="mobile-preset-btn" onclick="applyMobileDatePreset('thisMonth')">This Month</button>
+                                        <button type="button" class="mobile-preset-btn" onclick="applyMobileDatePreset('allTime')">All Time</button>
+                                    </div>
+                                </div>
+                                <div>
+                                    <label class="form-label text-white-50 small mb-1">Custom Date Range:</label>
+                                    <div class="txn-date-range-wrap w-100" style="background:rgba(255,255,255,0.08);border-color:rgba(255,255,255,0.15);">
+                                        <i class="fas fa-calendar-alt me-2" style="color:rgba(255,255,255,0.4);font-size:0.85rem"></i>
+                                        <input type="text" id="mobileTxnDateRange" class="txn-date-input w-100" readonly placeholder="All time" value="{{ $initialDateRange }}">
+                                    </div>
+                                </div>
+                            </div>
+
+                            @if($accessibleSitesList->count() > 1)
+                            {{-- 2. Venue Filter --}}
+                            <div class="mobile-filter-group-card">
+                                <div class="mobile-filter-group-title justify-content-between">
+                                    <span><i class="fas fa-store text-info"></i> Venue</span>
+                                    <div>
+                                        <a href="javascript:void(0)" class="polaris-popover-action me-2" onclick="polarisToggleSelectAll('venue', true)">Select All</a>
+                                        <a href="javascript:void(0)" class="polaris-popover-action" onclick="polarisToggleSelectAll('venue', false)">Clear</a>
+                                    </div>
+                                </div>
+                                <div class="d-flex flex-column gap-2">
+                                    @foreach($accessibleSitesList as $site)
+                                    <label class="polaris-checkbox-label">
+                                        <input type="checkbox" class="polaris-filter-cb" data-category="venue" value="{{ $site->name }}" {{ $filterWebsite === $site->name ? 'checked' : '' }}>
+                                        <span>{{ $site->name }}</span>
+                                    </label>
+                                    @endforeach
+                                </div>
+                            </div>
+                            @endif
+
+                            {{-- 3. Reservation Status --}}
+                            <div class="mobile-filter-group-card">
+                                <div class="mobile-filter-group-title justify-content-between">
+                                    <span><i class="fas fa-tasks text-success"></i> Reservation Status</span>
+                                    <div>
+                                        <a href="javascript:void(0)" class="polaris-popover-action me-2" onclick="polarisToggleSelectAll('reservation', true)">Select All</a>
+                                        <a href="javascript:void(0)" class="polaris-popover-action" onclick="polarisToggleSelectAll('reservation', false)">Clear</a>
+                                    </div>
+                                </div>
+                                <div class="d-flex flex-column gap-2">
+                                    <label class="polaris-checkbox-label">
+                                        <input type="checkbox" class="polaris-filter-cb" data-category="reservation" value="upcoming" {{ $filterReservation === 'upcoming' ? 'checked' : '' }}>
+                                        <span>Upcoming</span>
+                                    </label>
+                                    <label class="polaris-checkbox-label">
+                                        <input type="checkbox" class="polaris-filter-cb" data-category="reservation" value="today" {{ $filterReservation === 'today' ? 'checked' : '' }}>
+                                        <span>Today</span>
+                                    </label>
+                                    <label class="polaris-checkbox-label">
+                                        <input type="checkbox" class="polaris-filter-cb" data-category="reservation" value="past" {{ $filterReservation === 'past' ? 'checked' : '' }}>
+                                        <span>Past</span>
+                                    </label>
+                                    <label class="polaris-checkbox-label">
+                                        <input type="checkbox" class="polaris-filter-cb" data-category="reservation" value="checked_in" {{ $filterReservation === 'checked_in' ? 'checked' : '' }}>
+                                        <span>Checked In</span>
+                                    </label>
+                                    <label class="polaris-checkbox-label">
+                                        <input type="checkbox" class="polaris-filter-cb" data-category="reservation" value="not_checked_in" {{ $filterReservation === 'not_checked_in' ? 'checked' : '' }}>
+                                        <span>Not Checked In</span>
+                                    </label>
+                                    <label class="polaris-checkbox-label">
+                                        <input type="checkbox" class="polaris-filter-cb" data-category="reservation" value="no_show" {{ $filterReservation === 'no_show' ? 'checked' : '' }}>
+                                        <span>No Show</span>
+                                    </label>
+                                </div>
+                            </div>
+
+                            {{-- 4. Sales Channel --}}
+                            <div class="mobile-filter-group-card">
+                                <div class="mobile-filter-group-title justify-content-between">
+                                    <span><i class="fas fa-user-tag style=color:#a78bfa;"></i> Sales Channel / Promoter</span>
+                                    <div>
+                                        <a href="javascript:void(0)" class="polaris-popover-action me-2" onclick="polarisToggleSelectAll('affiliate', true)">Select All</a>
+                                        <a href="javascript:void(0)" class="polaris-popover-action" onclick="polarisToggleSelectAll('affiliate', false)">Clear</a>
+                                    </div>
+                                </div>
+                                <div class="d-flex flex-column gap-2">
+                                    <label class="polaris-checkbox-label">
+                                        <input type="checkbox" class="polaris-filter-cb" data-category="affiliate" value="Direct" {{ $filterAffiliate === 'Direct' ? 'checked' : '' }}>
+                                        <span>Direct (No promoter)</span>
+                                    </label>
+                                    @foreach($referralRows as $rn)
+                                    <label class="polaris-checkbox-label">
+                                        <input type="checkbox" class="polaris-filter-cb" data-category="affiliate" value="{{ $rn }}" {{ $filterAffiliate === $rn ? 'checked' : '' }}>
+                                        <span>{{ $rn }}</span>
+                                    </label>
+                                    @endforeach
+                                </div>
+                            </div>
+
+                            {{-- 5. Payment Status --}}
+                            <div class="mobile-filter-group-card">
+                                <div class="mobile-filter-group-title justify-content-between">
+                                    <span><i class="fas fa-credit-card text-danger"></i> Payment Status</span>
+                                    <div>
+                                        <a href="javascript:void(0)" class="polaris-popover-action me-2" onclick="polarisToggleSelectAll('status', true)">Select All</a>
+                                        <a href="javascript:void(0)" class="polaris-popover-action" onclick="polarisToggleSelectAll('status', false)">Clear</a>
+                                    </div>
+                                </div>
+                                <div class="d-flex flex-column gap-2">
+                                    <label class="polaris-checkbox-label">
+                                        <input type="checkbox" class="polaris-filter-cb" data-category="status" value="Completed" {{ $filterStatus === 'Completed' ? 'checked' : '' }}>
+                                        <span><i class="fas fa-circle text-success me-1" style="font-size:0.6rem;"></i> Completed</span>
+                                    </label>
+                                    <label class="polaris-checkbox-label">
+                                        <input type="checkbox" class="polaris-filter-cb" data-category="status" value="Canceled" {{ $filterStatus === 'Canceled' ? 'checked' : '' }}>
+                                        <span><i class="fas fa-circle text-danger me-1" style="font-size:0.6rem;"></i> Canceled</span>
+                                    </label>
+                                    <label class="polaris-checkbox-label">
+                                        <input type="checkbox" class="polaris-filter-cb" data-category="status" value="Refunded" {{ $filterStatus === 'Refunded' ? 'checked' : '' }}>
+                                        <span><i class="fas fa-circle text-warning me-1" style="font-size:0.6rem;"></i> Refunded</span>
+                                    </label>
+                                </div>
+                            </div>
+
+                            {{-- 6. Host Name --}}
+                            <div class="mobile-filter-group-card">
+                                <div class="mobile-filter-group-title justify-content-between">
+                                    <span><i class="fas fa-user-circle text-primary"></i> Host Name Filter</span>
+                                    <div>
+                                        <a href="javascript:void(0)" class="polaris-popover-action me-2" onclick="polarisToggleSelectAll('host', true)">Select All</a>
+                                        <a href="javascript:void(0)" class="polaris-popover-action" onclick="polarisToggleSelectAll('host', false)">Clear</a>
+                                    </div>
+                                </div>
+                                <div class="d-flex flex-column gap-2">
+                                    <label class="polaris-checkbox-label">
+                                        <input type="checkbox" class="polaris-filter-cb" data-category="host" value="has_host">
+                                        <span><i class="fas fa-check text-success me-1"></i> Has Host Name</span>
+                                    </label>
+                                    <label class="polaris-checkbox-label">
+                                        <input type="checkbox" class="polaris-filter-cb" data-category="host" value="no_host">
+                                        <span><i class="fas fa-times text-muted me-1"></i> No Host Name</span>
+                                    </label>
+                                </div>
+                            </div>
+
+                        </div>
+                        <div class="mobile-filter-sticky-footer">
+                            <button type="button" class="btn btn-primary w-100 py-2.5 fw-bold rounded-3 shadow-lg" data-bs-dismiss="modal">
+                                Apply Filters & Show Results
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </div>
         @endsection
 
 @push('styles')
@@ -2706,8 +3075,10 @@ body.modal-open .admin-mobile-menu-toggle {
 
                     const categories = ['venue', 'status', 'type', 'affiliate', 'reservation', 'host'];
                     const activePopoverBody = $('#activeFiltersPopoverBody');
+                    const mobileActiveChipsBar = $('#mobileActiveChipsBar');
 
                     if (activePopoverBody.length) activePopoverBody.empty();
+                    if (mobileActiveChipsBar.length) mobileActiveChipsBar.empty();
 
                     let totalActiveFilters = 0;
 
@@ -2734,7 +3105,19 @@ body.modal-open .admin-mobile-menu-toggle {
 
                             const labels = [];
                             checkedBoxes.each(function() {
-                                labels.push($(this).parent().text().trim());
+                                const valStr = $(this).val();
+                                const labelStr = $(this).parent().text().trim();
+                                labels.push(labelStr);
+
+                                if (mobileActiveChipsBar.length) {
+                                    const chipHtml = `
+                                        <div class="mobile-filter-chip">
+                                            <span>${categoryNameMap[cat]}: ${labelStr}</span>
+                                            <i class="fas fa-times remove-chip" onclick="removeSingleFilter('${cat}', '${valStr.replace(/'/g, "\\'")}')"></i>
+                                        </div>
+                                    `;
+                                    mobileActiveChipsBar.append(chipHtml);
+                                }
                             });
 
                             if (activePopoverBody.length) {
@@ -2755,8 +3138,8 @@ body.modal-open .admin-mobile-menu-toggle {
                         }
                     });
 
-                    // Handle Date Range Filter in Popover
-                    const dateRangeVal = String($('#txnDateRange').val() || '').trim();
+                    // Handle Date Range Filter in Popover & Mobile Chips
+                    const dateRangeVal = String($('#txnDateRange').val() || $('#mobileTxnDateRange').val() || '').trim();
                     if (dateRangeVal) {
                         totalActiveFilters += 1;
                         $('#pillDateRangeBtn').addClass('active');
@@ -2767,8 +3150,18 @@ body.modal-open .admin-mobile-menu-toggle {
                             sale: 'Sale Date',
                             reservation: 'Usage Date'
                         };
-                        const currentTarget = String($('#dateTargetSelect').val() || 'either').toLowerCase();
+                        const currentTarget = String($('#dateTargetSelect').val() || $('#mobileDateTargetSelect').val() || 'either').toLowerCase();
                         const targetLabel = targetLabelMap[currentTarget] || 'Sale/Usage';
+
+                        if (mobileActiveChipsBar.length) {
+                            const dateChipHtml = `
+                                <div class="mobile-filter-chip">
+                                    <span>Date (${targetLabel}): ${dateRangeVal}</span>
+                                    <i class="fas fa-times remove-chip" onclick="clearPolarisDateRange()"></i>
+                                </div>
+                            `;
+                            mobileActiveChipsBar.append(dateChipHtml);
+                        }
 
                         if (activePopoverBody.length) {
                             const datePopoverHtml = `
@@ -2791,9 +3184,24 @@ body.modal-open .admin-mobile-menu-toggle {
                         activePopoverBody.html('<div class="text-white-50 small p-2 text-center" id="noActiveFiltersText">No active filters applied</div>');
                     }
 
-                    $('#totalActiveFiltersBadge').text(totalActiveFilters);
+                    if (totalActiveFilters > 0) {
+                        mobileActiveChipsBar.removeClass('d-none');
+                        $('#mobileClearAllBtn').removeClass('d-none');
+                    } else {
+                        mobileActiveChipsBar.addClass('d-none');
+                        $('#mobileClearAllBtn').addClass('d-none');
+                    }
+
+                    $('#totalActiveFiltersBadge, #mobileActiveFiltersBadge, #mobileDrawerTotalBadge').text(totalActiveFilters);
                     table.draw();
                 }
+
+                window.removeSingleFilter = function(cat, val) {
+                    $('.polaris-filter-cb[data-category="' + cat + '"]').filter(function() {
+                        return $(this).val() === val;
+                    }).prop('checked', false);
+                    updatePolarisUiAndFilterTable();
+                };
 
                 window.clearPolarisCategory = function(cat) {
                     $('.polaris-filter-cb[data-category="' + cat + '"]').prop('checked', false);
@@ -2802,9 +3210,11 @@ body.modal-open .admin-mobile-menu-toggle {
 
                 window.clearAllPolarisFilters = function() {
                     $('.polaris-filter-cb').prop('checked', false);
-                    $('#txnSearch').val('');
-                    $('#txnDateRange').val('');
-                    const picker = $('#txnDateRange').data('daterangepicker');
+                    $('#txnSearch, #mobileTxnSearch').val('');
+                    $('#mobileSearchClearBtn').addClass('d-none');
+                    $('#txnDateRange, #mobileTxnDateRange').val('');
+                    $('.mobile-preset-btn').removeClass('active');
+                    const picker = $('#txnDateRange').data('daterangepicker') || $('#mobileTxnDateRange').data('daterangepicker');
                     if (picker) {
                         picker.setStartDate(moment());
                         picker.setEndDate(moment());
@@ -3065,9 +3475,22 @@ body.modal-open .admin-mobile-menu-toggle {
                     return true;
                 });
 
-                $('#txnSearch').on('keyup input', function() {
+                $('#txnSearch, #mobileTxnSearch').on('keyup input', function() {
+                    const val = this.value;
+                    $('#txnSearch, #mobileTxnSearch').not(this).val(val);
+                    if (val) {
+                        $('#mobileSearchClearBtn').removeClass('d-none');
+                    } else {
+                        $('#mobileSearchClearBtn').addClass('d-none');
+                    }
                     if (!table) return;
-                    table.search(this.value).draw();
+                    table.search(val).draw();
+                });
+
+                $('#mobileSearchClearBtn').on('click', function() {
+                    $('#txnSearch, #mobileTxnSearch').val('');
+                    $(this).addClass('d-none');
+                    if (table) table.search('').draw();
                 });
 
                 const $txnDateRange = $('#txnDateRange');
@@ -3076,7 +3499,7 @@ body.modal-open .admin-mobile-menu-toggle {
                     $txnDateRange.data('daterangepicker').remove();
                 }
 
-                const initialRangeValue = String($txnDateRange.val() || '').trim();
+                const initialRangeValue = String($txnDateRange.val() || $('#mobileTxnDateRange').val() || '').trim();
                 let initialStartDate = null;
                 let initialEndDate = null;
 
@@ -3122,12 +3545,60 @@ body.modal-open .admin-mobile-menu-toggle {
 
                 $txnDateRange.daterangepicker(dateRangeOptions);
 
+                const $mobileTxnDateRange = $('#mobileTxnDateRange');
+                if ($mobileTxnDateRange.length) {
+                    $mobileTxnDateRange.daterangepicker(dateRangeOptions);
+                    if (initialStartDate && initialEndDate) {
+                        $mobileTxnDateRange.val(initialStartDate.format('MM/DD/YYYY') + ' - ' + initialEndDate.format('MM/DD/YYYY'));
+                    }
+                    $mobileTxnDateRange.off('apply.daterangepicker.mobileTxnDateRange').on('apply.daterangepicker.mobileTxnDateRange', function(ev, picker) {
+                        const val = picker.startDate.format('MM/DD/YYYY') + ' - ' + picker.endDate.format('MM/DD/YYYY');
+                        $('#txnDateRange, #mobileTxnDateRange').val(val);
+                        updatePolarisUiAndFilterTable();
+                    });
+                    $mobileTxnDateRange.off('cancel.daterangepicker.mobileTxnDateRange').on('cancel.daterangepicker.mobileTxnDateRange', function() {
+                        $('#txnDateRange, #mobileTxnDateRange').val('');
+                        updatePolarisUiAndFilterTable();
+                    });
+                }
+
+                window.applyMobileDatePreset = function(preset) {
+                    const now = (typeof getPstMoment === 'function') ? getPstMoment() : moment();
+                    let start = null;
+                    let end = null;
+                    
+                    if (preset === 'today') {
+                        start = now.clone(); end = now.clone();
+                    } else if (preset === 'yesterday') {
+                        start = now.clone().subtract(1, 'days'); end = now.clone().subtract(1, 'days');
+                    } else if (preset === '7days') {
+                        start = now.clone().subtract(6, 'days'); end = now.clone();
+                    } else if (preset === 'thisMonth') {
+                        start = now.clone().startOf('month'); end = now.clone().endOf('month');
+                    } else if (preset === 'allTime') {
+                        $('#txnDateRange, #mobileTxnDateRange').val('');
+                        updatePolarisUiAndFilterTable();
+                        return;
+                    }
+
+                    if (start && end) {
+                        const rangeStr = start.format('MM/DD/YYYY') + ' - ' + end.format('MM/DD/YYYY');
+                        $('#txnDateRange, #mobileTxnDateRange').val(rangeStr);
+                        const p1 = $('#txnDateRange').data('daterangepicker');
+                        if (p1) { p1.setStartDate(start); p1.setEndDate(end); }
+                        const p2 = $('#mobileTxnDateRange').data('daterangepicker');
+                        if (p2) { p2.setStartDate(start); p2.setEndDate(end); }
+                    }
+                    updatePolarisUiAndFilterTable();
+                };
+
                 if (initialStartDate && initialEndDate) {
                     $txnDateRange.val(initialStartDate.format('MM/DD/YYYY') + ' - ' + initialEndDate.format('MM/DD/YYYY'));
                 }
 
                 $txnDateRange.off('apply.daterangepicker.txnDateRange').on('apply.daterangepicker.txnDateRange', function(ev, picker) {
-                    $(this).val(picker.startDate.format('MM/DD/YYYY') + ' - ' + picker.endDate.format('MM/DD/YYYY'));
+                    const val = picker.startDate.format('MM/DD/YYYY') + ' - ' + picker.endDate.format('MM/DD/YYYY');
+                    $('#txnDateRange, #mobileTxnDateRange').val(val);
                     if (picker.setStartDate && picker.setEndDate) {
                         picker.setStartDate(picker.startDate);
                         picker.setEndDate(picker.endDate);
@@ -3136,7 +3607,7 @@ body.modal-open .admin-mobile-menu-toggle {
                 });
 
                 $txnDateRange.off('cancel.daterangepicker.txnDateRange').on('cancel.daterangepicker.txnDateRange', function() {
-                    $(this).val('');
+                    $('#txnDateRange, #mobileTxnDateRange').val('');
                     reloadWithServerFilters();
                 });
 
