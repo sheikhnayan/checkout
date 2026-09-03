@@ -1348,12 +1348,12 @@ body.modal-open .admin-mobile-menu-toggle {
                     <ul class="nav nav-pills gap-2" id="analyticsDashboardTabs" role="tablist">
                         <li class="nav-item" role="presentation">
                             <button class="nav-link active rounded-pill px-3 py-2 text-white border border-secondary border-opacity-25" id="tab-shopify-conversion-tab" data-bs-toggle="pill" data-bs-target="#tab-shopify-conversion" type="button" role="tab" style="background-color: #7c3aed; font-weight: 600; font-size: 0.82rem;">
-                                <i class="fas fa-chart-line me-1"></i> Conversion & Traffic (Shopify View)
+                                <i class="fas fa-chart-line me-1"></i> Conversion & Traffic
                             </button>
                         </li>
                         <li class="nav-item" role="presentation">
                             <button class="nav-link rounded-pill px-3 py-2 text-white border border-secondary border-opacity-25" id="tab-classic-performance-tab" data-bs-toggle="pill" data-bs-target="#tab-classic-performance" type="button" role="tab" style="background-color: rgba(30, 41, 59, 0.6); font-weight: 600; font-size: 0.82rem;">
-                                <i class="fas fa-chart-area me-1"></i> Revenue & Performance (Classic View)
+                                <i class="fas fa-chart-area me-1"></i> Revenue & Performance
                             </button>
                         </li>
                         <li class="nav-item" role="presentation">
