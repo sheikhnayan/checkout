@@ -3269,21 +3269,28 @@ body.modal-open .admin-mobile-menu-toggle {
                         return '';
                     }
 
-                    const packageButton = rowNode.querySelector('.btn-link-package');
+                    const packageButton = rowNode.querySelector ? rowNode.querySelector('.btn-link-package') : $(rowNode).find('.btn-link-package')[0];
                     if (!packageButton) {
                         return '';
                     }
 
                     const $button = $(packageButton);
-                    const transactionType = String($button.data('transaction-type') || '').toLowerCase();
-                    const packageLabel = String($button.data('package-label') || packageButton.getAttribute('data-package-label') || '').trim();
-                    const menCount = parseInt($button.data('men') || 0, 10) || 0;
-                    const womenCount = parseInt($button.data('women') || 0, 10) || 0;
+                    const getAttrOrData = function(key, dataKey) {
+                        const val = $button.data(dataKey || key);
+                        if (val !== undefined && val !== null && val !== '') return val;
+                        return packageButton.getAttribute ? (packageButton.getAttribute('data-' + key) || '') : '';
+                    };
+
+                    const transactionType = String(getAttrOrData('transaction-type') || '').toLowerCase();
+                    const packageLabel = String(getAttrOrData('package-label') || '').trim();
+                    const menCount = parseInt(getAttrOrData('men') || 0, 10) || 0;
+                    const womenCount = parseInt(getAttrOrData('women') || 0, 10) || 0;
                     const totalGenderGuests = menCount + womenCount;
 
                     let cartItems = $button.data('cart-items');
                     if (!Array.isArray(cartItems)) {
-                        cartItems = parseJsonLike(packageButton.getAttribute('data-cart-items')) || [];
+                        const attrCart = packageButton.getAttribute ? packageButton.getAttribute('data-cart-items') : null;
+                        cartItems = parseJsonLike(attrCart) || [];
                     }
 
                     const packageParts = [];
@@ -3326,7 +3333,7 @@ body.modal-open .admin-mobile-menu-toggle {
 
                     // Fallback if no cartItems array
                     let summary = packageLabel || 'N/A';
-                    const pkgGuests = parseInt($button.data('package_number_of_guest') || 0, 10) || 0;
+                    const pkgGuests = parseInt(getAttrOrData('package_number_of_guest') || 0, 10) || 0;
                     const guestTotal = totalGenderGuests > 0 ? totalGenderGuests : pkgGuests;
 
                     if (totalGenderGuests > 0 && (transactionType === 'reservation' || menCount > 0 || womenCount > 0)) {
@@ -3339,14 +3346,21 @@ body.modal-open .admin-mobile-menu-toggle {
                 }
 
                 function getRowGuestCountFromButton($viewBtn) {
-                    const menCount = parseInt($viewBtn.data('men') || 0, 10) || 0;
-                    const womenCount = parseInt($viewBtn.data('women') || 0, 10) || 0;
+                    if (!$viewBtn || !$viewBtn.length) return 0;
+                    const getVal = function(key) {
+                        const d = $viewBtn.data(key);
+                        if (d !== undefined && d !== null && d !== '') return d;
+                        const domEl = $viewBtn[0];
+                        return domEl && domEl.getAttribute ? domEl.getAttribute('data-' + key) : 0;
+                    };
+                    const menCount = parseInt(getVal('men') || 0, 10) || 0;
+                    const womenCount = parseInt(getVal('women') || 0, 10) || 0;
                     const reservationGuests = Math.max(0, menCount + womenCount);
                     if (reservationGuests > 0) {
                         return reservationGuests;
                     }
 
-                    const packageGuests = parseInt($viewBtn.data('package_number_of_guest') || 0, 10) || 0;
+                    const packageGuests = parseInt(getVal('package_number_of_guest') || 0, 10) || 0;
                     return Math.max(0, packageGuests);
                 }
 
@@ -3473,31 +3487,67 @@ body.modal-open .admin-mobile-menu-toggle {
                             const exportRowsApi = selectedOnly ? dt.rows() : dt.rows({ search: 'applied' });
 
                             exportRowsApi.every(function (rowIndex) {
-                                const rowNode = this.node();
+                                let rowNode = this.node();
                                 const rowData = this.data();
-                                const $rowNode = $(rowNode);
-                                const rowId = String($rowNode.attr('data-row-id') || $rowNode.find('.row-check').val() || '');
+                                let $rowNode;
+
+                                if (rowNode) {
+                                    $rowNode = $(rowNode);
+                                } else if (rowData) {
+                                    const tr = document.createElement('tr');
+                                    if (Array.isArray(rowData)) {
+                                        rowData.forEach(function(cellHtml) {
+                                            const td = document.createElement('td');
+                                            td.innerHTML = cellHtml == null ? '' : String(cellHtml);
+                                            tr.appendChild(td);
+                                        });
+                                    } else if (typeof rowData === 'object') {
+                                        Object.keys(rowData).forEach(function(key) {
+                                            const td = document.createElement('td');
+                                            td.innerHTML = rowData[key] == null ? '' : String(rowData[key]);
+                                            tr.appendChild(td);
+                                        });
+                                    }
+                                    rowNode = tr;
+                                    $rowNode = $(tr);
+                                } else {
+                                    return true; // continue
+                                }
+
+                                const rowId = String(
+                                    $rowNode.find('.row-check').val() ||
+                                    $rowNode.attr('data-row-id') ||
+                                    $rowNode.find('.view-btn').attr('data-id') ||
+                                    ''
+                                );
 
                                 // If checkboxes selected, only export checked rows across all pages
-                                if (selectedOnly && !selectedTransactionIds.has(rowId)) {
+                                if (selectedOnly && (!rowId || !selectedTransactionIds.has(rowId))) {
                                     return true; // continue
                                 }
 
                                 const $viewBtn = $rowNode.find('.view-btn').first();
                                 const guestCount = getRowGuestCountFromButton($viewBtn);
 
+                                const getBtnData = function(key) {
+                                    const val = $viewBtn.data(key);
+                                    if (val !== undefined && val !== null) return val;
+                                    const el = $viewBtn[0];
+                                    return el && el.getAttribute ? el.getAttribute('data-' + key) : null;
+                                };
+
                                 const statusValue = (typeof normalizeStatusValue === 'function')
-                                    ? normalizeStatusValue($viewBtn.data('status'))
-                                    : String($viewBtn.data('status') || '').trim().toLowerCase();
+                                    ? normalizeStatusValue(getBtnData('status'))
+                                    : String(getBtnData('status') || '').trim().toLowerCase();
                                 const isCompleted = statusValue === 'completed' || statusValue === '1';
 
                                 const amountText = String($rowNode.find('td.txn-amount').first().text() || '');
                                 const rowRevenue = parseFloat(amountText.replace(/[^0-9.-]+/g, '')) || 0;
 
-                                const affAmount = parseFloat($viewBtn.data('affiliate_commission_amount')) || 0;
-                                const entAmount = parseFloat($viewBtn.data('entertainer_commission_amount')) || 0;
-                                const affStatus = String($viewBtn.data('affiliate_commission_status') || '').trim().toLowerCase();
-                                const entStatus = String($viewBtn.data('entertainer_commission_status') || '').trim().toLowerCase();
+                                const affAmount = parseFloat(getBtnData('affiliate_commission_amount')) || 0;
+                                const entAmount = parseFloat(getBtnData('entertainer_commission_amount')) || 0;
+                                const affStatus = String(getBtnData('affiliate_commission_status') || '').trim().toLowerCase();
+                                const entStatus = String(getBtnData('entertainer_commission_status') || '').trim().toLowerCase();
 
                                 summary.totalTransactions += 1;
                                 summary.totalGuests += guestCount;
@@ -3506,26 +3556,14 @@ body.modal-open .admin-mobile-menu-toggle {
                                     summary.totalRevenue += rowRevenue;
                                 }
 
-                                if (affStatus === 'pending') {
-                                    summary.pendingFee += affAmount;
-                                }
-                                if (entStatus === 'pending') {
-                                    summary.pendingFee += entAmount;
-                                }
+                                if (affStatus === 'pending') summary.pendingFee += affAmount;
+                                if (entStatus === 'pending') summary.pendingFee += entAmount;
 
-                                if (affStatus === 'paid') {
-                                    summary.payoutAmount += affAmount;
-                                }
-                                if (entStatus === 'paid') {
-                                    summary.payoutAmount += entAmount;
-                                }
+                                if (affStatus === 'paid') summary.payoutAmount += affAmount;
+                                if (entStatus === 'paid') summary.payoutAmount += entAmount;
 
-                                if (affStatus !== 'reversed') {
-                                    summary.totalEarning += affAmount;
-                                }
-                                if (entStatus !== 'reversed') {
-                                    summary.totalEarning += entAmount;
-                                }
+                                if (affStatus !== 'reversed') summary.totalEarning += affAmount;
+                                if (entStatus !== 'reversed') summary.totalEarning += entAmount;
 
                                 const row = exportColumnIndexes.map(function (colIdx) {
                                     return getCleanCellContent(rowNode, colIdx, rawData ? rawData[colIdx] : null);
