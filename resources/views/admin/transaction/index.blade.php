@@ -2140,7 +2140,7 @@ body.modal-open .admin-mobile-menu-toggle {
                             </td>
                             <td class="txn-pkg-name">
                                 <div style="font-size:0.85rem;font-weight:600;margin-bottom:8px;">{{ $venueName }}</div>
-                                <button type="button" class="btn btn-sm btn-link-package view-btn" data-date="{{ $purchaseAtLocal?->format('M d, Y') ?? '' }}" data-date-iso="{{ $purchaseAtLocal?->format('Y-m-d') ?? '' }}" data-bs-toggle="modal" data-bs-target="#packageDetailsModal" data-transaction-id="{{ $item->id }}" data-id="{{ $item->id }}" data-requires_transportation="{{ $requiresTransportationForRow ? 1 : 0 }}" data-admin_notes="{{ $item->admin_notes ?? '' }}" data-admin_notes_by="{{ $item->admin_notes_by ?? '' }}" data-admin_notes_at="{{ $formatDatePst($item->admin_notes_at) }}" data-confirmation-number="{{ $item->transaction_id ?? 'N/A' }}" data-cart-items='@json($cartItems)' data-package-descriptions-b64="{{ base64_encode(json_encode($packageDescriptionsPayload)) }}" data-breakdown='@json($item->price_breakdown)' data-transaction-type='{{ $item->type }}' data-men='{{ $item->package_men ?? 0 }}' data-women='{{ $item->package_women ?? 0 }}' data-package-label="{{ $packageDetailsText }}" data-package_use_date="{{ $item->package_use_date ?? '' }}" data-checked_in_status="{{ $item->checked_in_status ?? $item->checked_in ?? 0 }}" data-package_number_of_guest="{{ $item->package_number_of_guest ?? 0 }}" data-package_first_name="{{ $item->package_first_name ?? '' }}" data-package_last_name="{{ $item->package_last_name ?? '' }}" data-package_phone="{{ $item->package_phone ?? '' }}" data-package_email="{{ $item->package_email ?? '' }}" data-package_dob="{{ $item->package_dob ?? '' }}" data-package_note="{{ $item->package_note ?? '' }}" data-host_name="{{ $item->host_name ?? '' }}" data-transportation_pickup_time="{{ $item->transportation_pickup_time ?? '' }}" data-transportation_arrival_time="{{ $item->transportation_arrival_time ?? '' }}" data-transportation_address="{{ $item->transportation_address ?? '' }}" data-transportation_phone="{{ $item->transportation_phone ?? '' }}" data-transportation_note="{{ $item->transportation_note ?? '' }}" data-payment_first_name="{{ $item->payment_first_name ?? '' }}" data-payment_last_name="{{ $item->payment_last_name ?? '' }}" data-payment_phone="{{ $item->payment_phone ?? '' }}" data-payment_email="{{ $item->payment_email ?? '' }}" data-payment_address="{{ $item->payment_address ?? '' }}" data-payment_city="{{ $item->payment_city ?? '' }}" data-payment_state="{{ $item->payment_state ?? '' }}" data-payment_country="{{ $item->payment_country ?? '' }}" data-payment_dob="{{ $item->payment_dob ?? '' }}" data-payment_zip_code="{{ $item->payment_zip_code ?? '' }}" data-type="{{ $item->type }}" data-status="{{ $item->status }}" data-ip_address="{{ $item->ip_address ?? '' }}" data-website_id="{{ $item->website->name ?? '' }}" data-affiliate_name="{{ $affiliateName ?: '' }}" data-affiliate_sub_name="{{ $subName ?: '' }}" data-affiliate_parent_name="{{ $parentName ?: '' }}" data-entertainer_name="{{ $item->entertainer ? ($item->entertainer->display_name ?: optional($item->entertainer->user)->name) : '' }}" data-addons="{{ $addons }}" style="font-size:0.85rem;min-width:72px;">Quick View</button>
+                                <button type="button" class="btn btn-sm btn-link-package view-btn" data-total="{{ (float)($item->total ?? 0) }}" data-guests="{{ $item->package_number_of_guest ?? 1 }}" data-date="{{ $purchaseAtLocal?->format('M d, Y') ?? '' }}" data-date-iso="{{ $purchaseAtLocal?->format('Y-m-d') ?? '' }}" data-bs-toggle="modal" data-bs-target="#packageDetailsModal" data-transaction-id="{{ $item->id }}" data-id="{{ $item->id }}" data-requires_transportation="{{ $requiresTransportationForRow ? 1 : 0 }}" data-admin_notes="{{ $item->admin_notes ?? '' }}" data-admin_notes_by="{{ $item->admin_notes_by ?? '' }}" data-admin_notes_at="{{ $formatDatePst($item->admin_notes_at) }}" data-confirmation-number="{{ $item->transaction_id ?? 'N/A' }}" data-cart-items='@json($cartItems)' data-package-descriptions-b64="{{ base64_encode(json_encode($packageDescriptionsPayload)) }}" data-breakdown='@json($item->price_breakdown)' data-transaction-type='{{ $item->type }}' data-men='{{ $item->package_men ?? 0 }}' data-women='{{ $item->package_women ?? 0 }}' data-package-label="{{ $packageDetailsText }}" data-package_use_date="{{ $item->package_use_date ?? '' }}" data-checked_in_status="{{ $item->checked_in_status ?? $item->checked_in ?? 0 }}" data-package_number_of_guest="{{ $item->package_number_of_guest ?? 0 }}" data-package_first_name="{{ $item->package_first_name ?? '' }}" data-package_last_name="{{ $item->package_last_name ?? '' }}" data-package_phone="{{ $item->package_phone ?? '' }}" data-package_email="{{ $item->package_email ?? '' }}" data-package_dob="{{ $item->package_dob ?? '' }}" data-package_note="{{ $item->package_note ?? '' }}" data-host_name="{{ $item->host_name ?? '' }}" data-transportation_pickup_time="{{ $item->transportation_pickup_time ?? '' }}" data-transportation_arrival_time="{{ $item->transportation_arrival_time ?? '' }}" data-transportation_address="{{ $item->transportation_address ?? '' }}" data-transportation_phone="{{ $item->transportation_phone ?? '' }}" data-transportation_note="{{ $item->transportation_note ?? '' }}" data-payment_first_name="{{ $item->payment_first_name ?? '' }}" data-payment_last_name="{{ $item->payment_last_name ?? '' }}" data-payment_phone="{{ $item->payment_phone ?? '' }}" data-payment_email="{{ $item->payment_email ?? '' }}" data-payment_address="{{ $item->payment_address ?? '' }}" data-payment_city="{{ $item->payment_city ?? '' }}" data-payment_state="{{ $item->payment_state ?? '' }}" data-payment_country="{{ $item->payment_country ?? '' }}" data-payment_dob="{{ $item->payment_dob ?? '' }}" data-payment_zip_code="{{ $item->payment_zip_code ?? '' }}" data-type="{{ $item->type }}" data-status="{{ $item->status }}" data-ip_address="{{ $item->ip_address ?? '' }}" data-website_id="{{ $item->website->name ?? '' }}" data-affiliate_name="{{ $affiliateName ?: '' }}" data-affiliate_sub_name="{{ $subName ?: '' }}" data-affiliate_parent_name="{{ $parentName ?: '' }}" data-entertainer_name="{{ $item->entertainer ? ($item->entertainer->display_name ?: optional($item->entertainer->user)->name) : '' }}" data-addons="{{ $addons }}" style="font-size:0.85rem;min-width:72px;">Quick View</button>
                             </td>
                             <td class="txn-host-name">
                                 @if(!empty($item->host_name))
@@ -3247,6 +3247,11 @@ body.modal-open .admin-mobile-menu-toggle {
                     updateShopifyAnalyticsFromFilteredTable();
                 });
 
+                // Immediate initial render on page load
+                setTimeout(function() {
+                    updateShopifyAnalyticsFromFilteredTable();
+                }, 150);
+
                 let currentShopifyMetric = 'sessions';
                 let shopifyChartInstance = null;
                 let classicChartInstance = null;
@@ -3281,67 +3286,56 @@ body.modal-open .admin-mobile-menu-toggle {
                     let totalGuests = 0;
                     const dailyMap = {};
 
-                    const rowIndexes = table.rows({ filter: 'applied' })[0];
-                    totalOrders = rowIndexes ? rowIndexes.length : 0;
+                    const filteredRowsData = table.rows({ filter: 'applied' }).data();
+                    totalOrders = filteredRowsData ? filteredRowsData.length : 0;
 
-                    if (rowIndexes && rowIndexes.length > 0) {
-                        rowIndexes.forEach(function(idx) {
-                            const node = table.row(idx).node();
-                            if (node) {
-                                const $row = $(node);
-                                const $viewBtn = $row.find('.view-btn').first();
+                    if (filteredRowsData && filteredRowsData.length > 0) {
+                        filteredRowsData.each(function(rowData) {
+                            const colPkgHtml = rowData[4] || '';
+                            const $tempBtn = $(colPkgHtml).filter('.view-btn').length ? $(colPkgHtml).filter('.view-btn') : $(colPkgHtml).find('.view-btn');
 
-                                const rawTotal = parseFloat($viewBtn.data('total') || 0);
-                                if (!isNaN(rawTotal)) totalSales += rawTotal;
+                            let rawTotal = parseFloat($tempBtn.data('total') || 0);
+                            if (isNaN(rawTotal) || rawTotal === 0) {
+                                const amountCellHtml = rowData[8] || '';
+                                const cleanAmount = String(amountCellHtml).replace(/[^0-9.]/g, '');
+                                rawTotal = parseFloat(cleanAmount) || 0;
+                            }
+                            totalSales += rawTotal;
 
-                                const rawGuests = parseInt($viewBtn.data('package_number_of_guest') || $viewBtn.data('guests') || 1, 10);
-                                if (!isNaN(rawGuests)) totalGuests += rawGuests;
+                            let rawGuests = parseInt($tempBtn.data('guests') || $tempBtn.data('package_number_of_guest') || 1, 10);
+                            if (isNaN(rawGuests)) rawGuests = 1;
+                            totalGuests += rawGuests;
 
-                                const dateIso = String($viewBtn.data('date-iso') || '').trim();
-                                let dateKey = '';
-                                if (dateIso && dateIso.length >= 10) {
-                                    dateKey = dateIso.substring(0, 10);
-                                } else {
-                                    const dateRaw = String($viewBtn.data('date') || $row.find('td').eq(1).text() || '').trim();
-                                    if (dateRaw) {
-                                        const parsed = (typeof parseRowDateToMoment === 'function') ? parseRowDateToMoment(dateRaw) : moment(dateRaw);
-                                        if (parsed && parsed.isValid()) {
-                                            dateKey = parsed.format('YYYY-MM-DD');
-                                        }
+                            let dateIso = String($tempBtn.data('date-iso') || '').trim();
+                            let dateKey = '';
+                            if (dateIso && dateIso.length >= 10) {
+                                dateKey = dateIso.substring(0, 10);
+                            } else {
+                                const saleDateCellHtml = rowData[2] || '';
+                                const dateText = String(saleDateCellHtml).replace(/<[^>]+>/g, '').trim();
+                                if (dateText) {
+                                    const parsed = (typeof parseRowDateToMoment === 'function') ? parseRowDateToMoment(dateText) : moment(dateText);
+                                    if (parsed && parsed.isValid()) {
+                                        dateKey = parsed.format('YYYY-MM-DD');
                                     }
                                 }
+                            }
 
-                                if (dateKey) {
-                                    if (!dailyMap[dateKey]) {
-                                        dailyMap[dateKey] = { sales: 0, orders: 0, guests: 0 };
-                                    }
-                                    dailyMap[dateKey].sales += (!isNaN(rawTotal) ? rawTotal : 0);
-                                    dailyMap[dateKey].orders += 1;
-                                    dailyMap[dateKey].guests += (!isNaN(rawGuests) ? rawGuests : 0);
+                            if (dateKey) {
+                                if (!dailyMap[dateKey]) {
+                                    dailyMap[dateKey] = { sales: 0, orders: 0, guests: 0 };
                                 }
+                                dailyMap[dateKey].sales += rawTotal;
+                                dailyMap[dateKey].orders += 1;
+                                dailyMap[dateKey].guests += rawGuests;
                             }
                         });
                     }
 
-                    // Fallback to Blade controller defaults on initial load if deferred DOM nodes haven't loaded all 820+ rows yet
-                    const initialTotalRevenue = {{ (float) ($totalRevenue ?? 0) }};
-                    const initialTotalTxns = {{ (int) ($totalTxns ?? 0) }};
-                    const initialTotalGuests = {{ (int) ($totalGuests ?? 0) }};
-
-                    const isNoFiltersApplied = (typeof totalActiveFilters !== 'undefined' ? totalActiveFilters === 0 : true) && !$('#txnSearch').val();
-
-                    if (isNoFiltersApplied && (totalSales === 0 || totalOrders < initialTotalTxns * 0.5)) {
-                        if (initialTotalRevenue > 0) totalSales = initialTotalRevenue;
-                        if (initialTotalTxns > 0) totalOrders = initialTotalTxns;
-                        if (initialTotalGuests > 0) totalGuests = initialTotalGuests;
-                    }
-
-                    // Base session calculation dynamically tied to filtered orders
+                    // Dynamically estimate visitor sessions
                     let sessionsCount = 0;
                     if (totalOrders > 0) {
                         sessionsCount = Math.max(totalOrders * 18, Math.round(totalOrders * 22.4));
-                    } else if (isNoFiltersApplied) {
-                        sessionsCount = {{ (int) ($allVisitorSessionsCount ?? 4810) }};
                     }
 
                     const conversionRate = sessionsCount > 0 ? ((totalOrders / sessionsCount) * 100) : 0;
