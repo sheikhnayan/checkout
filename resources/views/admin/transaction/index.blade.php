@@ -3566,7 +3566,7 @@ body.modal-open .admin-mobile-menu-toggle {
                                 if (entStatus !== 'reversed') summary.totalEarning += entAmount;
 
                                 const row = exportColumnIndexes.map(function (colIdx) {
-                                    return getCleanCellContent(rowNode, colIdx, rawData ? rawData[colIdx] : null);
+                                    return getCleanCellContent(rowNode, colIdx, rowData ? rowData[colIdx] : null);
                                 });
                                 row.push(String(guestCount));
                                 row.push(getExportPackageDetails(rowNode));
