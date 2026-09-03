@@ -949,11 +949,9 @@ class CustomInvoiceController extends Controller
                 $paymentType,
                 $website,
                 (string) ($request->cardholder_name ?? $request->firstName ?? $transaction->payment_first_name ?? ''),
-                (string) ($request->lastName ?? $transaction->payment_last_name ?? '')
-            );
-
-            $managerMail = (clone $clientMail)->subject(
-                'Custom Invoice Payment Confirmation - ' . $transaction->transaction_id . ' - ' . ($website->name ?? 'Club')
+                (string) ($request->lastName ?? $transaction->payment_last_name ?? ''),
+                true,
+                'guest'
             );
 
             if ($invoice->client_email && filter_var($invoice->client_email, FILTER_VALIDATE_EMAIL)) {
@@ -985,8 +983,10 @@ class CustomInvoiceController extends Controller
                     ],
                 ];
 
-                $txnMail = new TransactionMail($mailData, $transaction, $transaction->cart_items, $mailData['price_breakdown'], $website, true, 'guest');
-                Mail::to($transaction->package_email)->send($txnMail);
+                if (!empty($transaction->package_email) && strtolower(trim($transaction->package_email)) !== strtolower(trim($invoice->client_email ?? ''))) {
+                    $txnMail = new TransactionMail($mailData, $transaction, $transaction->cart_items, $mailData['price_breakdown'], $website, true, 'guest');
+                    Mail::to($transaction->package_email)->send($txnMail);
+                }
             } catch (\Throwable $txnMailEx) {
                 Log::warning('Custom invoice TransactionMail dispatch failed', ['error' => $txnMailEx->getMessage()]);
             }
@@ -1008,7 +1008,21 @@ class CustomInvoiceController extends Controller
                 }
             }
 
-            // Send manager/admin notifications to all club emails + hello@cartvip.com + invoice creator
+            // Send manager/admin notifications (without QR code in email or PDF) to all club emails + hello@cartvip.com + invoice creator
+            $managerMail = new CustomInvoicePaymentConfirmationMail(
+                $invoice,
+                $transaction,
+                $paymentType,
+                $website,
+                (string) ($request->cardholder_name ?? $request->firstName ?? $transaction->payment_first_name ?? ''),
+                (string) ($request->lastName ?? $transaction->payment_last_name ?? ''),
+                false,
+                'manager'
+            );
+            $managerMail->subject(
+                'Custom Invoice Payment Confirmation - ' . $transaction->transaction_id . ' - ' . ($website->name ?? 'Club')
+            );
+
             $creatorEmail = optional($invoice->user)->email;
             $managerEmails = collect($website->emails ?? [])
                 ->pluck('email')

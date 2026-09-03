@@ -1699,13 +1699,13 @@ body.modal-open .admin-mobile-menu-toggle {
                         </ul>
                     </div>
 
-                    {{-- Highlighted Archive Selected CTA Button --}}
+                    {{-- Archive / Unarchive Selected Button --}}
                     @if($isArchivedView)
-                    <button type="button" id="bulkUnarchiveBtn" class="btn d-inline-flex align-items-center gap-2" style="background:rgba(16,185,129,0.18);border:1px solid rgba(16,185,129,0.4);color:#34d399;border-radius:10px;font-size:0.82rem;padding:6px 14px;font-weight:600;">
+                    <button type="button" id="bulkUnarchiveBtn" class="txn-export-btn btn d-inline-flex align-items-center gap-2" style="border-color: rgba(16, 185, 129, 0.4); color: #34d399; font-size: 0.82rem; padding: 6px 14px;">
                         <i class="fas fa-box-open"></i> Unarchive Selected
                     </button>
                     @else
-                    <button type="button" id="bulkArchiveBtn" class="btn d-inline-flex align-items-center gap-2" style="background: #b45309; border: 1px solid #f59e0b; color: #fff; border-radius:10px; font-size:0.82rem; padding:6px 14px; font-weight:600; box-shadow: 0 2px 8px rgba(245, 158, 11, 0.25);">
+                    <button type="button" id="bulkArchiveBtn" class="txn-export-btn btn d-inline-flex align-items-center gap-2" style="border-color: rgba(245, 158, 11, 0.4); color: #fbbf24; font-size: 0.82rem; padding: 6px 14px;">
                         <i class="fas fa-archive"></i> Archive Selected
                     </button>
                     @endif

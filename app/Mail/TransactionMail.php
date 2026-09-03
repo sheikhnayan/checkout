@@ -161,7 +161,7 @@ class TransactionMail extends Mailable
 
     private function shouldIncludeQrInPdf(): bool
     {
-        return $this->includeQrInPdf && !$this->isPhysicalCheckoutWebsite();
+        return $this->recipientType !== 'manager' && $this->includeQrInPdf && !$this->isPhysicalCheckoutWebsite();
     }
 
     private function isPhysicalCheckoutWebsite(): bool

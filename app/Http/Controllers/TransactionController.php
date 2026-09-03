@@ -1749,7 +1749,8 @@ class TransactionController extends Controller
                             ->unique()
                             ->values();
 
-                        $managerMail = new \App\Mail\TransactionMail($mailData, $new, [], null, $website, false, 'manager');
+                        $mailDataNoQr = array_diff_key($mailData, array_flip(['ticket_qr_code', 'ticket_qr_image_url']));
+                        $managerMail = new \App\Mail\TransactionMail($mailDataNoQr, $new, [], null, $website, false, 'manager');
                         foreach ($clubEmails as $clubEmail) {
                             \Illuminate\Support\Facades\Mail::to($clubEmail)->send(clone $managerMail);
                         }

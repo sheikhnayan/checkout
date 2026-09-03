@@ -23,6 +23,8 @@ class CustomInvoicePaymentConfirmationMail extends Mailable
     public $website;
     public $payerFirstName;
     public $payerLastName;
+    public $includeQrInPdf;
+    public $recipientType;
 
     public function __construct(
         CustomInvoice $invoice,
@@ -30,7 +32,9 @@ class CustomInvoicePaymentConfirmationMail extends Mailable
         string $paymentType,
         Website $website,
         string $payerFirstName = '',
-        string $payerLastName = ''
+        string $payerLastName = '',
+        bool $includeQrInPdf = true,
+        string $recipientType = 'guest'
     ) {
         $this->invoice = $invoice;
         $this->transaction = $transaction;
@@ -38,17 +42,25 @@ class CustomInvoicePaymentConfirmationMail extends Mailable
         $this->website = $website;
         $this->payerFirstName = $payerFirstName;
         $this->payerLastName = $payerLastName;
+        $this->includeQrInPdf = $includeQrInPdf;
+        $this->recipientType = $recipientType;
     }
 
     public function envelope(): Envelope
     {
+        $subject = $this->recipientType === 'manager'
+            ? 'Custom Invoice Payment Notification - ' . $this->transaction->transaction_id
+            : 'Custom Invoice Payment Confirmation - ' . $this->transaction->transaction_id;
+
         return new Envelope(
-            subject: 'Custom Invoice Payment Confirmation - ' . $this->transaction->transaction_id,
+            subject: $subject,
         );
     }
 
     public function content(): Content
     {
+        $showQrInEmail = $this->shouldIncludeQrInEmail();
+
         return new Content(
             view: 'emails.custom-invoice-payment-confirmation',
             with: [
@@ -58,6 +70,9 @@ class CustomInvoicePaymentConfirmationMail extends Mailable
                 'website' => $this->website,
                 'payerFirstName' => $this->payerFirstName,
                 'payerLastName' => $this->payerLastName,
+                'recipientType' => $this->recipientType,
+                'isManagerCopy' => $this->recipientType === 'manager',
+                'showQrInEmail' => $showQrInEmail,
             ],
         );
     }
@@ -70,7 +85,8 @@ class CustomInvoicePaymentConfirmationMail extends Mailable
 
         try {
             $qrCodeBase64 = null;
-            if (!empty($this->transaction->ticket_qr_code)) {
+            $showQrInPdf = $this->shouldIncludeQrInPdf();
+            if ($showQrInPdf && !empty($this->transaction->ticket_qr_code)) {
                 try {
                     $qrUrl = 'https://api.qrserver.com/v1/create-qr-code/?size=150x150&data=' . urlencode($this->transaction->ticket_qr_code);
                     $qrImageData = @file_get_contents($qrUrl);
@@ -88,6 +104,7 @@ class CustomInvoicePaymentConfirmationMail extends Mailable
                 'paymentType' => $this->paymentType,
                 'website' => $this->website,
                 'qrCodeBase64' => $qrCodeBase64,
+                'showQrInPdf' => $showQrInPdf,
             ]);
 
             return [
@@ -105,5 +122,15 @@ class CustomInvoicePaymentConfirmationMail extends Mailable
             ]);
             return [];
         }
+    }
+
+    private function shouldIncludeQrInEmail(): bool
+    {
+        return $this->recipientType !== 'manager';
+    }
+
+    private function shouldIncludeQrInPdf(): bool
+    {
+        return $this->recipientType !== 'manager' && $this->includeQrInPdf;
     }
 }

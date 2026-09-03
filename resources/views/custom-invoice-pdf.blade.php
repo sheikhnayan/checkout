@@ -168,7 +168,7 @@
             <p class="header-subtitle">Invoice #{{ $invoice->id }} | Confirmation ID: {{ $transaction->transaction_id }}</p>
             <p class="header-subtitle">Order ID: {{ $transaction->id ?? 'N/A' }}</p>
         </div>
-        @if(!empty($qrCodeBase64) || (!empty($transaction) && !empty($transaction->ticket_qr_code)))
+        @if(($showQrInPdf ?? true) && (!empty($qrCodeBase64) || (!empty($transaction) && !empty($transaction->ticket_qr_code))))
         @php
             $qrSrc = $qrCodeBase64 ?? null;
             if (!$qrSrc && !empty($transaction->ticket_qr_code)) {
