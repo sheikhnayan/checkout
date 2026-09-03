@@ -601,6 +601,53 @@
     backdrop-filter: blur(10px);
     z-index: 10;
 }
+
+/* Ensure all text inside Mobile Filter Modal is crisp white */
+#mobileFilterModal,
+#mobileFilterModal .modal-title,
+#mobileFilterModal .form-label,
+#mobileFilterModal label,
+#mobileFilterModal span,
+#mobileFilterModal p,
+#mobileFilterModal div,
+#mobileFilterModal input,
+#mobileFilterModal select,
+#mobileFilterModal .mobile-filter-group-title,
+#mobileFilterModal .polaris-checkbox-label,
+#mobileFilterModal .polaris-checkbox-label span {
+    color: #ffffff !important;
+}
+#mobileFilterModal .text-white-50 {
+    color: rgba(255, 255, 255, 0.9) !important;
+}
+#mobileFilterModal .mobile-filter-group-title {
+    color: #ffffff !important;
+    font-weight: 700;
+}
+#mobileFilterModal input.txn-date-input,
+#mobileFilterModal select {
+    color: #ffffff !important;
+    background: rgba(15, 23, 42, 0.9) !important;
+    border-color: rgba(255, 255, 255, 0.25) !important;
+}
+#mobileFilterModal input.txn-date-input::placeholder {
+    color: rgba(255, 255, 255, 0.6) !important;
+}
+#mobileFilterModal select option {
+    background: #0f172a !important;
+    color: #ffffff !important;
+}
+#mobileFilterModal .polaris-popover-action {
+    color: #a78bfa !important;
+    font-weight: 700 !important;
+}
+#mobileFilterModal .polaris-popover-action:hover {
+    color: #c4b5fd !important;
+}
+#mobileFilterModal .mobile-preset-btn {
+    color: #ffffff !important;
+    border-color: rgba(255, 255, 255, 0.25) !important;
+}
 #viewTransactionModal .modal-header { background: #0f172a; border-bottom: 1px solid #1e293b; }
 #viewTransactionModal .modal-content,
 #viewTransactionModal .modal-body { background: #0f172a; }
