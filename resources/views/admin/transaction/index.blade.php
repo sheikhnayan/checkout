@@ -368,11 +368,30 @@
     color: #ffffff !important;
 }
 .polaris-popover-body {
-    max-height: 220px;
-    overflow-y: auto;
+    max-height: 230px !important;
+    overflow-y: scroll !important;
     display: flex;
     flex-direction: column;
     gap: 6px;
+    padding-right: 4px !important;
+    scrollbar-width: thin !important;
+    scrollbar-color: rgba(124, 58, 237, 0.8) rgba(255, 255, 255, 0.06) !important;
+}
+.polaris-popover-body::-webkit-scrollbar {
+    width: 6px !important;
+    height: 6px !important;
+    display: block !important;
+}
+.polaris-popover-body::-webkit-scrollbar-track {
+    background: rgba(255, 255, 255, 0.06) !important;
+    border-radius: 4px !important;
+}
+.polaris-popover-body::-webkit-scrollbar-thumb {
+    background: rgba(124, 58, 237, 0.8) !important;
+    border-radius: 4px !important;
+}
+.polaris-popover-body::-webkit-scrollbar-thumb:hover {
+    background: #a78bfa !important;
 }
 .polaris-checkbox-label {
     display: flex;
@@ -553,8 +572,22 @@
     margin: 0 auto 10px auto;
 }
 #mobileFilterModal .modal-body {
-    overflow-y: auto;
+    overflow-y: scroll !important;
     padding: 16px 18px 90px 18px;
+    scrollbar-width: thin !important;
+    scrollbar-color: rgba(124, 58, 237, 0.8) rgba(255, 255, 255, 0.06) !important;
+}
+#mobileFilterModal .modal-body::-webkit-scrollbar {
+    width: 6px !important;
+    display: block !important;
+}
+#mobileFilterModal .modal-body::-webkit-scrollbar-track {
+    background: rgba(255, 255, 255, 0.06) !important;
+    border-radius: 4px !important;
+}
+#mobileFilterModal .modal-body::-webkit-scrollbar-thumb {
+    background: rgba(124, 58, 237, 0.8) !important;
+    border-radius: 4px !important;
 }
 .mobile-filter-group-card {
     background: rgba(30, 41, 59, 0.6);
