@@ -373,25 +373,26 @@
     display: flex;
     flex-direction: column;
     gap: 6px;
-    padding-right: 4px !important;
-    scrollbar-width: thin !important;
-    scrollbar-color: rgba(124, 58, 237, 0.8) rgba(255, 255, 255, 0.06) !important;
+    padding-right: 8px !important;
+    scrollbar-width: auto !important;
+    scrollbar-color: rgba(139, 92, 246, 0.9) rgba(255, 255, 255, 0.12) !important;
 }
 .polaris-popover-body::-webkit-scrollbar {
-    width: 6px !important;
-    height: 6px !important;
+    width: 10px !important;
+    height: 10px !important;
     display: block !important;
 }
 .polaris-popover-body::-webkit-scrollbar-track {
-    background: rgba(255, 255, 255, 0.06) !important;
-    border-radius: 4px !important;
+    background: rgba(255, 255, 255, 0.12) !important;
+    border-radius: 6px !important;
 }
 .polaris-popover-body::-webkit-scrollbar-thumb {
-    background: rgba(124, 58, 237, 0.8) !important;
-    border-radius: 4px !important;
+    background: rgba(139, 92, 246, 0.9) !important;
+    border: 2px solid rgba(30, 41, 59, 0.9) !important;
+    border-radius: 6px !important;
 }
 .polaris-popover-body::-webkit-scrollbar-thumb:hover {
-    background: #a78bfa !important;
+    background: #c4b5fd !important;
 }
 .polaris-checkbox-label {
     display: flex;
@@ -574,20 +575,21 @@
 #mobileFilterModal .modal-body {
     overflow-y: scroll !important;
     padding: 16px 18px 90px 18px;
-    scrollbar-width: thin !important;
-    scrollbar-color: rgba(124, 58, 237, 0.8) rgba(255, 255, 255, 0.06) !important;
+    scrollbar-width: auto !important;
+    scrollbar-color: rgba(139, 92, 246, 0.9) rgba(255, 255, 255, 0.12) !important;
 }
 #mobileFilterModal .modal-body::-webkit-scrollbar {
-    width: 6px !important;
+    width: 10px !important;
     display: block !important;
 }
 #mobileFilterModal .modal-body::-webkit-scrollbar-track {
-    background: rgba(255, 255, 255, 0.06) !important;
-    border-radius: 4px !important;
+    background: rgba(255, 255, 255, 0.12) !important;
+    border-radius: 6px !important;
 }
 #mobileFilterModal .modal-body::-webkit-scrollbar-thumb {
-    background: rgba(124, 58, 237, 0.8) !important;
-    border-radius: 4px !important;
+    background: rgba(139, 92, 246, 0.9) !important;
+    border: 2px solid rgba(15, 23, 42, 0.9) !important;
+    border-radius: 6px !important;
 }
 .mobile-filter-group-card {
     background: rgba(30, 41, 59, 0.6);
