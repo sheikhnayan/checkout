@@ -25,17 +25,27 @@ class AdminController extends Controller
 
         if ($user->isAdmin()) {
             $validTxQuery = function ($query) {
-                $query->whereIn('status', [1, '1', 'completed', 'paid'])
+                $query->where(function ($q) {
+                    $q->whereIn('status', [1, '1', 'completed', 'approved', 'paid'])
                       ->orWhereNotIn('status', [0, '0', 'canceled', 'cancelled', 'failed', 'refunded']);
+                });
             };
 
             $totalRevenue = Transaction::where($validTxQuery)->sum('total');
+
+            $monthStart = now()->startOfMonth();
+            $monthNow = now();
             $monthlyRevenue = Transaction::where($validTxQuery)
-                ->whereBetween('created_at', [now()->startOfMonth(), now()->endOfMonth()])
+                ->whereBetween('created_at', [$monthStart, $monthNow])
                 ->sum('total');
 
+            // Compare Month-To-Date window vs equivalent prior Month-To-Date window
+            $daysIntoMonth = max(1, (int) $monthStart->diffInDays($monthNow));
+            $prevMonthStart = now()->subMonth()->startOfMonth();
+            $prevMonthEnd = $prevMonthStart->clone()->addDays($daysIntoMonth);
+
             $prevMonthRevenue = Transaction::where($validTxQuery)
-                ->whereBetween('created_at', [now()->subMonth()->startOfMonth(), now()->subMonth()->endOfMonth()])
+                ->whereBetween('created_at', [$prevMonthStart, $prevMonthEnd])
                 ->sum('total');
 
             $revenueGrowth = $prevMonthRevenue > 0

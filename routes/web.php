@@ -724,7 +724,7 @@ Route::get('/{legacyPortal}', function (string $legacyPortal) {
     }
 
     if ($user->isWebsiteUser() || $user->isBouncer() || $user->isManager()) {
-        return redirect()->route('admin.index');
+        return redirect()->route('admin.transaction.index');
     }
 
     return redirect()->route('admin.transaction.index');
