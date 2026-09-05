@@ -102,10 +102,15 @@
                 <span class="badge bg-dark text-danger border border-danger ms-1">Restricted</span>
               @endif
             </td>
-            <td class="text-end">
-              <a href="{{ route('admin.nightly-reports.incidents.show', $inc->id) }}" class="btn btn-sm btn-outline-light" title="View Full File">
+            <td class="text-end text-nowrap">
+              <a href="{{ route('admin.nightly-reports.incidents.show', $inc->id) }}" class="btn btn-sm btn-outline-light me-1" title="View Full File">
                 <i class="fas fa-folder-open"></i>
               </a>
+              @if(Route::has('admin.incident.export'))
+              <a href="{{ route('admin.incident.export', $inc->id) }}" class="btn btn-sm btn-outline-info" title="Export PDF">
+                <i class="fas fa-file-pdf"></i>
+              </a>
+              @endif
             </td>
           </tr>
           @empty

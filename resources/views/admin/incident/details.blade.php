@@ -18,8 +18,10 @@
                 $incidentTz = $incident->website?->resolved_timezone ?? 'America/Los_Angeles';
                 $statusClasses = [
                     'open' => 'bg-danger',
-                    'under_review' => 'bg-warning text-dark',
+                    'under_review' => 'bg-info text-white',
+                    'legal_hold' => 'bg-warning text-dark',
                     'closed' => 'bg-success',
+                    'resolved' => 'bg-success',
                 ];
             @endphp
 
@@ -41,9 +43,10 @@
                             <div class="col-md-4">
                                 <label class="form-label">Update Status <i class="fas fa-circle-info ms-1 field-tip" data-bs-toggle="tooltip" data-bs-placement="top" title="Change the status of this incident. Updates are logged with a timestamp and the acting admin's name."></i></label>
                                 <select name="status" class="form-select" required>
-                                    <option value="open" {{ $incident->status === 'open' ? 'selected' : '' }}>Open</option>
+                                    <option value="open" {{ in_array($incident->status, ['open', 'pending'], true) ? 'selected' : '' }}>Open</option>
                                     <option value="under_review" {{ $incident->status === 'under_review' ? 'selected' : '' }}>Under Review</option>
-                                    <option value="closed" {{ $incident->status === 'closed' ? 'selected' : '' }}>Closed</option>
+                                    <option value="legal_hold" {{ $incident->status === 'legal_hold' ? 'selected' : '' }}>Legal Hold</option>
+                                    <option value="closed" {{ in_array($incident->status, ['closed', 'resolved'], true) ? 'selected' : '' }}>Closed / Resolved</option>
                                 </select>
                             </div>
                             <div class="col-md-6">

@@ -193,7 +193,7 @@ class IncidentController extends Controller
         $this->ensureWebsiteAccess((int) $incident->website_id);
 
         $validated = $request->validate([
-            'status' => ['required', 'in:open,under_review,closed'],
+            'status' => ['required', 'in:open,under_review,legal_hold,closed,resolved'],
             'status_note' => ['nullable', 'string', 'max:2000'],
         ]);
 
@@ -201,7 +201,7 @@ class IncidentController extends Controller
         $newStatus = (string) $validated['status'];
 
         if ($oldStatus === $newStatus) {
-            return redirect()->route('admin.incident.details', $incident->id)
+            return back()
                 ->with('info', 'Incident status is already set to ' . str_replace('_', ' ', $newStatus) . '.');
         }
 
@@ -216,7 +216,7 @@ class IncidentController extends Controller
             'note' => $validated['status_note'] ?? null,
         ]);
 
-        return redirect()->route('admin.incident.details', $incident->id)
+        return back()
             ->with('success', 'Incident status updated successfully.');
     }
 

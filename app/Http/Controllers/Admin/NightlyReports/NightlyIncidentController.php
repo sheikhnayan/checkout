@@ -4,6 +4,7 @@ namespace App\Http\Controllers\Admin\NightlyReports;
 
 use Illuminate\Http\Request;
 use App\Models\Incident;
+use App\Models\IncidentAuditLog;
 use App\Models\NightlyReports\NrLocation;
 use App\Models\Website;
 use Illuminate\Support\Facades\Auth;
@@ -82,7 +83,14 @@ class NightlyIncidentController extends BaseNightlyReportsController
     public function show($id)
     {
         $websiteIds = $this->accessibleWebsiteIds();
-        $incident = Incident::with(['website', 'witnessReports.attachments', 'attachments', 'auditLogs.user'])
+        $incident = Incident::with([
+            'website',
+            'creator',
+            'statusChangedBy',
+            'attachments',
+            'witnessReports.attachments',
+            'auditLogs.user',
+        ])
             ->whereIn('website_id', $websiteIds)
             ->findOrFail($id);
 
@@ -95,13 +103,33 @@ class NightlyIncidentController extends BaseNightlyReportsController
         $incident = Incident::whereIn('website_id', $websiteIds)->findOrFail($id);
 
         $validated = $request->validate([
-            'status' => 'required|string',
+            'status' => 'required|string|in:open,under_review,legal_hold,closed,resolved',
+            'status_note' => 'nullable|string|max:2000',
         ]);
 
-        $incident->update([
-            'status' => $validated['status'],
-            'status_changed_at' => now(),
-            'status_changed_by_user_id' => auth()->id(),
+        $oldStatus = (string) $incident->status;
+        $newStatus = (string) $validated['status'];
+
+        if ($oldStatus === $newStatus) {
+            return back()->with('info', 'Incident status is already set to ' . str_replace('_', ' ', $newStatus) . '.');
+        }
+
+        $incident->status = $newStatus;
+        $incident->status_changed_at = now();
+        $incident->status_changed_by_user_id = auth()->id();
+        $incident->save();
+
+        IncidentAuditLog::create([
+            'incident_id' => $incident->id,
+            'user_id' => auth()->id(),
+            'action' => 'incident_status_updated',
+            'change_summary' => [
+                'from' => $oldStatus,
+                'to' => $newStatus,
+                'note' => $validated['status_note'] ?? null,
+            ],
+            'ip_address' => $request->ip(),
+            'user_agent' => substr((string) $request->userAgent(), 0, 65535),
         ]);
 
         return back()->with('success', 'Incident status updated successfully.');
