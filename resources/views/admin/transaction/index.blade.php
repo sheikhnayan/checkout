@@ -767,18 +767,37 @@
 
 @media (max-width: 575.98px) {
     .shopify-metric-card {
-        padding: 10px 12px !important;
+        padding: 10px 10px !important;
+        overflow: hidden !important;
+        box-sizing: border-box !important;
+        max-width: 100% !important;
+    }
+    .shopify-metric-card .d-flex {
+        flex-wrap: wrap !important;
+        min-width: 0 !important;
+        max-width: 100% !important;
+        overflow: hidden !important;
     }
     .shopify-metric-title {
-        font-size: 0.72rem !important;
+        font-size: 0.70rem !important;
         margin-bottom: 2px !important;
+        max-width: 100% !important;
+        overflow: hidden !important;
     }
     .shopify-metric-val {
-        font-size: 1.1rem !important;
+        font-size: 0.98rem !important;
+        max-width: 100% !important;
+        overflow: hidden !important;
+        text-overflow: ellipsis !important;
+        white-space: nowrap !important;
+        line-height: 1.2 !important;
     }
     .shopify-delta-badge {
-        font-size: 0.65rem !important;
+        font-size: 0.62rem !important;
         padding: 1px 5px !important;
+        white-space: nowrap !important;
+        max-width: 100% !important;
+        display: inline-flex !important;
     }
     .shopify-chart-wrap {
         padding-top: 10px !important;
@@ -1387,149 +1406,175 @@ body.modal-open .admin-mobile-menu-toggle {
             </div>
         </div>
 
-        {{-- ── SHOPIFY-STYLE ANALYTICS & CONVERSION DASHBOARD ───────────────────────── --}}
-        <div class="card border-0 mb-4 shadow-sm" style="background: rgba(15, 23, 42, 0.7); border: 1px solid rgba(255, 255, 255, 0.1) !important; border-radius: 16px; backdrop-filter: blur(12px);">
-            <div class="card-body p-4">
-
-                {{-- Tab Navigation Bar --}}
-                <div class="d-flex align-items-center justify-content-between flex-wrap gap-2 pb-2 pb-md-3 mb-3 mb-md-4 border-bottom border-secondary border-opacity-25">
-                    <div class="w-100 overflow-x-auto pb-1" style="-webkit-overflow-scrolling: touch; scrollbar-width: none;">
-                        <ul class="nav nav-pills flex-nowrap gap-2 text-nowrap" id="analyticsDashboardTabs" role="tablist">
-                            <li class="nav-item" role="presentation">
-                                <button class="nav-link active rounded-pill px-3 py-2 text-white border border-secondary border-opacity-25" id="tab-shopify-conversion-tab" data-bs-toggle="pill" data-bs-target="#tab-shopify-conversion" type="button" role="tab" style="background-color: #7c3aed; font-weight: 600; font-size: 0.82rem;">
-                                    <i class="fas fa-chart-line me-1"></i> Conversion & Traffic
-                                </button>
-                            </li>
-                            <li class="nav-item" role="presentation">
-                                <button class="nav-link rounded-pill px-3 py-2 text-white border border-secondary border-opacity-25" id="tab-classic-performance-tab" data-bs-toggle="pill" data-bs-target="#tab-classic-performance" type="button" role="tab" style="background-color: rgba(30, 41, 59, 0.6); font-weight: 600; font-size: 0.82rem;">
-                                    <i class="fas fa-chart-area me-1"></i> Revenue & Performance
-                                </button>
-                            </li>
-                            <li class="nav-item" role="presentation">
-                                <button class="nav-link rounded-pill px-3 py-2 text-white border border-secondary border-opacity-25" id="tab-orders-guests-tab" data-bs-toggle="pill" data-bs-target="#tab-orders-guests" type="button" role="tab" style="background-color: rgba(30, 41, 59, 0.6); font-weight: 600; font-size: 0.82rem;">
-                                    <i class="fas fa-users me-1"></i> Orders & Guest Volume
-                                </button>
-                            </li>
-                        </ul>
+        {{-- Mobile Analytics Report Trigger Button (Mobile Only) --}}
+        <div class="d-md-none mb-3">
+            <button class="btn w-100 p-3 d-flex align-items-center justify-content-between rounded-3 border-0 shadow-sm"
+                    type="button"
+                    data-bs-toggle="collapse"
+                    data-bs-target="#mobileAnalyticsCollapse"
+                    aria-expanded="false"
+                    aria-controls="mobileAnalyticsCollapse"
+                    style="background: linear-gradient(135deg, rgba(124, 58, 237, 0.25) 0%, rgba(15, 23, 42, 0.85) 100%); border: 1px solid rgba(139, 92, 246, 0.35) !important;">
+                <div class="d-flex align-items-center gap-2 text-start">
+                    <span class="badge bg-primary bg-opacity-25 text-info p-2 rounded-circle">
+                        <i class="fas fa-chart-line fs-6"></i>
+                    </span>
+                    <div>
+                        <div class="fw-bold text-white mb-0" style="font-size:0.88rem;">📊 Analytics & Performance Reports</div>
+                        <div class="text-white-50 small" style="font-size:0.72rem;">Tap to view traffic, sales charts & conversion stats</div>
                     </div>
                 </div>
+                <span class="btn btn-sm btn-outline-light rounded-pill px-2 py-1 text-nowrap ms-2" style="font-size:0.72rem; font-weight:600;" id="mobileAnalyticsBtnText">
+                    <i class="fas fa-chevron-down me-1" id="mobileAnalyticsToggleIcon"></i> Reports
+                </span>
+            </button>
+        </div>
 
-                {{-- Tab Panes Container --}}
-                <div class="tab-content" id="analyticsDashboardTabContent">
+        {{-- ── SHOPIFY-STYLE ANALYTICS & CONVERSION DASHBOARD ───────────────────────── --}}
+        <div class="collapse d-md-block mb-4" id="mobileAnalyticsCollapse">
+            <div class="card border-0 shadow-sm" style="background: rgba(15, 23, 42, 0.7); border: 1px solid rgba(255, 255, 255, 0.1) !important; border-radius: 16px; backdrop-filter: blur(12px);">
+                <div class="card-body p-3 p-md-4">
 
-                    {{-- TAB 1: SHOPIFY CONVERSION & TRAFFIC HUB --}}
-                    <div class="tab-pane fade show active" id="tab-shopify-conversion" role="tabpanel">
-                        {{-- Metric Selector Cards Row (Shopify Style) --}}
-                        <div class="row row-cols-2 row-cols-xl-4 g-2 g-md-3 mb-3 mb-md-4" id="shopifyMetricCardsRow">
-                            {{-- 1. Sessions Card --}}
-                            <div class="col">
-                                <div class="shopify-metric-card p-3 rounded-3 cursor-pointer active" data-metric="sessions" onclick="switchShopifyMetric('sessions')">
-                                    <div class="shopify-metric-title">
-                                        <span>Sessions</span>
-                                        <i class="fas fa-eye text-white-50" style="font-size:0.75rem;"></i>
-                                    </div>
-                                    <div class="d-flex align-items-baseline justify-content-between gap-2 mt-1">
-                                        <span class="shopify-metric-val" id="shopifySessionsVal">{{ number_format($allVisitorSessionsCount ?? 4810) }}</span>
-                                        <span class="shopify-delta-badge down" id="shopifySessionsDelta"><i class="fas fa-arrow-down me-1"></i><span id="shopifySessionsDeltaText">12.4%</span></span>
-                                    </div>
-                                    <div class="text-white-50 small mt-1" style="font-size:0.72rem;">Tracked visitor traffic</div>
-                                </div>
-                            </div>
-
-                            {{-- 2. Total Sales Card --}}
-                            <div class="col">
-                                <div class="shopify-metric-card p-3 rounded-3 cursor-pointer" data-metric="sales" onclick="switchShopifyMetric('sales')">
-                                    <div class="shopify-metric-title">
-                                        <span>Total sales</span>
-                                        <i class="fas fa-chart-line text-white-50" style="font-size:0.75rem;"></i>
-                                    </div>
-                                    <div class="d-flex align-items-baseline justify-content-between gap-2 mt-1">
-                                        <span class="shopify-metric-val" id="shopifySalesVal">${{ number_format($totalRevenue ?? 0, 2) }}</span>
-                                        <span class="shopify-delta-badge up" id="shopifySalesDelta"><i class="fas fa-arrow-up me-1"></i><span id="shopifySalesDeltaText">14.5%</span></span>
-                                    </div>
-                                    <div class="text-white-50 small mt-1" style="font-size:0.72rem;">Gross filtered revenue</div>
-                                </div>
-                            </div>
-
-                            {{-- 3. Orders Card --}}
-                            <div class="col">
-                                <div class="shopify-metric-card p-3 rounded-3 cursor-pointer" data-metric="orders" onclick="switchShopifyMetric('orders')">
-                                    <div class="shopify-metric-title">
-                                        <span>Orders</span>
-                                        <i class="fas fa-shopping-bag text-white-50" style="font-size:0.75rem;"></i>
-                                    </div>
-                                    <div class="d-flex align-items-baseline justify-content-between gap-2 mt-1">
-                                        <span class="shopify-metric-val" id="shopifyOrdersVal">{{ number_format($totalTxns ?? 0) }}</span>
-                                        <span class="shopify-delta-badge up" id="shopifyOrdersDelta"><i class="fas fa-arrow-up me-1"></i><span id="shopifyOrdersDeltaText">8.2%</span></span>
-                                    </div>
-                                    <div class="text-white-50 small mt-1" style="font-size:0.72rem;">Filtered bookings</div>
-                                </div>
-                            </div>
-
-                            {{-- 4. Conversion Rate Card --}}
-                            <div class="col">
-                                <div class="shopify-metric-card p-3 rounded-3 cursor-pointer" data-metric="conversion" onclick="switchShopifyMetric('conversion')">
-                                    <div class="shopify-metric-title">
-                                        <span>Conversion rate</span>
-                                        <i class="fas fa-percentage text-white-50" style="font-size:0.75rem;"></i>
-                                    </div>
-                                    <div class="d-flex align-items-baseline justify-content-between gap-2 mt-1">
-                                        @php
-                                            $initSessions = $allVisitorSessionsCount ?? 4810;
-                                            $initTxns = $totalTxns ?? 0;
-                                            $initConv = $initSessions > 0 ? (($initTxns / $initSessions) * 100) : 0;
-                                        @endphp
-                                        <span class="shopify-metric-val" id="shopifyConversionVal">{{ number_format($initConv, 2) }}%</span>
-                                        <span class="shopify-delta-badge up" id="shopifyConversionDelta"><i class="fas fa-arrow-up me-1"></i><span id="shopifyConversionDeltaText">3.6%</span></span>
-                                    </div>
-                                    <div class="text-white-50 small mt-1" style="font-size:0.72rem;">Visitors to bookings ratio</div>
-                                </div>
-                            </div>
-                        </div>
-
-                        {{-- Dynamic Trend Line Chart --}}
-                        <div class="shopify-chart-wrap pt-3 border-top border-secondary border-opacity-25">
-                            <div class="d-flex align-items-center justify-content-between flex-wrap gap-2 mb-3">
-                                <div class="fw-bold text-white" id="shopifyChartTitle" style="font-size: 0.95rem; letter-spacing: -0.01em;">Sessions over time</div>
-                                <div class="d-flex align-items-center gap-3 small text-white-50">
-                                    <span><i class="fas fa-circle text-primary me-1"></i> <span id="shopifyCurrentPeriodLabel">Current Selection</span></span>
-                                    <span><i class="fas fa-circle text-info opacity-50 me-1"></i> <span id="shopifyPrevPeriodLabel">Previous Period</span></span>
-                                </div>
-                            </div>
-                            <div style="height: 220px; position: relative;">
-                                <canvas id="shopifyTrendChart"></canvas>
-                            </div>
+                    {{-- Tab Navigation Bar --}}
+                    <div class="d-flex align-items-center justify-content-between flex-wrap gap-2 pb-2 pb-md-3 mb-3 mb-md-4 border-bottom border-secondary border-opacity-25">
+                        <div class="w-100 overflow-x-auto pb-1" style="-webkit-overflow-scrolling: touch; scrollbar-width: none;">
+                            <ul class="nav nav-pills flex-nowrap gap-2 text-nowrap" id="analyticsDashboardTabs" role="tablist">
+                                <li class="nav-item" role="presentation">
+                                    <button class="nav-link active rounded-pill px-3 py-2 text-white border border-secondary border-opacity-25" id="tab-shopify-conversion-tab" data-bs-toggle="pill" data-bs-target="#tab-shopify-conversion" type="button" role="tab" style="background-color: #7c3aed; font-weight: 600; font-size: 0.82rem;">
+                                        <i class="fas fa-chart-line me-1"></i> Conversion & Traffic
+                                    </button>
+                                </li>
+                                <li class="nav-item" role="presentation">
+                                    <button class="nav-link rounded-pill px-3 py-2 text-white border border-secondary border-opacity-25" id="tab-classic-performance-tab" data-bs-toggle="pill" data-bs-target="#tab-classic-performance" type="button" role="tab" style="background-color: rgba(30, 41, 59, 0.6); font-weight: 600; font-size: 0.82rem;">
+                                        <i class="fas fa-chart-area me-1"></i> Revenue & Performance
+                                    </button>
+                                </li>
+                                <li class="nav-item" role="presentation">
+                                    <button class="nav-link rounded-pill px-3 py-2 text-white border border-secondary border-opacity-25" id="tab-orders-guests-tab" data-bs-toggle="pill" data-bs-target="#tab-orders-guests" type="button" role="tab" style="background-color: rgba(30, 41, 59, 0.6); font-weight: 600; font-size: 0.82rem;">
+                                        <i class="fas fa-users me-1"></i> Orders & Guest Volume
+                                    </button>
+                                </li>
+                            </ul>
                         </div>
                     </div>
 
-                    {{-- TAB 2: CLASSIC REVENUE & PERFORMANCE GRAPH --}}
-                    <div class="tab-pane fade" id="tab-classic-performance" role="tabpanel">
-                        <div class="d-flex align-items-center justify-content-between mb-3">
-                            <div class="fw-bold text-white" style="font-size:0.9rem;">PERFORMANCE OVER TIME (Revenue & Orders)</div>
-                            <div class="d-flex flex-wrap gap-3 small text-white-50">
-                                <span><i class="fas fa-circle me-1" style="color:#7c3aed"></i> Revenue ($)</span>
-                                <span><i class="fas fa-circle me-1" style="color:#38bdf8"></i> Orders</span>
+                    {{-- Tab Panes Container --}}
+                    <div class="tab-content" id="analyticsDashboardTabContent">
+
+                        {{-- TAB 1: SHOPIFY CONVERSION & TRAFFIC HUB --}}
+                        <div class="tab-pane fade show active" id="tab-shopify-conversion" role="tabpanel">
+                            {{-- Metric Selector Cards Row (Shopify Style) --}}
+                            <div class="row row-cols-2 row-cols-xl-4 g-2 g-md-3 mb-3 mb-md-4" id="shopifyMetricCardsRow">
+                                {{-- 1. Sessions Card --}}
+                                <div class="col">
+                                    <div class="shopify-metric-card p-2 p-md-3 rounded-3 cursor-pointer active" data-metric="sessions" onclick="switchShopifyMetric('sessions')">
+                                        <div class="shopify-metric-title">
+                                            <span>Sessions</span>
+                                            <i class="fas fa-eye text-white-50" style="font-size:0.75rem;"></i>
+                                        </div>
+                                        <div class="d-flex align-items-baseline justify-content-between flex-wrap gap-1 mt-1" style="min-width:0;">
+                                            <span class="shopify-metric-val" id="shopifySessionsVal">{{ number_format($allVisitorSessionsCount ?? 4810) }}</span>
+                                            <span class="shopify-delta-badge down" id="shopifySessionsDelta"><i class="fas fa-arrow-down me-1"></i><span id="shopifySessionsDeltaText">12.4%</span></span>
+                                        </div>
+                                        <div class="text-white-50 small mt-1 text-truncate" style="font-size:0.7rem;">Tracked visitor traffic</div>
+                                    </div>
+                                </div>
+
+                                {{-- 2. Total Sales Card --}}
+                                <div class="col">
+                                    <div class="shopify-metric-card p-2 p-md-3 rounded-3 cursor-pointer" data-metric="sales" onclick="switchShopifyMetric('sales')">
+                                        <div class="shopify-metric-title">
+                                            <span>Total sales</span>
+                                            <i class="fas fa-chart-line text-white-50" style="font-size:0.75rem;"></i>
+                                        </div>
+                                        <div class="d-flex align-items-baseline justify-content-between flex-wrap gap-1 mt-1" style="min-width:0;">
+                                            <span class="shopify-metric-val" id="shopifySalesVal">${{ number_format($totalRevenue ?? 0, 2) }}</span>
+                                            <span class="shopify-delta-badge up" id="shopifySalesDelta"><i class="fas fa-arrow-up me-1"></i><span id="shopifySalesDeltaText">14.5%</span></span>
+                                        </div>
+                                        <div class="text-white-50 small mt-1 text-truncate" style="font-size:0.7rem;">Gross filtered revenue</div>
+                                    </div>
+                                </div>
+
+                                {{-- 3. Orders Card --}}
+                                <div class="col">
+                                    <div class="shopify-metric-card p-2 p-md-3 rounded-3 cursor-pointer" data-metric="orders" onclick="switchShopifyMetric('orders')">
+                                        <div class="shopify-metric-title">
+                                            <span>Orders</span>
+                                            <i class="fas fa-shopping-bag text-white-50" style="font-size:0.75rem;"></i>
+                                        </div>
+                                        <div class="d-flex align-items-baseline justify-content-between flex-wrap gap-1 mt-1" style="min-width:0;">
+                                            <span class="shopify-metric-val" id="shopifyOrdersVal">{{ number_format($totalTxns ?? 0) }}</span>
+                                            <span class="shopify-delta-badge up" id="shopifyOrdersDelta"><i class="fas fa-arrow-up me-1"></i><span id="shopifyOrdersDeltaText">8.2%</span></span>
+                                        </div>
+                                        <div class="text-white-50 small mt-1 text-truncate" style="font-size:0.7rem;">Filtered bookings</div>
+                                    </div>
+                                </div>
+
+                                {{-- 4. Conversion Rate Card --}}
+                                <div class="col">
+                                    <div class="shopify-metric-card p-2 p-md-3 rounded-3 cursor-pointer" data-metric="conversion" onclick="switchShopifyMetric('conversion')">
+                                        <div class="shopify-metric-title">
+                                            <span>Conversion rate</span>
+                                            <i class="fas fa-percentage text-white-50" style="font-size:0.75rem;"></i>
+                                        </div>
+                                        <div class="d-flex align-items-baseline justify-content-between flex-wrap gap-1 mt-1" style="min-width:0;">
+                                            @php
+                                                $initSessions = $allVisitorSessionsCount ?? 4810;
+                                                $initTxns = $totalTxns ?? 0;
+                                                $initConv = $initSessions > 0 ? (($initTxns / $initSessions) * 100) : 0;
+                                            @endphp
+                                            <span class="shopify-metric-val" id="shopifyConversionVal">{{ number_format($initConv, 2) }}%</span>
+                                            <span class="shopify-delta-badge up" id="shopifyConversionDelta"><i class="fas fa-arrow-up me-1"></i><span id="shopifyConversionDeltaText">3.6%</span></span>
+                                        </div>
+                                        <div class="text-white-50 small mt-1 text-truncate" style="font-size:0.7rem;">Visitors to bookings ratio</div>
+                                    </div>
+                                </div>
+                            </div>
+
+                            {{-- Dynamic Trend Line Chart --}}
+                            <div class="shopify-chart-wrap pt-3 border-top border-secondary border-opacity-25">
+                                <div class="d-flex align-items-center justify-content-between flex-wrap gap-2 mb-3">
+                                    <div class="fw-bold text-white" id="shopifyChartTitle" style="font-size: 0.95rem; letter-spacing: -0.01em;">Sessions over time</div>
+                                    <div class="d-flex align-items-center gap-3 small text-white-50">
+                                        <span><i class="fas fa-circle text-primary me-1"></i> <span id="shopifyCurrentPeriodLabel">Current Selection</span></span>
+                                        <span><i class="fas fa-circle text-info opacity-50 me-1"></i> <span id="shopifyPrevPeriodLabel">Previous Period</span></span>
+                                    </div>
+                                </div>
+                                <div style="height: 220px; position: relative;">
+                                    <canvas id="shopifyTrendChart"></canvas>
+                                </div>
                             </div>
                         </div>
-                        <div style="height: 240px; position: relative;">
-                            <canvas id="classicPerformanceChart"></canvas>
-                        </div>
-                    </div>
 
-                    {{-- TAB 3: ORDERS & GUEST VOLUME BREAKDOWN --}}
-                    <div class="tab-pane fade" id="tab-orders-guests" role="tabpanel">
-                        <div class="d-flex align-items-center justify-content-between mb-3">
-                            <div class="fw-bold text-white" style="font-size:0.9rem;">ORDERS & GUEST VOLUME TIMELINE</div>
-                            <div class="d-flex flex-wrap gap-3 small text-white-50">
-                                <span><i class="fas fa-circle me-1" style="color:#38bdf8"></i> Booked Orders</span>
-                                <span><i class="fas fa-circle me-1" style="color:#a855f7"></i> Guest Attendees</span>
+                        {{-- TAB 2: CLASSIC REVENUE & PERFORMANCE GRAPH --}}
+                        <div class="tab-pane fade" id="tab-classic-performance" role="tabpanel">
+                            <div class="d-flex align-items-center justify-content-between mb-3">
+                                <div class="fw-bold text-white" style="font-size:0.9rem;">PERFORMANCE OVER TIME (Revenue & Orders)</div>
+                                <div class="d-flex flex-wrap gap-3 small text-white-50">
+                                    <span><i class="fas fa-circle me-1" style="color:#7c3aed"></i> Revenue ($)</span>
+                                    <span><i class="fas fa-circle me-1" style="color:#38bdf8"></i> Orders</span>
+                                </div>
+                            </div>
+                            <div style="height: 240px; position: relative;">
+                                <canvas id="classicPerformanceChart"></canvas>
                             </div>
                         </div>
-                        <div style="height: 240px; position: relative;">
-                            <canvas id="ordersGuestsChart"></canvas>
-                        </div>
-                    </div>
 
+                        {{-- TAB 3: ORDERS & GUEST VOLUME BREAKDOWN --}}
+                        <div class="tab-pane fade" id="tab-orders-guests" role="tabpanel">
+                            <div class="d-flex align-items-center justify-content-between mb-3">
+                                <div class="fw-bold text-white" style="font-size:0.9rem;">ORDERS & GUEST VOLUME TIMELINE</div>
+                                <div class="d-flex flex-wrap gap-3 small text-white-50">
+                                    <span><i class="fas fa-circle me-1" style="color:#38bdf8"></i> Booked Orders</span>
+                                    <span><i class="fas fa-circle me-1" style="color:#a855f7"></i> Guest Attendees</span>
+                                </div>
+                            </div>
+                            <div style="height: 240px; position: relative;">
+                                <canvas id="ordersGuestsChart"></canvas>
+                            </div>
+                        </div>
+
+                    </div>
                 </div>
             </div>
         </div>
@@ -3305,6 +3350,17 @@ body.modal-open .admin-mobile-menu-toggle {
                 setTimeout(function() {
                     updateShopifyAnalyticsFromFilteredTable();
                 }, 150);
+
+                // Mobile Analytics Collapse Toggle Handler
+                $('#mobileAnalyticsCollapse').on('show.bs.collapse', function () {
+                    $('#mobileAnalyticsBtnText').html('<i class="fas fa-chevron-up me-1" id="mobileAnalyticsToggleIcon"></i> Hide Reports');
+                }).on('hide.bs.collapse', function () {
+                    $('#mobileAnalyticsBtnText').html('<i class="fas fa-chevron-down me-1" id="mobileAnalyticsToggleIcon"></i> Reports');
+                }).on('shown.bs.collapse', function () {
+                    if (shopifyChartInstance && typeof shopifyChartInstance.resize === 'function') shopifyChartInstance.resize();
+                    if (classicChartInstance && typeof classicChartInstance.resize === 'function') classicChartInstance.resize();
+                    if (ordersGuestsChartInstance && typeof ordersGuestsChartInstance.resize === 'function') ordersGuestsChartInstance.resize();
+                });
 
                 let currentShopifyMetric = 'sessions';
                 let shopifyChartInstance = null;
