@@ -3379,11 +3379,42 @@ body.modal-open .admin-mobile-menu-toggle {
                     $('#shopifyOrdersVal').text(totalOrders.toLocaleString());
                     $('#shopifyConversionVal').text(conversionRate.toFixed(2) + '%');
 
-                    // Calculate period deltas (% comparisons)
-                    const salesDelta = totalSales > 0 ? 14.5 : 0;
-                    const ordersDelta = totalOrders > 0 ? 8.2 : 0;
-                    const sessionsDelta = sessionsCount > 0 ? -12.4 : 0;
-                    const convDelta = conversionRate > 0 ? 3.6 : 0;
+                    // Calculate period-over-period deltas (% comparisons) by comparing recent period vs prior period
+                    let salesDelta = 0;
+                    let ordersDelta = 0;
+                    let sessionsDelta = 0;
+                    let convDelta = 0;
+
+                    const sortedDates = Object.keys(dailyMap).sort();
+                    if (sortedDates.length >= 2) {
+                        const halfIndex = Math.floor(sortedDates.length / 2);
+                        const prevDates = sortedDates.slice(0, halfIndex);
+                        const currDates = sortedDates.slice(halfIndex);
+
+                        let prevSales = 0, currSales = 0;
+                        let prevOrders = 0, currOrders = 0;
+
+                        prevDates.forEach(d => {
+                            prevSales += dailyMap[d].sales || 0;
+                            prevOrders += dailyMap[d].orders || 0;
+                        });
+
+                        currDates.forEach(d => {
+                            currSales += dailyMap[d].sales || 0;
+                            currOrders += dailyMap[d].orders || 0;
+                        });
+
+                        const prevSessions = prevOrders > 0 ? Math.max(prevOrders * 18, Math.round(prevOrders * 22.4)) : 0;
+                        const currSessions = currOrders > 0 ? Math.max(currOrders * 18, Math.round(currOrders * 22.4)) : 0;
+
+                        const prevConv = prevSessions > 0 ? (prevOrders / prevSessions) * 100 : 0;
+                        const currConv = currSessions > 0 ? (currOrders / currSessions) * 100 : 0;
+
+                        if (prevSales > 0) salesDelta = ((currSales - prevSales) / prevSales) * 100;
+                        if (prevOrders > 0) ordersDelta = ((currOrders - prevOrders) / prevOrders) * 100;
+                        if (prevSessions > 0) sessionsDelta = ((currSessions - prevSessions) / prevSessions) * 100;
+                        if (prevConv > 0) convDelta = ((currConv - prevConv) / prevConv) * 100;
+                    }
 
                     updateDeltaBadge('#shopifySessionsDelta', '#shopifySessionsDeltaText', sessionsDelta);
                     updateDeltaBadge('#shopifySalesDelta', '#shopifySalesDeltaText', salesDelta);
