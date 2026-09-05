@@ -764,6 +764,31 @@
     color: #fb7185;
     border: 1px solid rgba(244, 63, 94, 0.3);
 }
+
+@media (max-width: 575.98px) {
+    .shopify-metric-card {
+        padding: 10px 12px !important;
+    }
+    .shopify-metric-title {
+        font-size: 0.72rem !important;
+        margin-bottom: 2px !important;
+    }
+    .shopify-metric-val {
+        font-size: 1.1rem !important;
+    }
+    .shopify-delta-badge {
+        font-size: 0.65rem !important;
+        padding: 1px 5px !important;
+    }
+    .shopify-chart-wrap {
+        padding-top: 10px !important;
+    }
+    #shopifyTrendChart,
+    #classicPerformanceChart,
+    #ordersGuestsChart {
+        max-height: 175px !important;
+    }
+}
 #viewTransactionModal .modal-header { background: #0f172a; border-bottom: 1px solid #1e293b; }
 #viewTransactionModal .modal-content,
 #viewTransactionModal .modal-body { background: #0f172a; }
@@ -1367,30 +1392,26 @@ body.modal-open .admin-mobile-menu-toggle {
             <div class="card-body p-4">
 
                 {{-- Tab Navigation Bar --}}
-                <div class="d-flex align-items-center justify-content-between flex-wrap gap-2 pb-3 mb-4 border-bottom border-secondary border-opacity-25">
-                    <ul class="nav nav-pills gap-2" id="analyticsDashboardTabs" role="tablist">
-                        <li class="nav-item" role="presentation">
-                            <button class="nav-link active rounded-pill px-3 py-2 text-white border border-secondary border-opacity-25" id="tab-shopify-conversion-tab" data-bs-toggle="pill" data-bs-target="#tab-shopify-conversion" type="button" role="tab" style="background-color: #7c3aed; font-weight: 600; font-size: 0.82rem;">
-                                <i class="fas fa-chart-line me-1"></i> Conversion & Traffic
-                            </button>
-                        </li>
-                        <li class="nav-item" role="presentation">
-                            <button class="nav-link rounded-pill px-3 py-2 text-white border border-secondary border-opacity-25" id="tab-classic-performance-tab" data-bs-toggle="pill" data-bs-target="#tab-classic-performance" type="button" role="tab" style="background-color: rgba(30, 41, 59, 0.6); font-weight: 600; font-size: 0.82rem;">
-                                <i class="fas fa-chart-area me-1"></i> Revenue & Performance
-                            </button>
-                        </li>
-                        <li class="nav-item" role="presentation">
-                            <button class="nav-link rounded-pill px-3 py-2 text-white border border-secondary border-opacity-25" id="tab-orders-guests-tab" data-bs-toggle="pill" data-bs-target="#tab-orders-guests" type="button" role="tab" style="background-color: rgba(30, 41, 59, 0.6); font-weight: 600; font-size: 0.82rem;">
-                                <i class="fas fa-users me-1"></i> Orders & Guest Volume
-                            </button>
-                        </li>
-                    </ul>
-
-                    <!-- <div class="d-flex align-items-center gap-2">
-                        <span class="badge bg-primary bg-opacity-25 text-info px-3 py-2 rounded-pill" style="border: 1px solid rgba(56, 189, 248, 0.3); font-weight: 600; font-size: 0.75rem;">
-                            <i class="fas fa-bolt me-1"></i> FILTER SYNCED
-                        </span>
-                    </div> -->
+                <div class="d-flex align-items-center justify-content-between flex-wrap gap-2 pb-2 pb-md-3 mb-3 mb-md-4 border-bottom border-secondary border-opacity-25">
+                    <div class="w-100 overflow-x-auto pb-1" style="-webkit-overflow-scrolling: touch; scrollbar-width: none;">
+                        <ul class="nav nav-pills flex-nowrap gap-2 text-nowrap" id="analyticsDashboardTabs" role="tablist">
+                            <li class="nav-item" role="presentation">
+                                <button class="nav-link active rounded-pill px-3 py-2 text-white border border-secondary border-opacity-25" id="tab-shopify-conversion-tab" data-bs-toggle="pill" data-bs-target="#tab-shopify-conversion" type="button" role="tab" style="background-color: #7c3aed; font-weight: 600; font-size: 0.82rem;">
+                                    <i class="fas fa-chart-line me-1"></i> Conversion & Traffic
+                                </button>
+                            </li>
+                            <li class="nav-item" role="presentation">
+                                <button class="nav-link rounded-pill px-3 py-2 text-white border border-secondary border-opacity-25" id="tab-classic-performance-tab" data-bs-toggle="pill" data-bs-target="#tab-classic-performance" type="button" role="tab" style="background-color: rgba(30, 41, 59, 0.6); font-weight: 600; font-size: 0.82rem;">
+                                    <i class="fas fa-chart-area me-1"></i> Revenue & Performance
+                                </button>
+                            </li>
+                            <li class="nav-item" role="presentation">
+                                <button class="nav-link rounded-pill px-3 py-2 text-white border border-secondary border-opacity-25" id="tab-orders-guests-tab" data-bs-toggle="pill" data-bs-target="#tab-orders-guests" type="button" role="tab" style="background-color: rgba(30, 41, 59, 0.6); font-weight: 600; font-size: 0.82rem;">
+                                    <i class="fas fa-users me-1"></i> Orders & Guest Volume
+                                </button>
+                            </li>
+                        </ul>
+                    </div>
                 </div>
 
                 {{-- Tab Panes Container --}}
@@ -1399,7 +1420,7 @@ body.modal-open .admin-mobile-menu-toggle {
                     {{-- TAB 1: SHOPIFY CONVERSION & TRAFFIC HUB --}}
                     <div class="tab-pane fade show active" id="tab-shopify-conversion" role="tabpanel">
                         {{-- Metric Selector Cards Row (Shopify Style) --}}
-                        <div class="row row-cols-1 row-cols-sm-2 row-cols-xl-4 g-3 mb-4" id="shopifyMetricCardsRow">
+                        <div class="row row-cols-2 row-cols-xl-4 g-2 g-md-3 mb-3 mb-md-4" id="shopifyMetricCardsRow">
                             {{-- 1. Sessions Card --}}
                             <div class="col">
                                 <div class="shopify-metric-card p-3 rounded-3 cursor-pointer active" data-metric="sessions" onclick="switchShopifyMetric('sessions')">
