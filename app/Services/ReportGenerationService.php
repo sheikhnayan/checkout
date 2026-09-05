@@ -311,10 +311,12 @@ class ReportGenerationService
     {
         [$startDate, $endDate] = $this->getDateRange();
 
-        $rawData = Transaction::query()
+        $query = Transaction::query()
             ->where('status', 1) // Completed only
-            ->whereBetween('created_at', [$startDate, $endDate])
-            ->select(DB::raw('DATE(created_at) as date'), DB::raw('SUM(total) as revenue'), DB::raw('COUNT(*) as transactions'))
+            ->whereBetween('created_at', [$startDate, $endDate]);
+        $this->applyWebsiteScopeOnly($query, 'transactions.website_id');
+
+        $rawData = $query->select(DB::raw('DATE(created_at) as date'), DB::raw('SUM(total) as revenue'), DB::raw('COUNT(*) as transactions'))
             ->groupBy('date')
             ->orderBy('date')
             ->get();
@@ -357,10 +359,12 @@ class ReportGenerationService
     {
         [$startDate, $endDate] = $this->getDateRange();
 
-        $data = Transaction::query()
+        $query = Transaction::query()
             ->where('transactions.status', 1)
-            ->whereBetween('transactions.created_at', [$startDate, $endDate])
-            ->join('packages', 'transactions.package_id', '=', 'packages.id')
+            ->whereBetween('transactions.created_at', [$startDate, $endDate]);
+        $this->applyWebsiteScopeOnly($query, 'transactions.website_id');
+
+        $data = $query->join('packages', 'transactions.package_id', '=', 'packages.id')
             ->leftJoin('websites', 'packages.website_id', '=', 'websites.id')
             ->select(
                 'packages.name',
@@ -416,11 +420,13 @@ class ReportGenerationService
     {
         [$startDate, $endDate] = $this->getDateRange();
 
-        $data = Transaction::query()
+        $query = Transaction::query()
             ->where('transactions.status', 1)
             ->whereBetween('transactions.created_at', [$startDate, $endDate])
-            ->whereNotNull('transactions.affiliate_id')
-            ->join('affiliates', 'transactions.affiliate_id', '=', 'affiliates.id')
+            ->whereNotNull('transactions.affiliate_id');
+        $this->applyWebsiteScopeOnly($query, 'transactions.website_id');
+
+        $data = $query->join('affiliates', 'transactions.affiliate_id', '=', 'affiliates.id')
             ->leftJoin('users', 'affiliates.user_id', '=', 'users.id')
             ->leftJoin('websites', 'transactions.website_id', '=', 'websites.id')
             ->select(
@@ -475,10 +481,12 @@ class ReportGenerationService
     {
         [$startDate, $endDate] = $this->getDateRange();
 
-        $txData = Transaction::query()
+        $query = Transaction::query()
             ->financiallyReportable()
-            ->whereBetween('transactions.created_at', [$startDate, $endDate])
-            ->leftJoin('websites', 'transactions.website_id', '=', 'websites.id')
+            ->whereBetween('transactions.created_at', [$startDate, $endDate]);
+        $this->applyWebsiteScopeOnly($query, 'transactions.website_id');
+
+        $txData = $query->leftJoin('websites', 'transactions.website_id', '=', 'websites.id')
             ->select(
                 DB::raw("COALESCE(NULLIF(transactions.payment_gateway, ''), 'Credit / Debit Card') as method"),
                 'websites.name as website_name',
@@ -534,7 +542,11 @@ class ReportGenerationService
     {
         [$startDate, $endDate] = $this->getDateRange();
 
-        $completed = Transaction::query()->financiallyReportable()->whereBetween('created_at', [$startDate, $endDate])->sum('total');
+        $txQ = Transaction::query()->financiallyReportable()->whereBetween('created_at', [$startDate, $endDate]);
+        $this->applyWebsiteScopeOnly($txQ, 'transactions.website_id');
+
+        $completed = (clone $txQ)->sum('total');
+        $ordersCount = (clone $txQ)->count();
         $refunded = 0;
         $canceled = 0;
         $total = $completed + $refunded + $canceled;
@@ -542,7 +554,7 @@ class ReportGenerationService
         $tableData = [
             [
                 'Category / Status' => 'Completed Orders',
-                'Orders Count' => Transaction::query()->financiallyReportable()->whereBetween('created_at', [$startDate, $endDate])->count(),
+                'Orders Count' => $ordersCount,
                 'Gross Revenue' => round((float) $completed, 2),
                 'Percentage Share' => $total > 0 ? round(($completed / ($total ?: 1)) * 100, 1) . '%' : '100%',
             ],
@@ -588,8 +600,10 @@ class ReportGenerationService
     {
         [$startDate, $endDate] = $this->getDateRange();
 
-        $data = PromoCode::query()
-            ->leftJoin('websites', 'promo_codes.website_id', '=', 'websites.id')
+        $query = PromoCode::query();
+        $this->applyWebsiteScopeOnly($query, 'promo_codes.website_id');
+
+        $data = $query->leftJoin('websites', 'promo_codes.website_id', '=', 'websites.id')
             ->select(
                 'promo_codes.coupon_name',
                 'websites.name as website_name',
@@ -652,10 +666,12 @@ class ReportGenerationService
     {
         [$startDate, $endDate] = $this->getDateRange();
 
-        $rawData = Transaction::query()
+        $query = Transaction::query()
             ->financiallyReportable()
-            ->whereBetween('created_at', [$startDate, $endDate])
-            ->select(
+            ->whereBetween('created_at', [$startDate, $endDate]);
+        $this->applyWebsiteScopeOnly($query, 'transactions.website_id');
+
+        $rawData = $query->select(
                 DB::raw('DATE(created_at) as date'),
                 DB::raw('SUM(CASE WHEN status = 1 THEN 1 ELSE 0 END) as completed'),
                 DB::raw('0 as canceled'),
@@ -704,8 +720,11 @@ class ReportGenerationService
     {
         [$startDate, $endDate] = $this->getDateRange();
 
-        $completed = Transaction::query()->financiallyReportable()->whereBetween('created_at', [$startDate, $endDate])->count();
-        $completedRev = Transaction::query()->financiallyReportable()->whereBetween('created_at', [$startDate, $endDate])->sum('total');
+        $query = Transaction::query()->financiallyReportable()->whereBetween('created_at', [$startDate, $endDate]);
+        $this->applyWebsiteScopeOnly($query, 'transactions.website_id');
+
+        $completed = (clone $query)->count();
+        $completedRev = (clone $query)->sum('total');
 
         $rawData = [
             ['Order Status' => 'Completed', 'Orders Count' => (int) $completed, 'Total Revenue' => round((float) $completedRev, 2), 'Share (%)' => '100%'],
@@ -745,11 +764,13 @@ class ReportGenerationService
     {
         [$startDate, $endDate] = $this->getDateRange();
 
-        $data = Transaction::query()
+        $query = Transaction::query()
             ->financiallyReportable()
-            ->join('packages', 'transactions.package_id', '=', 'packages.id')
+            ->whereBetween('transactions.created_at', [$startDate, $endDate]);
+        $this->applyWebsiteScopeOnly($query, 'transactions.website_id');
+
+        $data = $query->join('packages', 'transactions.package_id', '=', 'packages.id')
             ->leftJoin('websites', 'packages.website_id', '=', 'websites.id')
-            ->whereBetween('transactions.created_at', [$startDate, $endDate])
             ->select(
                 'packages.package_type',
                 'websites.name as website_name',
@@ -804,10 +825,12 @@ class ReportGenerationService
     {
         [$startDate, $endDate] = $this->getDateRange();
 
-        $rawData = Transaction::query()
+        $query = Transaction::query()
             ->financiallyReportable()
-            ->whereBetween('created_at', [$startDate, $endDate])
-            ->select(
+            ->whereBetween('created_at', [$startDate, $endDate]);
+        $this->applyWebsiteScopeOnly($query, 'transactions.website_id');
+
+        $rawData = $query->select(
                 DB::raw('DATE(created_at) as date'),
                 DB::raw("SUM(CASE WHEN JSON_LENGTH(cart_items) > 1 OR (JSON_EXTRACT(cart_items, '$.package_names') IS NOT NULL AND JSON_LENGTH(JSON_EXTRACT(cart_items, '$.package_names')) > 1) THEN 1 ELSE 0 END) as multi_count"),
                 DB::raw("SUM(CASE WHEN JSON_LENGTH(cart_items) <= 1 OR JSON_EXTRACT(cart_items, '$.package_names') IS NULL THEN 1 ELSE 0 END) as single_count"),
@@ -858,10 +881,12 @@ class ReportGenerationService
     {
         [$startDate, $endDate] = $this->getDateRange();
 
-        $rawData = Transaction::query()
+        $query = Transaction::query()
             ->financiallyReportable()
-            ->whereBetween('created_at', [$startDate, $endDate])
-            ->select(
+            ->whereBetween('created_at', [$startDate, $endDate]);
+        $this->applyWebsiteScopeOnly($query, 'transactions.website_id');
+
+        $rawData = $query->select(
                 DB::raw('DATE(created_at) as date'),
                 DB::raw('COUNT(*) as orders'),
                 DB::raw('SUM(total) as gross_sales'),
@@ -921,9 +946,13 @@ class ReportGenerationService
     {
         [$startDate, $endDate] = $this->getDateRange();
 
-        $rawData = Affiliate::query()
-            ->whereBetween('created_at', [$startDate, $endDate])
-            ->select(DB::raw('DATE(created_at) as date'), DB::raw('COUNT(*) as count'))
+        $query = Affiliate::query()
+            ->whereBetween('created_at', [$startDate, $endDate]);
+        if (Schema::hasColumn('affiliates', 'website_id')) {
+            $this->applyWebsiteScopeOnly($query, 'affiliates.website_id');
+        }
+
+        $rawData = $query->select(DB::raw('DATE(created_at) as date'), DB::raw('COUNT(*) as count'))
             ->groupBy('date')
             ->orderBy('date')
             ->get();
@@ -960,20 +989,21 @@ class ReportGenerationService
     {
         [$startDate, $endDate] = $this->getDateRange();
 
-        $data = Affiliate::query()
+        $query = Transaction::query()
+            ->where('transactions.status', Transaction::STATUS_COMPLETED)
+            ->whereNull('transactions.archived_at')
+            ->whereNotNull('transactions.affiliate_id')
+            ->whereBetween('transactions.created_at', [$startDate, $endDate]);
+        $this->applyWebsiteScopeOnly($query, 'transactions.website_id');
+
+        $data = $query->join('affiliates', 'transactions.affiliate_id', '=', 'affiliates.id')
+            ->leftJoin('users', 'affiliates.user_id', '=', 'users.id')
             ->select(
                 'affiliates.id',
                 DB::raw("COALESCE(affiliates.display_name, users.name, CONCAT('affiliate #', affiliates.id)) as name"),
                 DB::raw('COUNT(transactions.id) as orders'),
                 DB::raw('SUM(transactions.total) as revenue')
             )
-            ->leftJoin('users', 'affiliates.user_id', '=', 'users.id')
-            ->leftJoin('transactions', function ($join) use ($startDate, $endDate) {
-                $join->on('affiliates.id', '=', 'transactions.affiliate_id')
-                    ->whereBetween('transactions.created_at', [$startDate, $endDate])
-                    ->whereNull('transactions.archived_at')
-                    ->where('transactions.status', Transaction::STATUS_COMPLETED);
-            })
             ->groupBy('affiliates.id', 'affiliates.display_name', 'users.name')
             ->orderByDesc('revenue')
             ->get()
@@ -1017,10 +1047,13 @@ class ReportGenerationService
     {
         [$startDate, $endDate] = $this->getDateRange();
 
-        $data = Transaction::query()
+        $query = Transaction::query()
             ->financiallyReportable()
             ->whereNotNull('transactions.affiliate_id')
-            ->whereBetween('transactions.created_at', [$startDate, $endDate])
+            ->whereBetween('transactions.created_at', [$startDate, $endDate]);
+        $this->applyWebsiteScopeOnly($query, 'transactions.website_id');
+
+        $data = $query
             ->select(
                 'transactions.affiliate_id',
                 DB::raw("COALESCE(affiliates.display_name, users.name, CONCAT('affiliate #', transactions.affiliate_id)) as affiliate_name"),
@@ -1076,7 +1109,7 @@ class ReportGenerationService
     {
         [$startDate, $endDate] = $this->getDateRange();
 
-        $data = Entertainer::query()
+        $query = Entertainer::query()
             ->select(
                 'entertainers.id',
                 DB::raw("COALESCE(entertainers.display_name, users.name, CONCAT('Entertainer #', entertainers.id)) as name"),
@@ -1086,7 +1119,10 @@ class ReportGenerationService
             ->leftJoin('entertainer_packages', 'entertainers.id', '=', 'entertainer_packages.entertainer_id')
             ->leftJoin('packages', 'entertainer_packages.package_id', '=', 'packages.id')
             ->leftJoin('events', 'packages.event_id', '=', 'events.id')
-            ->whereBetween('events.created_at', [$startDate, $endDate])
+            ->whereBetween('events.created_at', [$startDate, $endDate]);
+        $this->applyWebsiteScopeOnly($query, 'events.website_id');
+
+        $data = $query
             ->groupBy('entertainers.id', 'entertainers.display_name', 'users.name')
             ->orderByDesc('event_count')
             ->get()
@@ -1128,10 +1164,13 @@ class ReportGenerationService
     {
         [$startDate, $endDate] = $this->getDateRange();
 
-        $data = Transaction::query()
+        $query = Transaction::query()
             ->financiallyReportable()
             ->whereNotNull('transactions.entertainer_id')
-            ->whereBetween('transactions.created_at', [$startDate, $endDate])
+            ->whereBetween('transactions.created_at', [$startDate, $endDate]);
+        $this->applyWebsiteScopeOnly($query, 'transactions.website_id');
+
+        $data = $query
             ->join('entertainers', 'transactions.entertainer_id', '=', 'entertainers.id')
             ->leftJoin('users', 'entertainers.user_id', '=', 'users.id')
             ->leftJoin('websites', 'transactions.website_id', '=', 'websites.id')
@@ -1196,10 +1235,12 @@ class ReportGenerationService
     {
         [$startDate, $endDate] = $this->getDateRange();
 
-        $data = Transaction::query()
+        $query = Transaction::query()
             ->where('transactions.status', 1)
-            ->whereBetween('transactions.created_at', [$startDate, $endDate])
-            ->join('packages', 'transactions.package_id', '=', 'packages.id')
+            ->whereBetween('transactions.created_at', [$startDate, $endDate]);
+        $this->applyWebsiteScopeOnly($query, 'transactions.website_id');
+
+        $data = $query->join('packages', 'transactions.package_id', '=', 'packages.id')
             ->leftJoin('websites', 'packages.website_id', '=', 'websites.id')
             ->select(
                 'packages.id',
@@ -1261,8 +1302,10 @@ class ReportGenerationService
     {
         [$startDate, $endDate] = $this->getDateRange();
 
-        $data = Package::query()
-            ->select(
+        $query = Package::query();
+        $this->applyWebsiteScopeOnly($query, 'packages.website_id');
+
+        $data = $query->select(
                 'packages.id',
                 'packages.name',
                 'websites.name as website_name',
@@ -1324,10 +1367,12 @@ class ReportGenerationService
     {
         [$startDate, $endDate] = $this->getDateRange();
 
-        $rawData = Transaction::query()
+        $query = Transaction::query()
             ->financiallyReportable()
-            ->whereBetween('created_at', [$startDate, $endDate])
-            ->select(
+            ->whereBetween('created_at', [$startDate, $endDate]);
+        $this->applyWebsiteScopeOnly($query, 'transactions.website_id');
+
+        $rawData = $query->select(
                 DB::raw('DATE(created_at) as date'),
                 DB::raw('COUNT(DISTINCT package_email) as new_customers')
             )
@@ -1370,10 +1415,11 @@ class ReportGenerationService
     {
         [$startDate, $endDate] = $this->getDateRange();
 
-        $firstTime = Transaction::query()
+        $ftQuery = Transaction::query()
             ->financiallyReportable()
-            ->whereBetween('created_at', [$startDate, $endDate])
-            ->join(
+            ->whereBetween('created_at', [$startDate, $endDate]);
+        $this->applyWebsiteScopeOnly($ftQuery, 'transactions.website_id');
+        $firstTime = $ftQuery->join(
                 DB::raw('(SELECT package_email, MIN(id) as first_id FROM transactions WHERE archived_at IS NULL AND status = 1 GROUP BY package_email) as first'),
                 'transactions.id',
                 '=',
@@ -1381,7 +1427,9 @@ class ReportGenerationService
             )
             ->count();
 
-        $total = Transaction::query()->financiallyReportable()->whereBetween('created_at', [$startDate, $endDate])->count();
+        $totQuery = Transaction::query()->financiallyReportable()->whereBetween('created_at', [$startDate, $endDate]);
+        $this->applyWebsiteScopeOnly($totQuery, 'transactions.website_id');
+        $total = $totQuery->count();
         $repeat = $total - $firstTime;
 
         $rawData = [
@@ -1461,10 +1509,12 @@ class ReportGenerationService
             ? "COALESCE(" . implode(", ", $locationParts) . ", 'United States (Main Market)')"
             : "'United States (Main Market)'";
 
-        $txData = Transaction::query()
+        $query = Transaction::query()
             ->financiallyReportable()
-            ->whereBetween('transactions.created_at', [$startDate, $endDate])
-            ->leftJoin('websites', 'transactions.website_id', '=', 'websites.id')
+            ->whereBetween('transactions.created_at', [$startDate, $endDate]);
+        $this->applyWebsiteScopeOnly($query, 'transactions.website_id');
+
+        $txData = $query->leftJoin('websites', 'transactions.website_id', '=', 'websites.id')
             ->select(
                 DB::raw("{$locationExpr} as location_name"),
                 'websites.name as website_name',
@@ -1540,8 +1590,10 @@ class ReportGenerationService
     {
         [$startDate, $endDate] = $this->getDateRange();
 
-        $data = Event::query()
-            ->select(
+        $query = Event::query()->whereBetween('events.date', [$startDate, $endDate]);
+        $this->applyWebsiteScopeOnly($query, 'events.website_id');
+
+        $data = $query->select(
                 'events.id',
                 'events.name',
                 'websites.name as website_name',
@@ -1554,7 +1606,6 @@ class ReportGenerationService
                     ->whereNull('transactions.archived_at')
                     ->where('transactions.status', Transaction::STATUS_COMPLETED);
             })
-            ->whereBetween('events.date', [$startDate, $endDate])
             ->groupBy('events.id', 'events.name', 'websites.name')
             ->orderByDesc('attendees')
             ->get()
@@ -1600,8 +1651,10 @@ class ReportGenerationService
     {
         [$startDate, $endDate] = $this->getDateRange();
 
-        $data = Event::query()
-            ->select(
+        $query = Event::query()->whereBetween('events.date', [$startDate, $endDate]);
+        $this->applyWebsiteScopeOnly($query, 'events.website_id');
+
+        $data = $query->select(
                 'events.id',
                 'events.name',
                 'websites.name as website_name',
@@ -1614,7 +1667,6 @@ class ReportGenerationService
                     ->whereNull('transactions.archived_at')
                     ->where('transactions.status', Transaction::STATUS_COMPLETED);
             })
-            ->whereBetween('events.date', [$startDate, $endDate])
             ->groupBy('events.id', 'events.name', 'websites.name')
             ->orderByDesc('revenue')
             ->get()
@@ -1660,9 +1712,10 @@ class ReportGenerationService
     {
         [$startDate, $endDate] = $this->getDateRange();
 
-        $data = Event::query()
-            ->whereBetween('date', [$startDate, $endDate])
-            ->select(
+        $query = Event::query()->whereBetween('date', [$startDate, $endDate]);
+        $this->applyWebsiteScopeOnly($query, 'events.website_id');
+
+        $data = $query->select(
                 'events.id',
                 'events.name',
                 'websites.name as website_name',
@@ -1727,10 +1780,12 @@ class ReportGenerationService
     {
         [$startDate, $endDate] = $this->getDateRange();
 
-        $rawData = Transaction::query()
+        $query = Transaction::query()
             ->financiallyReportable()
-            ->whereBetween('created_at', [$startDate, $endDate])
-            ->select(
+            ->whereBetween('created_at', [$startDate, $endDate]);
+        $this->applyWebsiteScopeOnly($query, 'transactions.website_id');
+
+        $rawData = $query->select(
                 DB::raw('DATE(created_at) as date'),
                 DB::raw('SUM(total) as gross_revenue'),
                 DB::raw('0 as refunds'),
@@ -1779,10 +1834,12 @@ class ReportGenerationService
     {
         [$startDate, $endDate] = $this->getDateRange();
 
-        $rawData = Transaction::query()
+        $query = Transaction::query()
             ->financiallyReportable()
-            ->whereBetween('created_at', [$startDate, $endDate])
-            ->select(
+            ->whereBetween('created_at', [$startDate, $endDate]);
+        $this->applyWebsiteScopeOnly($query, 'transactions.website_id');
+
+        $rawData = $query->select(
                 DB::raw('DATE(created_at) as date'),
                 DB::raw('SUM(COALESCE(affiliate_commission_amount, 0)) as affiliate_comm'),
                 DB::raw('SUM(COALESCE(entertainer_commission_amount, 0)) as entertainer_comm')
@@ -1832,10 +1889,12 @@ class ReportGenerationService
     {
         [$startDate, $endDate] = $this->getDateRange();
 
-        $rawData = Transaction::query()
+        $query = Transaction::query()
             ->financiallyReportable()
-            ->whereBetween('created_at', [$startDate, $endDate])
-            ->select(
+            ->whereBetween('created_at', [$startDate, $endDate]);
+        $this->applyWebsiteScopeOnly($query, 'transactions.website_id');
+
+        $rawData = $query->select(
                 DB::raw('DATE(created_at) as date'),
                 DB::raw('SUM(total) as gross_rev'),
                 DB::raw('SUM(COALESCE(affiliate_commission_amount, 0) + COALESCE(entertainer_commission_amount, 0)) as total_comm')
