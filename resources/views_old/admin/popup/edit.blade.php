@@ -2,7 +2,7 @@
 
 @section('content')
 <div class="content-wrapper">
-    <div class="container-xxl flex-grow-1 container-p-y">
+    <div class="container-fluid flex-grow-1 container-p-y">
         <h4 class="mb-3">Edit Checkout Popup</h4>
 
         @if($errors->any())

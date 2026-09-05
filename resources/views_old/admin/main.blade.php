@@ -670,7 +670,7 @@
         }
 
         .content-wrapper,
-        .container-xxl,
+        .container-fluid,
         .container-xl,
         .container-lg,
         .container-md,
@@ -1218,7 +1218,7 @@
         <div class="layout-page">
           <!-- Navbar -->
           @if(session('success') || session('error') || session('warning') || session('info') || $errors->any())
-          <div class="container-xxl mt-3">
+          <div class="container-fluid mt-3">
             <div class="admin-feedback-stack">
               @if(session('success'))
               <div class="alert alert-success alert-dismissible fade show" role="alert">
@@ -1331,7 +1331,7 @@
               }
             }
           @endphp
-          <div class="container-xxl mt-3">
+          <div class="container-fluid mt-3">
             <div class="admin-page-controls">
               <a href="{{ $__backUrl }}" class="admin-global-back-btn" aria-label="Go back to previous page">
                 <i class="fas fa-arrow-left"></i>
@@ -1344,7 +1344,7 @@
 
         <!-- Footer -->
     <footer class="content-footer footer bg-footer-theme">
-        <div class="container-xxl">
+        <div class="container-fluid">
         </div>
     </footer>
     <!-- / Footer -->

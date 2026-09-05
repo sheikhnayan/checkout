@@ -2,7 +2,7 @@
 
 @section('content')
 <div class="content-wrapper">
-    <div class="container-xxl flex-grow-1 container-p-y">
+    <div class="container-fluid flex-grow-1 container-p-y">
         <div class="d-flex justify-content-between align-items-center flex-wrap gap-3 mb-4 mt-4">
             <div>
                 <h3 class="mb-1">Feed Entertainers</h3>

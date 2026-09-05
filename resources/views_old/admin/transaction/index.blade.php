@@ -770,7 +770,7 @@ body.modal-open .admin-mobile-menu-toggle {
 </style>
     <!-- Content wrapper -->
     <div class="content-wrapper">
-        <div class="container-xxl flex-grow-1 container-p-y pt-4">
+        <div class="container-fluid flex-grow-1 container-p-y pt-4">
 
         @php
             $tz = 'America/Los_Angeles';

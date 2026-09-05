@@ -19,7 +19,7 @@
 <link rel="stylesheet" href="{{ asset('public/assets/base.css') }}">
 
 <div class="content-wrapper">
-    <div class="container-xxl flex-grow-1 container-p-y">
+    <div class="container-fluid flex-grow-1 container-p-y">
         <div class="row">
             <div class="col-xxl-12 mb-6 order-0">
                 <div class="app-main__inner">

@@ -43,7 +43,7 @@
     }
 </style>
 <div class="content-wrapper">
-    <div class="container-xxl flex-grow-1 container-p-y">
+    <div class="container-fluid flex-grow-1 container-p-y">
         <div class="row g-3">
             <div class="col-12">
                 <div class="card shadow-sm border-0" style="border-radius:16px;">

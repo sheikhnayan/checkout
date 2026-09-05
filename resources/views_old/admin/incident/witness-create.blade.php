@@ -4,7 +4,7 @@
 <link rel="stylesheet" href="{{ asset('user/extra.css') }}">
 
 <div class="content-wrapper">
-    <div class="container-xxl flex-grow-1 container-p-y">
+    <div class="container-fluid flex-grow-1 container-p-y">
         <div class="app-main__inner">
             <div class="d-flex justify-content-between align-items-center mb-3 mt-4">
                 <h4 class="mb-0">Add Witness Report - Incident #{{ $incident->id }}</h4>

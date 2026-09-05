@@ -10,7 +10,7 @@
         ->values();
 @endphp
 <div class="content-wrapper">
-    <div class="container-xxl flex-grow-1 container-p-y">
+    <div class="container-fluid flex-grow-1 container-p-y">
         <div class="d-flex justify-content-between align-items-center mb-3">
             <h4 class="mb-0">Website Roles</h4>
             <a href="{{ route('admin.website-roles.create') }}" class="btn btn-primary">Create Role</a>

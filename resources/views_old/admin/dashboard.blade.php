@@ -29,7 +29,7 @@
     .dashboard-quick-actions .list-group-item:hover { background: rgba(255,204,0,0.08); }
 </style>
 <div class="content-wrapper">
-    <div class="container-xxl flex-grow-1 container-p-y">
+    <div class="container-fluid flex-grow-1 container-p-y">
         <h4 class="py-3 mb-4"><span class="text-muted fw-light">Admin /</span> Dashboard</h4>
         <div class="row">
             <div class="col-lg-3 col-md-6 mb-4">
@@ -222,7 +222,7 @@
     }
 </style>
 <div class="content-wrapper">
-    <div class="container-xxl flex-grow-1 container-p-y">
+    <div class="container-fluid flex-grow-1 container-p-y">
 
         <div class="welcome-hero d-flex align-items-center gap-3 flex-wrap">
             <div class="welcome-avatar"><i class="fas fa-user"></i></div>

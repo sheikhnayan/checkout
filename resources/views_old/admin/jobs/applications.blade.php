@@ -2,7 +2,7 @@
 
 @section('content')
 <div class="content-wrapper">
-    <div class="container-xxl flex-grow-1 container-p-y">
+    <div class="container-fluid flex-grow-1 container-p-y">
         <div class="d-flex flex-wrap justify-content-between align-items-center mb-3 gap-2">
             <h4 class="mb-0">Job Applications</h4>
             <a href="{{ route('admin.jobs.index') }}" class="btn btn-outline-light">Back to Jobs</a>

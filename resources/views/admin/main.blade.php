@@ -679,7 +679,7 @@
         }
 
         .content-wrapper,
-        .container-xxl,
+        .container-fluid,
         .container-xl,
         .container-lg,
         .container-md,
@@ -1474,7 +1474,7 @@
           </script>
           <!-- Navbar -->
           @if(session('success') || session('error') || session('warning') || session('info') || $errors->any())
-          <div class="container-xxl mt-3">
+          <div class="container-fluid mt-3">
             <div class="admin-feedback-stack">
               @if(session('success'))
               <div class="alert alert-success alert-dismissible fade show" role="alert">
@@ -1600,7 +1600,7 @@
 
         <!-- Footer -->
     <footer class="content-footer footer bg-footer-theme">
-        <div class="container-xxl">
+        <div class="container-fluid">
         </div>
     </footer>
     <!-- / Footer -->

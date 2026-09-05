@@ -3,7 +3,7 @@
 @section('content')
 
 <div class="content-wrapper">
-    <div class="container-xxl flex-grow-1 container-p-y">
+    <div class="container-fluid flex-grow-1 container-p-y">
         <div class="app-main__inner">
             <div class="app-page-title mt-4">
                 <div class="page-title-wrapper">

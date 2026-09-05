@@ -4,7 +4,7 @@
 <link rel="stylesheet" href="{{ asset('user/extra.css') }}">
 
 <div class="content-wrapper">
-    <div class="container-xxl flex-grow-1 container-p-y">
+    <div class="container-fluid flex-grow-1 container-p-y">
         <div class="app-main__inner">
             @php
                 $incidentTz = $website->resolved_timezone;

@@ -7,7 +7,7 @@
   $statusRoute = $isNightly ? 'admin.nightly-reports.jobs.preference-requests.status' : 'admin.jobs.preference-requests.status';
 @endphp
 <div class="content-wrapper">
-    <div class="container-xxl flex-grow-1 container-p-y">
+    <div class="container-fluid flex-grow-1 container-p-y">
         <div class="d-flex flex-wrap justify-content-between align-items-center mb-3 gap-2">
             <div>
                 <h4 class="mb-1 text-white">Preferred-Work Requests</h4>

@@ -341,7 +341,7 @@
 </style>
 
 <div class="content-wrapper">
-    <div class="container-xxl flex-grow-1 container-p-y">
+    <div class="container-fluid flex-grow-1 container-p-y">
         
         <!-- Header Row -->
         <div class="d-flex flex-wrap justify-content-between align-items-center mb-4 gap-3">

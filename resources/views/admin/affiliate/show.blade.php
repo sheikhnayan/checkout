@@ -69,7 +69,7 @@
 
 @section('content')
 <div class="content-wrapper">
-    <div class="container-xxl flex-grow-1 container-p-y">
+    <div class="container-fluid flex-grow-1 container-p-y">
         @if(session('success'))
             <div class="alert alert-success">{{ session('success') }}</div>
         @endif

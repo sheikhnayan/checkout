@@ -183,7 +183,7 @@
 </style>
 
 <div class="content-wrapper">
-    <div class="container-xxl flex-grow-1 container-p-y">
+    <div class="container-fluid flex-grow-1 container-p-y">
 
         {{-- Hero Welcome Section --}}
         <div class="dash-hero-card d-flex align-items-center justify-content-between flex-wrap gap-3">

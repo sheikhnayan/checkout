@@ -2,7 +2,7 @@
 
 @section('content')
 <div class="content-wrapper">
-    <div class="container-xxl flex-grow-1 container-p-y">
+    <div class="container-fluid flex-grow-1 container-p-y">
         <div class="card mt-4">
             <div class="card-header">
                 <h4 class="mb-1">Create Feed Post</h4>

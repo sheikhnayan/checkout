@@ -2,7 +2,7 @@
 
 @section('content')
 <div class="content-wrapper">
-    <div class="container-xxl flex-grow-1 container-p-y">
+    <div class="container-fluid flex-grow-1 container-p-y">
         <div class="card p-4 mb-4">
             <h4 class="mb-2">Entertainer Wallet</h4>
             <p class="mb-0"><strong>Current Balance:</strong> ${{ number_format($entertainer->wallet_balance, 2) }}</p>

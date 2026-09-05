@@ -1242,7 +1242,7 @@ body.modal-open .admin-mobile-menu-toggle {
 </style>
     <!-- Content wrapper -->
     <div class="content-wrapper">
-        <div class="container-xxl flex-grow-1 container-p-y pt-4">
+        <div class="container-fluid flex-grow-1 container-p-y pt-4">
 
         @php
             $tz = 'America/Los_Angeles';
@@ -1437,24 +1437,37 @@ body.modal-open .admin-mobile-menu-toggle {
 
                     {{-- Tab Navigation Bar --}}
                     <div class="d-flex align-items-center justify-content-between flex-wrap gap-2 pb-2 pb-md-3 mb-3 mb-md-4 border-bottom border-secondary border-opacity-25">
-                        <div class="w-100 overflow-x-auto pb-1" style="-webkit-overflow-scrolling: touch; scrollbar-width: none;">
-                            <ul class="nav nav-pills flex-nowrap gap-2 text-nowrap" id="analyticsDashboardTabs" role="tablist">
-                                <li class="nav-item" role="presentation">
-                                    <button class="nav-link active rounded-pill px-3 py-2 text-white border border-secondary border-opacity-25" id="tab-shopify-conversion-tab" data-bs-toggle="pill" data-bs-target="#tab-shopify-conversion" type="button" role="tab" style="background-color: #7c3aed; font-weight: 600; font-size: 0.82rem;">
-                                        <i class="fas fa-chart-line me-1"></i> Conversion & Traffic
-                                    </button>
-                                </li>
-                                <li class="nav-item" role="presentation">
-                                    <button class="nav-link rounded-pill px-3 py-2 text-white border border-secondary border-opacity-25" id="tab-classic-performance-tab" data-bs-toggle="pill" data-bs-target="#tab-classic-performance" type="button" role="tab" style="background-color: rgba(30, 41, 59, 0.6); font-weight: 600; font-size: 0.82rem;">
-                                        <i class="fas fa-chart-area me-1"></i> Revenue & Performance
-                                    </button>
-                                </li>
-                                <li class="nav-item" role="presentation">
-                                    <button class="nav-link rounded-pill px-3 py-2 text-white border border-secondary border-opacity-25" id="tab-orders-guests-tab" data-bs-toggle="pill" data-bs-target="#tab-orders-guests" type="button" role="tab" style="background-color: rgba(30, 41, 59, 0.6); font-weight: 600; font-size: 0.82rem;">
-                                        <i class="fas fa-users me-1"></i> Orders & Guest Volume
-                                    </button>
-                                </li>
-                            </ul>
+                        <div class="position-relative w-100">
+                            {{-- Left Scroll Arrow (Mobile Only) --}}
+                            <button type="button" class="btn btn-sm position-absolute start-0 top-50 translate-middle-y z-3 d-md-none rounded-circle border shadow d-none" id="analyticsTabScrollLeft" style="width: 30px; height: 30px; padding: 0; background: rgba(15, 23, 42, 0.95); border-color: rgba(139, 92, 246, 0.5) !important; color: #a78bfa;" onclick="scrollAnalyticsTabs('left')">
+                                <i class="fas fa-chevron-left" style="font-size: 0.72rem;"></i>
+                            </button>
+
+                            {{-- Scrollable Nav Tabs --}}
+                            <div class="w-100 overflow-x-auto pb-1" id="analyticsTabsScrollWrap" style="-webkit-overflow-scrolling: touch; scrollbar-width: none; scroll-behavior: smooth;">
+                                <ul class="nav nav-pills flex-nowrap gap-2 text-nowrap me-4 me-md-0" id="analyticsDashboardTabs" role="tablist">
+                                    <li class="nav-item" role="presentation">
+                                        <button class="nav-link active rounded-pill px-3 py-2 text-white border border-secondary border-opacity-25" id="tab-shopify-conversion-tab" data-bs-toggle="pill" data-bs-target="#tab-shopify-conversion" type="button" role="tab" style="background-color: #7c3aed; font-weight: 600; font-size: 0.82rem;">
+                                            <i class="fas fa-chart-line me-1"></i> Conversion & Traffic
+                                        </button>
+                                    </li>
+                                    <li class="nav-item" role="presentation">
+                                        <button class="nav-link rounded-pill px-3 py-2 text-white border border-secondary border-opacity-25" id="tab-classic-performance-tab" data-bs-toggle="pill" data-bs-target="#tab-classic-performance" type="button" role="tab" style="background-color: rgba(30, 41, 59, 0.6); font-weight: 600; font-size: 0.82rem;">
+                                            <i class="fas fa-chart-area me-1"></i> Revenue & Performance
+                                        </button>
+                                    </li>
+                                    <li class="nav-item" role="presentation">
+                                        <button class="nav-link rounded-pill px-3 py-2 text-white border border-secondary border-opacity-25" id="tab-orders-guests-tab" data-bs-toggle="pill" data-bs-target="#tab-orders-guests" type="button" role="tab" style="background-color: rgba(30, 41, 59, 0.6); font-weight: 600; font-size: 0.82rem;">
+                                            <i class="fas fa-users me-1"></i> Orders & Guest Volume
+                                        </button>
+                                    </li>
+                                </ul>
+                            </div>
+
+                            {{-- Right Scroll Arrow (Mobile Only) --}}
+                            <button type="button" class="btn btn-sm position-absolute end-0 top-50 translate-middle-y z-3 d-md-none rounded-circle border shadow" id="analyticsTabScrollRight" style="width: 30px; height: 30px; padding: 0; background: linear-gradient(135deg, #7c3aed, #4c1d95); border-color: rgba(167, 139, 250, 0.6) !important; color: #ffffff; box-shadow: 0 0 10px rgba(124, 58, 237, 0.5);" onclick="scrollAnalyticsTabs('right')">
+                                <i class="fas fa-chevron-right" style="font-size: 0.72rem;"></i>
+                            </button>
                         </div>
                     </div>
 
@@ -3360,7 +3373,44 @@ body.modal-open .admin-mobile-menu-toggle {
                     if (shopifyChartInstance && typeof shopifyChartInstance.resize === 'function') shopifyChartInstance.resize();
                     if (classicChartInstance && typeof classicChartInstance.resize === 'function') classicChartInstance.resize();
                     if (ordersGuestsChartInstance && typeof ordersGuestsChartInstance.resize === 'function') ordersGuestsChartInstance.resize();
+                    updateTabScrollArrows();
                 });
+
+                // Mobile Tab Horizontal Scroll Helpers
+                window.scrollAnalyticsTabs = function(direction) {
+                    const wrap = document.getElementById('analyticsTabsScrollWrap');
+                    if (!wrap) return;
+                    const scrollAmount = direction === 'left' ? -180 : 180;
+                    wrap.scrollBy({ left: scrollAmount, behavior: 'smooth' });
+                    setTimeout(updateTabScrollArrows, 300);
+                };
+
+                function updateTabScrollArrows() {
+                    const wrap = document.getElementById('analyticsTabsScrollWrap');
+                    const leftBtn = document.getElementById('analyticsTabScrollLeft');
+                    const rightBtn = document.getElementById('analyticsTabScrollRight');
+                    if (!wrap) return;
+
+                    if (leftBtn) {
+                        if (wrap.scrollLeft > 15) {
+                            leftBtn.classList.remove('d-none');
+                        } else {
+                            leftBtn.classList.add('d-none');
+                        }
+                    }
+
+                    if (rightBtn) {
+                        if (wrap.scrollLeft + wrap.clientWidth >= wrap.scrollWidth - 15) {
+                            rightBtn.classList.add('d-none');
+                        } else {
+                            rightBtn.classList.remove('d-none');
+                        }
+                    }
+                }
+
+                $('#analyticsTabsScrollWrap').on('scroll', updateTabScrollArrows);
+                $(window).on('resize', updateTabScrollArrows);
+                setTimeout(updateTabScrollArrows, 400);
 
                 let currentShopifyMetric = 'sessions';
                 let shopifyChartInstance = null;

@@ -7,7 +7,7 @@
   $storeRoute = $isNightly ? 'admin.nightly-reports.jobs.store' : 'admin.jobs.store';
 @endphp
 <div class="content-wrapper">
-    <div class="container-xxl flex-grow-1 container-p-y">
+    <div class="container-fluid flex-grow-1 container-p-y">
         <div class="d-flex justify-content-between align-items-center mb-3">
             <h4 class="mb-0 text-white">Create Job Post</h4>
             <a href="{{ route($indexRoute) }}" class="btn btn-outline-light">Back</a>
