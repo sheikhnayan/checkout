@@ -566,6 +566,29 @@
     background: rgba(15, 23, 42, 0.95);
     border-radius: 20px 20px 0 0;
 }
+.btn-close-custom {
+    background: rgba(255, 255, 255, 0.12) !important;
+    border: 1px solid rgba(255, 255, 255, 0.2) !important;
+    color: #ffffff !important;
+    width: 32px;
+    height: 32px;
+    border-radius: 50%;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 0.85rem;
+    cursor: pointer;
+    padding: 0;
+    transition: all 0.2s ease;
+    line-height: 1;
+}
+.btn-close-custom:hover,
+.btn-close-custom:focus {
+    background: rgba(255, 255, 255, 0.25) !important;
+    color: #ffffff !important;
+    outline: none;
+    box-shadow: 0 0 0 2px rgba(139, 92, 246, 0.4);
+}
 #mobileFilterModal .drawer-handle {
     width: 42px;
     height: 5px;
@@ -2656,7 +2679,9 @@ body.modal-open .admin-mobile-menu-toggle {
                             <h5 class="modal-title text-white" id="txnNotesModalLabel">
                                 <i class="fas fa-sticky-note text-warning me-2"></i>Notes (<span id="txnNotesModalOrderTitle"></span>)
                             </h5>
-                            <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close" style="filter:invert(1);"></button>
+                            <button type="button" class="btn-close-custom" data-bs-dismiss="modal" aria-label="Close">
+                                <i class="fas fa-times"></i>
+                            </button>
                         </div>
                         <div class="modal-body" id="txnNotesModalBody">
                             <!-- Dynamically populated notes form -->
@@ -2678,7 +2703,9 @@ body.modal-open .admin-mobile-menu-toggle {
                                 </h5>
                                 <div class="d-flex align-items-center gap-2">
                                     <button type="button" class="btn btn-sm btn-link text-danger text-decoration-none px-1" onclick="clearAllPolarisFilters()" style="font-size:0.82rem;font-weight:600;">Reset All</button>
-                                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close" style="filter:invert(1);"></button>
+                                    <button type="button" class="btn-close-custom" data-bs-dismiss="modal" aria-label="Close">
+                                        <i class="fas fa-times"></i>
+                                    </button>
                                 </div>
                             </div>
                         </div>
@@ -3393,10 +3420,8 @@ body.modal-open .admin-mobile-menu-toggle {
                     const dateRangeVal = String($('#txnDateRange').val() || $('#mobileTxnDateRange').val() || '').trim();
                     const hasExplicitDateRange = dateRangeVal && dateRangeVal.includes(' - ');
 
-                    // Limit chart to last 30 days maximum to keep graph sleek & readable (prevent showing months of raw history)
+                    // If NO date range filter is explicitly applied, default to last 30 days for initial uncluttered view
                     if (!hasExplicitDateRange && dates.length > 30) {
-                        dates = dates.slice(-30);
-                    } else if (dates.length > 30) {
                         dates = dates.slice(-30);
                     }
 
@@ -3432,7 +3457,7 @@ body.modal-open .admin-mobile-menu-toggle {
                     gradientCurrent.addColorStop(0, 'rgba(139, 92, 246, 0.4)');
                     gradientCurrent.addColorStop(1, 'rgba(139, 92, 246, 0.0)');
 
-                    const pointRadiusVal = dates.length > 14 ? 0 : 3;
+                    const pointRadiusVal = dates.length > 20 ? 0 : 3;
 
                     shopifyChartInstance = new Chart(ctx, {
                         type: 'line',
@@ -3484,7 +3509,7 @@ body.modal-open .admin-mobile-menu-toggle {
                                     ticks: {
                                         color: '#94a3b8',
                                         font: { size: 10 },
-                                        maxTicksLimit: (typeof window !== 'undefined' && window.innerWidth < 576) ? 5 : 8,
+                                        maxTicksLimit: (typeof window !== 'undefined' && window.innerWidth < 576) ? 6 : 10,
                                         autoSkip: true,
                                         maxRotation: 0,
                                         minRotation: 0
@@ -3518,8 +3543,6 @@ body.modal-open .admin-mobile-menu-toggle {
 
                     if (!hasExplicitDateRange && dates.length > 30) {
                         dates = dates.slice(-30);
-                    } else if (dates.length > 30) {
-                        dates = dates.slice(-30);
                     }
 
                     let labels = [];
@@ -3546,7 +3569,7 @@ body.modal-open .admin-mobile-menu-toggle {
                     gradientRev.addColorStop(0, 'rgba(124, 58, 237, 0.4)');
                     gradientRev.addColorStop(1, 'rgba(124, 58, 237, 0.0)');
 
-                    const pointRadiusVal = dates.length > 14 ? 0 : 3;
+                    const pointRadiusVal = dates.length > 20 ? 0 : 3;
 
                     classicChartInstance = new Chart(ctx, {
                         type: 'line',
@@ -3597,7 +3620,7 @@ body.modal-open .admin-mobile-menu-toggle {
                                     ticks: {
                                         color: '#94a3b8',
                                         font: { size: 10 },
-                                        maxTicksLimit: (typeof window !== 'undefined' && window.innerWidth < 576) ? 5 : 8,
+                                        maxTicksLimit: (typeof window !== 'undefined' && window.innerWidth < 576) ? 6 : 10,
                                         autoSkip: true,
                                         maxRotation: 0,
                                         minRotation: 0
@@ -3628,8 +3651,6 @@ body.modal-open .admin-mobile-menu-toggle {
                     const hasExplicitDateRange = dateRangeVal && dateRangeVal.includes(' - ');
 
                     if (!hasExplicitDateRange && dates.length > 30) {
-                        dates = dates.slice(-30);
-                    } else if (dates.length > 30) {
                         dates = dates.slice(-30);
                     }
 
@@ -4213,7 +4234,11 @@ body.modal-open .admin-mobile-menu-toggle {
                     });
                 }
 
-                window.applyMobileDatePreset = function(preset) {
+                window.applyMobileDatePreset = function(preset, btnEl) {
+                    $('.mobile-preset-btn').removeClass('active');
+                    if (btnEl) {
+                        $(btnEl).addClass('active');
+                    }
                     const now = (typeof getPstMoment === 'function') ? getPstMoment() : moment();
                     let start = null;
                     let end = null;
@@ -4226,6 +4251,8 @@ body.modal-open .admin-mobile-menu-toggle {
                         start = now.clone().subtract(6, 'days'); end = now.clone();
                     } else if (preset === 'thisMonth') {
                         start = now.clone().startOf('month'); end = now.clone().endOf('month');
+                    } else if (preset === 'lastMonth') {
+                        start = now.clone().subtract(1, 'month').startOf('month'); end = now.clone().subtract(1, 'month').endOf('month');
                     } else if (preset === 'allTime') {
                         $('#txnDateRange, #mobileTxnDateRange').val('');
                         updatePolarisUiAndFilterTable();
