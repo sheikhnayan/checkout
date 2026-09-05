@@ -611,12 +611,6 @@
           <span>Incident Reports</span>
         </a>
       </li>
-      <li class="nr-menu-item {{ request()->routeIs('admin.nightly-reports.witness.*') ? 'active' : '' }}">
-        <a href="{{ route('admin.nightly-reports.witness.index') }}" class="nr-menu-link">
-          <i class="fas fa-file-signature"></i>
-          <span>Witness Statements</span>
-        </a>
-      </li>
 
       <!-- Operations & Forms -->
       <li class="nr-menu-header">Operations & Forms</li>
@@ -767,7 +761,6 @@
             <li><a class="dropdown-item text-white" href="{{ route('nightly.submit.boutique') }}" target="_blank"><i class="fas fa-store me-2 text-info"></i> Submit Boutique Report</a></li>
             <li><a class="dropdown-item text-white" href="{{ route('nightly.submit.coh') }}" target="_blank"><i class="fas fa-vault me-2 text-success"></i> Submit COH Audit</a></li>
             <li><a class="dropdown-item text-white" href="{{ route('nightly.submit.incident') }}" target="_blank"><i class="fas fa-shield-alt me-2 text-danger"></i> Submit Incident</a></li>
-            <li><a class="dropdown-item text-white" href="{{ route('nightly.submit.witness') }}" target="_blank"><i class="fas fa-file-signature me-2 text-primary"></i> Witness Statement</a></li>
           </ul>
         </div>
 
