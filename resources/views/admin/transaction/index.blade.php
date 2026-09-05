@@ -3050,22 +3050,28 @@ body.modal-open .admin-mobile-menu-toggle {
                 };
             }
 
-            const lineCtx = document.getElementById('txnLineChart').getContext('2d');
-            let lineChart = new Chart(lineCtx, buildLineChart(allChartData));
-            window.lineChartInstance = lineChart;
+            const lineCanvas = document.getElementById('txnLineChart');
+            if (lineCanvas) {
+                const lineCtx = lineCanvas.getContext('2d');
+                let lineChart = new Chart(lineCtx, buildLineChart(allChartData));
+                window.lineChartInstance = lineChart;
 
-            document.getElementById('chartPeriod').addEventListener('change', function() {
-                if (typeof updateChartsFromFilteredRows === 'function') {
-                    updateChartsFromFilteredRows();
-                } else {
-                    const period = this.value;
-                    const data = period === '7' ? chart7Data : period === '14' ? chart14Data : allChartData;
-                    lineChart.destroy();
-                    lineChart = new Chart(lineCtx, buildLineChart(data));
-                    window.lineChartInstance = lineChart;
-                    setTimeout(syncChartHeights, 200);
+                const chartPeriodEl = document.getElementById('chartPeriod');
+                if (chartPeriodEl) {
+                    chartPeriodEl.addEventListener('change', function() {
+                        if (typeof updateChartsFromFilteredRows === 'function') {
+                            updateChartsFromFilteredRows();
+                        } else {
+                            const period = this.value;
+                            const data = period === '7' ? chart7Data : period === '14' ? chart14Data : allChartData;
+                            lineChart.destroy();
+                            lineChart = new Chart(lineCtx, buildLineChart(data));
+                            window.lineChartInstance = lineChart;
+                            setTimeout(syncChartHeights, 200);
+                        }
+                    });
                 }
-            });
+            }
 
             // ── Dynamic Chart Updater for Filtered Views ─────────────────────
             window.updateChartsFromFilteredRows = function() {
@@ -3381,7 +3387,19 @@ body.modal-open .admin-mobile-menu-toggle {
                     const ctx = document.getElementById('shopifyTrendChart');
                     if (!ctx) return;
 
-                    const dates = Object.keys(dailyMap).sort();
+                    let dates = Object.keys(dailyMap).sort();
+                    
+                    // Check if an explicit date filter range is applied
+                    const dateRangeVal = String($('#txnDateRange').val() || $('#mobileTxnDateRange').val() || '').trim();
+                    const hasExplicitDateRange = dateRangeVal && dateRangeVal.includes(' - ');
+
+                    // Limit chart to last 30 days maximum to keep graph sleek & readable (prevent showing months of raw history)
+                    if (!hasExplicitDateRange && dates.length > 30) {
+                        dates = dates.slice(-30);
+                    } else if (dates.length > 30) {
+                        dates = dates.slice(-30);
+                    }
+
                     let labels = [];
                     let currentData = [];
                     let prevData = [];
@@ -3389,7 +3407,7 @@ body.modal-open .admin-mobile-menu-toggle {
                     if (dates.length > 0) {
                         dates.forEach(function(d) {
                             labels.push(moment(d).format('MMM D'));
-                            const item = dailyMap[d];
+                            const item = dailyMap[d] || { sales: 0, orders: 0 };
                             let val = 0;
                             if (metric === 'sales') val = item.sales;
                             else if (metric === 'orders') val = item.orders;
@@ -3414,6 +3432,8 @@ body.modal-open .admin-mobile-menu-toggle {
                     gradientCurrent.addColorStop(0, 'rgba(139, 92, 246, 0.4)');
                     gradientCurrent.addColorStop(1, 'rgba(139, 92, 246, 0.0)');
 
+                    const pointRadiusVal = dates.length > 14 ? 0 : 3;
+
                     shopifyChartInstance = new Chart(ctx, {
                         type: 'line',
                         data: {
@@ -3428,7 +3448,9 @@ body.modal-open .admin-mobile-menu-toggle {
                                     tension: 0.35,
                                     fill: true,
                                     pointBackgroundColor: '#8b5cf6',
-                                    pointRadius: 3
+                                    pointRadius: pointRadiusVal,
+                                    pointHoverRadius: 6,
+                                    pointHitRadius: 12
                                 },
                                 {
                                     label: 'Previous Period',
@@ -3458,8 +3480,15 @@ body.modal-open .admin-mobile-menu-toggle {
                             },
                             scales: {
                                 x: {
-                                    grid: { color: 'rgba(255, 255, 255, 0.05)' },
-                                    ticks: { color: '#94a3b8', font: { size: 11 } }
+                                    grid: { color: 'rgba(255, 255, 255, 0.05)', drawBorder: false },
+                                    ticks: {
+                                        color: '#94a3b8',
+                                        font: { size: 10 },
+                                        maxTicksLimit: (typeof window !== 'undefined' && window.innerWidth < 576) ? 5 : 8,
+                                        autoSkip: true,
+                                        maxRotation: 0,
+                                        minRotation: 0
+                                    }
                                 },
                                 y: {
                                     grid: { color: 'rgba(255, 255, 255, 0.05)' },
@@ -3482,7 +3511,17 @@ body.modal-open .admin-mobile-menu-toggle {
                     const ctx = document.getElementById('classicPerformanceChart');
                     if (!ctx || typeof Chart === 'undefined') return;
 
-                    const dates = Object.keys(dailyMap).sort();
+                    let dates = Object.keys(dailyMap).sort();
+                    
+                    const dateRangeVal = String($('#txnDateRange').val() || $('#mobileTxnDateRange').val() || '').trim();
+                    const hasExplicitDateRange = dateRangeVal && dateRangeVal.includes(' - ');
+
+                    if (!hasExplicitDateRange && dates.length > 30) {
+                        dates = dates.slice(-30);
+                    } else if (dates.length > 30) {
+                        dates = dates.slice(-30);
+                    }
+
                     let labels = [];
                     let revenueData = [];
                     let ordersData = [];
@@ -3507,6 +3546,8 @@ body.modal-open .admin-mobile-menu-toggle {
                     gradientRev.addColorStop(0, 'rgba(124, 58, 237, 0.4)');
                     gradientRev.addColorStop(1, 'rgba(124, 58, 237, 0.0)');
 
+                    const pointRadiusVal = dates.length > 14 ? 0 : 3;
+
                     classicChartInstance = new Chart(ctx, {
                         type: 'line',
                         data: {
@@ -3520,6 +3561,9 @@ body.modal-open .admin-mobile-menu-toggle {
                                     borderWidth: 2.5,
                                     tension: 0.3,
                                     fill: true,
+                                    pointRadius: pointRadiusVal,
+                                    pointHoverRadius: 6,
+                                    pointHitRadius: 12,
                                     yAxisID: 'y'
                                 },
                                 {
@@ -3529,6 +3573,9 @@ body.modal-open .admin-mobile-menu-toggle {
                                     borderWidth: 2,
                                     tension: 0.3,
                                     fill: false,
+                                    pointRadius: pointRadiusVal,
+                                    pointHoverRadius: 6,
+                                    pointHitRadius: 12,
                                     yAxisID: 'y1'
                                 }
                             ]
@@ -3545,7 +3592,17 @@ body.modal-open .admin-mobile-menu-toggle {
                                 }
                             },
                             scales: {
-                                x: { grid: { color: 'rgba(255, 255, 255, 0.05)' }, ticks: { color: '#94a3b8' } },
+                                x: {
+                                    grid: { color: 'rgba(255, 255, 255, 0.05)', drawBorder: false },
+                                    ticks: {
+                                        color: '#94a3b8',
+                                        font: { size: 10 },
+                                        maxTicksLimit: (typeof window !== 'undefined' && window.innerWidth < 576) ? 5 : 8,
+                                        autoSkip: true,
+                                        maxRotation: 0,
+                                        minRotation: 0
+                                    }
+                                },
                                 y: {
                                     type: 'linear', display: true, position: 'left',
                                     grid: { color: 'rgba(255, 255, 255, 0.05)' },
@@ -3565,7 +3622,17 @@ body.modal-open .admin-mobile-menu-toggle {
                     const ctx = document.getElementById('ordersGuestsChart');
                     if (!ctx || typeof Chart === 'undefined') return;
 
-                    const dates = Object.keys(dailyMap).sort();
+                    let dates = Object.keys(dailyMap).sort();
+
+                    const dateRangeVal = String($('#txnDateRange').val() || $('#mobileTxnDateRange').val() || '').trim();
+                    const hasExplicitDateRange = dateRangeVal && dateRangeVal.includes(' - ');
+
+                    if (!hasExplicitDateRange && dates.length > 30) {
+                        dates = dates.slice(-30);
+                    } else if (dates.length > 30) {
+                        dates = dates.slice(-30);
+                    }
+
                     let labels = [];
                     let ordersData = [];
                     let guestsData = [];
@@ -3617,7 +3684,17 @@ body.modal-open .admin-mobile-menu-toggle {
                                 }
                             },
                             scales: {
-                                x: { grid: { color: 'rgba(255, 255, 255, 0.05)' }, ticks: { color: '#94a3b8' } },
+                                x: {
+                                    grid: { color: 'rgba(255, 255, 255, 0.05)', drawBorder: false },
+                                    ticks: {
+                                        color: '#94a3b8',
+                                        font: { size: 10 },
+                                        maxTicksLimit: (typeof window !== 'undefined' && window.innerWidth < 576) ? 5 : 8,
+                                        autoSkip: true,
+                                        maxRotation: 0,
+                                        minRotation: 0
+                                    }
+                                },
                                 y: { grid: { color: 'rgba(255, 255, 255, 0.05)' }, ticks: { color: '#94a3b8' } }
                             }
                         }
