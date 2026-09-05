@@ -1,8 +1,12 @@
-@extends('admin.main')
+@extends(request()->routeIs('admin.nightly-reports.*') ? 'admin.nightly-reports.layout' : 'admin.main')
 
-@section('title', 'Help Center Portal')
+@section('title', 'Form Portal - Help Center')
 
 @section('content')
+@php
+  $isNightly = request()->routeIs('admin.nightly-reports.*');
+  $hcPrefix = $isNightly ? 'admin.nightly-reports.help-center.' : 'admin.help-center.';
+@endphp
 <style>
     /* High contrast text overrides */
     .hc-white-title,
@@ -113,7 +117,7 @@
             </button>
         @else
             <div class="d-flex gap-2">
-                <a href="{{ route('admin.help-center.builder', $myPage->id) }}" class="btn btn-primary">
+                <a href="{{ route($hcPrefix . 'builder', $myPage->id) }}" class="btn btn-primary">
                     <i class="bx bx-edit me-1"></i> Open Page Builder
                 </a>
                 <a href="{{ route('help-center.public', $myPage->slug) }}" target="_blank" class="btn btn-outline-primary">
@@ -219,7 +223,7 @@
                             </div>
 
                             <div class="d-flex gap-2 flex-wrap mt-4">
-                                <a href="{{ route('admin.help-center.builder', $myPage->id) }}" class="btn btn-primary">
+                                <a href="{{ route($hcPrefix . 'builder', $myPage->id) }}" class="btn btn-primary">
                                     <i class="bx bx-cog me-1"></i> Manage Sections & Links ({{ $myPage->sections->count() }} Sections)
                                 </a>
                                 <button type="button" class="btn btn-outline-secondary" data-bs-toggle="modal" data-bs-target="#editPageModal">
@@ -264,7 +268,7 @@
                                                 @else
                                                     <span class="badge bg-secondary">Declined</span>
                                                 @endif
-                                                <form action="{{ route('admin.help-center.collaborators.remove', $collab->id) }}" method="POST" onsubmit="return confirm('Remove this collaborator?');" class="d-inline">
+                                                <form action="{{ route($hcPrefix . 'collaborators.remove', $collab->id) }}" method="POST" onsubmit="return confirm('Remove this collaborator?');" class="d-inline">
                                                     @csrf
                                                     @method('DELETE')
                                                     <button type="submit" class="btn btn-icon-custom btn-outline-danger">
@@ -311,7 +315,7 @@
                                         <small class="hc-subtitle d-block mb-3">Owner: <strong>{{ $shared->page->owner->name ?? 'CartVIP User' }}</strong></small>
                                         
                                         <div class="d-flex gap-2">
-                                            <a href="{{ route('admin.help-center.builder', $shared->page->id) }}" class="btn btn-sm btn-primary">
+                                            <a href="{{ route($hcPrefix . 'builder', $shared->page->id) }}" class="btn btn-sm btn-primary">
                                                 <i class="bx bx-edit me-1"></i> Edit Sections & Links
                                             </a>
                                             <a href="{{ route('help-center.public', $shared->page->slug) }}" target="_blank" class="btn btn-sm btn-outline-secondary">
@@ -332,7 +336,7 @@
 <!-- CREATE PAGE MODAL -->
 <div class="modal fade" id="createPageModal" tabindex="-1" aria-hidden="true">
     <div class="modal-dialog modal-dialog-centered">
-        <form action="{{ route('admin.help-center.store-or-update') }}" method="POST" class="modal-content">
+        <form action="{{ route($hcPrefix . 'store-or-update') }}" method="POST" class="modal-content">
             @csrf
             <div class="modal-header">
                 <h5 class="modal-title">Create Your Help Center Page</h5>
@@ -364,7 +368,7 @@
 <!-- EDIT PAGE MODAL -->
 <div class="modal fade" id="editPageModal" tabindex="-1" aria-hidden="true">
     <div class="modal-dialog modal-dialog-centered">
-        <form action="{{ route('admin.help-center.store-or-update') }}" method="POST" class="modal-content">
+        <form action="{{ route($hcPrefix . 'store-or-update') }}" method="POST" class="modal-content">
             @csrf
             <div class="modal-header">
                 <h5 class="modal-title">Edit Help Center Page Details</h5>
@@ -395,7 +399,7 @@
 <!-- INVITE COLLABORATOR MODAL -->
 <div class="modal fade" id="inviteCollaboratorModal" tabindex="-1" aria-hidden="true">
     <div class="modal-dialog modal-dialog-centered">
-        <form action="{{ route('admin.help-center.invite-collaborator', $myPage->id) }}" method="POST" class="modal-content">
+        <form action="{{ route($hcPrefix . 'invite-collaborator', $myPage->id) }}" method="POST" class="modal-content">
             @csrf
             <div class="modal-header">
                 <h5 class="modal-title">Invite Collaborator to Page</h5>

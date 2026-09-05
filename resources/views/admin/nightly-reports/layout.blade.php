@@ -629,7 +629,13 @@
       <li class="nr-menu-item {{ request()->routeIs('admin.nightly-reports.forms*') ? 'active' : '' }}">
         <a href="{{ route('admin.nightly-reports.forms.index') }}" class="nr-menu-link">
           <i class="fas fa-wpforms"></i>
-          <span>Form Builder & Portal</span>
+          <span>Form Builder</span>
+        </a>
+      </li>
+      <li class="nr-menu-item {{ request()->routeIs('admin.nightly-reports.help-center*') ? 'active' : '' }}">
+        <a href="{{ route('admin.nightly-reports.help-center.index') }}" class="nr-menu-link">
+          <i class="fas fa-layer-group"></i>
+          <span>Form Portal</span>
         </a>
       </li>
 

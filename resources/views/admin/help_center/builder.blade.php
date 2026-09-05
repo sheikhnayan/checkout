@@ -1,8 +1,12 @@
-@extends('admin.main')
+@extends(request()->routeIs('admin.nightly-reports.*') ? 'admin.nightly-reports.layout' : 'admin.main')
 
 @section('title', 'Form Portal Builder - ' . $page->title)
 
 @section('content')
+@php
+  $isNightly = request()->routeIs('admin.nightly-reports.*');
+  $hcPrefix = $isNightly ? 'admin.nightly-reports.help-center.' : 'admin.help-center.';
+@endphp
 <!-- SortableJS for Drag & Drop Re-ordering -->
 <script src="https://cdn.jsdelivr.net/npm/sortablejs@1.15.0/Sortable.min.js"></script>
 
@@ -116,7 +120,7 @@
     <div class="d-flex justify-content-between align-items-center mb-4 flex-wrap gap-3">
         <div>
             <div class="d-flex align-items-center gap-2 mb-1">
-                <a href="{{ route('admin.help-center.index') }}" class="btn btn-sm btn-outline-secondary">
+                <a href="{{ route($hcPrefix . 'index') }}" class="btn btn-sm btn-outline-secondary">
                     <i class="bx bx-arrow-back me-1"></i> Back to Dashboard
                 </a>
                 <span class="badge bg-label-primary">Page Builder</span>
@@ -183,7 +187,7 @@
                             <button type="button" class="btn btn-icon-custom btn-outline-secondary" data-bs-toggle="modal" data-bs-target="#editSectionModal-{{ $section->id }}">
                                 <i class="bx bx-pencil"></i>
                             </button>
-                            <form action="{{ route('admin.help-center.sections.destroy', $section->id) }}" method="POST" onsubmit="return confirm('Delete this section and all its links?');" class="d-inline">
+                            <form action="{{ route($hcPrefix . 'sections.destroy', $section->id) }}" method="POST" onsubmit="return confirm('Delete this section and all its links?');" class="d-inline">
                                 @csrf
                                 @method('DELETE')
                                 <button type="submit" class="btn btn-icon-custom btn-outline-danger">
@@ -240,7 +244,7 @@
                                             <button type="button" class="btn btn-icon-custom btn-outline-secondary" data-bs-toggle="modal" data-bs-target="#editItemModal-{{ $item->id }}">
                                                 <i class="bx bx-pencil"></i>
                                             </button>
-                                            <form action="{{ route('admin.help-center.items.destroy', $item->id) }}" method="POST" onsubmit="return confirm('Delete this link item?');" class="d-inline">
+                                            <form action="{{ route($hcPrefix . 'items.destroy', $item->id) }}" method="POST" onsubmit="return confirm('Delete this link item?');" class="d-inline">
                                                 @csrf
                                                 @method('DELETE')
                                                 <button type="submit" class="btn btn-icon-custom btn-outline-danger">
@@ -253,7 +257,7 @@
                                     <!-- EDIT ITEM MODAL -->
                                     <div class="modal fade" id="editItemModal-{{ $item->id }}" tabindex="-1" aria-hidden="true">
                                         <div class="modal-dialog modal-dialog-centered">
-                                            <form action="{{ route('admin.help-center.items.update', $item->id) }}" method="POST" enctype="multipart/form-data" class="modal-content" novalidate>
+                                            <form action="{{ route($hcPrefix . 'items.update', $item->id) }}" method="POST" enctype="multipart/form-data" class="modal-content" novalidate>
                                                 @csrf
                                                 @method('PUT')
                                                 <div class="modal-header">
@@ -332,7 +336,7 @@
                 <!-- EDIT SECTION MODAL -->
                 <div class="modal fade" id="editSectionModal-{{ $section->id }}" tabindex="-1" aria-hidden="true">
                     <div class="modal-dialog modal-dialog-centered">
-                        <form action="{{ route('admin.help-center.sections.update', $section->id) }}" method="POST" class="modal-content">
+                        <form action="{{ route($hcPrefix . 'sections.update', $section->id) }}" method="POST" class="modal-content">
                             @csrf
                             @method('PUT')
                             <div class="modal-header">
@@ -360,7 +364,7 @@
                 <!-- ADD ITEM MODAL FOR SECTION -->
                 <div class="modal fade" id="addItemModal-{{ $section->id }}" tabindex="-1" aria-hidden="true">
                     <div class="modal-dialog modal-dialog-centered">
-                        <form action="{{ route('admin.help-center.items.store', $section->id) }}" method="POST" enctype="multipart/form-data" class="modal-content">
+                        <form action="{{ route($hcPrefix . 'items.store', $section->id) }}" method="POST" enctype="multipart/form-data" class="modal-content">
                             @csrf
                             <div class="modal-header">
                                 <h5 class="modal-title">Add Link Item to "{{ $section->title }}"</h5>
@@ -434,7 +438,7 @@
 <!-- ADD SECTION MODAL -->
 <div class="modal fade" id="addSectionModal" tabindex="-1" aria-hidden="true">
     <div class="modal-dialog modal-dialog-centered">
-        <form action="{{ route('admin.help-center.sections.store', $page->id) }}" method="POST" class="modal-content">
+        <form action="{{ route($hcPrefix . 'sections.store', $page->id) }}" method="POST" class="modal-content">
             @csrf
             <div class="modal-header">
                 <h5 class="modal-title">Add New Section</h5>
@@ -473,7 +477,7 @@ document.addEventListener('DOMContentLoaded', function () {
                     return card.getAttribute('data-section-id');
                 });
 
-                fetch("{{ route('admin.help-center.sections.reorder', $page->id) }}", {
+                fetch("{{ route($hcPrefix . 'sections.reorder', $page->id) }}", {
                     method: 'POST',
                     headers: {
                         'Content-Type': 'application/json',
@@ -508,7 +512,7 @@ document.addEventListener('DOMContentLoaded', function () {
                         return row.getAttribute('data-item-id');
                     });
 
-                    var url = "{{ route('admin.help-center.items.reorder', ':sectionId') }}".replace(':sectionId', sectionId);
+                    var url = "{{ route($hcPrefix . 'items.reorder', ':sectionId') }}".replace(':sectionId', sectionId);
 
                     fetch(url, {
                         method: 'POST',

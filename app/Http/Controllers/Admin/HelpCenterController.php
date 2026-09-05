@@ -81,10 +81,8 @@ class HelpCenterController extends Controller
         $page->title = $request->input('title');
         $page->description = $request->input('description');
         $page->banner_color = $request->input('banner_color', '#4f46e5');
-        $page->is_active = $request->has('is_active') ? true : true;
-        $page->save();
-
-        return redirect()->route('admin.help-center.builder', $page->id)
+        $prefix = request()->routeIs('admin.nightly-reports.*') ? 'admin.nightly-reports.help-center.' : 'admin.help-center.';
+        return redirect()->route($prefix . 'builder', $page->id)
             ->with('success', 'Help Center Page saved successfully! You can now organize sections and links.');
     }
 
@@ -403,23 +401,24 @@ class HelpCenterController extends Controller
             return redirect()->route('login');
         }
 
+        $prefix = request()->routeIs('admin.nightly-reports.*') ? 'admin.nightly-reports.help-center.' : 'admin.help-center.';
         $invite = HelpCenterCollaborator::where('invitation_token', $token)->first();
         if (!$invite) {
-            return redirect()->route('admin.help-center.index')->with('error', 'Invalid or expired invitation token.');
+            return redirect()->route($prefix . 'index')->with('error', 'Invalid or expired invitation token.');
         }
 
         $inviteEmail = strtolower(trim($invite->email));
         $userEmail = strtolower(trim($user->email));
 
         if ($inviteEmail !== $userEmail && (int)$invite->user_id !== (int)$user->id) {
-            return redirect()->route('admin.help-center.index')->with('error', 'This invitation was sent to ' . $invite->email . '. You are currently logged in as ' . $user->email . '.');
+            return redirect()->route($prefix . 'index')->with('error', 'This invitation was sent to ' . $invite->email . '. You are currently logged in as ' . $user->email . '.');
         }
 
         $invite->status = 'accepted';
         $invite->user_id = $user->id;
         $invite->save();
 
-        return redirect()->route('admin.help-center.builder', $invite->help_center_page_id)
+        return redirect()->route($prefix . 'builder', $invite->help_center_page_id)
             ->with('success', 'Invitation accepted! You are now a collaborator on "' . ($invite->page->title ?? 'Help Center') . '".');
     }
 
@@ -437,7 +436,8 @@ class HelpCenterController extends Controller
             $invite->save();
         }
 
-        return redirect()->route('admin.help-center.index')->with('info', 'Invitation declined.');
+        $prefix = request()->routeIs('admin.nightly-reports.*') ? 'admin.nightly-reports.help-center.' : 'admin.help-center.';
+        return redirect()->route($prefix . 'index')->with('info', 'Invitation declined.');
     }
 
     /**

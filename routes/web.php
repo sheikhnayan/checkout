@@ -646,6 +646,23 @@ Route::group(['prefix'=> 'admins', 'as' => 'admin.', 'middleware' => ['admin.or.
             Route::get('/{form}/submissions', [\App\Http\Controllers\Admin\CustomFormController::class, 'submissions'])->name('submissions');
             Route::get('/{form}/submissions/export', [\App\Http\Controllers\Admin\CustomFormController::class, 'exportSubmissions'])->name('submissions.export');
         });
+
+        // Form Portal (Help Center System)
+        Route::group(['prefix' => 'help-center', 'as' => 'help-center.'], function () {
+            Route::get('/', [\App\Http\Controllers\Admin\HelpCenterController::class, 'index'])->name('index');
+            Route::post('/store-or-update', [\App\Http\Controllers\Admin\HelpCenterController::class, 'storeOrUpdate'])->name('store-or-update');
+            Route::get('/{id}/builder', [\App\Http\Controllers\Admin\HelpCenterController::class, 'builder'])->name('builder');
+            Route::post('/{page}/sections', [\App\Http\Controllers\Admin\HelpCenterController::class, 'storeSection'])->name('sections.store');
+            Route::put('/sections/{section}', [\App\Http\Controllers\Admin\HelpCenterController::class, 'updateSection'])->name('sections.update');
+            Route::delete('/sections/{section}', [\App\Http\Controllers\Admin\HelpCenterController::class, 'destroySection'])->name('sections.destroy');
+            Route::post('/pages/{page}/reorder-sections', [\App\Http\Controllers\Admin\HelpCenterController::class, 'reorderSections'])->name('sections.reorder');
+            Route::post('/sections/{section}/reorder-items', [\App\Http\Controllers\Admin\HelpCenterController::class, 'reorderItems'])->name('items.reorder');
+            Route::post('/sections/{section}/items', [\App\Http\Controllers\Admin\HelpCenterController::class, 'storeItem'])->name('items.store');
+            Route::put('/items/{item}', [\App\Http\Controllers\Admin\HelpCenterController::class, 'updateItem'])->name('items.update');
+            Route::delete('/items/{item}', [\App\Http\Controllers\Admin\HelpCenterController::class, 'destroyItem'])->name('items.destroy');
+            Route::post('/{page}/invite-collaborator', [\App\Http\Controllers\Admin\HelpCenterController::class, 'inviteCollaborator'])->name('invite-collaborator');
+            Route::delete('/collaborators/{collaborator}', [\App\Http\Controllers\Admin\HelpCenterController::class, 'removeCollaborator'])->name('collaborators.remove');
+        });
     });
 });
 
