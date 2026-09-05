@@ -5787,9 +5787,9 @@ body.embed-checkout-mode #cv-cart-toast .cv-toast-close {
                                                         placeholder="Your occasion or special request?"></textarea>
                                                 </div>
                                                 <div class="form-group">
-                                                    <label for="host">Host Name</label>
+                                                    <label for="host">Host / Promoter Referral</label>
                                                     <input id="host" name="host_name"
-                                                        placeholder="Enter host name">
+                                                        placeholder="Enter host/promoter name or referral code (optional)">
                                                 </div>
                                             </div>
     
@@ -6304,9 +6304,9 @@ body.embed-checkout-mode #cv-cart-toast .cv-toast-close {
                                                                     placeholder="Your occasion or special request?"></textarea>
                                                             </div>
                                                             <div class="form-group">
-                                                                <label for="host">Host Name</label>
+                                                                <label for="host">Host / Promoter Referral</label>
                                                                 <input id="host" name="host_name"
-                                                                    placeholder="Enter host name (optional)">
+                                                                    placeholder="Enter host/promoter name or referral code (optional)">
                                                             </div>
                                                         </div>
     

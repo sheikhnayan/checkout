@@ -1427,9 +1427,135 @@ class TransactionController extends Controller
         return collect();
     }
 
-    private function getAccessibleTransactionList(Request $request, ?callable $queryMutator = null)
+    public function ajaxData(Request $request)
+    {
+        app(CommissionLifecycleRunner::class)->runSafely();
+
+        $user = auth()->user();
+        $isArchivedView = $request->boolean('archived') && $this->canManageArchivedTransactions($user);
+        $canArchive = $this->canManageArchivedTransactions($user);
+        $isPayoutPage = $request->boolean('is_payout');
+
+        $queryMutator = null;
+        $dashType = strtolower(trim((string) $request->input('dashboard_type', '')));
+        if ($dashType === 'affiliate') {
+            $queryMutator = function ($q) { $q->whereNotNull('affiliate_id'); };
+        } elseif ($dashType === 'entertainer') {
+            $queryMutator = function ($q) { $q->whereNotNull('entertainer_id'); };
+        }
+
+        $query = $this->buildAccessibleTransactionQuery($request, $queryMutator);
+        if (!$query) {
+            return response()->json([
+                'draw' => (int) $request->input('draw', 1),
+                'recordsTotal' => 0,
+                'recordsFiltered' => 0,
+                'data' => [],
+                'analytics' => [
+                    'total_sales' => 0,
+                    'total_orders' => 0,
+                    'daily_map' => (object)[],
+                ],
+            ]);
+        }
+
+        $recordsTotal = (clone $query)->count();
+
+        $searchValue = trim((string) ($request->input('search.value') ?: $request->input('search_val') ?: ''));
+        if ($searchValue !== '') {
+            $cleanSearch = strtolower($searchValue);
+            $cleanNumeric = preg_replace('/\D/', '', $searchValue);
+            $query->where(function ($q) use ($cleanSearch, $cleanNumeric) {
+                $q->whereRaw('LOWER(package_first_name) LIKE ?', ["%{$cleanSearch}%"])
+                  ->orWhereRaw('LOWER(package_last_name) LIKE ?', ["%{$cleanSearch}%"])
+                  ->orWhereRaw('LOWER(package_email) LIKE ?', ["%{$cleanSearch}%"])
+                  ->orWhereRaw('LOWER(package_phone) LIKE ?', ["%{$cleanSearch}%"])
+                  ->orWhereRaw('LOWER(transaction_id) LIKE ?', ["%{$cleanSearch}%"])
+                  ->orWhereRaw('LOWER(host_name) LIKE ?', ["%{$cleanSearch}%"]);
+
+                if (!empty($cleanNumeric)) {
+                    $q->orWhere('id', (int) $cleanNumeric);
+                }
+            });
+        }
+
+        $recordsFiltered = (clone $query)->count();
+
+        // SQL Aggregated Analytics across ALL matching records
+        $reportableQuery = (clone $query)->whereIn('status', [1, 2]);
+        $totalSales = (float) $reportableQuery->sum('total');
+        $totalOrders = $reportableQuery->count();
+
+        $dailyRows = (clone $reportableQuery)
+            ->selectRaw('DATE(created_at) as date_key, COUNT(*) as orders_count, SUM(total) as sales_sum, SUM(COALESCE(package_number_of_guest, 1)) as guests_sum')
+            ->groupBy('date_key')
+            ->get();
+
+        $dailyMap = [];
+        foreach ($dailyRows as $row) {
+            $dailyMap[$row->date_key] = [
+                'sales' => (float) $row->sales_sum,
+                'orders' => (int) $row->orders_count,
+                'guests' => (int) $row->guests_sum,
+            ];
+        }
+
+        $start = max(0, (int) $request->input('start', 0));
+        $length = max(1, min(500, (int) $request->input('length', 25)));
+
+        $orderColIndex = (int) ($request->input('order.0.column', 2));
+        $orderDir = strtolower((string) ($request->input('order.0.dir', 'desc'))) === 'asc' ? 'asc' : 'desc';
+
+        $colMap = [
+            1 => 'id',
+            2 => 'created_at',
+            3 => 'transaction_id',
+            5 => 'host_name',
+            8 => 'total',
+            13 => 'package_use_date',
+            14 => 'checked_in_status',
+            15 => 'affiliate_commission_amount',
+        ];
+        $sortCol = $colMap[$orderColIndex] ?? 'created_at';
+
+        $items = $query
+            ->with(['event.website', 'package.website', 'website', 'affiliate.user', 'affiliate.parent.user', 'entertainer.user'])
+            ->orderBy($sortCol, $orderDir)
+            ->skip($start)
+            ->take($length)
+            ->get();
+
+        $dataRows = [];
+        foreach ($items as $item) {
+            $rowHtml = view('admin.transaction.partials.table_row', [
+                'item' => $item,
+                'isArchivedView' => $isArchivedView,
+                'canArchiveTransactions' => $canArchive,
+                'isPayoutPage' => $isPayoutPage,
+            ])->render();
+
+            preg_match_all('/<td[^>]*>(.*?)<\/td>/s', $rowHtml, $matches);
+            $dataRows[] = $matches[1] ?? [];
+        }
+
+        return response()->json([
+            'draw' => (int) $request->input('draw', 1),
+            'recordsTotal' => $recordsTotal,
+            'recordsFiltered' => $recordsFiltered,
+            'data' => $dataRows,
+            'analytics' => [
+                'total_sales' => $totalSales,
+                'total_orders' => $totalOrders,
+                'daily_map' => $dailyMap,
+            ],
+        ]);
+    }
+
+    private function buildAccessibleTransactionQuery(Request $request, ?callable $queryMutator = null)
     {
         $user = auth()->user();
+        if (!$user) return null;
+
         $showArchivedOnly = $request->boolean('archived') && $this->canManageArchivedTransactions($user);
 
         if ($user->isAdmin()) {
@@ -1456,51 +1582,126 @@ class TransactionController extends Controller
                     });
             });
         } else {
-            return collect();
+            return null;
         }
 
         if ($queryMutator) {
             $queryMutator($query);
         }
 
-        $websiteName = trim((string) $request->query('website', ''));
+        $websiteName = trim((string) ($request->input('website') ?? $request->query('website', '')));
         if ($websiteName !== '') {
             $query->whereHas('website', function ($websiteQuery) use ($websiteName) {
                 $websiteQuery->where('name', $websiteName);
             });
         }
 
-        $type = strtolower(trim((string) $request->query('type', '')));
+        $type = strtolower(trim((string) ($request->input('type') ?? $request->query('type', ''))));
         if (in_array($type, ['package', 'reservation', 'custom_invoice'], true)) {
             $query->where('type', $type);
         }
 
-        $statusMap = [
-            'completed' => 1,
-            'canceled' => 0,
-            'refunded' => 2,
-        ];
-        $statusKey = strtolower(trim((string) $request->query('status', '')));
-        if (array_key_exists($statusKey, $statusMap)) {
-            $query->where('status', $statusMap[$statusKey]);
-        } elseif (in_array($statusKey, ['pending', 'approved', 'paid', 'reversed'], true)) {
-            $query->where(function ($statusQuery) use ($statusKey) {
-                $statusQuery->where('affiliate_commission_status', $statusKey)
-                    ->orWhere('entertainer_commission_status', $statusKey);
-            });
-        } elseif (in_array($statusKey, ['n/a', 'na'], true)) {
-            $query->where(function ($statusQuery) {
-                $statusQuery->where(function ($affiliateStatusQuery) {
-                    $affiliateStatusQuery->whereNull('affiliate_commission_status')
-                        ->orWhere('affiliate_commission_status', '');
-                })->where(function ($entertainerStatusQuery) {
-                    $entertainerStatusQuery->whereNull('entertainer_commission_status')
-                        ->orWhere('entertainer_commission_status', '');
-                });
+        $searchVal = trim((string) ($request->input('search_query') ?? $request->input('search.value') ?? $request->query('q', '')));
+        if ($searchVal !== '') {
+            $query->where(function ($q) use ($searchVal) {
+                $q->where('transaction_id', 'LIKE', "%{$searchVal}%")
+                  ->orWhere('first_name', 'LIKE', "%{$searchVal}%")
+                  ->orWhere('last_name', 'LIKE', "%{$searchVal}%")
+                  ->orWhereRaw("LOWER(CONCAT(first_name, ' ', last_name)) LIKE ?", ["%" . strtolower($searchVal) . "%"])
+                  ->orWhere('email', 'LIKE', "%{$searchVal}%")
+                  ->orWhere('phone', 'LIKE', "%{$searchVal}%")
+                  ->orWhere('host_name', 'LIKE', "%{$searchVal}%")
+                  ->orWhere('discount_code', 'LIKE', "%{$searchVal}%")
+                  ->orWhereHas('package', function ($pkgQ) use ($searchVal) {
+                      $pkgQ->where('title', 'LIKE', "%{$searchVal}%");
+                  })
+                  ->orWhereHas('event', function ($evtQ) use ($searchVal) {
+                      $evtQ->where('name', 'LIKE', "%{$searchVal}%");
+                  })
+                  ->orWhereHas('affiliate', function ($affQ) use ($searchVal) {
+                      $affQ->where('display_name', 'LIKE', "%{$searchVal}%")
+                           ->orWhereHas('user', function ($uQ) use ($searchVal) {
+                               $uQ->where('name', 'LIKE', "%{$searchVal}%");
+                           });
+                  })
+                  ->orWhereHas('entertainer', function ($entQ) use ($searchVal) {
+                      $entQ->where('display_name', 'LIKE', "%{$searchVal}%")
+                           ->orWhereHas('user', function ($uQ) use ($searchVal) {
+                               $uQ->where('name', 'LIKE', "%{$searchVal}%");
+                           });
+                  });
             });
         }
 
-        $affiliateFilter = $request->query('affiliate');
+        $statusInput = $request->input('status') ?? $request->query('status');
+        if (!empty($statusInput)) {
+            $rawStatuses = is_array($statusInput) ? $statusInput : explode(',', (string) $statusInput);
+            $rawStatuses = array_filter(array_map('trim', $rawStatuses));
+            if (!empty($rawStatuses)) {
+                $statusInts = [];
+                $commissionStatuses = [];
+                $isNa = false;
+
+                foreach ($rawStatuses as $st) {
+                    $stLower = strtolower($st);
+                    if ($stLower === 'completed' || $stLower === '1') {
+                        $statusInts[] = 1;
+                    } elseif ($stLower === 'canceled' || $stLower === 'cancelled' || $stLower === '0') {
+                        $statusInts[] = 0;
+                    } elseif ($stLower === 'refunded' || $stLower === '2') {
+                        $statusInts[] = 2;
+                    } elseif (in_array($stLower, ['pending', 'approved', 'paid', 'reversed'], true)) {
+                        $commissionStatuses[] = $stLower;
+                    } elseif (in_array($stLower, ['n/a', 'na'], true)) {
+                        $isNa = true;
+                    }
+                }
+
+                $query->where(function ($sq) use ($statusInts, $commissionStatuses, $isNa) {
+                    if (!empty($statusInts)) {
+                        $sq->orWhereIn('status', array_unique($statusInts));
+                    }
+                    if (!empty($commissionStatuses)) {
+                        $sq->orWhereIn('affiliate_commission_status', $commissionStatuses)
+                           ->orWhereIn('entertainer_commission_status', $commissionStatuses);
+                    }
+                    if ($isNa) {
+                        $sq->orWhere(function ($naQ) {
+                            $naQ->where(function ($aQ) {
+                                $aQ->whereNull('affiliate_commission_status')->orWhere('affiliate_commission_status', '');
+                            })->where(function ($eQ) {
+                                $eQ->whereNull('entertainer_commission_status')->orWhere('entertainer_commission_status', '');
+                            });
+                        });
+                    }
+                });
+            }
+        }
+
+        $hostInput = $request->input('host') ?? $request->query('host');
+        if (!empty($hostInput)) {
+            $hosts = is_array($hostInput) ? $hostInput : explode(',', (string) $hostInput);
+            $hosts = array_filter(array_map('trim', $hosts));
+            if (!empty($hosts)) {
+                $query->where(function ($hq) use ($hosts) {
+                    foreach ($hosts as $h) {
+                        if ($h === 'has_host') {
+                            $hq->orWhere(function ($sub) {
+                                $sub->whereNotNull('host_name')->where('host_name', '!=', '');
+                            });
+                        } elseif ($h === 'no_host') {
+                            $hq->orWhere(function ($sub) {
+                                $sub->whereNull('host_name')->orWhere('host_name', '');
+                            });
+                        } else {
+                            $hq->orWhere('host_name', 'LIKE', "%{$h}%");
+                        }
+                    }
+                });
+            }
+        }
+
+        $affiliateFilter = $request->input('affiliate') ?? $request->query('affiliate');
         if (!empty($affiliateFilter)) {
             $rawFilters = is_array($affiliateFilter) ? $affiliateFilter : explode(',', (string) $affiliateFilter);
             $rawFilters = array_filter(array_map('trim', $rawFilters));
@@ -1558,21 +1759,41 @@ class TransactionController extends Controller
             }
         }
 
-        $dateFrom = trim((string) $request->query('date_from', ''));
-        $dateTo = trim((string) $request->query('date_to', ''));
-        $dateTarget = strtolower(trim((string) $request->query('date_target', 'either')));
+        $dateFrom = trim((string) ($request->input('date_from') ?? $request->query('date_from', '')));
+        $dateTo = trim((string) ($request->input('date_to') ?? $request->query('date_to', '')));
+        $dateRange = trim((string) ($request->input('date_range') ?? $request->query('date_range', '')));
+
+        if (($dateFrom === '' || $dateTo === '') && $dateRange !== '' && str_contains($dateRange, ' - ')) {
+            $parts = explode(' - ', $dateRange);
+            if (count($parts) === 2) {
+                $dateFrom = trim($parts[0]);
+                $dateTo = trim($parts[1]);
+            }
+        }
+
+        $dateTarget = strtolower(trim((string) ($request->input('date_target') ?? $request->query('date_target', 'either'))));
         if ($dateFrom !== '' && $dateTo !== '') {
             try {
-                $startUtc = Carbon::parse($dateFrom, 'America/Los_Angeles')->startOfDay()->utc();
-                $endUtc = Carbon::parse($dateTo, 'America/Los_Angeles')->endOfDay()->utc();
-                $query->where(function ($dateQuery) use ($dateFrom, $dateTo, $dateTarget, $startUtc, $endUtc) {
+                if (str_contains($dateFrom, '/')) {
+                    $startUtc = Carbon::createFromFormat('m/d/Y', $dateFrom, 'America/Los_Angeles')->startOfDay()->utc();
+                    $endUtc = Carbon::createFromFormat('m/d/Y', $dateTo, 'America/Los_Angeles')->endOfDay()->utc();
+                    $dateFromYmd = Carbon::createFromFormat('m/d/Y', $dateFrom, 'America/Los_Angeles')->format('Y-m-d');
+                    $dateToYmd = Carbon::createFromFormat('m/d/Y', $dateTo, 'America/Los_Angeles')->format('Y-m-d');
+                } else {
+                    $startUtc = Carbon::parse($dateFrom, 'America/Los_Angeles')->startOfDay()->utc();
+                    $endUtc = Carbon::parse($dateTo, 'America/Los_Angeles')->endOfDay()->utc();
+                    $dateFromYmd = Carbon::parse($dateFrom)->format('Y-m-d');
+                    $dateToYmd = Carbon::parse($dateTo)->format('Y-m-d');
+                }
+
+                $query->where(function ($dateQuery) use ($dateFromYmd, $dateToYmd, $dateTarget, $startUtc, $endUtc) {
                     if ($dateTarget === 'sale') {
                         $dateQuery->whereBetween('created_at', [$startUtc, $endUtc]);
                     } elseif ($dateTarget === 'reservation') {
-                        $dateQuery->whereBetween('package_use_date', [$dateFrom, $dateTo]);
+                        $dateQuery->whereBetween('package_use_date', [$dateFromYmd, $dateToYmd]);
                     } else {
                         $dateQuery->whereBetween('created_at', [$startUtc, $endUtc])
-                            ->orWhereBetween('package_use_date', [$dateFrom, $dateTo]);
+                            ->orWhereBetween('package_use_date', [$dateFromYmd, $dateToYmd]);
                     }
                 });
             } catch (\Throwable $exception) {
@@ -1580,40 +1801,74 @@ class TransactionController extends Controller
             }
         }
 
-        $reservationFilter = strtolower(trim((string) $request->query('reservation', '')));
-        if ($reservationFilter !== '') {
-            $today = Carbon::now('America/Los_Angeles')->startOfDay();
-            $tomorrow = $today->copy()->addDay();
-            $endOfWeek = $today->copy()->endOfWeek();
+        $reservationFilter = $request->input('reservation') ?? $request->query('reservation');
+        if (!empty($reservationFilter)) {
+            $resArray = is_array($reservationFilter) ? $reservationFilter : explode(',', (string) $reservationFilter);
+            $resArray = array_filter(array_map('trim', $resArray));
 
-            if ($reservationFilter === 'upcoming') {
-                $query->whereDate('package_use_date', '>', $today->toDateString())
-                    ->whereNotIn('status', [0, 2]);
-            } elseif ($reservationFilter === 'today') {
-                $query->whereDate('package_use_date', $today->toDateString())
-                    ->whereNotIn('status', [0, 2]);
-            } elseif ($reservationFilter === 'weekend') {
-                $query->whereRaw("DATE(package_use_date) >= ? AND DATE(package_use_date) <= ? AND DAYOFWEEK(package_use_date) IN (6, 7)", [
-                    $tomorrow->toDateString(),
-                    $endOfWeek->toDateString()
-                ])->whereNotIn('status', [0, 2]);
-            } elseif ($reservationFilter === 'past') {
-                $query->whereDate('package_use_date', '<', $today->toDateString());
-            } elseif ($reservationFilter === 'no_show') {
-                $query->whereDate('package_use_date', '<', $today->toDateString())
-                    ->where('status', 1)
-                    ->where(function ($noShowQuery) {
-                        $noShowQuery->whereNull('checked_in_status')
-                            ->orWhere('checked_in_status', 0);
-                    });
-            } elseif ($reservationFilter === 'checked_in') {
-                $query->where('checked_in_status', 1);
-            } elseif ($reservationFilter === 'not_checked_in') {
-                $query->where(function ($q) {
-                    $q->whereNull('checked_in_status')
-                      ->orWhere('checked_in_status', 0);
-                })->whereNotIn('status', [0, 2]);
+            if (!empty($resArray)) {
+                $today = Carbon::now('America/Los_Angeles')->startOfDay();
+                $tomorrow = $today->copy()->addDay();
+                $endOfWeek = $today->copy()->endOfWeek();
+
+                $query->where(function ($rq) use ($resArray, $today, $tomorrow, $endOfWeek) {
+                    foreach ($resArray as $rItem) {
+                        $reservationItem = strtolower(trim($rItem));
+                        if ($reservationItem === 'upcoming') {
+                            $rq->orWhere(function ($sub) use ($today) {
+                                $sub->whereDate('package_use_date', '>', $today->toDateString())
+                                    ->whereNotIn('status', [0, 2]);
+                            });
+                        } elseif ($reservationItem === 'today') {
+                            $rq->orWhere(function ($sub) use ($today) {
+                                $sub->whereDate('package_use_date', $today->toDateString())
+                                    ->whereNotIn('status', [0, 2]);
+                            });
+                        } elseif ($reservationItem === 'weekend') {
+                            $rq->orWhere(function ($sub) use ($tomorrow, $endOfWeek) {
+                                $sub->whereRaw("DATE(package_use_date) >= ? AND DATE(package_use_date) <= ? AND DAYOFWEEK(package_use_date) IN (6, 7)", [
+                                    $tomorrow->toDateString(),
+                                    $endOfWeek->toDateString()
+                                ])->whereNotIn('status', [0, 2]);
+                            });
+                        } elseif ($reservationItem === 'past') {
+                            $rq->orWhere(function ($sub) use ($today) {
+                                $sub->whereDate('package_use_date', '<', $today->toDateString());
+                            });
+                        } elseif ($reservationItem === 'no_show') {
+                            $rq->orWhere(function ($sub) use ($today) {
+                                $sub->whereDate('package_use_date', '<', $today->toDateString())
+                                    ->where('status', 1)
+                                    ->where(function ($noShowQuery) {
+                                        $noShowQuery->whereNull('checked_in_status')
+                                            ->orWhere('checked_in_status', 0);
+                                    });
+                            });
+                        } elseif ($reservationItem === 'checked_in') {
+                            $rq->orWhere('checked_in_status', 1);
+                        } elseif ($reservationItem === 'not_checked_in') {
+                            $rq->orWhere(function ($sub) {
+                                $sub->where(function ($q) {
+                                    $q->whereNull('checked_in_status')
+                                      ->orWhere('checked_in_status', 0);
+                                })->whereNotIn('status', [0, 2]);
+                            });
+                        }
+                    }
+                });
             }
+        }
+
+        return $query;
+
+        return $query;
+    }
+
+    private function getAccessibleTransactionList(Request $request, ?callable $queryMutator = null)
+    {
+        $query = $this->buildAccessibleTransactionQuery($request, $queryMutator);
+        if (!$query) {
+            return collect();
         }
 
         $transactions = $query
