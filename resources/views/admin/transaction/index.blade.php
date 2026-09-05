@@ -3414,15 +3414,35 @@ body.modal-open .admin-mobile-menu-toggle {
                     const ctx = document.getElementById('shopifyTrendChart');
                     if (!ctx) return;
 
-                    let dates = Object.keys(dailyMap).sort();
+                    let dates = [];
+                    let targetMap = dailyMap;
                     
                     // Check if an explicit date filter range is applied
                     const dateRangeVal = String($('#txnDateRange').val() || $('#mobileTxnDateRange').val() || '').trim();
                     const hasExplicitDateRange = dateRangeVal && dateRangeVal.includes(' - ');
 
-                    // If NO date range filter is explicitly applied, default to last 30 days for initial uncluttered view
-                    if (!hasExplicitDateRange && dates.length > 30) {
-                        dates = dates.slice(-30);
+                    if (hasExplicitDateRange) {
+                        const parts = dateRangeVal.split(' - ');
+                        const sMom = moment(parts[0], 'MM/DD/YYYY', true);
+                        const eMom = moment(parts[1], 'MM/DD/YYYY', true);
+                        if (sMom.isValid() && eMom.isValid() && eMom.isSameOrAfter(sMom)) {
+                            const filledMap = {};
+                            const curr = sMom.clone();
+                            while (curr.isSameOrBefore(eMom, 'day')) {
+                                const dKey = curr.format('YYYY-MM-DD');
+                                filledMap[dKey] = dailyMap[dKey] || { sales: 0, orders: 0, guests: 0 };
+                                curr.add(1, 'day');
+                            }
+                            targetMap = filledMap;
+                            dates = Object.keys(filledMap).sort();
+                        } else {
+                            dates = Object.keys(dailyMap).sort();
+                        }
+                    } else {
+                        dates = Object.keys(dailyMap).sort();
+                        if (dates.length > 30) {
+                            dates = dates.slice(-30);
+                        }
                     }
 
                     let labels = [];
@@ -3432,12 +3452,12 @@ body.modal-open .admin-mobile-menu-toggle {
                     if (dates.length > 0) {
                         dates.forEach(function(d) {
                             labels.push(moment(d).format('MMM D'));
-                            const item = dailyMap[d] || { sales: 0, orders: 0 };
+                            const item = targetMap[d] || { sales: 0, orders: 0 };
                             let val = 0;
                             if (metric === 'sales') val = item.sales;
                             else if (metric === 'orders') val = item.orders;
-                            else if (metric === 'sessions') val = Math.max(item.orders * 18, 12);
-                            else if (metric === 'conversion') val = (item.orders / Math.max(item.orders * 18, 12)) * 100;
+                            else if (metric === 'sessions') val = Math.max(item.orders * 18, item.orders > 0 ? 12 : 0);
+                            else if (metric === 'conversion') val = item.orders > 0 ? (item.orders / Math.max(item.orders * 18, 12)) * 100 : 0;
                             currentData.push(parseFloat(val.toFixed(2)));
                             prevData.push(parseFloat((val * 0.85).toFixed(2)));
                         });
@@ -3536,13 +3556,34 @@ body.modal-open .admin-mobile-menu-toggle {
                     const ctx = document.getElementById('classicPerformanceChart');
                     if (!ctx || typeof Chart === 'undefined') return;
 
-                    let dates = Object.keys(dailyMap).sort();
+                    let dates = [];
+                    let targetMap = dailyMap;
                     
                     const dateRangeVal = String($('#txnDateRange').val() || $('#mobileTxnDateRange').val() || '').trim();
                     const hasExplicitDateRange = dateRangeVal && dateRangeVal.includes(' - ');
 
-                    if (!hasExplicitDateRange && dates.length > 30) {
-                        dates = dates.slice(-30);
+                    if (hasExplicitDateRange) {
+                        const parts = dateRangeVal.split(' - ');
+                        const sMom = moment(parts[0], 'MM/DD/YYYY', true);
+                        const eMom = moment(parts[1], 'MM/DD/YYYY', true);
+                        if (sMom.isValid() && eMom.isValid() && eMom.isSameOrAfter(sMom)) {
+                            const filledMap = {};
+                            const curr = sMom.clone();
+                            while (curr.isSameOrBefore(eMom, 'day')) {
+                                const dKey = curr.format('YYYY-MM-DD');
+                                filledMap[dKey] = dailyMap[dKey] || { sales: 0, orders: 0, guests: 0 };
+                                curr.add(1, 'day');
+                            }
+                            targetMap = filledMap;
+                            dates = Object.keys(filledMap).sort();
+                        } else {
+                            dates = Object.keys(dailyMap).sort();
+                        }
+                    } else {
+                        dates = Object.keys(dailyMap).sort();
+                        if (dates.length > 30) {
+                            dates = dates.slice(-30);
+                        }
                     }
 
                     let labels = [];
@@ -3552,8 +3593,9 @@ body.modal-open .admin-mobile-menu-toggle {
                     if (dates.length > 0) {
                         dates.forEach(function(d) {
                             labels.push(moment(d).format('MMM D'));
-                            revenueData.push(parseFloat((dailyMap[d].sales || 0).toFixed(2)));
-                            ordersData.push(dailyMap[d].orders || 0);
+                            const item = targetMap[d] || { sales: 0, orders: 0 };
+                            revenueData.push(parseFloat((item.sales || 0).toFixed(2)));
+                            ordersData.push(item.orders || 0);
                         });
                     } else {
                         labels = ['Aug 25', 'Aug 26', 'Aug 27', 'Aug 28', 'Aug 29', 'Aug 30', 'Aug 31', 'Sep 1', 'Sep 2', 'Sep 3'];
@@ -3645,13 +3687,34 @@ body.modal-open .admin-mobile-menu-toggle {
                     const ctx = document.getElementById('ordersGuestsChart');
                     if (!ctx || typeof Chart === 'undefined') return;
 
-                    let dates = Object.keys(dailyMap).sort();
+                    let dates = [];
+                    let targetMap = dailyMap;
 
                     const dateRangeVal = String($('#txnDateRange').val() || $('#mobileTxnDateRange').val() || '').trim();
                     const hasExplicitDateRange = dateRangeVal && dateRangeVal.includes(' - ');
 
-                    if (!hasExplicitDateRange && dates.length > 30) {
-                        dates = dates.slice(-30);
+                    if (hasExplicitDateRange) {
+                        const parts = dateRangeVal.split(' - ');
+                        const sMom = moment(parts[0], 'MM/DD/YYYY', true);
+                        const eMom = moment(parts[1], 'MM/DD/YYYY', true);
+                        if (sMom.isValid() && eMom.isValid() && eMom.isSameOrAfter(sMom)) {
+                            const filledMap = {};
+                            const curr = sMom.clone();
+                            while (curr.isSameOrBefore(eMom, 'day')) {
+                                const dKey = curr.format('YYYY-MM-DD');
+                                filledMap[dKey] = dailyMap[dKey] || { sales: 0, orders: 0, guests: 0 };
+                                curr.add(1, 'day');
+                            }
+                            targetMap = filledMap;
+                            dates = Object.keys(filledMap).sort();
+                        } else {
+                            dates = Object.keys(dailyMap).sort();
+                        }
+                    } else {
+                        dates = Object.keys(dailyMap).sort();
+                        if (dates.length > 30) {
+                            dates = dates.slice(-30);
+                        }
                     }
 
                     let labels = [];
@@ -3661,8 +3724,9 @@ body.modal-open .admin-mobile-menu-toggle {
                     if (dates.length > 0) {
                         dates.forEach(function(d) {
                             labels.push(moment(d).format('MMM D'));
-                            ordersData.push(dailyMap[d].orders || 0);
-                            guestsData.push(dailyMap[d].guests || 0);
+                            const item = targetMap[d] || { orders: 0, guests: 0 };
+                            ordersData.push(item.orders || 0);
+                            guestsData.push(item.guests || 0);
                         });
                     } else {
                         labels = ['Aug 25', 'Aug 26', 'Aug 27', 'Aug 28', 'Aug 29', 'Aug 30', 'Aug 31', 'Sep 1', 'Sep 2', 'Sep 3'];
@@ -4079,7 +4143,7 @@ body.modal-open .admin-mobile-menu-toggle {
                     }
 
                     // 6. Date Range & Target Filter (Sale Date vs Reservation Date vs Either)
-                    const dateRangeStr = String($('#txnDateRange').val() || '').trim();
+                    const dateRangeStr = String($('#txnDateRange').val() || $('#mobileTxnDateRange').val() || '').trim();
                     if (dateRangeStr && dateRangeStr.includes(' - ')) {
                         const parts = dateRangeStr.split(' - ');
                         const startMom = moment(parts[0], 'MM/DD/YYYY', true);
@@ -4088,7 +4152,7 @@ body.modal-open .admin-mobile-menu-toggle {
                         if (startMom.isValid() && endMom.isValid()) {
                             const startStr = startMom.format('YYYY-MM-DD');
                             const endStr = endMom.format('YYYY-MM-DD');
-                            const dateTarget = String($('#dateTargetSelect').val() || 'either').toLowerCase();
+                            const dateTarget = String($('#dateTargetSelect').val() || $('#mobileDateTargetSelect').val() || 'either').toLowerCase();
 
                             // Row sale date (created_at converted to PST)
                             const saleIso = String($viewBtn.data('date-iso') || '').trim();
