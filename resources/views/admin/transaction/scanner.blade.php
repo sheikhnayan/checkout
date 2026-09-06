@@ -149,7 +149,7 @@
 
                                                 <!-- Current Side Label (Auto-Switch Indicator) -->
                                                 <div id="currentSideLabel" style="text-align:center;margin-bottom:12px;padding:8px;background:rgba(34,197,94,0.15);border-radius:8px;border:1px solid #22c55e;display:none;">
-                                                    <strong id="currentSideText" style="color:#86efac;">📷 Capturing Front of ID</strong>
+                                                    <strong id="currentSideText" style="color:#86efac;"><i class="fas fa-camera me-1"></i> Capturing Front of ID</strong>
                                                 </div>
 
                                                 <!-- Start Camera button placed ABOVE the camera so it is immediately visible without scrolling -->
@@ -365,7 +365,7 @@ document.addEventListener('DOMContentLoaded', function () {
             : '<div><strong>Check-In:</strong> Not checked in</div>';
 
         const businessDetailsHtml = (transaction.business_company || transaction.business_vat || transaction.business_address)
-            ? '<div style="background:rgba(255,204,0,0.15);padding:12px;border-radius:6px;border-left:3px solid #ffcc00;margin:12px 0;"><div style="color:#fbbf24;font-weight:700;margin-bottom:8px;">💼 Business Details</div>' +
+            ? '<div style="background:rgba(255,204,0,0.15);padding:12px;border-radius:6px;border-left:3px solid #ffcc00;margin:12px 0;"><div style="color:#fbbf24;font-weight:700;margin-bottom:8px;"><i class="fas fa-briefcase me-1"></i> Business Details</div>' +
               (transaction.business_company ? '<div><strong>Company:</strong> ' + escapeHtml(transaction.business_company) + '</div>' : '') +
               (transaction.business_vat ? '<div><strong>VAT/Tax ID:</strong> ' + escapeHtml(transaction.business_vat) + '</div>' : '') +
               (transaction.business_address ? '<div><strong>Address:</strong> ' + escapeHtml(transaction.business_address) + '</div>' : '') +
@@ -949,7 +949,7 @@ document.addEventListener('DOMContentLoaded', function () {
                     // Update indicator
                     document.getElementById('backPhotoIndicator').style.opacity = '1';
                     document.getElementById('currentSideLabel').style.display = 'block';
-                    document.getElementById('currentSideText').textContent = '📷 Capturing Back of ID - Please flip the card';
+                    document.getElementById('currentSideText').innerHTML = '<i class="fas fa-camera me-1"></i> Capturing Back of ID - Please flip the card';
                     document.getElementById('currentSideText').style.color = '#90caf9';
 
                     // Stop current camera and start back camera
@@ -1100,7 +1100,7 @@ document.addEventListener('DOMContentLoaded', function () {
 
         // Show the "capturing back" label
         document.getElementById('currentSideLabel').style.display = 'block';
-        document.getElementById('currentSideText').textContent = '📷 Capturing Back of ID - Please flip the card';
+        document.getElementById('currentSideText').innerHTML = '<i class="fas fa-camera me-1"></i> Capturing Back of ID - Please flip the card';
         document.getElementById('currentSideText').style.color = '#90caf9';
 
         // Reset capture button back to capture mode

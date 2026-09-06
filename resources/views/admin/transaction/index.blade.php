@@ -1420,7 +1420,7 @@ body.modal-open .admin-mobile-menu-toggle {
                         <i class="fas fa-chart-line fs-6"></i>
                     </span>
                     <div>
-                        <div class="fw-bold text-white mb-0" style="font-size:0.88rem;">📊 Analytics & Performance Reports</div>
+                        <div class="fw-bold text-white mb-0" style="font-size:0.88rem;">Analytics & Performance Reports</div>
                         <div class="text-white-50 small" style="font-size:0.72rem;">Tap to view traffic, sales charts & conversion stats</div>
                     </div>
                 </div>

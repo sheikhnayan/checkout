@@ -40,7 +40,7 @@
         <div class="two-column">
             <div>
                 <div class="section">
-                    <div class="section-title">📋 Package & Guest Information</div>
+                    <div class="section-title">Package & Guest Information</div>
                     <ul class="list-group">
                         <li class="list-group-item"><strong>Order Items:</strong> <span>{{ htmlspecialchars($transaction->package_table_label ?? '') }}</span></li>
                         <li class="list-group-item"><strong>Package Date Of Use:</strong> <span>{{ htmlspecialchars($transaction->package_use_date ?? '') }}</span></li>
@@ -83,7 +83,7 @@
 
             <div>
                 <div class="section">
-                    <div class="section-title">💳 Payment Information</div>
+                    <div class="section-title">Payment Information</div>
                     <ul class="list-group">
                         <li class="list-group-item"><strong>First Name:</strong> <span>{{ htmlspecialchars($transaction->payment_first_name ?? '') }}</span></li>
                         <li class="list-group-item"><strong>Last Name:</strong> <span>{{ htmlspecialchars($transaction->payment_last_name ?? '') }}</span></li>
@@ -126,7 +126,7 @@
         </div>
 
         <div class="section">
-            <div class="section-title">💰 Transaction Summary</div>
+            <div class="section-title">Transaction Summary</div>
             <ul class="list-group">
                 <li class="list-group-item"><strong>Promo Code:</strong> <span>{{ htmlspecialchars($transaction->promo_code ?? '-') }}</span></li>
                 <li class="list-group-item"><strong>Discounted Amount:</strong> <span>${{ number_format((float)($transaction->discount ?? 0), 2) }}</span></li>
@@ -152,7 +152,7 @@
         </div>
 
         <div class="section">
-            <div class="section-title">🏆 Commission & Dates</div>
+            <div class="section-title">Commission & Dates</div>
             <ul class="list-group">
                 @php
                     $affiliateName = '';
