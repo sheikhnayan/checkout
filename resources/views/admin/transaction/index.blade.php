@@ -1665,12 +1665,28 @@ body.modal-open .admin-mobile-menu-toggle {
                         <button type="button" id="mobileSearchClearBtn" class="btn btn-sm text-white-50 position-absolute end-0 top-50 translate-middle-y me-1 d-none" style="border:none;background:none;"><i class="fas fa-times-circle"></i></button>
                     </div>
 
-                    {{-- 2. Filter Drawer Trigger & Clear All Row --}}
-                    <div class="d-flex align-items-center justify-content-between gap-2">
-                        <button type="button" class="mobile-filter-trigger-btn flex-grow-1" data-bs-toggle="modal" data-bs-target="#mobileFilterModal">
+                    {{-- 2. Filter & Sort Buttons Row --}}
+                    <div class="d-flex align-items-center gap-2">
+                        {{-- Filter Drawer Trigger --}}
+                        <button type="button" class="mobile-filter-trigger-btn flex-grow-1" data-bs-toggle="modal" data-bs-target="#mobileFilterModal" style="height:42px;">
                             <i class="fas fa-sliders-h"></i> Filter & Refine
                             <span class="mobile-active-badge" id="mobileActiveFiltersBadge">0</span>
                         </button>
+
+                        {{-- App-Like Mobile Sort Dropdown --}}
+                        <div class="position-relative flex-grow-1" style="min-width: 140px;">
+                            <select id="mobileSortSelect" class="form-select form-select-sm text-white border-0 shadow-none fw-semibold" style="background: rgba(124, 58, 237, 0.25); border: 1px solid rgba(139, 92, 246, 0.45) !important; border-radius: 10px; height: 42px; font-size: 0.78rem; padding-left: 28px; padding-right: 20px; color: #fff;">
+                                <option value="sale_desc" selected>📅 Sale Date (Newest)</option>
+                                <option value="sale_asc">📅 Sale Date (Oldest)</option>
+                                <option value="res_asc">🎟️ Usage Date (Soonest)</option>
+                                <option value="res_desc">🎟️ Usage Date (Latest)</option>
+                                <option value="amount_desc">💰 Amount (High-Low)</option>
+                                <option value="amount_asc">💰 Amount (Low-High)</option>
+                                <option value="id_desc">🔢 Order ID (#)</option>
+                            </select>
+                            <i class="fas fa-sort-amount-down position-absolute start-0 top-50 translate-middle-y ms-2" style="color: #c084fc; font-size: 0.82rem; pointer-events: none;"></i>
+                        </div>
+
                         <button type="button" class="btn btn-outline-danger btn-sm px-3 py-2 rounded-3 d-none" id="mobileClearAllBtn" onclick="clearAllPolarisFilters()" style="height:42px;font-size:0.8rem;font-weight:600;">
                             <i class="fas fa-undo me-1"></i> Reset
                         </button>
@@ -2188,7 +2204,7 @@ body.modal-open .admin-mobile-menu-toggle {
                         @endphp
                         <tr data-row-id="{{ $item->id }}" data-row-error="{{ $rowError ?? '' }}">
                             <td><input type="checkbox" class="row-check" value="{{ $item->id }}"></td>
-                            <td class="txn-order-id">
+                            <td class="txn-order-id" data-order="{{ (int)($item->id ?? 0) }}">
                                 <div>#{{ str_pad($item->id, 3, '0', STR_PAD_LEFT) }}</div>
                                 @if($item->is_sandbox)
                                     <div class="mt-1"><span class="badge bg-warning text-dark fw-bold" style="font-size:0.62rem;letter-spacing:0.5px;"><i class="fas fa-vial me-1"></i>SANDBOX</span></div>
@@ -2337,7 +2353,7 @@ body.modal-open .admin-mobile-menu-toggle {
                                     </div>
                                 @endif
                             </td>
-                            <td class="txn-amount">${{ number_format((float)$item->total, 2) }}</td>
+                            <td class="txn-amount" data-order="{{ (float)($item->total ?? 0) }}">${{ number_format((float)$item->total, 2) }}</td>
                             <td>
                                 @php
                                     $paidAmount = (float)($item->actual_total ?? $item->total ?? 0);
@@ -2804,6 +2820,24 @@ body.modal-open .admin-mobile-menu-toggle {
                             </div>
                         </div>
                         <div class="modal-body">
+                            {{-- 0. Sort Order Card --}}
+                            <div class="mobile-filter-group-card mb-3">
+                                <div class="mobile-filter-group-title">
+                                    <i class="fas fa-sort-amount-down text-purple" style="color:#c084fc;"></i> Sort Order
+                                </div>
+                                <div>
+                                    <select id="drawerSortSelect" class="form-select form-select-sm bg-dark text-white border-secondary">
+                                        <option value="sale_desc" selected>📅 Sale Date: Newest First</option>
+                                        <option value="sale_asc">📅 Sale Date: Oldest First</option>
+                                        <option value="res_asc">🎟️ Reservation Date: Soonest First</option>
+                                        <option value="res_desc">🎟️ Reservation Date: Latest First</option>
+                                        <option value="amount_desc">💰 Amount: High to Low</option>
+                                        <option value="amount_asc">💰 Amount: Low to High</option>
+                                        <option value="id_desc">🔢 Order ID: Highest (#)</option>
+                                    </select>
+                                </div>
+                            </div>
+
                             {{-- 1. Date Range & Target --}}
                             <div class="mobile-filter-group-card">
                                 <div class="mobile-filter-group-title">
@@ -3346,6 +3380,7 @@ body.modal-open .admin-mobile-menu-toggle {
                     deferRender: true,
                     searching: true,
                     ordering: true,
+                    order: [[2, 'desc']],
                     paging: true,
                     info: true,
                     lengthChange: true,
@@ -4234,12 +4269,16 @@ body.modal-open .admin-mobile-menu-toggle {
                     $('#mobileSearchClearBtn').addClass('d-none');
                     $('#txnDateRange, #mobileTxnDateRange').val('');
                     $('.mobile-preset-btn').removeClass('active');
+                    $('#mobileSortSelect, #drawerSortSelect').val('sale_desc');
                     const picker = $('#txnDateRange').data('daterangepicker') || $('#mobileTxnDateRange').data('daterangepicker');
                     if (picker) {
                         picker.setStartDate(moment());
                         picker.setEndDate(moment());
                     }
-                    table.search('').draw();
+                    if (table) {
+                        table.order([[2, 'desc']]);
+                        table.search('').draw();
+                    }
                     updatePolarisUiAndFilterTable();
                 };
 
@@ -4295,6 +4334,27 @@ body.modal-open .admin-mobile-menu-toggle {
                         $('#dateTargetSelect').val($(this).val());
                     }
                     updatePolarisUiAndFilterTable();
+                });
+
+                window.applyTxnSort = function(sortKey) {
+                    if (!table) return;
+                    const sortMap = {
+                        'sale_desc': [2, 'desc'],
+                        'sale_asc': [2, 'asc'],
+                        'res_asc': [13, 'asc'],
+                        'res_desc': [13, 'desc'],
+                        'amount_desc': [8, 'desc'],
+                        'amount_asc': [8, 'asc'],
+                        'id_desc': [1, 'desc'],
+                        'id_asc': [1, 'asc']
+                    };
+                    const orderRule = sortMap[sortKey] || [2, 'desc'];
+                    table.order(orderRule).draw();
+                    $('#mobileSortSelect, #drawerSortSelect').val(sortKey);
+                };
+
+                $(document).on('change', '#mobileSortSelect, #drawerSortSelect', function() {
+                    window.applyTxnSort($(this).val());
                 });
 
                 $.fn.dataTable.ext.search.push(function(settings, data, dataIndex) {
