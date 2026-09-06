@@ -1657,39 +1657,36 @@ body.modal-open .admin-mobile-menu-toggle {
             @endphp
             {{-- ── MOBILE SEARCH & FILTER TOOLBAR (< 768px) ───────────────── --}}
             <div class="d-block d-md-none mb-3">
-                <div class="mobile-filter-toolbar d-flex flex-column gap-2">
+                <div class="mobile-filter-toolbar d-flex flex-column gap-2 p-2.5 rounded-3" style="background: rgba(15, 23, 42, 0.6); border: 1px solid rgba(255, 255, 255, 0.08); backdrop-filter: blur(12px);">
                     {{-- 1. Full-width Mobile Search Input --}}
                     <div class="mobile-search-input-wrap position-relative">
-                        <i class="fas fa-search txn-search-icon"></i>
-                        <input type="text" id="mobileTxnSearch" class="txn-search-input pe-4 w-100" style="background:rgba(255,255,255,0.08);border-radius:10px;height:42px;" placeholder="Search name, email, order ID, or #…">
+                        <i class="fas fa-search txn-search-icon" style="color:#a78bfa;"></i>
+                        <input type="text" id="mobileTxnSearch" class="txn-search-input pe-4 w-100" style="background:rgba(255,255,255,0.07);border:1px solid rgba(255,255,255,0.12);border-radius:10px;height:42px;font-size:0.82rem;" placeholder="Search name, email, order ID, or #…">
                         <button type="button" id="mobileSearchClearBtn" class="btn btn-sm text-white-50 position-absolute end-0 top-50 translate-middle-y me-1 d-none" style="border:none;background:none;"><i class="fas fa-times-circle"></i></button>
                     </div>
 
-                    {{-- 2. Filter & Sort Buttons Row --}}
-                    <div class="d-flex align-items-center gap-2">
-                        {{-- Filter Drawer Trigger --}}
-                        <button type="button" class="mobile-filter-trigger-btn flex-grow-1" data-bs-toggle="modal" data-bs-target="#mobileFilterModal" style="height:42px;">
-                            <i class="fas fa-sliders-h"></i> Filter & Refine
-                            <span class="mobile-active-badge" id="mobileActiveFiltersBadge">0</span>
-                        </button>
-
-                        {{-- App-Like Mobile Sort Dropdown --}}
-                        <div class="position-relative flex-grow-1" style="min-width: 140px;">
-                            <select id="mobileSortSelect" class="form-select form-select-sm text-white border-0 shadow-none fw-semibold" style="background: rgba(124, 58, 237, 0.25); border: 1px solid rgba(139, 92, 246, 0.45) !important; border-radius: 10px; height: 42px; font-size: 0.78rem; padding-left: 28px; padding-right: 20px; color: #fff;">
-                                <option value="sale_desc" selected>📅 Sale Date (Newest)</option>
-                                <option value="sale_asc">📅 Sale Date (Oldest)</option>
-                                <option value="res_asc">🎟️ Usage Date (Soonest)</option>
-                                <option value="res_desc">🎟️ Usage Date (Latest)</option>
-                                <option value="amount_desc">💰 Amount (High-Low)</option>
-                                <option value="amount_asc">💰 Amount (Low-High)</option>
-                                <option value="id_desc">🔢 Order ID (#)</option>
-                            </select>
-                            <i class="fas fa-sort-amount-down position-absolute start-0 top-50 translate-middle-y ms-2" style="color: #c084fc; font-size: 0.82rem; pointer-events: none;"></i>
+                    {{-- 2. 2-Column Responsive Filter & Sort Buttons Row --}}
+                    <div class="row g-2 align-items-center">
+                        <div class="col-6">
+                            <button type="button" class="mobile-filter-trigger-btn w-100 d-inline-flex align-items-center justify-content-center gap-1.5 px-2" data-bs-toggle="modal" data-bs-target="#mobileFilterModal" style="height:42px; font-size: 0.78rem; font-weight: 600; white-space: nowrap;">
+                                <i class="fas fa-filter text-purple" style="color:#c084fc;"></i> Filter & Refine
+                                <span class="mobile-active-badge" id="mobileActiveFiltersBadge">0</span>
+                            </button>
                         </div>
-
-                        <button type="button" class="btn btn-outline-danger btn-sm px-3 py-2 rounded-3 d-none" id="mobileClearAllBtn" onclick="clearAllPolarisFilters()" style="height:42px;font-size:0.8rem;font-weight:600;">
-                            <i class="fas fa-undo me-1"></i> Reset
-                        </button>
+                        <div class="col-6">
+                            <div class="position-relative w-100" style="height:42px;">
+                                <select id="mobileSortSelect" class="form-select form-select-sm text-white border-0 shadow-none fw-semibold w-100 h-100 text-truncate" style="background: rgba(124, 58, 237, 0.25); border: 1px solid rgba(139, 92, 246, 0.45) !important; border-radius: 10px; font-size: 0.76rem; padding-left: 28px; padding-right: 18px; color: #fff; text-overflow: ellipsis; white-space: nowrap;">
+                                    <option value="sale_desc" selected>📅 Sale: Newest</option>
+                                    <option value="sale_asc">📅 Sale: Oldest</option>
+                                    <option value="res_asc">🎟️ Usage: Soonest</option>
+                                    <option value="res_desc">🎟️ Usage: Latest</option>
+                                    <option value="amount_desc">💰 Amount: High-Low</option>
+                                    <option value="amount_asc">💰 Amount: Low-High</option>
+                                    <option value="id_desc">🔢 Order ID (#)</option>
+                                </select>
+                                <i class="fas fa-sort-amount-down position-absolute start-0 top-50 translate-middle-y ms-2" style="color: #c084fc; font-size: 0.8rem; pointer-events: none;"></i>
+                            </div>
+                        </div>
                     </div>
 
                     {{-- 3. Mobile Active Filter Chips Bar --}}
@@ -1929,64 +1926,64 @@ body.modal-open .admin-mobile-menu-toggle {
 
 
             {{-- ── ROW 2: BULK SELECTION & ACTIONS TOOLBAR ────────────── --}}
-            <div class="d-flex align-items-center justify-content-between flex-wrap gap-2 mb-3 py-2 px-3 rounded-3" style="background: rgba(15, 23, 42, 0.5); border: 1px solid rgba(255, 255, 255, 0.08);">
-                <div class="d-flex align-items-center gap-2 flex-wrap">
-                    @if($canArchiveTransactions)
-                    {{-- Selection Count Dropdown Pill --}}
-                    <div class="dropdown">
-                        <button class="txn-export-btn btn dropdown-toggle d-inline-flex align-items-center gap-2" data-bs-toggle="dropdown" type="button" style="font-size:0.82rem; padding: 6px 12px;">
-                            <input type="checkbox" id="selectionToolbarCb" class="form-check-input mt-0 me-1" style="cursor:pointer;" onclick="event.stopPropagation();">
-                            <span id="selectionCount" style="font-size:0.82rem; color:#fff;">0 selected</span>
+            <div class="mb-3 py-2 px-3 rounded-3" style="background: rgba(15, 23, 42, 0.5); border: 1px solid rgba(255, 255, 255, 0.08); backdrop-filter: blur(8px);">
+                <div class="d-flex align-items-center justify-content-between flex-nowrap gap-2 overflow-x-auto" style="-webkit-overflow-scrolling: touch; scrollbar-width: none;">
+                    <div class="d-flex align-items-center gap-2 flex-nowrap">
+                        @if($canArchiveTransactions)
+                        {{-- Selection Count Dropdown Pill --}}
+                        <div class="dropdown flex-shrink-0">
+                            <button class="txn-export-btn btn dropdown-toggle d-inline-flex align-items-center gap-1.5" data-bs-toggle="dropdown" type="button" style="font-size:0.8rem; padding: 6px 12px; white-space:nowrap;">
+                                <input type="checkbox" id="selectionToolbarCb" class="form-check-input mt-0 me-1" style="cursor:pointer;" onclick="event.stopPropagation();">
+                                <span id="selectionCount" style="font-size:0.8rem; color:#fff; font-weight:600;">0 selected</span>
+                            </button>
+                            <ul class="dropdown-menu shadow-lg" style="background:#1e293b;border:1px solid rgba(255,255,255,0.15)">
+                                <li><a class="dropdown-item text-white-50 small" href="javascript:void(0)" onclick="$('#selectAllPagesBtn').click()"><i class="fas fa-check-double text-purple me-2" style="color:#c084fc;"></i>Select All Pages</a></li>
+                                <li><a class="dropdown-item text-white-50 small" href="javascript:void(0)" onclick="$('#clearSelectionBtn').click()"><i class="fas fa-times-circle text-danger me-2" style="color:#f43f5e;"></i>Clear Selection</a></li>
+                            </ul>
+                        </div>
+
+                        {{-- Archive / Unarchive Selected Button --}}
+                        @if($isArchivedView)
+                        <button type="button" id="bulkUnarchiveBtn" class="txn-export-btn btn flex-shrink-0 d-inline-flex align-items-center gap-1.5" style="border-color: rgba(16, 185, 129, 0.4); color: #34d399; font-size: 0.8rem; padding: 6px 12px; white-space:nowrap;">
+                            <i class="fas fa-box-open" style="color:#10b981;"></i> Unarchive Selected
                         </button>
-                        <ul class="dropdown-menu" style="background:#1e293b;border:1px solid rgba(255,255,255,0.1)">
-                            <li><a class="dropdown-item text-white-50 small" href="javascript:void(0)" onclick="$('#selectAllPagesBtn').click()"><i class="fas fa-check-double me-2"></i>Select All Pages</a></li>
-                            <li><a class="dropdown-item text-white-50 small" href="javascript:void(0)" onclick="$('#clearSelectionBtn').click()"><i class="fas fa-times me-2"></i>Clear Selection</a></li>
-                        </ul>
+                        @else
+                        <button type="button" id="bulkArchiveBtn" class="txn-export-btn btn flex-shrink-0 d-inline-flex align-items-center gap-1.5" style="border-color: rgba(245, 158, 11, 0.4); color: #fbbf24; font-size: 0.8rem; padding: 6px 12px; white-space:nowrap;">
+                            <i class="fas fa-box-archive" style="color:#f59e0b;"></i> Archive Selected
+                        </button>
+                        @endif
+
+                        {{-- Export Table --}}
+                        <div class="dropdown flex-shrink-0">
+                            <button class="txn-export-btn btn dropdown-toggle d-inline-flex align-items-center gap-1.5" data-bs-toggle="dropdown" type="button" style="font-size:0.8rem; padding:6px 12px; white-space:nowrap;">
+                                <i class="fas fa-file-export" style="color:#06b6d4;"></i> Export Table
+                            </button>
+                            <ul class="dropdown-menu dropdown-menu-end shadow-lg" style="background:#1e293b;border:1px solid rgba(255,255,255,0.15)">
+                                <li><a class="dropdown-item" style="color:rgba(255,255,255,0.85);font-size:0.82rem" id="expCsv"   href="#"><i class="fas fa-file-csv text-emerald me-2" style="color:#10b981;"></i>Export CSV</a></li>
+                                <li><a class="dropdown-item" style="color:rgba(255,255,255,0.85);font-size:0.82rem" id="expExcel" href="#"><i class="fas fa-file-excel text-success me-2" style="color:#22c55e;"></i>Export Excel</a></li>
+                                <li><a class="dropdown-item" style="color:rgba(255,255,255,0.85);font-size:0.82rem" id="expPdf"   href="#"><i class="fas fa-file-pdf text-danger me-2" style="color:#ef4444;"></i>Export PDF</a></li>
+                                <li><a class="dropdown-item" style="color:rgba(255,255,255,0.85);font-size:0.82rem" id="expPrint" href="#"><i class="fas fa-print text-purple me-2" style="color:#a855f7;"></i>Print</a></li>
+                            </ul>
+                        </div>
+
+                        {{-- Select All Pages --}}
+                        <button type="button" id="selectAllPagesBtn" class="txn-export-btn btn flex-shrink-0 d-inline-flex align-items-center gap-1.5" style="font-size:0.8rem; padding:6px 12px; white-space:nowrap;">
+                            <i class="fas fa-check-double" style="color:#818cf8;"></i> Select All Pages
+                        </button>
+
+                        {{-- Clear Selection --}}
+                        <button type="button" id="clearSelectionBtn" class="txn-export-btn btn flex-shrink-0 d-inline-flex align-items-center gap-1.5" style="font-size:0.8rem; padding:6px 12px; white-space:nowrap;">
+                            <i class="fas fa-times-circle" style="color:#f43f5e;"></i> Clear Selection
+                        </button>
+                        @endif
                     </div>
 
-                    {{-- Archive / Unarchive Selected Button --}}
-                    @if($isArchivedView)
-                    <button type="button" id="bulkUnarchiveBtn" class="txn-export-btn btn d-inline-flex align-items-center gap-2" style="border-color: rgba(16, 185, 129, 0.4); color: #34d399; font-size: 0.82rem; padding: 6px 14px;">
-                        <i class="fas fa-box-open"></i> Unarchive Selected
-                    </button>
-                    @else
-                    <button type="button" id="bulkArchiveBtn" class="txn-export-btn btn d-inline-flex align-items-center gap-2" style="border-color: rgba(245, 158, 11, 0.4); color: #fbbf24; font-size: 0.82rem; padding: 6px 14px;">
-                        <i class="fas fa-archive"></i> Archive Selected
-                    </button>
-                    @endif
-
-                    {{-- Export Table --}}
-                    <div class="dropdown">
-                        <button class="txn-export-btn btn dropdown-toggle d-inline-flex align-items-center gap-2" data-bs-toggle="dropdown" type="button" style="font-size:0.82rem; padding:6px 14px;">
-                            <i class="fas fa-download"></i> Export Table
+                    {{-- Columns Visibility Dropdown (Far Right) --}}
+                    <div class="dropdown flex-shrink-0 ms-auto">
+                        <button class="txn-export-btn btn dropdown-toggle d-inline-flex align-items-center gap-1.5" data-bs-toggle="dropdown" data-bs-auto-close="outside" type="button" style="font-size:0.8rem; padding:6px 12px; white-space:nowrap;">
+                            <i class="fas fa-columns" style="color:#c084fc;"></i> Columns
                         </button>
-                        <ul class="dropdown-menu dropdown-menu-end" style="background:#1e293b;border:1px solid rgba(255,255,255,0.1)">
-                            <li><a class="dropdown-item" style="color:rgba(255,255,255,0.7);font-size:0.85rem" id="expCsv"   href="#"><i class="fas fa-file-csv me-2"></i>Export CSV</a></li>
-                            <li><a class="dropdown-item" style="color:rgba(255,255,255,0.7);font-size:0.85rem" id="expExcel" href="#"><i class="fas fa-file-excel me-2"></i>Export Excel</a></li>
-                            <li><a class="dropdown-item" style="color:rgba(255,255,255,0.7);font-size:0.85rem" id="expPdf"   href="#"><i class="fas fa-file-pdf me-2"></i>Export PDF</a></li>
-                            <li><a class="dropdown-item" style="color:rgba(255,255,255,0.7);font-size:0.85rem" id="expPrint" href="#"><i class="fas fa-print me-2"></i>Print</a></li>
-                        </ul>
-                    </div>
-
-                    {{-- Select All Pages --}}
-                    <button type="button" id="selectAllPagesBtn" class="txn-export-btn btn d-inline-flex align-items-center gap-2" style="font-size:0.82rem; padding:6px 14px;">
-                        <i class="fas fa-check-square"></i> Select All Pages
-                    </button>
-
-                    {{-- Clear Selection --}}
-                    <button type="button" id="clearSelectionBtn" class="txn-export-btn btn d-inline-flex align-items-center gap-2" style="font-size:0.82rem; padding:6px 14px;">
-                        <i class="fas fa-times-circle"></i> Clear Selection
-                    </button>
-                    @endif
-                </div>
-
-                {{-- Columns Visibility Dropdown (Far Right) --}}
-                <div class="ms-auto">
-                    <div class="dropdown">
-                        <button class="txn-export-btn btn dropdown-toggle d-inline-flex align-items-center gap-2" data-bs-toggle="dropdown" data-bs-auto-close="outside" type="button" style="font-size:0.82rem; padding:6px 14px;">
-                            <i class="fas fa-th-large"></i> Columns
-                        </button>
-                        <div class="dropdown-menu dropdown-menu-end polaris-popover-menu" style="min-width: 210px;">
+                        <div class="dropdown-menu dropdown-menu-end polaris-popover-menu shadow-lg" style="min-width: 210px;">
                             <div class="polaris-popover-header">
                                 <span class="polaris-popover-title">Toggle Columns</span>
                             </div>
@@ -4241,10 +4238,16 @@ body.modal-open .admin-mobile-menu-toggle {
 
                     if (totalActiveFilters > 0) {
                         mobileActiveChipsBar.removeClass('d-none');
-                        $('#mobileClearAllBtn').removeClass('d-none');
+                        if (!$('#mobileClearAllBtnChip').length) {
+                            mobileActiveChipsBar.append(`
+                                <button type="button" id="mobileClearAllBtnChip" class="btn btn-sm text-danger text-decoration-none p-0 ms-auto fw-bold d-inline-flex align-items-center gap-1" onclick="clearAllPolarisFilters()" style="font-size:0.75rem;">
+                                    <i class="fas fa-rotate-left"></i> Reset All
+                                </button>
+                            `);
+                        }
                     } else {
                         mobileActiveChipsBar.addClass('d-none');
-                        $('#mobileClearAllBtn').addClass('d-none');
+                        $('#mobileClearAllBtnChip').remove();
                     }
 
                     $('#totalActiveFiltersBadge, #mobileActiveFiltersBadge, #mobileDrawerTotalBadge').text(totalActiveFilters);
