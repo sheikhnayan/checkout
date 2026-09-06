@@ -1431,9 +1431,25 @@ body.modal-open .admin-mobile-menu-toggle {
         </div>
 
         {{-- ── SHOPIFY-STYLE ANALYTICS & CONVERSION DASHBOARD ───────────────────────── --}}
+        <style>
+            @media (max-width: 767.98px) {
+                #mobileAnalyticsCollapse .card-body {
+                    padding: 10px 4px !important;
+                }
+                .shopify-chart-wrap,
+                #tab-shopify-conversion,
+                #tab-classic-performance,
+                #tab-orders-guests {
+                    padding-left: 0 !important;
+                    padding-right: 0 !important;
+                    margin-left: 0 !important;
+                    margin-right: 0 !important;
+                }
+            }
+        </style>
         <div class="collapse d-md-block mb-4" id="mobileAnalyticsCollapse">
             <div class="card border-0 shadow-sm" style="background: rgba(15, 23, 42, 0.7); border: 1px solid rgba(255, 255, 255, 0.1) !important; border-radius: 16px; backdrop-filter: blur(12px);">
-                <div class="card-body p-3 p-md-4">
+                <div class="card-body p-2.5 p-sm-3 p-md-4">
 
                     {{-- Tab Navigation Bar --}}
                     <div class="d-flex align-items-center justify-content-between flex-wrap gap-2 pb-2 pb-md-3 mb-3 mb-md-4 border-bottom border-secondary border-opacity-25">
@@ -3445,38 +3461,89 @@ body.modal-open .admin-mobile-menu-toggle {
                     let totalGuests = 0;
                     const dailyMap = {};
 
-                    const filteredRowsData = table.rows({ filter: 'applied' }).data();
-                    totalOrders = filteredRowsData ? filteredRowsData.length : 0;
+                    const filteredNodes = table.rows({ filter: 'applied' }).nodes();
+                    totalOrders = filteredNodes ? filteredNodes.length : 0;
 
-                    if (filteredRowsData && filteredRowsData.length > 0) {
-                        filteredRowsData.each(function(rowData) {
-                            const colPkgHtml = rowData[4] || '';
-                            const $tempBtn = $(colPkgHtml).filter('.view-btn').length ? $(colPkgHtml).filter('.view-btn') : $(colPkgHtml).find('.view-btn');
+                    if (filteredNodes && filteredNodes.length > 0) {
+                        const currentTarget = String($('#dateTargetSelect').val() || $('#mobileDateTargetSelect').val() || 'either').toLowerCase();
+                        const dateRangeVal = String($('#txnDateRange').val() || $('#mobileTxnDateRange').val() || '').trim();
+                        let filterStartStr = '', filterEndStr = '';
+                        if (dateRangeVal && dateRangeVal.includes(' - ')) {
+                            const parts = dateRangeVal.split(' - ');
+                            const sMom = moment(parts[0], 'MM/DD/YYYY', true);
+                            const eMom = moment(parts[1], 'MM/DD/YYYY', true);
+                            if (sMom.isValid() && eMom.isValid()) {
+                                filterStartStr = sMom.format('YYYY-MM-DD');
+                                filterEndStr = eMom.format('YYYY-MM-DD');
+                            }
+                        }
 
-                            let rawTotal = parseFloat($tempBtn.data('total') || 0);
+                        $(filteredNodes).each(function() {
+                            const $row = $(this);
+                            const $tempBtn = $row.find('.view-btn').first();
+
+                            let rawTotal = 0;
+                            if ($tempBtn.length) {
+                                rawTotal = parseFloat($tempBtn.data('total') || 0);
+                            }
                             if (isNaN(rawTotal) || rawTotal === 0) {
-                                const amountCellHtml = rowData[8] || '';
+                                const amountCellHtml = $row.find('td.txn-amount').first().text() || '';
                                 const cleanAmount = String(amountCellHtml).replace(/[^0-9.]/g, '');
                                 rawTotal = parseFloat(cleanAmount) || 0;
                             }
                             totalSales += rawTotal;
 
-                            let rawGuests = parseInt($tempBtn.data('guests') || $tempBtn.data('package_number_of_guest') || 1, 10);
-                            if (isNaN(rawGuests)) rawGuests = 1;
+                            let rawGuests = 1;
+                            if ($tempBtn.length) {
+                                rawGuests = parseInt($tempBtn.data('guests') || $tempBtn.data('package_number_of_guest') || 1, 10);
+                            }
+                            if (isNaN(rawGuests) || rawGuests < 1) rawGuests = 1;
                             totalGuests += rawGuests;
 
-                            let dateIso = String($tempBtn.data('date-iso') || '').trim();
-                            let dateKey = '';
-                            if (dateIso && dateIso.length >= 10) {
-                                dateKey = dateIso.substring(0, 10);
+                            let saleIso = $tempBtn.length ? String($tempBtn.data('date-iso') || '').trim() : '';
+                            let saleDateKey = '';
+                            if (saleIso && saleIso.length >= 10) {
+                                saleDateKey = saleIso.substring(0, 10);
                             } else {
-                                const saleDateCellHtml = rowData[2] || '';
+                                const saleDateCellHtml = $row.find('td').eq(2).text() || '';
                                 const dateText = String(saleDateCellHtml).replace(/<[^>]+>/g, '').trim();
                                 if (dateText) {
                                     const parsed = (typeof parseRowDateToMoment === 'function') ? parseRowDateToMoment(dateText) : moment(dateText);
                                     if (parsed && parsed.isValid()) {
-                                        dateKey = parsed.format('YYYY-MM-DD');
+                                        saleDateKey = parsed.format('YYYY-MM-DD');
                                     }
+                                }
+                            }
+
+                            let resDateRaw = $tempBtn.length ? String($tempBtn.data('package_use_date') || '').trim() : '';
+                            let resDateKey = '';
+                            if (resDateRaw) {
+                                if (resDateRaw.length >= 10 && resDateRaw.match(/^\d{4}-\d{2}-\d{2}/)) {
+                                    resDateKey = resDateRaw.substring(0, 10);
+                                } else {
+                                    const rMom = (typeof parseRowDateToMoment === 'function') ? parseRowDateToMoment(resDateRaw) : moment(resDateRaw);
+                                    if (rMom && rMom.isValid()) {
+                                        resDateKey = rMom.format('YYYY-MM-DD');
+                                    }
+                                }
+                            }
+
+                            let dateKey = '';
+                            if (currentTarget === 'reservation') {
+                                dateKey = resDateKey || saleDateKey;
+                            } else if (currentTarget === 'sale') {
+                                dateKey = saleDateKey || resDateKey;
+                            } else { // 'either'
+                                if (filterStartStr && filterEndStr) {
+                                    if (resDateKey && resDateKey >= filterStartStr && resDateKey <= filterEndStr) {
+                                        dateKey = resDateKey;
+                                    } else if (saleDateKey && saleDateKey >= filterStartStr && saleDateKey <= filterEndStr) {
+                                        dateKey = saleDateKey;
+                                    } else {
+                                        dateKey = resDateKey || saleDateKey;
+                                    }
+                                } else {
+                                    dateKey = resDateKey || saleDateKey;
                                 }
                             }
 
@@ -3685,6 +3752,14 @@ body.modal-open .admin-mobile-menu-toggle {
                         options: {
                             responsive: true,
                             maintainAspectRatio: false,
+                            layout: {
+                                padding: {
+                                    left: (typeof window !== 'undefined' && window.innerWidth < 576) ? -4 : 0,
+                                    right: 0,
+                                    top: 4,
+                                    bottom: 0
+                                }
+                            },
                             plugins: {
                                 legend: { display: false },
                                 tooltip: {
@@ -3701,7 +3776,8 @@ body.modal-open .admin-mobile-menu-toggle {
                                     grid: { color: 'rgba(255, 255, 255, 0.05)', drawBorder: false },
                                     ticks: {
                                         color: '#94a3b8',
-                                        font: { size: 10 },
+                                        font: { size: (typeof window !== 'undefined' && window.innerWidth < 576) ? 9 : 10 },
+                                        padding: 2,
                                         maxTicksLimit: (typeof window !== 'undefined' && window.innerWidth < 576) ? 6 : 10,
                                         autoSkip: true,
                                         maxRotation: 0,
@@ -3712,7 +3788,8 @@ body.modal-open .admin-mobile-menu-toggle {
                                     grid: { color: 'rgba(255, 255, 255, 0.05)' },
                                     ticks: {
                                         color: '#94a3b8',
-                                        font: { size: 11 },
+                                        font: { size: (typeof window !== 'undefined' && window.innerWidth < 576) ? 9 : 11 },
+                                        padding: 2,
                                         callback: function(val) {
                                             if (metric === 'sales') return '$' + val;
                                             if (metric === 'conversion') return val + '%';
@@ -3821,6 +3898,14 @@ body.modal-open .admin-mobile-menu-toggle {
                         options: {
                             responsive: true,
                             maintainAspectRatio: false,
+                            layout: {
+                                padding: {
+                                    left: (typeof window !== 'undefined' && window.innerWidth < 576) ? -4 : 0,
+                                    right: (typeof window !== 'undefined' && window.innerWidth < 576) ? -4 : 0,
+                                    top: 4,
+                                    bottom: 0
+                                }
+                            },
                             plugins: {
                                 legend: { display: false },
                                 tooltip: {
@@ -3834,7 +3919,8 @@ body.modal-open .admin-mobile-menu-toggle {
                                     grid: { color: 'rgba(255, 255, 255, 0.05)', drawBorder: false },
                                     ticks: {
                                         color: '#94a3b8',
-                                        font: { size: 10 },
+                                        font: { size: (typeof window !== 'undefined' && window.innerWidth < 576) ? 9 : 10 },
+                                        padding: 2,
                                         maxTicksLimit: (typeof window !== 'undefined' && window.innerWidth < 576) ? 6 : 10,
                                         autoSkip: true,
                                         maxRotation: 0,
@@ -3844,12 +3930,21 @@ body.modal-open .admin-mobile-menu-toggle {
                                 y: {
                                     type: 'linear', display: true, position: 'left',
                                     grid: { color: 'rgba(255, 255, 255, 0.05)' },
-                                    ticks: { color: '#7c3aed', callback: v => '$' + v }
+                                    ticks: {
+                                        color: '#7c3aed',
+                                        font: { size: (typeof window !== 'undefined' && window.innerWidth < 576) ? 9 : 11 },
+                                        padding: 2,
+                                        callback: v => '$' + v
+                                    }
                                 },
                                 y1: {
                                     type: 'linear', display: true, position: 'right',
                                     grid: { drawOnChartArea: false },
-                                    ticks: { color: '#38bdf8' }
+                                    ticks: {
+                                        color: '#38bdf8',
+                                        font: { size: (typeof window !== 'undefined' && window.innerWidth < 576) ? 9 : 11 },
+                                        padding: 2
+                                    }
                                 }
                             }
                         }
@@ -3933,6 +4028,14 @@ body.modal-open .admin-mobile-menu-toggle {
                         options: {
                             responsive: true,
                             maintainAspectRatio: false,
+                            layout: {
+                                padding: {
+                                    left: (typeof window !== 'undefined' && window.innerWidth < 576) ? -4 : 0,
+                                    right: 0,
+                                    top: 4,
+                                    bottom: 0
+                                }
+                            },
                             plugins: {
                                 legend: { display: false },
                                 tooltip: {
@@ -3946,14 +4049,22 @@ body.modal-open .admin-mobile-menu-toggle {
                                     grid: { color: 'rgba(255, 255, 255, 0.05)', drawBorder: false },
                                     ticks: {
                                         color: '#94a3b8',
-                                        font: { size: 10 },
+                                        font: { size: (typeof window !== 'undefined' && window.innerWidth < 576) ? 9 : 10 },
+                                        padding: 2,
                                         maxTicksLimit: (typeof window !== 'undefined' && window.innerWidth < 576) ? 5 : 8,
                                         autoSkip: true,
                                         maxRotation: 0,
                                         minRotation: 0
                                     }
                                 },
-                                y: { grid: { color: 'rgba(255, 255, 255, 0.05)' }, ticks: { color: '#94a3b8' } }
+                                y: {
+                                    grid: { color: 'rgba(255, 255, 255, 0.05)' },
+                                    ticks: {
+                                        color: '#94a3b8',
+                                        font: { size: (typeof window !== 'undefined' && window.innerWidth < 576) ? 9 : 11 },
+                                        padding: 2
+                                    }
+                                }
                             }
                         }
                     });
@@ -4177,7 +4288,12 @@ body.modal-open .admin-mobile-menu-toggle {
                     }
                 });
 
-                $(document).on('change', '.polaris-filter-cb, #dateTargetSelect', function() {
+                $(document).on('change', '.polaris-filter-cb, #dateTargetSelect, #mobileDateTargetSelect', function() {
+                    if ($(this).attr('id') === 'dateTargetSelect') {
+                        $('#mobileDateTargetSelect').val($(this).val());
+                    } else if ($(this).attr('id') === 'mobileDateTargetSelect') {
+                        $('#dateTargetSelect').val($(this).val());
+                    }
                     updatePolarisUiAndFilterTable();
                 });
 
