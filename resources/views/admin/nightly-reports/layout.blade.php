@@ -21,17 +21,18 @@
   <link rel="stylesheet" href="https://cdn.datatables.net/1.13.4/css/jquery.dataTables.min.css" />
 
   <style>
+    /* ── MAXIMUM HIGH-CONTRAST READABILITY FOR ALL NIGHTLY REPORTS PAGES ── */
     :root {
       --nr-bg: #07111f;
       --nr-surface: #0d1a2e;
       --nr-surface-2: #142238;
       --nr-surface-3: #1a2b47;
-      --nr-border: rgba(255, 255, 255, 0.08);
-      --nr-border-gold: rgba(201, 168, 76, 0.35);
-      --nr-gold: #c9a84c;
-      --nr-gold-bright: #e8be6a;
-      --nr-gold-glow: rgba(201, 168, 76, 0.18);
-      --nr-text: #f8fafc;
+      --nr-border: rgba(255, 255, 255, 0.12);
+      --nr-border-gold: rgba(245, 158, 11, 0.45);
+      --nr-gold: #f59e0b;
+      --nr-gold-bright: #fbbf24;
+      --nr-gold-glow: rgba(245, 158, 11, 0.25);
+      --nr-text: #ffffff;
       --nr-text-muted: #cbd5e1;
       --nr-emerald: #10b981;
       --nr-rose: #f43f5e;
@@ -39,7 +40,12 @@
       --nr-blue: #38bdf8;
     }
 
-    /* HIGH-CONTRAST READABLE TYPOGRAPHY OVERRIDES FOR NIGHTLY REPORTS */
+    /* All text elements, paragraphs, headings, labels, and spans */
+    body, p, span, div, td, th, li, a, h1, h2, h3, h4, h5, h6 {
+      color: #ffffff;
+    }
+
+    /* Override Bootstrap muted/secondary utilities */
     .text-muted,
     .text-secondary,
     .text-white-50,
@@ -50,12 +56,75 @@
     td.text-muted,
     th.text-muted,
     label.text-muted,
-    .nr-kpi-sub.text-muted,
+    .nr-kpi-sub,
     .nr-kpi-label,
-    .nr-back-to-cartvip,
-    .nr-menu-link {
+    .nr-back-to-cartvip {
       color: #cbd5e1 !important;
       opacity: 1 !important;
+    }
+
+    /* Input placeholders & helper tips */
+    ::placeholder,
+    ::-webkit-input-placeholder,
+    :-ms-input-placeholder,
+    .form-control::placeholder,
+    .form-select::placeholder,
+    textarea::placeholder {
+      color: #94a3b8 !important;
+      opacity: 0.9 !important;
+    }
+
+    /* Section Gold Titles */
+    .text-gold,
+    h6.text-gold,
+    .section-title {
+      color: #fbbf24 !important;
+      font-weight: 700 !important;
+    }
+
+    /* Info Icons (Tooltip circles) */
+    .fas.fa-info-circle,
+    .fas.fa-circle-info,
+    .field-tip,
+    i[data-bs-toggle="tooltip"] {
+      color: #38bdf8 !important;
+      opacity: 1 !important;
+    }
+
+    /* Sidebar headers and navigation links */
+    .nr-menu-header {
+      color: #fbbf24 !important;
+      font-weight: 700 !important;
+      font-size: 0.72rem !important;
+      letter-spacing: 0.1em !important;
+      opacity: 1 !important;
+    }
+
+    .nr-menu-link {
+      color: #e2e8f0 !important;
+      font-weight: 500 !important;
+    }
+
+    .nr-menu-link i {
+      color: #cbd5e1 !important;
+    }
+
+    .nr-menu-link:hover {
+      color: #ffffff !important;
+      background: rgba(255, 255, 255, 0.08) !important;
+    }
+
+    .nr-menu-link:hover i {
+      color: #fbbf24 !important;
+    }
+
+    .nr-menu-item.active .nr-menu-link {
+      color: #ffffff !important;
+      font-weight: 700 !important;
+    }
+
+    .nr-menu-item.active .nr-menu-link i {
+      color: #fbbf24 !important;
     }
 
     small,
