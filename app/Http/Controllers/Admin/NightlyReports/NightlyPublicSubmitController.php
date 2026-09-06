@@ -198,7 +198,11 @@ class NightlyPublicSubmitController extends Controller
     {
         $validated = $request->validate([
             'location_id' => 'required|exists:nr_locations,id',
+            'location_legal_name' => 'nullable|string|max:255',
+            'location_dba_name' => 'nullable|string|max:255',
+            'location_address' => 'nullable|string|max:255',
             'incident_date' => 'required|date',
+            'date_submitted' => 'nullable|date',
             'time_of_incident' => 'required|string|max:50',
             'report_type_field' => 'required|string|max:100',
             'submitter_name' => 'required|string|max:150',
@@ -213,19 +217,25 @@ class NightlyPublicSubmitController extends Controller
             'police_officers_badges' => 'nullable|string|max:255',
             'camera_angles' => 'nullable|string',
             'camera_timestamp' => 'nullable|string|max:100',
-            'restricted' => 'nullable|boolean',
+            'additional_media_notes' => 'nullable|string',
+            'signature_choice' => 'nullable|string',
             'e_signature' => 'nullable|string',
+            'police_report_file' => 'nullable|file|max:4096',
+            'witness_report_files' => 'nullable|array|max:10',
+            'witness_report_files.*' => 'file|max:4096',
+            'additional_media_files' => 'nullable|array|max:5',
+            'additional_media_files.*' => 'file|max:4096',
         ]);
 
         $location = NrLocation::find($validated['location_id']);
 
         $mainIncident = \App\Models\Incident::create([
             'website_id' => $location?->website_id,
-            'location_legal_name' => $location?->name ?? 'Venue',
-            'location_dba_name' => $location?->short_name ?? $location?->name ?? 'Venue',
-            'location_address' => $location?->address ?? '',
+            'location_legal_name' => $validated['location_legal_name'] ?? $location?->name ?? 'Venue',
+            'location_dba_name' => $validated['location_dba_name'] ?? $location?->short_name ?? $location?->name ?? 'Venue',
+            'location_address' => $validated['location_address'] ?? $location?->address ?? '',
             'incident_calendar_date' => $validated['incident_date'],
-            'date_submitted' => now(),
+            'date_submitted' => $validated['date_submitted'] ?? now(),
             'incident_time' => $validated['time_of_incident'],
             'incident_type' => $validated['report_type_field'],
             'reporter_name' => $validated['submitter_name'],
@@ -234,18 +244,54 @@ class NightlyPublicSubmitController extends Controller
             'involved_injured_persons' => $validated['involved_persons'] ?? '',
             'incident_description' => $validated['incident_description'],
             'witnesses_statement' => $validated['witnesses'] ?? '',
-            'police_report_number' => $validated['police_report_number'] ?? null,
-            'police_officers_badges' => $validated['police_officers_badges'] ?? null,
             'camera_angles' => $validated['camera_angles'] ?? null,
             'camera_timestamp' => $validated['camera_timestamp'] ?? null,
+            'cast_members_involved' => $validated['cast_members_on_duty'] ?? null,
+            'additional_media_notes' => $validated['additional_media_notes'] ?? null,
+            'accepted_esignature' => ($validated['signature_choice'] ?? 'accept') === 'accept',
+            'opted_out_esignature' => ($validated['signature_choice'] ?? '') === 'opt_out',
             'digital_signature_name' => $validated['e_signature'] ?? null,
+            'police_report_number' => $validated['police_report_number'] ?? null,
+            'police_officers_badges' => $validated['police_officers_badges'] ?? null,
             'status' => 'open',
             'public_witness_token' => (string) \Illuminate\Support\Str::uuid(),
         ]);
 
+        if ($request->hasFile('police_report_file')) {
+            $this->persistAttachment($mainIncident, $request->file('police_report_file'), 'police_report');
+        }
+        foreach ((array) $request->file('witness_report_files', []) as $file) {
+            $this->persistAttachment($mainIncident, $file, 'witness_report');
+        }
+        foreach ((array) $request->file('additional_media_files', []) as $file) {
+            $this->persistAttachment($mainIncident, $file, 'additional_media');
+        }
+
         $incident = NrIncident::create($validated);
 
         return redirect()->route('nightly.submit.success', ['id' => $mainIncident->id, 'type' => 'incident']);
+    }
+
+    private function persistAttachment(\App\Models\Incident $incident, $file, string $type): void
+    {
+        $dir = public_path('uploads/incidents/main');
+        if (!is_dir($dir)) {
+            mkdir($dir, 0775, true);
+        }
+        $originalName = $file->getClientOriginalName();
+        $mimeType = $file->getClientMimeType();
+        $fileSize = (int) $file->getSize();
+        $fileName = 'incident_' . $incident->id . '_' . $type . '_' . time() . '_' . \Illuminate\Support\Str::random(8) . '.' . $file->getClientOriginalExtension();
+        $file->move($dir, $fileName);
+
+        \App\Models\IncidentAttachment::create([
+            'incident_id' => $incident->id,
+            'attachment_type' => $type,
+            'file_path' => 'incidents/main/' . $fileName,
+            'original_name' => $originalName,
+            'mime_type' => $mimeType,
+            'file_size' => $fileSize,
+        ]);
     }
 
     /**

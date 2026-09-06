@@ -556,6 +556,8 @@ Route::group(['prefix'=> 'admins', 'as' => 'admin.', 'middleware' => ['admin.or.
 
         // Incidents
         Route::get('/incidents', [\App\Http\Controllers\Admin\NightlyReports\NightlyIncidentController::class, 'index'])->name('incidents.index');
+        Route::get('/incidents/create', [\App\Http\Controllers\Admin\NightlyReports\NightlyIncidentController::class, 'create'])->name('incidents.create');
+        Route::post('/incidents/store', [\App\Http\Controllers\Admin\NightlyReports\NightlyIncidentController::class, 'store'])->name('incidents.store');
         Route::get('/incidents/{id}', [\App\Http\Controllers\Admin\NightlyReports\NightlyIncidentController::class, 'show'])->name('incidents.show');
         Route::post('/incidents/{id}/status', [\App\Http\Controllers\Admin\NightlyReports\NightlyIncidentController::class, 'updateStatus'])->name('incidents.status');
 
