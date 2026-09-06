@@ -31,12 +31,57 @@
       --nr-gold: #c9a84c;
       --nr-gold-bright: #e8be6a;
       --nr-gold-glow: rgba(201, 168, 76, 0.18);
-      --nr-text: #e2e8f0;
-      --nr-text-muted: #94a3b8;
+      --nr-text: #f8fafc;
+      --nr-text-muted: #cbd5e1;
       --nr-emerald: #10b981;
       --nr-rose: #f43f5e;
       --nr-amber: #f59e0b;
       --nr-blue: #38bdf8;
+    }
+
+    /* HIGH-CONTRAST READABLE TYPOGRAPHY OVERRIDES FOR NIGHTLY REPORTS */
+    .text-muted,
+    .text-secondary,
+    .text-white-50,
+    small.text-muted,
+    p.text-muted,
+    span.text-muted,
+    div.text-muted,
+    td.text-muted,
+    th.text-muted,
+    label.text-muted,
+    .nr-kpi-sub.text-muted,
+    .nr-kpi-label,
+    .nr-back-to-cartvip,
+    .nr-menu-link {
+      color: #cbd5e1 !important;
+      opacity: 1 !important;
+    }
+
+    small,
+    .small {
+      color: #cbd5e1 !important;
+      opacity: 1 !important;
+    }
+
+    .table,
+    .table td,
+    .table th,
+    .table td.text-muted,
+    .table th.text-muted {
+      color: #f1f5f9 !important;
+      font-weight: 500;
+    }
+
+    .card-body,
+    .card-body div,
+    .card-body p,
+    .card-body span,
+    .card-body td,
+    .p-3.rounded,
+    .rounded.p-3,
+    .card-text {
+      color: #f8fafc !important;
     }
 
     body {
@@ -158,7 +203,7 @@
       font-size: 0.95rem;
       width: 18px;
       text-align: center;
-      color: #64748b;
+      color: #94a3b8;
       transition: color 0.18s;
     }
 
@@ -760,7 +805,6 @@
             <li><a class="dropdown-item text-white" href="{{ route('nightly.submit.nightly') }}" target="_blank"><i class="fas fa-moon me-2 text-warning"></i> Submit Nightly Report</a></li>
             <li><a class="dropdown-item text-white" href="{{ route('nightly.submit.boutique') }}" target="_blank"><i class="fas fa-store me-2 text-info"></i> Submit Boutique Report</a></li>
             <li><a class="dropdown-item text-white" href="{{ route('nightly.submit.coh') }}" target="_blank"><i class="fas fa-vault me-2 text-success"></i> Submit COH Audit</a></li>
-            <li><a class="dropdown-item text-white" href="{{ route('nightly.submit.incident') }}" target="_blank"><i class="fas fa-shield-alt me-2 text-danger"></i> Submit Incident</a></li>
           </ul>
         </div>
 

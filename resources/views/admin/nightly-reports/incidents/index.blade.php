@@ -13,9 +13,6 @@
           <a href="{{ route('admin.nightly-reports.incidents.create') }}" class="btn btn-sm btn-gold fw-bold">
             <i class="fas fa-plus me-1"></i> Log Incident
           </a>
-          <a href="{{ route('nightly.submit.incident') }}" target="_blank" class="btn btn-sm btn-outline-light">
-            <i class="fas fa-external-link-alt me-1"></i> Public Form
-          </a>
         </div>
       </div>
 
