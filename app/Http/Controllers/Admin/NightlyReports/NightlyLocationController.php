@@ -11,8 +11,11 @@ class NightlyLocationController extends BaseNightlyReportsController
 {
     public function index(Request $request)
     {
-        $locations = $this->accessibleLocations();
-        $websites = Website::notArchived()->orderBy('name')->get();
+        $locations = NrLocation::with('website')
+            ->orderBy('name')
+            ->get();
+
+        $websites = Website::orderBy('name')->get();
 
         return view('admin.nightly-reports.locations.index', compact('locations', 'websites'));
     }

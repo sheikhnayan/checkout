@@ -739,7 +739,7 @@ class CustomFormController extends Controller
         }
 
         if ($user->isAdmin() || $user->isSuperAdmin()) {
-            return Website::notArchived()->pluck('id')->map(fn ($id) => (int) $id)->all();
+            return Website::pluck('id')->map(fn ($id) => (int) $id)->all();
         }
 
         return array_map('intval', $user->accessibleWebsiteIds());

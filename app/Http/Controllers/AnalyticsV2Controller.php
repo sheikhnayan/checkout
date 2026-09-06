@@ -11,7 +11,7 @@ class AnalyticsV2Controller extends Controller
 {
     public function index(Request $request)
     {
-        $venues = Website::query()->notArchived()->orderBy('name')->get();
+        $venues = Website::query()->where('is_archieved', 0)->orderBy('name')->get();
         $filters = [
             'period' => $request->get('period', 'last_30_days'),
             'start_date' => $request->get('start_date'),

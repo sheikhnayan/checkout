@@ -76,10 +76,10 @@ class CustomInvoiceController extends Controller
         $user = auth()->user();
         
         if ($user->isAdmin()) {
-            $websites = Website::notArchived()->orderBy('name')->get();
+            $websites = Website::all();
         } else {
             $accessibleIds = $user->accessibleCustomInvoiceWebsiteIds();
-            $websites = Website::whereIn('id', $accessibleIds)->notArchived()->orderBy('name')->get();
+            $websites = Website::whereIn('id', $accessibleIds)->get();
         }
 
         return view('admin.custom-invoice.create', compact('websites'));
@@ -199,8 +199,8 @@ class CustomInvoiceController extends Controller
         }
 
         $websites = $user->isAdmin()
-                    ? Website::notArchived()->orderBy('name')->get()
-                    : Website::whereIn('id', $user->accessibleCustomInvoiceWebsiteIds())->notArchived()->orderBy('name')->get();
+                    ? Website::all()
+                    : Website::whereIn('id', $user->accessibleCustomInvoiceWebsiteIds())->get();
 
         return view('admin.custom-invoice.edit', compact('customInvoice', 'websites'));
     }
