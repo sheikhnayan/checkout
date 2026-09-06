@@ -257,7 +257,7 @@ class AnalyticsV2Service
         $guestExpr = Schema::hasColumn('transactions', 'package_number_of_guest') ? 'COALESCE(package_number_of_guest, 1)' : '1';
 
         $venues = Website::query()
-            ->where('is_archieved', 0)
+            ->notArchived()
             ->select('websites.id', 'websites.name')
             ->get();
 

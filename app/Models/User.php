@@ -128,14 +128,21 @@ class User extends Authenticatable
     public function accessibleWebsiteIds(): array
     {
         if ($this->isAdmin()) {
-            return Website::pluck('id')->map(fn ($id) => (int) $id)->all();
+            return Website::notArchived()->pluck('id')->map(fn ($id) => (int) $id)->all();
         }
 
         if ($this->isManager()) {
-            return $this->managedWebsites()->pluck('websites.id')->map(fn ($id) => (int) $id)->all();
+            return $this->managedWebsites()->notArchived()->pluck('websites.id')->map(fn ($id) => (int) $id)->all();
         }
 
-        return $this->website_id ? [(int) $this->website_id] : [];
+        if ($this->website_id) {
+            $web = Website::find($this->website_id);
+            if ($web && !$web->is_archieved) {
+                return [(int) $this->website_id];
+            }
+        }
+
+        return [];
     }
 
     /**
@@ -295,7 +302,7 @@ class User extends Authenticatable
     public function accessibleCustomInvoiceWebsiteIds(): array
     {
         if ($this->isAdmin()) {
-            return Website::pluck('id')->map(fn ($id) => (int) $id)->all();
+            return Website::notArchived()->pluck('id')->map(fn ($id) => (int) $id)->all();
         }
 
         $ids = [];

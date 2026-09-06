@@ -19,20 +19,23 @@ class BaseNightlyReportsController extends Controller
             return NrLocation::whereRaw('1=0')->get();
         }
 
+        $query = NrLocation::where('active', true)
+            ->whereHas('website', function ($wQ) {
+                $wQ->notArchived();
+            });
+
         if ($ambassador = Auth::guard('ambassador')->user()) {
-            return NrLocation::whereIn('website_id', $ambassador->clubs()->pluck('websites.id'))
-                ->where('active', true)
+            return $query->whereIn('website_id', $ambassador->clubs()->notArchived()->pluck('websites.id'))
                 ->orderBy('name')
                 ->get();
         }
 
         if ($user->isAdmin() || $user->isSuperAdmin()) {
-            return NrLocation::where('active', true)->orderBy('name')->get();
+            return $query->orderBy('name')->get();
         }
 
         $locationIds = $user->accessibleNrLocationIds();
-        return NrLocation::whereIn('id', $locationIds)
-            ->where('active', true)
+        return $query->whereIn('id', $locationIds)
             ->orderBy('name')
             ->get();
     }
@@ -49,18 +52,23 @@ class BaseNightlyReportsController extends Controller
             return [];
         }
 
+        $query = NrLocation::where('active', true)
+            ->whereHas('website', function ($wQ) {
+                $wQ->notArchived();
+            });
+
         if ($ambassador) {
-            return NrLocation::whereIn('website_id', $ambassador->clubs()->pluck('websites.id'))
+            return $query->whereIn('website_id', $ambassador->clubs()->notArchived()->pluck('websites.id'))
                 ->pluck('id')
                 ->map(fn ($id) => (int) $id)
                 ->all();
         }
 
         if ($user->isAdmin() || $user->isSuperAdmin()) {
-            return NrLocation::pluck('id')->map(fn ($id) => (int) $id)->all();
+            return $query->pluck('id')->map(fn ($id) => (int) $id)->all();
         }
 
-        return $user->accessibleNrLocationIds();
+        return $query->whereIn('id', $user->accessibleNrLocationIds())->pluck('id')->map(fn ($id) => (int) $id)->all();
     }
 
     /**

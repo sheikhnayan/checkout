@@ -315,4 +315,11 @@ class Website extends Model
         }
         return !empty($styles) ? implode('; ', $styles) . ';' : '';
     }
+
+    public function scopeNotArchived($query)
+    {
+        return $query->where(function ($q) {
+            $q->where('websites.is_archieved', 0)->orWhereNull('websites.is_archieved');
+        });
+    }
 }

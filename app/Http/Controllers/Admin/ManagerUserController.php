@@ -53,7 +53,7 @@ class ManagerUserController extends Controller
         $this->authorizeAccess();
         Permission::syncFromAdminRoutes();
 
-        $websites = Website::where('is_archieved', 0)->orderBy('name')->get();
+        $websites = Website::notArchived()->orderBy('name')->get();
         $roles = WebsiteRole::with('website')->orderBy('website_id')->orderBy('name')->get();
 
         return view('admin.manager-users.create', compact('websites', 'roles'));
@@ -123,7 +123,7 @@ class ManagerUserController extends Controller
             ->with(['websiteRole', 'managedWebsites'])
             ->findOrFail($id);
 
-        $websites = Website::where('is_archieved', 0)->orderBy('name')->get();
+        $websites = Website::notArchived()->orderBy('name')->get();
         $roles = WebsiteRole::with('website')->orderBy('website_id')->orderBy('name')->get();
         $assignedWebsiteIds = $manager->managedWebsites->pluck('id')->map(fn ($id) => (int) $id)->all();
 

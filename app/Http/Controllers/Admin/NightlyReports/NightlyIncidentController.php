@@ -14,7 +14,7 @@ class NightlyIncidentController extends BaseNightlyReportsController
     protected function accessibleWebsiteIds(): array
     {
         if ($ambassador = Auth::guard('ambassador')->user()) {
-            return $ambassador->clubs()->pluck('websites.id')->map(fn($id) => (int) $id)->toArray();
+            return $ambassador->clubs()->notArchived()->pluck('websites.id')->map(fn($id) => (int) $id)->toArray();
         }
 
         $user = Auth::user();
@@ -23,7 +23,7 @@ class NightlyIncidentController extends BaseNightlyReportsController
         }
 
         if ($user->isAdmin() || $user->isSuperAdmin()) {
-            return Website::pluck('id')->map(fn($id) => (int) $id)->toArray();
+            return Website::notArchived()->pluck('id')->map(fn($id) => (int) $id)->toArray();
         }
 
         return array_map('intval', $user->accessibleWebsiteIds());
@@ -139,7 +139,7 @@ class NightlyIncidentController extends BaseNightlyReportsController
     {
         $locations = $this->accessibleLocations();
         $websiteIds = $this->accessibleWebsiteIds();
-        $websites = Website::whereIn('id', $websiteIds)->get();
+        $websites = Website::whereIn('id', $websiteIds)->notArchived()->orderBy('name')->get();
         $selectedWebsiteId = $request->input('website_id');
 
         return view('admin.nightly-reports.incidents.create', compact('locations', 'websites', 'selectedWebsiteId'));
