@@ -107,13 +107,6 @@ class Website extends Model
         'business_expense_text',
     ];
 
-    public function scopeUnarchived($query)
-    {
-        return $query->where(function ($q) {
-            $q->whereNull('is_archieved')->orWhere('is_archieved', 0)->orWhere('is_archieved', false);
-        });
-    }
-
     protected $casts = [
         'gallery_images' => 'array',
         'operating_days' => 'array',

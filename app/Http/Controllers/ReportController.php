@@ -79,10 +79,10 @@ class ReportController extends Controller
         $canSwitchClubs = false;
 
         if ($user->isAdmin()) {
-            $accessibleWebsites = Website::unarchived()->orderBy('name')->get(['id', 'name', 'short_name']);
+            $accessibleWebsites = Website::orderBy('name')->get(['id', 'name', 'short_name']);
             $canSwitchClubs = true;
         } elseif ($user->isManager()) {
-            $accessibleWebsites = $user->managedWebsites()->unarchived()->orderBy('name')->get(['id', 'name', 'short_name']);
+            $accessibleWebsites = $user->managedWebsites()->orderBy('name')->get(['id', 'name', 'short_name']);
             $canSwitchClubs = $accessibleWebsites->count() > 0;
         }
 

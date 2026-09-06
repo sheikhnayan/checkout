@@ -127,26 +127,15 @@ class User extends Authenticatable
      */
     public function accessibleWebsiteIds(): array
     {
-        $unarchivedScope = function ($query) {
-            $query->where(function ($q) {
-                $q->whereNull('is_archieved')->orWhere('is_archieved', 0)->orWhere('is_archieved', false);
-            });
-        };
-
         if ($this->isAdmin()) {
-            return Website::where($unarchivedScope)->pluck('id')->map(fn ($id) => (int) $id)->all();
+            return Website::pluck('id')->map(fn ($id) => (int) $id)->all();
         }
 
         if ($this->isManager()) {
-            return $this->managedWebsites()->where($unarchivedScope)->pluck('websites.id')->map(fn ($id) => (int) $id)->all();
+            return $this->managedWebsites()->pluck('websites.id')->map(fn ($id) => (int) $id)->all();
         }
 
-        if ($this->website_id) {
-            $web = Website::where('id', $this->website_id)->where($unarchivedScope)->first();
-            return $web ? [(int) $web->id] : [];
-        }
-
-        return [];
+        return $this->website_id ? [(int) $this->website_id] : [];
     }
 
     /**
