@@ -19,19 +19,28 @@ class BaseNightlyReportsController extends Controller
             return NrLocation::whereRaw('1=0')->get();
         }
 
+        $unarchivedWebsitesQuery = function ($q) {
+            $q->whereNull('is_archieved')->orWhere('is_archieved', 0)->orWhere('is_archieved', false);
+        };
+
         if ($ambassador = Auth::guard('ambassador')->user()) {
-            return NrLocation::whereIn('website_id', $ambassador->clubs()->pluck('websites.id'))
+            return NrLocation::whereHas('website', $unarchivedWebsitesQuery)
+                ->whereIn('website_id', $ambassador->clubs()->where($unarchivedWebsitesQuery)->pluck('websites.id'))
                 ->where('active', true)
                 ->orderBy('name')
                 ->get();
         }
 
         if ($user->isAdmin() || $user->isSuperAdmin()) {
-            return NrLocation::where('active', true)->orderBy('name')->get();
+            return NrLocation::whereHas('website', $unarchivedWebsitesQuery)
+                ->where('active', true)
+                ->orderBy('name')
+                ->get();
         }
 
         $locationIds = $user->accessibleNrLocationIds();
-        return NrLocation::whereIn('id', $locationIds)
+        return NrLocation::whereHas('website', $unarchivedWebsitesQuery)
+            ->whereIn('id', $locationIds)
             ->where('active', true)
             ->orderBy('name')
             ->get();
@@ -42,25 +51,30 @@ class BaseNightlyReportsController extends Controller
      */
     protected function accessibleLocationIds(): array
     {
-        $ambassadorGuard = Auth::guard('ambassador');
-        $ambassador = $ambassadorGuard->user();
-        $user = $ambassador ?: Auth::user();
+        return $this->accessibleLocations()->pluck('id')->map(fn ($id) => (int) $id)->all();
+    }
+
+    /**
+     * Get accessible website IDs for the current authenticated user.
+     */
+    protected function accessibleWebsiteIds(): array
+    {
+        $user = Auth::guard('ambassador')->user() ?: Auth::user();
         if (!$user) {
             return [];
         }
 
-        if ($ambassador) {
-            return NrLocation::whereIn('website_id', $ambassador->clubs()->pluck('websites.id'))
-                ->pluck('id')
+        if ($ambassador = Auth::guard('ambassador')->user()) {
+            return $ambassador->clubs()
+                ->where(function ($q) {
+                    $q->whereNull('is_archieved')->orWhere('is_archieved', 0)->orWhere('is_archieved', false);
+                })
+                ->pluck('websites.id')
                 ->map(fn ($id) => (int) $id)
                 ->all();
         }
 
-        if ($user->isAdmin() || $user->isSuperAdmin()) {
-            return NrLocation::pluck('id')->map(fn ($id) => (int) $id)->all();
-        }
-
-        return $user->accessibleNrLocationIds();
+        return $user->accessibleWebsiteIds();
     }
 
     /**

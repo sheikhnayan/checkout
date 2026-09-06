@@ -13,8 +13,12 @@ class NightlyIncidentController extends BaseNightlyReportsController
 {
     protected function accessibleWebsiteIds(): array
     {
+        $unarchivedScope = function ($q) {
+            $q->whereNull('is_archieved')->orWhere('is_archieved', 0)->orWhere('is_archieved', false);
+        };
+
         if ($ambassador = Auth::guard('ambassador')->user()) {
-            return $ambassador->clubs()->pluck('websites.id')->map(fn($id) => (int) $id)->toArray();
+            return $ambassador->clubs()->where($unarchivedScope)->pluck('websites.id')->map(fn($id) => (int) $id)->toArray();
         }
 
         $user = Auth::user();
@@ -23,7 +27,7 @@ class NightlyIncidentController extends BaseNightlyReportsController
         }
 
         if ($user->isAdmin() || $user->isSuperAdmin()) {
-            return Website::pluck('id')->map(fn($id) => (int) $id)->toArray();
+            return Website::where($unarchivedScope)->pluck('id')->map(fn($id) => (int) $id)->toArray();
         }
 
         return array_map('intval', $user->accessibleWebsiteIds());
