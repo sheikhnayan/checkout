@@ -3,52 +3,93 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Job Application - {{ $job->title }}</title>
+    <title>Job Application - {{ $job->title }} | Indeed Style</title>
     <!-- Favicon -->
     <link rel="icon" type="image/svg+xml" href="{{ asset('user/assets/img/favicon/favicon.svg') }}?v={{ time() }}" />
-    <link rel="mask-icon" href="{{ asset('user/assets/img/favicon/safari-mask.svg') }}?v={{ time() }}" color="#ffcc00" />
+    <link rel="mask-icon" href="{{ asset('user/assets/img/favicon/safari-mask.svg') }}?v={{ time() }}" color="#2557a7" />
     <link rel="shortcut icon" href="{{ asset('user/assets/img/favicon/favicon.ico') }}?v={{ time() }}" />
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Noto+Sans:wght@400;500;600;700;800;900&display=swap" rel="stylesheet">
     <style>
         :root {
-            --primary: #0f172a;
-            --primary-hover: #1e293b;
-            --accent: #2563eb;
-            --accent-soft: #eff6ff;
-            --bg-body: #f8fafc;
+            --primary: #2557a7;
+            --primary-hover: #164081;
+            --accent: #2557a7;
+            --accent-soft: #e8f0fe;
+            --bg-body: #f4f2f0;
             --bg-card: #ffffff;
-            --border: #e2e8f0;
-            --border-focus: #3b82f6;
-            --text-main: #0f172a;
-            --text-muted: #64748b;
+            --border: #d4d2d0;
+            --border-focus: #2557a7;
+            --text-main: #2d2d2d;
+            --text-muted: #595959;
             --text-light: #475569;
-            --radius-lg: 12px;
-            --radius-md: 8px;
-            --shadow-sm: 0 1px 3px rgba(15, 23, 42, 0.05);
-            --shadow-md: 0 4px 16px -2px rgba(15, 23, 42, 0.08);
+            --radius-lg: 8px;
+            --radius-md: 6px;
+            --shadow-sm: 0 1px 3px rgba(0,0,0,0.05);
+            --shadow-md: 0 4px 14px rgba(0,0,0,0.08);
         }
         * { box-sizing: border-box; }
         body {
             margin: 0;
-            font-family: 'Plus Jakarta Sans', -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+            font-family: 'Noto Sans', -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
             background-color: var(--bg-body);
             color: var(--text-main);
             line-height: 1.5;
             -webkit-font-smoothing: antialiased;
         }
-        .container {
-            max-width: 920px;
+
+        /* Top Header Navigation Bar */
+        .indeed-header {
+            border-bottom: 1px solid var(--border);
+            background: var(--bg-card);
+            position: sticky;
+            top: 0;
+            z-index: 100;
+        }
+        .indeed-header-inner {
+            max-width: 1100px;
             margin: 0 auto;
-            padding: 32px 20px 48px;
+            padding: 0 20px;
+            height: 64px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+        }
+        .header-left {
+            display: flex;
+            align-items: center;
+            gap: 24px;
+        }
+        .indeed-logo {
+            font-size: 1.5rem;
+            font-weight: 900;
+            color: var(--primary);
+            text-decoration: none;
+            letter-spacing: -0.8px;
+        }
+        .back-link {
+            color: var(--primary);
+            font-weight: 700;
+            font-size: 0.9rem;
+            text-decoration: none;
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+        }
+        .back-link:hover { text-decoration: underline; }
+
+        .container {
+            max-width: 860px;
+            margin: 0 auto;
+            padding: 24px 20px 48px;
         }
         .corp-header {
             background: var(--bg-card);
             border: 1px solid var(--border);
             border-radius: var(--radius-lg);
             padding: 28px;
-            margin-bottom: 24px;
+            margin-bottom: 20px;
             box-shadow: var(--shadow-sm);
             position: relative;
             overflow: hidden;
@@ -58,33 +99,33 @@
             position: absolute;
             top: 0; left: 0; right: 0;
             height: 4px;
-            background: linear-gradient(90deg, #0f172a 0%, #2563eb 100%);
+            background: var(--primary);
         }
         .company-badge {
             display: inline-flex;
             align-items: center;
             gap: 6px;
             background: var(--accent-soft);
-            color: var(--accent);
+            color: var(--primary);
             font-size: 0.78rem;
-            font-weight: 700;
+            font-weight: 800;
             letter-spacing: 0.5px;
             text-transform: uppercase;
             padding: 4px 10px;
-            border-radius: 6px;
+            border-radius: 4px;
             margin-bottom: 10px;
         }
         h1.job-title {
-            font-size: 1.75rem;
+            font-size: 1.65rem;
             font-weight: 800;
-            color: var(--primary);
+            color: var(--text-main);
             margin: 0 0 6px 0;
-            letter-spacing: -0.02em;
+            letter-spacing: -0.01em;
         }
         .job-location {
             color: var(--text-muted);
             font-size: 0.95rem;
-            font-weight: 500;
+            font-weight: 600;
             margin-bottom: 12px;
         }
         .job-desc {
@@ -102,19 +143,22 @@
         }
         .section-title {
             font-size: 1.1rem;
-            font-weight: 700;
-            color: var(--primary);
+            font-weight: 800;
+            color: var(--text-main);
             margin: 0 0 18px 0;
             padding-bottom: 10px;
-            border-bottom: 1px solid var(--border);
+            border-bottom: 2px solid var(--accent-soft);
             display: flex;
             align-items: center;
             justify-content: space-between;
         }
         .section-title span.tag {
             font-size: 0.75rem;
-            font-weight: 600;
-            color: var(--text-muted);
+            font-weight: 700;
+            color: var(--primary);
+            background: var(--accent-soft);
+            padding: 2px 8px;
+            border-radius: 4px;
             text-transform: uppercase;
             letter-spacing: 0.5px;
         }
@@ -135,7 +179,7 @@
         }
         label.form-label {
             font-size: 0.88rem;
-            font-weight: 600;
+            font-weight: 700;
             color: var(--text-main);
             margin-bottom: 6px;
             display: flex;
@@ -153,8 +197,8 @@
             border: 1px solid var(--border);
             background: #ffffff;
             border-radius: var(--radius-md);
-            padding: 10px 14px;
-            font-size: 0.92rem;
+            padding: 11px 14px;
+            font-size: 0.95rem;
             font-family: inherit;
             color: var(--text-main);
             transition: border-color 0.15s ease, box-shadow 0.15s ease;
@@ -165,8 +209,8 @@
         select:focus,
         textarea:focus {
             outline: none;
-            border-color: var(--border-focus);
-            box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.15);
+            border-color: var(--primary);
+            box-shadow: 0 0 0 3px rgba(37, 87, 167, 0.15);
         }
         textarea {
             min-height: 100px;
@@ -175,15 +219,15 @@
         input[type="file"] {
             font-size: 0.88rem;
             color: var(--text-light);
-            background: #f1f5f9;
-            border: 1px dashed #cbd5e1;
+            background: #f8fafc;
+            border: 1px dashed var(--border);
             border-radius: var(--radius-md);
             padding: 10px 12px;
             cursor: pointer;
         }
         input[type="file"]:hover {
-            border-color: var(--accent);
-            background: #eff6ff;
+            border-color: var(--primary);
+            background: var(--accent-soft);
         }
         .help-text {
             font-size: 0.78rem;
@@ -207,19 +251,19 @@
             transition: background 0.15s ease, border-color 0.15s ease;
         }
         .check-card:hover {
-            background: #f1f5f9;
-            border-color: #cbd5e1;
+            background: var(--accent-soft);
+            border-color: var(--primary);
         }
         .check-card input[type="checkbox"] {
             margin-top: 3px;
-            accent-color: var(--accent);
+            accent-color: var(--primary);
             width: 16px;
             height: 16px;
             cursor: pointer;
         }
         .check-card span {
             font-size: 0.86rem;
-            font-weight: 500;
+            font-weight: 600;
             color: var(--text-main);
         }
         .consent-card {
@@ -234,14 +278,14 @@
             transition: border-color 0.15s ease;
         }
         .consent-card:hover {
-            border-color: #cbd5e1;
+            border-color: var(--primary);
         }
         .consent-card input[type="checkbox"] {
             margin-top: 4px;
             width: 18px;
             height: 18px;
             flex-shrink: 0;
-            accent-color: var(--accent);
+            accent-color: var(--primary);
             cursor: pointer;
         }
         .consent-text {
@@ -253,13 +297,13 @@
             color: var(--text-main);
         }
         .notice-box {
-            background: #f1f5f9;
+            background: var(--accent-soft);
             border-left: 4px solid var(--primary);
             padding: 14px 16px;
             border-radius: 0 var(--radius-md) var(--radius-md) 0;
             margin-bottom: 20px;
             font-size: 0.88rem;
-            color: var(--text-light);
+            color: var(--text-main);
         }
         .submit-btn {
             background: var(--primary);
@@ -267,12 +311,12 @@
             border: none;
             border-radius: var(--radius-md);
             padding: 14px 32px;
-            font-size: 1rem;
-            font-weight: 700;
+            font-size: 1.05rem;
+            font-weight: 800;
             font-family: inherit;
             cursor: pointer;
             transition: background-color 0.15s ease, transform 0.1s ease;
-            box-shadow: 0 4px 12px rgba(15, 23, 42, 0.15);
+            box-shadow: 0 4px 12px rgba(37, 87, 167, 0.2);
             width: 100%;
         }
         .submit-btn:hover {
@@ -300,10 +344,24 @@
     </style>
 </head>
 <body>
+
+<header class="indeed-header">
+    <div class="indeed-header-inner">
+        <div class="header-left">
+            <a href="{{ route('jobs.marketplace') }}" class="indeed-logo">
+                checkout•jobs
+            </a>
+        </div>
+        <div>
+            <a href="{{ route('jobs.marketplace') }}" class="back-link">&larr; Back to job search</a>
+        </div>
+    </div>
+</header>
+
 <div class="container">
 
     <div class="corp-header">
-        <div class="company-badge">{{ $job->website->name ?? 'Corporate Careers' }}</div>
+        <div class="company-badge">{{ $job->website->name ?? 'Venue Careers' }}</div>
         <h1 class="job-title">{{ $job->title }}</h1>
         <div class="job-location">📍 {{ $job->location }} • {{ ucfirst($job->employment_type ?? 'Full-time') }}</div>
         @if($job->short_description)
