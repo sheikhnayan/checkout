@@ -783,8 +783,8 @@
         window.selectJobCard = function(cardEl) {
             if (!cardEl) return;
 
-            const applyUrl = cardEl.getAttribute('data-apply-url');
-            if (window.innerWidth <= 992 && applyUrl) {
+            const applyUrl = cardEl.getAttribute('data-apply-url') || '#';
+            if (window.innerWidth <= 992 && applyUrl && applyUrl !== '#') {
                 window.location.href = applyUrl;
                 return;
             }
@@ -798,7 +798,6 @@
             const compensation = cardEl.getAttribute('data-compensation') || '';
             const empType = cardEl.getAttribute('data-employment-type') || '';
             const typeLabel = cardEl.getAttribute('data-job-type-label') || '';
-            const applyUrl = cardEl.getAttribute('data-apply-url') || '#';
             const posted = cardEl.getAttribute('data-posted') || '';
 
             const descEl = cardEl.querySelector('.hidden-full-description');
