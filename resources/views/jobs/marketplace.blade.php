@@ -53,14 +53,16 @@
             display: flex;
             align-items: center;
             justify-content: space-between;
+            gap: 16px;
         }
         .header-left {
             display: flex;
             align-items: center;
-            gap: 32px;
+            gap: 24px;
+            flex-wrap: wrap;
         }
         .indeed-logo {
-            font-size: 1.6rem;
+            font-size: 1.5rem;
             font-weight: 900;
             color: var(--indeed-blue);
             text-decoration: none;
@@ -68,6 +70,7 @@
             display: flex;
             align-items: center;
             gap: 4px;
+            flex-shrink: 0;
         }
         .indeed-logo span.dot {
             color: #ff5a5f;
@@ -77,16 +80,19 @@
         .header-nav {
             display: flex;
             align-items: center;
-            gap: 8px;
+            gap: 4px;
+            overflow-x: auto;
+            white-space: nowrap;
         }
         .nav-tab {
-            padding: 20px 12px;
-            font-size: 0.95rem;
+            padding: 18px 10px;
+            font-size: 0.9rem;
             font-weight: 700;
             color: var(--indeed-dark);
             text-decoration: none;
             border-bottom: 3px solid transparent;
             transition: color 0.15s ease, border-color 0.15s ease;
+            white-space: nowrap;
         }
         .nav-tab:hover {
             color: var(--indeed-blue);
@@ -98,15 +104,17 @@
         .header-right {
             display: flex;
             align-items: center;
-            gap: 16px;
+            gap: 12px;
+            flex-shrink: 0;
         }
         .post-job-link {
             color: var(--indeed-blue);
             font-weight: 700;
-            font-size: 0.9rem;
+            font-size: 0.88rem;
             text-decoration: none;
-            padding: 8px 14px;
+            padding: 8px 12px;
             border-radius: 6px;
+            white-space: nowrap;
         }
         .post-job-link:hover {
             background-color: var(--indeed-blue-light);
@@ -516,6 +524,28 @@
 
         /* Mobile Responsiveness */
         @media (max-width: 992px) {
+            .indeed-header-inner {
+                height: auto;
+                padding: 10px 16px;
+                flex-wrap: wrap;
+                gap: 10px;
+            }
+            .header-left {
+                width: 100%;
+                justify-content: space-between;
+                gap: 12px;
+            }
+            .header-nav {
+                overflow-x: auto;
+                max-width: 100%;
+            }
+            .nav-tab {
+                padding: 10px 8px;
+                font-size: 0.88rem;
+            }
+            .header-right {
+                display: none;
+            }
             .split-grid {
                 grid-template-columns: 1fr;
             }
@@ -539,6 +569,15 @@
             }
             .search-submit-btn {
                 padding: 14px;
+            }
+        }
+        @media (max-width: 480px) {
+            .indeed-logo {
+                font-size: 1.25rem;
+            }
+            .nav-tab {
+                font-size: 0.82rem;
+                padding: 8px 6px;
             }
         }
     </style>
@@ -744,6 +783,12 @@
         window.selectJobCard = function(cardEl) {
             if (!cardEl) return;
 
+            const applyUrl = cardEl.getAttribute('data-apply-url');
+            if (window.innerWidth <= 992 && applyUrl) {
+                window.location.href = applyUrl;
+                return;
+            }
+
             document.querySelectorAll('.indeed-job-card').forEach(c => c.classList.remove('active'));
             cardEl.classList.add('active');
 
@@ -869,6 +914,11 @@
             list.addEventListener('click', function(e) {
                 const card = e.target.closest('.indeed-job-card');
                 if (card) {
+                    const applyUrl = card.getAttribute('data-apply-url');
+                    if (window.innerWidth <= 992 && applyUrl) {
+                        window.location.href = applyUrl;
+                        return;
+                    }
                     const applyBtn = e.target.closest('.apply-btn');
                     if (!applyBtn) {
                         e.preventDefault();

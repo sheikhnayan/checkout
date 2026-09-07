@@ -336,6 +336,13 @@
         .alert-danger ul { margin: 6px 0 0 18px; padding: 0; }
 
         @media (max-width: 768px) {
+            .indeed-header-inner {
+                height: auto;
+                padding: 10px 14px;
+                gap: 8px;
+            }
+            .indeed-logo { font-size: 1.25rem; }
+            .back-link { font-size: 0.82rem; }
             .container { padding: 16px 12px 32px; }
             .corp-header, .corp-card { padding: 20px 16px; }
             .grid, .grid-3 { grid-template-columns: 1fr; }

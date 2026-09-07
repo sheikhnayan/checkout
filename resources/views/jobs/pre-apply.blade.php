@@ -259,6 +259,13 @@
         .alert-success { background: #f0fdf4; border: 1px solid #bbf7d0; color: #166534; }
         .alert-danger { background: #fef2f2; border: 1px solid #fecaca; color: #991b1b; }
         @media (max-width: 768px) {
+            .indeed-header-inner {
+                height: auto;
+                padding: 10px 14px;
+                gap: 8px;
+            }
+            .indeed-logo { font-size: 1.25rem; }
+            .back-link { font-size: 0.82rem; }
             .container { padding: 16px 12px 32px; }
             .corp-header, .corp-card { padding: 20px 16px; }
             .grid { grid-template-columns: 1fr; }
