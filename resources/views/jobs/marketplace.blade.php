@@ -101,6 +101,9 @@
             color: var(--indeed-blue);
             border-bottom-color: var(--indeed-blue);
         }
+        .mobile-nav-tab {
+            display: none;
+        }
         .header-right {
             display: flex;
             align-items: center;
@@ -543,6 +546,9 @@
                 padding: 10px 8px;
                 font-size: 0.88rem;
             }
+            .mobile-nav-tab {
+                display: inline-flex;
+            }
             .header-right {
                 display: none;
             }
@@ -593,6 +599,7 @@
             </a>
             <nav class="header-nav">
                 <a href="{{ route('jobs.marketplace') }}" class="nav-tab active">Find jobs</a>
+                <a href="{{ route('jobs.pre-apply') }}" class="nav-tab mobile-nav-tab">Get Discovered</a>
             </nav>
         </div>
         <div class="header-right">
