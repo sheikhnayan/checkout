@@ -164,15 +164,22 @@
             color: var(--indeed-dark);
             margin-bottom: 2px;
         }
-        .cell-input, .cell-select {
-            border: 0;
-            outline: 0;
+        .cell-input, .cell-select, #searchQ {
+            border: 0 !important;
+            outline: 0 !important;
+            box-shadow: none !important;
             font-size: 0.95rem;
             font-weight: 600;
             color: var(--indeed-dark);
             width: 100%;
             background: transparent;
-            padding: 2px 0;
+            padding: 4px 0;
+            margin: 0;
+        }
+        .cell-input:focus, .cell-select:focus, #searchQ:focus {
+            border: 0 !important;
+            outline: 0 !important;
+            box-shadow: none !important;
         }
         .cell-select {
             cursor: pointer;
@@ -247,7 +254,12 @@
         .left-feed-column {
             display: flex;
             flex-direction: column;
-            gap: 14px;
+            gap: 16px;
+        }
+        .job-list-container {
+            display: flex;
+            flex-direction: column;
+            gap: 18px;
         }
         .feed-header {
             display: flex;
@@ -273,6 +285,7 @@
             padding: 20px;
             cursor: pointer;
             position: relative;
+            margin-bottom: 2px;
             transition: border-color 0.15s ease, box-shadow 0.15s ease, background 0.15s ease;
             box-shadow: 0 2px 4px rgba(0,0,0,0.02);
         }
@@ -561,7 +574,7 @@
                     <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="8"/><path d="M21 21l-4.35-4.35"/></svg>
                     <div class="cell-content">
                         <label class="input-label" for="searchQ">What</label>
-                        <input type="text" name="q" id="searchQ" value="{{ $filters['q'] }}" placeholder="Job title, keywords, or venue">
+                        <input type="text" name="q" id="searchQ" class="cell-input" value="{{ $filters['q'] }}" placeholder="Job title, keywords, or venue">
                     </div>
                 </div>
 
@@ -852,8 +865,17 @@
         if (payFreq) payFreq.addEventListener('change', fetchJobs);
         if (type) type.addEventListener('change', fetchJobs);
 
-        if (state && state.value) {
-            updateCityDropdown(state.value);
+        if (list) {
+            list.addEventListener('click', function(e) {
+                const card = e.target.closest('.indeed-job-card');
+                if (card) {
+                    const applyBtn = e.target.closest('.apply-btn');
+                    if (!applyBtn) {
+                        e.preventDefault();
+                        selectJobCard(card);
+                    }
+                }
+            });
         }
 
         // Auto-select first job on initial load

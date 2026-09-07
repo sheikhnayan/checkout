@@ -21,13 +21,14 @@
              data-employment-type="{{ e($job->employment_type ?? '') }}"
              data-compensation="{{ e($compText) }}"
              data-posted="{{ e(optional($job->created_at)->diffForHumans() ?? '') }}"
-             data-apply-url="{{ route('jobs.apply', $job) }}">
+             data-apply-url="{{ route('jobs.apply', $job) }}"
+             onclick="selectJobCard(this)">
         
         <div class="job-card-header">
             <div class="job-card-title-group">
                 <span class="job-badge-category">{{ ucfirst($job->job_type) }}</span>
                 <h2 class="job-card-title">
-                    <a href="{{ route('jobs.apply', $job) }}" onclick="event.preventDefault(); selectJobCard(this.closest('.indeed-job-card'));">
+                    <a href="{{ route('jobs.apply', $job) }}" class="job-title-link">
                         {{ $job->title }}
                     </a>
                 </h2>
