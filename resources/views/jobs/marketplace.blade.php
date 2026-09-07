@@ -217,28 +217,37 @@
         }
 
         /* Filter Pills Row */
+        /* Filter Pills Row */
         .filter-pills-row {
             display: flex;
             align-items: center;
             gap: 10px;
             flex-wrap: wrap;
+            margin-top: 14px;
         }
         .filter-select-pill {
-            background: var(--indeed-pill-bg);
+            background-color: var(--indeed-pill-bg);
             border: 1px solid var(--indeed-border);
             border-radius: 20px;
-            padding: 6px 14px;
+            padding: 7px 30px 7px 14px;
             font-size: 0.85rem;
             font-weight: 600;
             color: var(--indeed-dark);
             cursor: pointer;
             outline: 0;
             transition: all 0.15s ease;
+            -webkit-appearance: none;
+            -moz-appearance: none;
+            appearance: none;
+            background-image: url("data:image/svg+xml,%3Csvg width='10' height='6' viewBox='0 0 10 6' fill='none' xmlns='http://www.w3.org/2000/svg'%3E%3Cpath d='M1 1L5 5L9 1' stroke='%23475569' stroke-width='1.5' stroke-linecap='round' stroke-linejoin='round'/%3E%3C/svg%3E");
+            background-repeat: no-repeat;
+            background-position: right 12px center;
         }
         .filter-select-pill:hover, .filter-select-pill.active {
             border-color: var(--indeed-blue);
-            background: var(--indeed-blue-light);
+            background-color: var(--indeed-blue-light);
             color: var(--indeed-blue);
+            background-image: url("data:image/svg+xml,%3Csvg width='10' height='6' viewBox='0 0 10 6' fill='none' xmlns='http://www.w3.org/2000/svg'%3E%3Cpath d='M1 1L5 5L9 1' stroke='%232557a7' stroke-width='1.5' stroke-linecap='round' stroke-linejoin='round'/%3E%3C/svg%3E");
         }
         .clear-filters-btn {
             font-size: 0.85rem;
@@ -246,6 +255,7 @@
             color: var(--indeed-blue);
             text-decoration: none;
             padding: 4px 8px;
+            white-space: nowrap;
         }
 
         /* Split-Screen Main Layout */
@@ -681,6 +691,30 @@
             .search-submit-btn {
                 padding: 14px;
             }
+            .filter-pills-row {
+                flex-wrap: nowrap;
+                overflow-x: auto;
+                -webkit-overflow-scrolling: touch;
+                scrollbar-width: none;
+                gap: 8px;
+                padding-bottom: 4px;
+                margin-left: -2px;
+                margin-right: -2px;
+                padding-left: 2px;
+                padding-right: 2px;
+            }
+            .filter-pills-row::-webkit-scrollbar {
+                display: none;
+            }
+            .filter-select-pill {
+                flex: 0 0 auto;
+                white-space: nowrap;
+                font-size: 0.82rem;
+                padding: 7px 26px 7px 12px;
+            }
+            .clear-filters-btn {
+                flex: 0 0 auto;
+            }
         }
         @media (max-width: 480px) {
             .indeed-logo {
@@ -796,8 +830,8 @@
 
 <!-- Landing Page Hero Section (shown when no search query has been performed) -->
 <section class="landing-hero-section" id="landingHeroSection" style="{{ $hasSearch ? 'display:none;' : '' }}">
-    <h1 class="landing-hero-title">Your next job is waiting</h1>
-    <p class="landing-hero-subtitle">Search premier venues, clubs, and hospitality positions across the country.</p>
+    <h1 class="landing-hero-title">Find your next opportunity.</h1>
+    <p class="landing-hero-subtitle">Explore jobs in nightlife, entertainment, and hospitality across the country.</p>
     
     <div class="popular-searches-box">
         <span class="popular-label">Popular searches on checkout•jobs:</span>
@@ -814,10 +848,10 @@
 
     <div class="landing-cta-card">
         <div class="cta-text-group">
-            <h3>Get Discovered by Top Venues</h3>
-            <p>Create your preferred-work profile or submit your resume to get matched directly with hiring managers.</p>
+            <h3>Let your next job find you.</h3>
+            <p>Create a profile, add your experience, and tell us what work you’re looking for. Hiring teams can discover you and reach out about current or future opportunities.</p>
         </div>
-        <a href="{{ route('jobs.pre-apply') }}" class="btn-cta-discover">Get Discovered &rarr;</a>
+        <a href="{{ route('jobs.pre-apply') }}" class="btn-cta-discover">Create Your Profile &rarr;</a>
     </div>
 </section>
 

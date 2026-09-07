@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>General Employment Application | Indeed Style</title>
+    <title>Create Your Profile</title>
     <!-- Favicon -->
     <link rel="icon" type="image/svg+xml" href="{{ asset('user/assets/img/favicon/favicon.svg') }}?v={{ time() }}" />
     <link rel="mask-icon" href="{{ asset('user/assets/img/favicon/safari-mask.svg') }}?v={{ time() }}" color="#2557a7" />
@@ -250,6 +250,14 @@
             width: 100%;
         }
         .submit-btn:hover { background-color: var(--primary-hover); }
+        .form-disclaimer {
+            font-size: 0.82rem;
+            color: #64748b;
+            text-align: center;
+            margin-top: 12px;
+            margin-bottom: 0;
+            line-height: 1.45;
+        }
         .alert {
             border-radius: var(--radius-md);
             padding: 14px 18px;
@@ -290,8 +298,8 @@
 <div class="container">
 
     <div class="corp-header">
-        <h1 class="page-title">General Employment Application</h1>
-        <p class="page-subtitle">Submit your general employment profile for current or upcoming opportunities across affiliated locations.</p>
+        <h1 class="page-title">Create Your Profile</h1>
+        <p class="page-subtitle">Tell us about yourself and the work you’re looking for. Hiring teams at participating locations can review your profile and contact you about current or future opportunities.</p>
     </div>
 
     @if(session('success'))
@@ -314,12 +322,12 @@
     <form method="POST" action="{{ route('jobs.pre-apply.submit') }}" enctype="multipart/form-data">
         @csrf
         <div class="corp-card">
-            <div class="section-title">General Application Details</div>
+            <div class="section-title">About You</div>
             <div class="grid">
                 <div class="form-group full">
-                    <label class="form-label">Preferred Location / Club <span class="req">*</span></label>
+                    <label class="form-label">Where would you like to work? <span class="req">*</span></label>
                     <select name="website_id" required>
-                        <option value="">Select preferred location</option>
+                        <option value="">Select a location</option>
                         @foreach($websites as $website)
                             <option value="{{ $website->id }}" {{ old('website_id') == $website->id ? 'selected' : '' }}>{{ $website->name }}</option>
                         @endforeach
@@ -331,8 +339,8 @@
                     <input type="text" name="name" value="{{ old('name') }}" required placeholder="First and last name">
                 </div>
                 <div class="form-group">
-                    <label class="form-label">Preferred Role / Position <span class="req">*</span></label>
-                    <input type="text" name="preferred_role" value="{{ old('preferred_role') }}" placeholder="e.g. Bartender, Model Server, Hospitality" required>
+                    <label class="form-label">What role are you interested in? <span class="req">*</span></label>
+                    <input type="text" name="preferred_role" value="{{ old('preferred_role') }}" placeholder="e.g., Bartender, Server, VIP Host" required>
                 </div>
                 <div class="form-group">
                     <label class="form-label">Email Address <span class="req">*</span></label>
@@ -445,7 +453,8 @@
             </label>
 
             <div style="margin-top: 20px;">
-                <button type="submit" class="submit-btn">Submit Preferred-Work Profile</button>
+                <button type="submit" class="submit-btn">Submit Your Profile</button>
+                <p class="form-disclaimer">Your profile will be considered for current and future openings. Submitting a profile does not guarantee an interview or job offer.</p>
             </div>
         </div>
     </form>
