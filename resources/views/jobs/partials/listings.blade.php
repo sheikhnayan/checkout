@@ -9,6 +9,7 @@
         $compText = trim(($job->compensation ? $job->compensation : '') . ($payFreqText ? ' ' . $payFreqText : ''));
         $skillsArr = is_array($job->skills) ? $job->skills : (json_decode($job->skills, true) ?: []);
         $traitsArr = is_array($job->traits) ? $job->traits : (json_decode($job->traits, true) ?: []);
+        $tagsArr = is_array($job->tags) ? $job->tags : (json_decode($job->tags, true) ?: []);
     @endphp
 
     <article class="indeed-job-card {{ $index === 0 ? 'active' : '' }}" 
@@ -53,6 +54,20 @@
                     {{ $job->employment_type }}
                 </span>
             @endif
+            @foreach($tagsArr as $tagItem)
+                @php
+                    $tagStr = trim((string)$tagItem);
+                    if ($tagStr !== '' && !str_starts_with($tagStr, '#')) {
+                        $tagStr = '#' . $tagStr;
+                    }
+                @endphp
+                @if($tagStr !== '' && $tagStr !== '#')
+                    <span class="tag-pill tag-custom" style="background:#eef2ff; color:#4338ca; border: 1px solid #c7d2fe;">
+                        <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M20.59 13.41l-7.17 7.17a2 2 0 0 1-2.83 0L2 12V2h10l8.59 8.59a2 2 0 0 1 0 2.82z"></path><line x1="7" y1="7" x2="7.01" y2="7"></line></svg>
+                        {{ $tagStr }}
+                    </span>
+                @endif
+            @endforeach
         </div>
 
         <div class="job-card-apply-badge">
@@ -79,6 +94,9 @@
         </div>
         <div class="hidden-traits-json" style="display:none;">
             {!! json_encode($traitsArr) !!}
+        </div>
+        <div class="hidden-tags-json" style="display:none;">
+            {!! json_encode($tagsArr) !!}
         </div>
     </article>
 @empty

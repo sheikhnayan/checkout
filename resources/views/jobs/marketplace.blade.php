@@ -942,6 +942,7 @@
             const descEl = cardEl.querySelector('.hidden-full-description');
             const skillsJson = cardEl.querySelector('.hidden-skills-json');
             const traitsJson = cardEl.querySelector('.hidden-traits-json');
+            const tagsJson = cardEl.querySelector('.hidden-tags-json');
 
             document.getElementById('paneJobTitle').textContent = title;
             document.getElementById('paneCompany').textContent = company;
@@ -959,6 +960,19 @@
             if (typeLabel) {
                 tagsHtml += `<span class="tag-pill">${typeLabel}</span>`;
             }
+
+            let tagsArr = [];
+            try { if (tagsJson) tagsArr = JSON.parse(tagsJson.textContent); } catch(e){}
+            if (Array.isArray(tagsArr)) {
+                tagsArr.forEach(t => {
+                    let tStr = String(t || '').trim();
+                    if (tStr !== '' && !tStr.startsWith('#')) tStr = '#' + tStr;
+                    if (tStr !== '' && tStr !== '#') {
+                        tagsHtml += `<span class="tag-pill" style="background:#eef2ff; color:#4338ca; border: 1px solid #c7d2fe;">🏷️ ${tStr}</span>`;
+                    }
+                });
+            }
+
             document.getElementById('paneTags').innerHTML = tagsHtml;
 
             // Description

@@ -23,6 +23,7 @@ class JobPost extends Model
         'description',
         'skills',
         'traits',
+        'tags',
         'meta',
         'status',
         'is_archived',
@@ -31,6 +32,7 @@ class JobPost extends Model
     protected $casts = [
         'skills' => 'array',
         'traits' => 'array',
+        'tags' => 'array',
         'meta' => 'array',
         'status' => 'boolean',
         'is_archived' => 'boolean',

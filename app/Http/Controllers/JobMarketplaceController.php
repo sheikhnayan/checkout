@@ -318,6 +318,7 @@ class JobMarketplaceController extends Controller
         $hasState = \Illuminate\Support\Facades\Schema::hasColumn('job_posts', 'state');
         $hasCity = \Illuminate\Support\Facades\Schema::hasColumn('job_posts', 'city');
         $hasPayFrequency = \Illuminate\Support\Facades\Schema::hasColumn('job_posts', 'pay_frequency');
+        $hasTags = \Illuminate\Support\Facades\Schema::hasColumn('job_posts', 'tags');
 
         return JobPost::with('website')
             ->where('status', true)
@@ -340,15 +341,22 @@ class JobMarketplaceController extends Controller
             ->when($request->filled('location'), function ($query) use ($request) {
                 $query->where('location', 'like', '%' . $request->location . '%');
             })
-            ->when($request->filled('q'), function ($query) use ($request) {
+            ->when($request->filled('q'), function ($query) use ($request, $hasTags) {
                 $term = trim((string) $request->q);
-                $query->where(function ($subQuery) use ($term) {
+                $query->where(function ($subQuery) use ($term, $hasTags) {
                     $subQuery->where('title', 'like', '%' . $term . '%')
                         ->orWhere('short_description', 'like', '%' . $term . '%')
                         ->orWhere('description', 'like', '%' . $term . '%')
+                        ->orWhere('skills', 'like', '%' . $term . '%')
+                        ->orWhere('traits', 'like', '%' . $term . '%')
+                        ->orWhere('compensation', 'like', '%' . $term . '%')
                         ->orWhereHas('website', function ($websiteQuery) use ($term) {
                             $websiteQuery->where('name', 'like', '%' . $term . '%');
                         });
+
+                    if ($hasTags) {
+                        $subQuery->orWhere('tags', 'like', '%' . $term . '%');
+                    }
                 });
             })
             ->orderByDesc('created_at');

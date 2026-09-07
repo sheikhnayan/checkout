@@ -110,7 +110,13 @@
 
                         <div class="col-md-6">
                             <label class="form-label">Suggested Skills (one per line) <i class="fas fa-circle-info ms-1 field-tip" data-bs-toggle="tooltip" data-bs-placement="top" title="Professional or technical skills required for this role, one per line."></i></label>
-                            <textarea name="skills_text" class="form-control" rows="6" placeholder="Sales&#10;Hospitality&#10;Event Planning">{{ old('skills_text') }}</textarea>
+                            <textarea name="skills_text" class="form-control" rows="4" placeholder="Sales&#10;Hospitality&#10;Event Planning">{{ old('skills_text') }}</textarea>
+                        </div>
+
+                        <div class="col-12">
+                            <label class="form-label">Job Tags (comma or line-separated) <i class="fas fa-circle-info ms-1 field-tip" data-bs-toggle="tooltip" data-bs-placement="top" title="Custom tags for searching & displaying badges (e.g. #HiringImmediately, Bartending, Tips Included)."></i></label>
+                            <textarea name="tags_text" class="form-control" rows="2" placeholder="#HiringImmediately, Bartending, Tips Included">{{ old('tags_text') }}</textarea>
+                            <span class="form-text text-muted small"><i class="fas fa-tags me-1 text-primary"></i>Tags will be displayed on job cards & sticky detail view, and searched when users type search terms.</span>
                         </div>
 
                         <!-- Notification Settings Card -->

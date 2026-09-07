@@ -47,6 +47,7 @@ class JobMarketplaceController extends Controller
             'description' => ['required', 'string'],
             'skills_text' => ['nullable', 'string', 'max:5000'],
             'traits_text' => ['nullable', 'string', 'max:5000'],
+            'tags_text' => ['nullable', 'string', 'max:5000'],
             'status' => ['nullable', 'boolean'],
         ]);
 
@@ -85,6 +86,7 @@ class JobMarketplaceController extends Controller
             'description' => $validated['description'],
             'skills' => $this->parseLines($validated['skills_text'] ?? null),
             'traits' => $this->parseLines($validated['traits_text'] ?? null),
+            'tags' => $this->parseLines($validated['tags_text'] ?? null),
             'meta' => ['notifications' => $notifySettings],
             'status' => (bool) ($validated['status'] ?? true),
             'is_archived' => false,
@@ -121,6 +123,7 @@ class JobMarketplaceController extends Controller
             'description' => ['required', 'string'],
             'skills_text' => ['nullable', 'string', 'max:5000'],
             'traits_text' => ['nullable', 'string', 'max:5000'],
+            'tags_text' => ['nullable', 'string', 'max:5000'],
             'status' => ['nullable', 'boolean'],
             'is_archived' => ['nullable', 'boolean'],
         ]);
@@ -162,6 +165,7 @@ class JobMarketplaceController extends Controller
             'description' => $validated['description'],
             'skills' => $this->parseLines($validated['skills_text'] ?? null),
             'traits' => $this->parseLines($validated['traits_text'] ?? null),
+            'tags' => $this->parseLines($validated['tags_text'] ?? null),
             'meta' => $meta,
             'status' => (bool) ($validated['status'] ?? true),
             'is_archived' => (bool) ($validated['is_archived'] ?? false),
