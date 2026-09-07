@@ -520,9 +520,114 @@
             text-align: center;
         }
 
-        .loading-state {
-            opacity: 0.5;
-            pointer-events: none;
+        /* Landing Page Hero Styles */
+        .landing-hero-section {
+            max-width: 900px;
+            margin: 40px auto 60px;
+            padding: 0 20px;
+            text-align: center;
+        }
+        .landing-hero-title {
+            font-size: clamp(2rem, 4vw, 2.75rem);
+            font-weight: 900;
+            color: var(--indeed-dark);
+            margin: 0 0 12px;
+            letter-spacing: -0.8px;
+        }
+        .landing-hero-subtitle {
+            font-size: 1.1rem;
+            color: var(--indeed-grey-text);
+            margin: 0 0 32px;
+            font-weight: 500;
+        }
+        .popular-searches-box {
+            margin-top: 36px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 14px;
+        }
+        .popular-label {
+            font-size: 0.85rem;
+            font-weight: 800;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            color: var(--indeed-grey-text);
+        }
+        .popular-tags-cloud {
+            display: flex;
+            gap: 10px;
+            flex-wrap: wrap;
+            justify-content: center;
+        }
+        .popular-tag-btn {
+            background: #ffffff;
+            border: 1px solid var(--indeed-border);
+            border-radius: 20px;
+            padding: 8px 16px;
+            font-size: 0.88rem;
+            font-weight: 600;
+            color: var(--indeed-blue);
+            cursor: pointer;
+            transition: all 0.15s ease;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.03);
+            text-decoration: none;
+        }
+        .popular-tag-btn:hover {
+            border-color: var(--indeed-blue);
+            background: var(--indeed-blue-light);
+            transform: translateY(-1px);
+        }
+
+        .landing-cta-card {
+            background: linear-gradient(135deg, #e8f0fe 0%, #ffffff 100%);
+            border: 1px solid #d0e1fd;
+            border-radius: 12px;
+            padding: 28px 24px;
+            margin-top: 40px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 20px;
+            text-align: left;
+            box-shadow: 0 4px 16px rgba(37, 87, 167, 0.06);
+        }
+        .cta-text-group h3 {
+            margin: 0 0 4px;
+            font-size: 1.15rem;
+            font-weight: 800;
+            color: var(--indeed-dark);
+        }
+        .cta-text-group p {
+            margin: 0;
+            font-size: 0.92rem;
+            color: var(--indeed-grey-text);
+        }
+        .btn-cta-discover {
+            background: var(--indeed-blue);
+            color: #ffffff;
+            font-weight: 800;
+            font-size: 0.95rem;
+            padding: 12px 24px;
+            border-radius: 8px;
+            text-decoration: none;
+            white-space: nowrap;
+            transition: background 0.15s ease;
+            box-shadow: 0 2px 6px rgba(37, 87, 167, 0.2);
+        }
+        .btn-cta-discover:hover {
+            background: var(--indeed-blue-hover);
+        }
+
+        @media (max-width: 600px) {
+            .landing-cta-card {
+                flex-direction: column;
+                align-items: flex-start;
+            }
+            .btn-cta-discover {
+                width: 100%;
+                text-align: center;
+            }
         }
 
         /* Mobile Responsiveness */
@@ -689,8 +794,35 @@
     </div>
 </section>
 
-<!-- Split-Screen Main Layout -->
-<main class="indeed-main-layout">
+<!-- Landing Page Hero Section (shown when no search query has been performed) -->
+<section class="landing-hero-section" id="landingHeroSection" style="{{ $hasSearch ? 'display:none;' : '' }}">
+    <h1 class="landing-hero-title">Your next job is waiting</h1>
+    <p class="landing-hero-subtitle">Search premier venues, clubs, and hospitality positions across the country.</p>
+    
+    <div class="popular-searches-box">
+        <span class="popular-label">Popular searches on checkout•jobs:</span>
+        <div class="popular-tags-cloud">
+            <button type="button" class="popular-tag-btn" onclick="quickSearchTag('Bartender')">🍹 Bartender</button>
+            <button type="button" class="popular-tag-btn" onclick="quickSearchTag('VIP Host')">🍾 VIP Host</button>
+            <button type="button" class="popular-tag-btn" onclick="quickSearchTag('Security')">🛡️ Security</button>
+            <button type="button" class="popular-tag-btn" onclick="quickSearchTag('Entertainer')">✨ Entertainer</button>
+            <button type="button" class="popular-tag-btn" onclick="quickSearchTag('DJ')">🎧 DJ</button>
+            <button type="button" class="popular-tag-btn" onclick="quickSearchTag('Server')">🍽️ Server</button>
+            <button type="button" class="popular-tag-btn" onclick="quickSearchTag('Manager')">👔 Manager</button>
+        </div>
+    </div>
+
+    <div class="landing-cta-card">
+        <div class="cta-text-group">
+            <h3>Get Discovered by Top Venues</h3>
+            <p>Create your preferred-work profile or submit your resume to get matched directly with hiring managers.</p>
+        </div>
+        <a href="{{ route('jobs.pre-apply') }}" class="btn-cta-discover">Get Discovered &rarr;</a>
+    </div>
+</section>
+
+<!-- Split-Screen Main Layout (shown when search results are loaded) -->
+<main class="indeed-main-layout" id="resultsMainLayout" style="{{ $hasSearch ? '' : 'display:none;' }}">
     <div class="feed-header" style="margin-bottom: 16px;">
         <div class="results-count-text">
             Showing <strong id="resultCount">{{ $jobs->total() }}</strong> jobs
@@ -867,7 +999,22 @@
             }
         }
 
+        window.quickSearchTag = function(term) {
+            if (q) {
+                q.value = term;
+                fetchJobs();
+            }
+        };
+
+        function showResultsView() {
+            const hero = document.getElementById('landingHeroSection');
+            const resultsLayout = document.getElementById('resultsMainLayout');
+            if (hero) hero.style.display = 'none';
+            if (resultsLayout) resultsLayout.style.display = 'block';
+        }
+
         async function fetchJobs() {
+            showResultsView();
             const params = new URLSearchParams({
                 q: q ? q.value || '' : '',
                 state: state ? state.value || '' : '',

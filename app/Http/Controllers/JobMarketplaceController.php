@@ -29,8 +29,17 @@ class JobMarketplaceController extends Controller
             $cities = (clone $baseQuery)->whereNotNull('city')->where('city', '!=', '')->distinct()->orderBy('city')->pluck('city')->toArray();
         }
 
+        $hasSearch = filled($request->get('q')) || 
+                     filled($request->get('location')) || 
+                     filled($request->get('state')) || 
+                     filled($request->get('city')) || 
+                     filled($request->get('job_type')) || 
+                     filled($request->get('employment_type')) || 
+                     filled($request->get('pay_frequency'));
+
         return view('jobs.marketplace', [
             'jobs' => $jobs,
+            'hasSearch' => $hasSearch,
             'states' => $allStates,
             'cities' => $cities,
             'statesAndCities' => $statesAndCities,
