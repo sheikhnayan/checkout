@@ -554,14 +554,19 @@ class JobMarketplaceController extends Controller
             mkdir($directory, 0755, true);
         }
 
-        $name = $prefix . '_' . time() . '_' . Str::random(8) . '.' . $file->getClientOriginalExtension();
+        $originalName = $file->getClientOriginalName();
+        $size = $file->getSize();
+        $mime = $file->getClientMimeType() ?: ($file->getMimeType() ?? 'application/octet-stream');
+
+        $ext = $file->getClientOriginalExtension() ?: 'bin';
+        $name = $prefix . '_' . time() . '_' . Str::random(8) . '.' . $ext;
         $file->move($directory, $name);
 
         return [
-            'name' => $file->getClientOriginalName(),
+            'name' => $originalName,
             'path' => 'uploads/job-marketplace/' . $name,
-            'size' => $file->getSize(),
-            'mime' => $file->getMimeType(),
+            'size' => $size,
+            'mime' => $mime,
         ];
     }
 }
