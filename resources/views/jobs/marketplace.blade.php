@@ -780,12 +780,16 @@
             }
         }
 
-        window.selectJobCard = function(cardEl) {
+        window.selectJobCard = function(cardEl, isUserClick = false) {
             if (!cardEl) return;
 
             const applyUrl = cardEl.getAttribute('data-apply-url') || '#';
-            if (window.innerWidth <= 992 && applyUrl && applyUrl !== '#') {
+            if (isUserClick && window.innerWidth <= 992 && applyUrl && applyUrl !== '#') {
                 window.location.href = applyUrl;
+                return;
+            }
+
+            if (!isUserClick && window.innerWidth <= 992) {
                 return;
             }
 
@@ -852,9 +856,11 @@
         };
 
         function bindFirstJobCard() {
-            const firstCard = document.querySelector('.indeed-job-card');
-            if (firstCard) {
-                selectJobCard(firstCard);
+            if (window.innerWidth > 992) {
+                const firstCard = document.querySelector('.indeed-job-card');
+                if (firstCard) {
+                    selectJobCard(firstCard, false);
+                }
             }
         }
 
@@ -913,15 +919,10 @@
             list.addEventListener('click', function(e) {
                 const card = e.target.closest('.indeed-job-card');
                 if (card) {
-                    const applyUrl = card.getAttribute('data-apply-url');
-                    if (window.innerWidth <= 992 && applyUrl) {
-                        window.location.href = applyUrl;
-                        return;
-                    }
                     const applyBtn = e.target.closest('.apply-btn');
                     if (!applyBtn) {
                         e.preventDefault();
-                        selectJobCard(card);
+                        selectJobCard(card, true);
                     }
                 }
             });
