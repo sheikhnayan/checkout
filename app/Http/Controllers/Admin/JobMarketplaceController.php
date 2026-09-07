@@ -176,8 +176,15 @@ class JobMarketplaceController extends Controller
 
     public function applications(Request $request)
     {
+        $jobsList = JobPost::whereIn('website_id', $this->accessibleWebsiteIds())
+            ->orderBy('title')
+            ->get();
+
         $applications = JobApplication::with(['website', 'jobPost'])
             ->whereIn('website_id', $this->accessibleWebsiteIds())
+            ->when($request->filled('job_id'), function ($query) use ($request) {
+                $query->where('job_post_id', $request->job_id);
+            })
             ->when($request->filled('type'), function ($query) use ($request) {
                 $query->where('application_type', $request->type);
             })
@@ -187,7 +194,7 @@ class JobMarketplaceController extends Controller
             ->orderByDesc('submitted_at')
             ->paginate(20);
 
-        return view('admin.jobs.applications', compact('applications'));
+        return view('admin.jobs.applications', compact('applications', 'jobsList'));
     }
 
     public function showApplication(JobApplication $application)

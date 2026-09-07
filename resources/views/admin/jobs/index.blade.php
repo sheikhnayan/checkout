@@ -61,12 +61,21 @@
                                         <span class="badge bg-warning text-dark">Paused</span>
                                     @endif
                                 </td>
-                                <td>{{ $job->applications_count }}</td>
+                                <td>
+                                    <a href="{{ route($appsRoute, ['job_id' => $job->id]) }}" class="badge bg-primary text-decoration-none px-2 py-1" style="font-size: 0.85rem;" title="Filter applications for {{ $job->title }}">
+                                        <i class="fas fa-users me-1"></i> {{ $job->applications_count }}
+                                    </a>
+                                </td>
                                 <td>{{ optional($job->created_at)?->timezone('America/Los_Angeles')->format('M d, Y h:i A') }} PT</td>
                                 <td>
-                                    <a href="{{ route($editRoute, $job) }}" class="btn btn-sm btn-gold">Edit</a>
+                                    <div class="d-flex gap-1">
+                                        <a href="{{ route($appsRoute, ['job_id' => $job->id]) }}" class="btn btn-sm btn-info text-dark font-weight-bold" title="View applications for this job">
+                                            <i class="fas fa-users me-1"></i> Applications ({{ $job->applications_count }})
+                                        </a>
+                                        <a href="{{ route($editRoute, $job) }}" class="btn btn-sm btn-gold">Edit</a>
+                                    </div>
                                 </td>
-                                </tr>
+                            </tr>
                         @empty
                             <tr>
                                 <td colspan="9" class="text-center py-4 text-muted">No job posts found.</td>

@@ -20,15 +20,25 @@
 
         <div class="card mb-4">
             <div class="card-body">
-                <form method="GET" action="{{ route($appsRoute) }}" class="row g-2">
+                <form method="GET" action="{{ route($appsRoute) }}" class="row g-2 align-items-center">
                     <div class="col-md-4">
+                        <select name="job_id" class="form-select">
+                            <option value="">All Jobs</option>
+                            @foreach($jobsList as $jobItem)
+                                <option value="{{ $jobItem->id }}" {{ request('job_id') == $jobItem->id ? 'selected' : '' }}>
+                                    {{ $jobItem->title }} ({{ $jobItem->website->name ?? 'Venue' }})
+                                </option>
+                            @endforeach
+                        </select>
+                    </div>
+                    <div class="col-md-3">
                         <select name="type" class="form-select">
                             <option value="">All Types</option>
                             <option value="entertainer" {{ request('type') === 'entertainer' ? 'selected' : '' }}>Entertainer</option>
                             <option value="employee" {{ request('type') === 'employee' ? 'selected' : '' }}>Employee</option>
                         </select>
                     </div>
-                    <div class="col-md-4">
+                    <div class="col-md-3">
                         <select name="status" class="form-select">
                             <option value="">All Status</option>
                             @foreach(['new','reviewed','shortlisted','rejected','hired'] as $status)
@@ -36,8 +46,11 @@
                             @endforeach
                         </select>
                     </div>
-                    <div class="col-md-4">
+                    <div class="col-md-2 d-flex gap-2">
                         <button type="submit" class="btn btn-primary w-100">Filter</button>
+                        @if(request()->hasAny(['job_id', 'type', 'status']))
+                            <a href="{{ route($appsRoute) }}" class="btn btn-outline-secondary" title="Reset Filters"><i class="fas fa-undo"></i></a>
+                        @endif
                     </div>
                 </form>
             </div>
