@@ -593,11 +593,10 @@
             </a>
             <nav class="header-nav">
                 <a href="{{ route('jobs.marketplace') }}" class="nav-tab active">Find jobs</a>
-                <a href="{{ route('jobs.pre-apply') }}" class="nav-tab">General Application</a>
             </nav>
         </div>
         <div class="header-right">
-            <a href="{{ route('jobs.pre-apply') }}" class="post-job-link">Submit Profile / Resume &rarr;</a>
+            <a href="{{ route('jobs.pre-apply') }}" class="post-job-link">Get Discovered</a>
         </div>
     </div>
 </header>
@@ -685,16 +684,16 @@
 
 <!-- Split-Screen Main Layout -->
 <main class="indeed-main-layout">
+    <div class="feed-header" style="margin-bottom: 16px;">
+        <div class="results-count-text">
+            Showing <strong id="resultCount">{{ $jobs->total() }}</strong> jobs
+        </div>
+    </div>
+
     <div class="split-grid">
         
         <!-- Left Feed Column: Job Listings -->
         <div class="left-feed-column">
-            <div class="feed-header">
-                <div class="results-count-text">
-                    Showing <strong id="resultCount">{{ $jobs->total() }}</strong> jobs
-                </div>
-            </div>
-
             <div id="jobList" class="job-list-container">
                 @include('jobs.partials.listings', ['jobs' => $jobs])
             </div>
@@ -717,9 +716,6 @@
                         <a href="#" id="paneApplyBtn" class="btn-indeed-apply">
                             <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor"><path d="M13 2L3 14h9l-1 8 10-12h-9l1-8z"/></svg>
                             Apply now
-                        </a>
-                        <a href="{{ route('jobs.pre-apply') }}" class="btn-indeed-secondary">
-                            General Application
                         </a>
                     </div>
                 </div>
