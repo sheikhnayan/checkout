@@ -1665,28 +1665,12 @@ body.modal-open .admin-mobile-menu-toggle {
                         <button type="button" id="mobileSearchClearBtn" class="btn btn-sm text-white-50 position-absolute end-0 top-50 translate-middle-y me-1 d-none" style="border:none;background:none;"><i class="fas fa-times-circle"></i></button>
                     </div>
 
-                    {{-- 2. 2-Column Responsive Filter & Sort Buttons Row --}}
-                    <div class="row g-2 align-items-center">
-                        <div class="col-6">
-                            <button type="button" class="mobile-filter-trigger-btn w-100 d-inline-flex align-items-center justify-content-center gap-1.5 px-2" data-bs-toggle="modal" data-bs-target="#mobileFilterModal" style="height:42px; font-size: 0.78rem; font-weight: 600; white-space: nowrap;">
-                                <i class="fas fa-filter text-purple" style="color:#c084fc;"></i> Filter & Refine
-                                <span class="mobile-active-badge" id="mobileActiveFiltersBadge">0</span>
-                            </button>
-                        </div>
-                        <div class="col-6">
-                            <div class="position-relative w-100" style="height:42px;">
-                                <select id="mobileSortSelect" class="form-select form-select-sm text-white border-0 shadow-none fw-semibold w-100 h-100 text-truncate" style="background: rgba(124, 58, 237, 0.25); border: 1px solid rgba(139, 92, 246, 0.45) !important; border-radius: 10px; font-size: 0.76rem; padding-left: 28px; padding-right: 18px; color: #fff; text-overflow: ellipsis; white-space: nowrap;">
-                                    <option value="sale_desc" selected>Sale Date (Newest)</option>
-                                    <option value="sale_asc">Sale Date (Oldest)</option>
-                                    <option value="res_asc">Usage Date (Soonest)</option>
-                                    <option value="res_desc">Usage Date (Latest)</option>
-                                    <option value="amount_desc">Amount (High-Low)</option>
-                                    <option value="amount_asc">Amount (Low-High)</option>
-                                    <option value="id_desc">Order ID (#)</option>
-                                </select>
-                                <i class="fas fa-sort-amount-down position-absolute start-0 top-50 translate-middle-y ms-2" style="color: #c084fc; font-size: 0.8rem; pointer-events: none;"></i>
-                            </div>
-                        </div>
+                    {{-- 2. Responsive Filter Button --}}
+                    <div>
+                        <button type="button" class="mobile-filter-trigger-btn w-100 d-inline-flex align-items-center justify-content-center gap-1.5 px-2" data-bs-toggle="modal" data-bs-target="#mobileFilterModal" style="height:42px; font-size: 0.78rem; font-weight: 600; white-space: nowrap;">
+                            <i class="fas fa-filter text-purple" style="color:#c084fc;"></i> Filter & Refine
+                            <span class="mobile-active-badge" id="mobileActiveFiltersBadge">0</span>
+                        </button>
                     </div>
 
                     {{-- 3. Mobile Active Filter Chips Bar --}}
@@ -2819,24 +2803,6 @@ body.modal-open .admin-mobile-menu-toggle {
                             </div>
                         </div>
                         <div class="modal-body">
-                            {{-- 0. Sort Order Card --}}
-                            <div class="mobile-filter-group-card mb-3">
-                                <div class="mobile-filter-group-title">
-                                    <i class="fas fa-sort-amount-down text-purple" style="color:#c084fc;"></i> Sort Order
-                                </div>
-                                <div>
-                                    <select id="drawerSortSelect" class="form-select form-select-sm bg-dark text-white border-secondary">
-                                        <option value="sale_desc" selected>Sale Date (Newest First)</option>
-                                        <option value="sale_asc">Sale Date (Oldest First)</option>
-                                        <option value="res_asc">Usage Date (Soonest First)</option>
-                                        <option value="res_desc">Usage Date (Latest First)</option>
-                                        <option value="amount_desc">Amount (High to Low)</option>
-                                        <option value="amount_asc">Amount (Low to High)</option>
-                                        <option value="id_desc">Order ID (#)</option>
-                                    </select>
-                                </div>
-                            </div>
-
                             {{-- 1. Date Range & Target --}}
                             <div class="mobile-filter-group-card">
                                 <div class="mobile-filter-group-title">
@@ -4274,7 +4240,6 @@ body.modal-open .admin-mobile-menu-toggle {
                     $('#mobileSearchClearBtn').addClass('d-none');
                     $('#txnDateRange, #mobileTxnDateRange').val('');
                     $('.mobile-preset-btn').removeClass('active');
-                    $('#mobileSortSelect, #drawerSortSelect').val('sale_desc');
                     const picker = $('#txnDateRange').data('daterangepicker') || $('#mobileTxnDateRange').data('daterangepicker');
                     if (picker) {
                         picker.setStartDate(moment());
@@ -4339,27 +4304,6 @@ body.modal-open .admin-mobile-menu-toggle {
                         $('#dateTargetSelect').val($(this).val());
                     }
                     updatePolarisUiAndFilterTable();
-                });
-
-                window.applyTxnSort = function(sortKey) {
-                    if (!table) return;
-                    const sortMap = {
-                        'sale_desc': [2, 'desc'],
-                        'sale_asc': [2, 'asc'],
-                        'res_asc': [13, 'asc'],
-                        'res_desc': [13, 'desc'],
-                        'amount_desc': [8, 'desc'],
-                        'amount_asc': [8, 'asc'],
-                        'id_desc': [1, 'desc'],
-                        'id_asc': [1, 'asc']
-                    };
-                    const orderRule = sortMap[sortKey] || [2, 'desc'];
-                    table.order(orderRule).draw();
-                    $('#mobileSortSelect, #drawerSortSelect').val(sortKey);
-                };
-
-                $(document).on('change', '#mobileSortSelect, #drawerSortSelect', function() {
-                    window.applyTxnSort($(this).val());
                 });
 
                 $.fn.dataTable.ext.search.push(function(settings, data, dataIndex) {
