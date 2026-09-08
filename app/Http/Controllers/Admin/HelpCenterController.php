@@ -81,6 +81,8 @@ class HelpCenterController extends Controller
         $page->title = $request->input('title');
         $page->description = $request->input('description');
         $page->banner_color = $request->input('banner_color', '#4f46e5');
+        $page->save();
+
         $prefix = request()->routeIs('admin.nightly-reports.*') ? 'admin.nightly-reports.help-center.' : 'admin.help-center.';
         return redirect()->route($prefix . 'builder', $page->id)
             ->with('success', 'Help Center Page saved successfully! You can now organize sections and links.');
