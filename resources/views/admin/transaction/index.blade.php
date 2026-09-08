@@ -1540,6 +1540,7 @@ body.modal-open .admin-mobile-menu-toggle {
                                 </div>
 
                                 {{-- 4. Conversion Rate Card --}}
+                                @if(\App\Models\Setting::showConversionRateCard())
                                 <div class="col">
                                     <div class="shopify-metric-card p-2 p-md-3 rounded-3 cursor-pointer" data-metric="conversion" onclick="switchShopifyMetric('conversion')">
                                         <div class="shopify-metric-title">
@@ -1558,6 +1559,7 @@ body.modal-open .admin-mobile-menu-toggle {
                                         <div class="text-white-50 small mt-1 text-truncate" style="font-size:0.7rem;">Visitors to bookings ratio</div>
                                     </div>
                                 </div>
+                                @endif
                             </div>
 
                             {{-- Dynamic Trend Line Chart --}}

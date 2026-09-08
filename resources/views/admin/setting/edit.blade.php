@@ -265,6 +265,30 @@ label{
                                                          </div>
                                                      </div>
                                                  </div>
+
+                                                 <div class="col-md-12">
+                                                     <div class="mb-3 mode-card">
+                                                         <p class="mode-title">
+                                                             <span>Display Conversion Rate Card (Transactions Page)</span>
+                                                             <i class="fas fa-circle-info ms-1 field-tip" data-bs-toggle="tooltip" data-bs-placement="top" title="Controls whether the Conversion Rate metric card (Visitors to Bookings ratio) is displayed in the Shopify-style traffic cards on the transaction management page."></i>
+                                                         </p>
+                                                         <div class="d-flex align-items-center gap-2 my-2">
+                                                             <label class="toggle-switch me-1" for="show_conversion_rate_card">
+                                                                 <input class="toggle-switch-input" type="checkbox" name="show_conversion_rate_card" id="show_conversion_rate_card" value="1" @checked(old('show_conversion_rate_card', $data->show_conversion_rate_card ?? true))>
+                                                                 <span class="toggle-switch-slider"></span>
+                                                             </label>
+                                                             <label class="form-check-label mb-0 cursor-pointer fw-semibold" for="show_conversion_rate_card" style="color: #000000 !important;">
+                                                                 Show the Conversion Rate metric card on the transaction management page.
+                                                             </label>
+                                                         </div>
+                                                         <div class="mode-current">
+                                                             <span>Current Conversion Rate card status:</span>
+                                                             <strong class="{{ ($data->show_conversion_rate_card ?? true) ? 'text-success' : 'text-danger' }}">
+                                                                 {{ ($data->show_conversion_rate_card ?? true) ? 'ENABLED (card visible)' : 'HIDDEN (card hidden)' }}
+                                                             </strong>
+                                                         </div>
+                                                     </div>
+                                                 </div>
                                             </div>
 
                                             <button type="submit" class="btn btn-primary">Submit</button>

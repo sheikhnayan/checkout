@@ -85,6 +85,8 @@ class SettingController extends Controller
         $data->sandbox_mode = $request->boolean('sandbox_mode');
         // Toggle display of metric signs & growth percentage trends (+0.3%, -10%, etc.)
         $data->show_metric_trends = $request->boolean('show_metric_trends');
+        // Toggle display of Conversion Rate card on transactions page
+        $data->show_conversion_rate_card = $request->boolean('show_conversion_rate_card');
         $data->update();
 
         return back();

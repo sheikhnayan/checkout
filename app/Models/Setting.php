@@ -16,12 +16,14 @@ class Setting extends Model
         'affiliate_withdraw_charge',
         'google_analytics_measurement_id',
         'show_metric_trends',
+        'show_conversion_rate_card',
     ];
 
     protected $casts = [
         'affiliate_withdraw_charge' => 'decimal:2',
         'sandbox_mode' => 'boolean',
         'show_metric_trends' => 'boolean',
+        'show_conversion_rate_card' => 'boolean',
     ];
 
     /**
@@ -34,6 +36,19 @@ class Setting extends Model
             return (bool) ($setting->show_metric_trends ?? false);
         } catch (\Throwable $e) {
             return false;
+        }
+    }
+
+    /**
+     * Check if conversion rate card is displayed on the transaction page globally.
+     */
+    public static function showConversionRateCard(): bool
+    {
+        try {
+            $setting = static::find(1);
+            return (bool) ($setting->show_conversion_rate_card ?? true);
+        } catch (\Throwable $e) {
+            return true;
         }
     }
 }
