@@ -175,7 +175,7 @@
 
                     <div class="mt-4">
                         <button type="submit" class="btn btn-primary">Update Job Post</button>
-                        <a href="{{ route('admin.jobs.index') }}" class="btn btn-secondary ms-2">Cancel</a>
+                        <a href="{{ route($indexRoute) }}" class="btn btn-secondary ms-2">Cancel</a>
                     </div>
                 </form>
             </div>

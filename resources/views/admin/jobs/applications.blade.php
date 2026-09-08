@@ -83,7 +83,7 @@
                                 </td>
                                 <td>{{ ucfirst($application->application_type) }}</td>
                                 <td>
-                                    <form method="POST" action="{{ route('admin.jobs.applications.status', $application->id) }}" class="d-flex gap-2">
+                                    <form method="POST" action="{{ route($statusRoute, $application->id) }}" class="d-flex gap-2">
                                         @csrf
                                         <select name="status" class="form-select form-select-sm">
                                             @foreach(['new','reviewed','shortlisted','rejected','hired'] as $status)
@@ -95,7 +95,7 @@
                                 </td>
                                 <td>{{ optional($application->submitted_at)?->timezone('America/Los_Angeles')->format('M d, Y h:i A') }} PT</td>
                                 <td>
-                                    <a href="{{ route('admin.jobs.applications.show', $application->id) }}" class="btn btn-sm btn-outline-light">View</a>
+                                    <a href="{{ route($showRoute, $application->id) }}" class="btn btn-sm btn-outline-light">View</a>
                                 </td>
                             </tr>
                         @empty

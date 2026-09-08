@@ -42,7 +42,7 @@
                                 </td>
                                 <td>{{ $requestItem->preferred_role ?: '-' }}</td>
                                 <td>
-                                    <form method="POST" action="{{ route('admin.jobs.preference-requests.status', $requestItem->id) }}" class="d-flex gap-2">
+                                    <form method="POST" action="{{ route($statusRoute, $requestItem->id) }}" class="d-flex gap-2">
                                         @csrf
                                         <select name="status" class="form-select form-select-sm">
                                             @foreach(['new','reviewed','contacted','closed'] as $status)
