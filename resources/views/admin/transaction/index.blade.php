@@ -1493,7 +1493,7 @@ body.modal-open .admin-mobile-menu-toggle {
                         {{-- TAB 1: SHOPIFY CONVERSION & TRAFFIC HUB --}}
                         <div class="tab-pane fade show active" id="tab-shopify-conversion" role="tabpanel">
                             {{-- Metric Selector Cards Row (Shopify Style) --}}
-                            <div class="row row-cols-2 row-cols-xl-4 g-2 g-md-3 mb-3 mb-md-4" id="shopifyMetricCardsRow">
+                            <div class="row {{ \App\Models\Setting::showConversionRateCard() ? 'row-cols-2 row-cols-xl-4' : 'row-cols-1 row-cols-md-3' }} g-2 g-md-3 mb-3 mb-md-4" id="shopifyMetricCardsRow">
                                 {{-- 1. Sessions Card --}}
                                 <div class="col">
                                     <div class="shopify-metric-card p-2 p-md-3 rounded-3 cursor-pointer active" data-metric="sessions" onclick="switchShopifyMetric('sessions')">
