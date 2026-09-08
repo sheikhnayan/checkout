@@ -1494,24 +1494,9 @@ body.modal-open .admin-mobile-menu-toggle {
                         <div class="tab-pane fade show active" id="tab-shopify-conversion" role="tabpanel">
                             {{-- Metric Selector Cards Row (Shopify Style) --}}
                             <div class="row {{ \App\Models\Setting::showConversionRateCard() ? 'row-cols-2 row-cols-xl-4' : 'row-cols-1 row-cols-md-3' }} g-2 g-md-3 mb-3 mb-md-4" id="shopifyMetricCardsRow">
-                                {{-- 1. Sessions Card --}}
+                                {{-- 1. Total Sales Card --}}
                                 <div class="col">
-                                    <div class="shopify-metric-card p-2 p-md-3 rounded-3 cursor-pointer active" data-metric="sessions" onclick="switchShopifyMetric('sessions')">
-                                        <div class="shopify-metric-title">
-                                            <span>Sessions</span>
-                                            <i class="fas fa-eye text-white-50" style="font-size:0.75rem;"></i>
-                                        </div>
-                                        <div class="d-flex align-items-baseline justify-content-between flex-wrap gap-1 mt-1" style="min-width:0;">
-                                            <span class="shopify-metric-val" id="shopifySessionsVal">{{ number_format($allVisitorSessionsCount ?? 4810) }}</span>
-                                            <span class="shopify-delta-badge down" id="shopifySessionsDelta"><i class="fas fa-arrow-down me-1"></i><span id="shopifySessionsDeltaText">12.4%</span></span>
-                                        </div>
-                                        <div class="text-white-50 small mt-1 text-truncate" style="font-size:0.7rem;">Tracked visitor traffic</div>
-                                    </div>
-                                </div>
-
-                                {{-- 2. Total Sales Card --}}
-                                <div class="col">
-                                    <div class="shopify-metric-card p-2 p-md-3 rounded-3 cursor-pointer" data-metric="sales" onclick="switchShopifyMetric('sales')">
+                                    <div class="shopify-metric-card p-2 p-md-3 rounded-3 cursor-pointer active" data-metric="sales" onclick="switchShopifyMetric('sales')">
                                         <div class="shopify-metric-title">
                                             <span>Total sales</span>
                                             <i class="fas fa-chart-line text-white-50" style="font-size:0.75rem;"></i>
@@ -1524,7 +1509,7 @@ body.modal-open .admin-mobile-menu-toggle {
                                     </div>
                                 </div>
 
-                                {{-- 3. Orders Card --}}
+                                {{-- 2. Orders Card --}}
                                 <div class="col">
                                     <div class="shopify-metric-card p-2 p-md-3 rounded-3 cursor-pointer" data-metric="orders" onclick="switchShopifyMetric('orders')">
                                         <div class="shopify-metric-title">
@@ -1536,6 +1521,21 @@ body.modal-open .admin-mobile-menu-toggle {
                                             <span class="shopify-delta-badge up" id="shopifyOrdersDelta"><i class="fas fa-arrow-up me-1"></i><span id="shopifyOrdersDeltaText">8.2%</span></span>
                                         </div>
                                         <div class="text-white-50 small mt-1 text-truncate" style="font-size:0.7rem;">Filtered bookings</div>
+                                    </div>
+                                </div>
+
+                                {{-- 3. Sessions Card --}}
+                                <div class="col">
+                                    <div class="shopify-metric-card p-2 p-md-3 rounded-3 cursor-pointer" data-metric="sessions" onclick="switchShopifyMetric('sessions')">
+                                        <div class="shopify-metric-title">
+                                            <span>Sessions</span>
+                                            <i class="fas fa-eye text-white-50" style="font-size:0.75rem;"></i>
+                                        </div>
+                                        <div class="d-flex align-items-baseline justify-content-between flex-wrap gap-1 mt-1" style="min-width:0;">
+                                            <span class="shopify-metric-val" id="shopifySessionsVal">{{ number_format($allVisitorSessionsCount ?? 4810) }}</span>
+                                            <span class="shopify-delta-badge down" id="shopifySessionsDelta"><i class="fas fa-arrow-down me-1"></i><span id="shopifySessionsDeltaText">12.4%</span></span>
+                                        </div>
+                                        <div class="text-white-50 small mt-1 text-truncate" style="font-size:0.7rem;">Tracked visitor traffic</div>
                                     </div>
                                 </div>
 
@@ -1565,7 +1565,7 @@ body.modal-open .admin-mobile-menu-toggle {
                             {{-- Dynamic Trend Line Chart --}}
                             <div class="shopify-chart-wrap pt-3 border-top border-secondary border-opacity-25">
                                 <div class="d-flex align-items-center justify-content-between flex-wrap gap-2 mb-3">
-                                    <div class="fw-bold text-white" id="shopifyChartTitle" style="font-size: 0.95rem; letter-spacing: -0.01em;">Sessions over time</div>
+                                    <div class="fw-bold text-white" id="shopifyChartTitle" style="font-size: 0.95rem; letter-spacing: -0.01em;">Total sales over time</div>
                                     <div class="d-flex align-items-center gap-3 small text-white-50">
                                         <span><i class="fas fa-circle text-primary me-1"></i> <span id="shopifyCurrentPeriodLabel">Current Selection</span></span>
                                         <span><i class="fas fa-circle text-info opacity-50 me-1"></i> <span id="shopifyPrevPeriodLabel">Previous Period</span></span>
@@ -3429,7 +3429,7 @@ body.modal-open .admin-mobile-menu-toggle {
                 $(window).on('resize', updateTabScrollArrows);
                 setTimeout(updateTabScrollArrows, 400);
 
-                let currentShopifyMetric = 'sessions';
+                let currentShopifyMetric = 'sales';
                 let shopifyChartInstance = null;
                 let classicChartInstance = null;
                 let ordersGuestsChartInstance = null;
