@@ -63,6 +63,16 @@
       opacity: 1 !important;
     }
 
+    @if(!\App\Models\Setting::showMetricTrends())
+    .shopify-delta-badge,
+    .growth-tag,
+    .txn-stat-trend,
+    .metric-trend-badge,
+    [data-metric-trend] {
+      display: none !important;
+    }
+    @endif
+
     /* Input placeholders & helper tips */
     ::placeholder,
     ::-webkit-input-placeholder,

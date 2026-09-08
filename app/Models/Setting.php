@@ -15,10 +15,25 @@ class Setting extends Model
         'sandbox_mode',
         'affiliate_withdraw_charge',
         'google_analytics_measurement_id',
+        'show_metric_trends',
     ];
 
     protected $casts = [
         'affiliate_withdraw_charge' => 'decimal:2',
         'sandbox_mode' => 'boolean',
+        'show_metric_trends' => 'boolean',
     ];
+
+    /**
+     * Check if metric signs & percentage trends (+0.3%, -10%, etc.) are enabled globally.
+     */
+    public static function showMetricTrends(): bool
+    {
+        try {
+            $setting = static::find(1);
+            return (bool) ($setting->show_metric_trends ?? false);
+        } catch (\Throwable $e) {
+            return false;
+        }
+    }
 }

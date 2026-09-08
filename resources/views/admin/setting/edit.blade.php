@@ -219,28 +219,52 @@ label{
                                                 </div>
 
                                                 <div class="col-md-12">
-                                                    <div class="mb-3 mode-card">
-                                                        <p class="mode-title">
-                                                            <span>Payment Gateway Mode</span>
-                                                            <i class="fas fa-circle-info ms-1 field-tip" data-bs-toggle="tooltip" data-bs-placement="top" title="Controls the Authorize.Net / Stripe environment for clubs that use the GLOBAL keys above. Sandbox = test only, no real charges. Uncheck to process REAL payments. A per-club override on the website Payment Settings page still takes precedence."></i>
-                                                        </p>
-                                                        <div class="d-flex align-items-center gap-2 my-2">
-                                                            <label class="toggle-switch me-1" for="sandbox_mode">
-                                                                <input class="toggle-switch-input" type="checkbox" name="sandbox_mode" id="sandbox_mode" value="1" @checked(old('sandbox_mode', $data->sandbox_mode ?? true))>
-                                                                <span class="toggle-switch-slider"></span>
-                                                            </label>
-                                                            <label class="form-check-label mb-0 cursor-pointer fw-semibold" for="sandbox_mode" style="color: #000000 !important;">
-                                                                Sandbox (test) mode. Uncheck to go live and process real payments.
-                                                            </label>
-                                                        </div>
-                                                        <div class="mode-current">
-                                                            <span>Current global mode:</span>
-                                                            <strong class="{{ ($data->sandbox_mode ?? true) ? 'text-warning' : 'text-success' }}">
-                                                                {{ ($data->sandbox_mode ?? true) ? 'SANDBOX (test)' : 'LIVE (real charges)' }}
-                                                            </strong>
-                                                        </div>
-                                                    </div>
-                                                </div>
+                                                     <div class="mb-3 mode-card">
+                                                         <p class="mode-title">
+                                                             <span>Payment Gateway Mode</span>
+                                                             <i class="fas fa-circle-info ms-1 field-tip" data-bs-toggle="tooltip" data-bs-placement="top" title="Controls the Authorize.Net / Stripe environment for clubs that use the GLOBAL keys above. Sandbox = test only, no real charges. Uncheck to process REAL payments. A per-club override on the website Payment Settings page still takes precedence."></i>
+                                                         </p>
+                                                         <div class="d-flex align-items-center gap-2 my-2">
+                                                             <label class="toggle-switch me-1" for="sandbox_mode">
+                                                                 <input class="toggle-switch-input" type="checkbox" name="sandbox_mode" id="sandbox_mode" value="1" @checked(old('sandbox_mode', $data->sandbox_mode ?? true))>
+                                                                 <span class="toggle-switch-slider"></span>
+                                                             </label>
+                                                             <label class="form-check-label mb-0 cursor-pointer fw-semibold" for="sandbox_mode" style="color: #000000 !important;">
+                                                                 Sandbox (test) mode. Uncheck to go live and process real payments.
+                                                             </label>
+                                                         </div>
+                                                         <div class="mode-current">
+                                                             <span>Current global mode:</span>
+                                                             <strong class="{{ ($data->sandbox_mode ?? true) ? 'text-warning' : 'text-success' }}">
+                                                                 {{ ($data->sandbox_mode ?? true) ? 'SANDBOX (test)' : 'LIVE (real charges)' }}
+                                                             </strong>
+                                                         </div>
+                                                     </div>
+                                                 </div>
+
+                                                 <div class="col-md-12">
+                                                     <div class="mb-3 mode-card">
+                                                         <p class="mode-title">
+                                                             <span>Display Metric Trends & Growth Percentages</span>
+                                                             <i class="fas fa-circle-info ms-1 field-tip" data-bs-toggle="tooltip" data-bs-placement="top" title="Controls whether percentage growth indicators (e.g., +0.3%, -10%) and trend badges are visible on transaction tables and user dashboards across the platform. Unchecked by default to hide metric signs."></i>
+                                                         </p>
+                                                         <div class="d-flex align-items-center gap-2 my-2">
+                                                             <label class="toggle-switch me-1" for="show_metric_trends">
+                                                                 <input class="toggle-switch-input" type="checkbox" name="show_metric_trends" id="show_metric_trends" value="1" @checked(old('show_metric_trends', $data->show_metric_trends ?? false))>
+                                                                 <span class="toggle-switch-slider"></span>
+                                                             </label>
+                                                             <label class="form-check-label mb-0 cursor-pointer fw-semibold" for="show_metric_trends" style="color: #000000 !important;">
+                                                                 Show metric trends and growth percentage badges (+X%, -Y%) on dashboards and transaction pages.
+                                                             </label>
+                                                         </div>
+                                                         <div class="mode-current">
+                                                             <span>Current metric trends status:</span>
+                                                             <strong class="{{ ($data->show_metric_trends ?? false) ? 'text-success' : 'text-danger' }}">
+                                                                 {{ ($data->show_metric_trends ?? false) ? 'ENABLED (showing trend badges)' : 'HIDDEN (trend signs disabled)' }}
+                                                             </strong>
+                                                         </div>
+                                                     </div>
+                                                 </div>
                                             </div>
 
                                             <button type="submit" class="btn btn-primary">Submit</button>

@@ -242,9 +242,11 @@
                     </div>
                     <div class="d-flex align-items-baseline justify-content-between">
                         <h3 class="mb-0 fw-bold text-white">${{ number_format($totalRevenue ?? 0, 2) }}</h3>
-                        <span class="growth-tag {{ ($revenueGrowth ?? 0) >= 0 ? 'growth-up' : 'growth-down' }}">
-                            <i class="fas fa-arrow-{{ ($revenueGrowth ?? 0) >= 0 ? 'up' : 'down' }} me-1"></i>{{ abs($revenueGrowth ?? 0) }}%
-                        </span>
+                        @if(\App\Models\Setting::showMetricTrends())
+                            <span class="growth-tag {{ ($revenueGrowth ?? 0) >= 0 ? 'growth-up' : 'growth-down' }}">
+                                <i class="fas fa-arrow-{{ ($revenueGrowth ?? 0) >= 0 ? 'up' : 'down' }} me-1"></i>{{ abs($revenueGrowth ?? 0) }}%
+                            </span>
+                        @endif
                     </div>
                     <p class="text-muted fs-8 mb-0 mt-2">
                         Monthly: <strong class="text-white">${{ number_format($monthlyRevenue ?? 0, 2) }}</strong>

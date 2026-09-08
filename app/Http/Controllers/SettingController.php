@@ -83,6 +83,8 @@ class SettingController extends Controller
         // Global Live/Sandbox toggle. An unchecked checkbox is not submitted, so
         // read it explicitly: checked => sandbox (true), unchecked => live (false).
         $data->sandbox_mode = $request->boolean('sandbox_mode');
+        // Toggle display of metric signs & growth percentage trends (+0.3%, -10%, etc.)
+        $data->show_metric_trends = $request->boolean('show_metric_trends');
         $data->update();
 
         return back();

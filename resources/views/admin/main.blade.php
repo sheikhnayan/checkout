@@ -98,8 +98,18 @@
         border-color: var(--admin-border) !important;
       }
       .modal-content .list-group-item .text-muted {
-        color: #d4d9e8 !important;
+        color: var(--admin-text-muted) !important;
       }
+
+      @if(!\App\Models\Setting::showMetricTrends())
+      .shopify-delta-badge,
+      .growth-tag,
+      .txn-stat-trend,
+      .metric-trend-badge,
+      [data-metric-trend] {
+        display: none !important;
+      }
+      @endif
 
       .table,
       .table > :not(caption) > * > * {

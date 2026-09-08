@@ -3629,15 +3629,21 @@ body.modal-open .admin-mobile-menu-toggle {
                     drawOrdersGuestsChart(dailyMap);
                 }
 
+                const showMetricTrendsGlobal = @json(\App\Models\Setting::showMetricTrends());
+
                 function updateDeltaBadge(badgeSel, textSel, val) {
                     const $badge = $(badgeSel);
                     const $text = $(textSel);
+                    if (!showMetricTrendsGlobal) {
+                        $badge.hide();
+                        return;
+                    }
                     if (val >= 0) {
-                        $badge.removeClass('down').addClass('up');
+                        $badge.removeClass('down').addClass('up').show();
                         $badge.find('i').attr('class', 'fas fa-arrow-up me-1');
                         $text.text('+' + Math.abs(val).toFixed(1) + '%');
                     } else {
-                        $badge.removeClass('up').addClass('down');
+                        $badge.removeClass('up').addClass('down').show();
                         $badge.find('i').attr('class', 'fas fa-arrow-down me-1');
                         $text.text('-' + Math.abs(val).toFixed(1) + '%');
                     }
@@ -5505,7 +5511,12 @@ body.modal-open .admin-mobile-menu-toggle {
                             return;
                         }
 
-                        trendEl.removeClass('trend-up trend-down').addClass(isUp ? 'trend-up' : 'trend-down');
+                        if (!showMetricTrendsGlobal) {
+                            trendEl.hide();
+                            return;
+                        }
+
+                        trendEl.removeClass('trend-up trend-down').addClass(isUp ? 'trend-up' : 'trend-down').show();
                         trendEl.html('<i class="fas fa-arrow-' + (isUp ? 'up' : 'down') + ' me-1"></i>' + absPct + ' <span>vs last week</span>');
                     });
                 }
