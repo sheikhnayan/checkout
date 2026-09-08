@@ -13197,29 +13197,20 @@
                     paymentSection.parentNode.insertBefore(emptyHint, paymentSection);
                 }
 
-                if (hasItems) {
-                    $('#section-1, #section-2').removeClass('active').hide();
-                    $('#section-3').addClass('active').show();
-                    if (emptyHint) {
-                        emptyHint.style.display = 'none';
-                    }
+                $('#section-1, #section-2').removeClass('active').hide();
+                $('#section-3').addClass('active').show();
+                if (emptyHint) {
+                    emptyHint.style.display = hasItems ? 'none' : 'block';
+                }
 
-                    updateShippingFieldsVisibility();
+                updateShippingFieldsVisibility();
 
-                    if (hadCartItems === false) {
-                        if (typeof triggerEmbedCheckoutScrollFallback === 'function') {
-                            triggerEmbedCheckoutScrollFallback(140);
-                        } else if (paymentSection && typeof paymentSection.scrollIntoView === 'function') {
-                            paymentSection.scrollIntoView({ behavior: 'smooth', block: 'start' });
-                        }
+                if (hasItems && hadCartItems === false) {
+                    if (typeof triggerEmbedCheckoutScrollFallback === 'function') {
+                        triggerEmbedCheckoutScrollFallback(140);
+                    } else if (paymentSection && typeof paymentSection.scrollIntoView === 'function') {
+                        paymentSection.scrollIntoView({ behavior: 'smooth', block: 'start' });
                     }
-                } else {
-                    $('#section-3').removeClass('active').hide();
-                    if (emptyHint) {
-                        emptyHint.style.display = 'block';
-                    }
-
-                    updateShippingFieldsVisibility();
                 }
 
                 hadCartItems = hasItems;
