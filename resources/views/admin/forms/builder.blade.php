@@ -772,7 +772,7 @@
                                 
                                 <div class="mb-3">
                                     <label class="form-label text-white small fw-semibold">Form Title <span class="text-danger">*</span></label>
-                                    <input type="text" name="title" id="formTitleInput" class="txn-search-input" placeholder="e.g. Employment Application" value="{{ isset($form) ? $form->title : '' }}" required>
+                                    <input type="text" name="title" id="formTitleInput" class="txn-search-input" placeholder="e.g. Employment Application" value="{{ isset($form) ? $form->title : '' }}">
                                 </div>
 
                                 <div class="mb-3">
@@ -2379,6 +2379,27 @@ document.addEventListener('DOMContentLoaded', function() {
 
     // Serialize Form & Full Settings Object on Save
     document.getElementById('builderForm').addEventListener('submit', function(e) {
+        const titleVal = (document.getElementById('formTitleInput')?.value || '').trim();
+        if (!titleVal) {
+            e.preventDefault();
+            if (typeof modeFieldsBtn !== 'undefined' && typeof modeSettingsBtn !== 'undefined' && modeFieldsBtn && modeSettingsBtn) {
+                modeFieldsBtn.classList.add('active');
+                modeSettingsBtn.classList.remove('active');
+                if (typeof builderModeFieldsView !== 'undefined' && builderModeFieldsView) builderModeFieldsView.style.display = 'flex';
+                if (typeof builderModeSettingsView !== 'undefined' && builderModeSettingsView) builderModeSettingsView.style.display = 'none';
+            }
+            if (typeof switchLeftTab === 'function') {
+                switchLeftTab('add');
+            }
+            const titleInput = document.getElementById('formTitleInput');
+            if (titleInput) {
+                titleInput.classList.add('border', 'border-danger');
+                titleInput.focus();
+            }
+            alert('Please enter a Form Title before saving.');
+            return false;
+        }
+
         document.getElementById('fieldsSchemaInput').value = JSON.stringify(fields);
 
         const settingsPayload = {
