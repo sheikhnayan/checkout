@@ -21,10 +21,10 @@ class NightlyReportController extends BaseNightlyReportsController
         $endDate = $request->input('end_date');
         $search = $request->input('search');
 
-        $query = NrNightlyReport::with('location')
-            ->whereIn('location_id', $allowedLocationIds);
+        $query = NrNightlyReport::with('location');
+        $this->scopeReportQuery($query);
 
-        if ($selectedLocationId && in_array((int) $selectedLocationId, $allowedLocationIds, true)) {
+        if ($selectedLocationId) {
             $query->where('location_id', (int) $selectedLocationId);
         }
 
@@ -59,20 +59,21 @@ class NightlyReportController extends BaseNightlyReportsController
 
     public function show($type, $id)
     {
-        $allowedLocationIds = $this->accessibleLocationIds();
-
         if ($type === 'boutique') {
-            $report = NrBoutiqueReport::with('location')->whereIn('location_id', $allowedLocationIds)->findOrFail($id);
+            $query = NrBoutiqueReport::with('location');
+            $report = $this->scopeReportQuery($query)->findOrFail($id);
             $report->update(['is_viewed' => true]);
             return view('admin.nightly-reports.reports.show-boutique', compact('report'));
         }
 
         if ($type === 'coh') {
-            $report = NrCohReport::with('location')->whereIn('location_id', $allowedLocationIds)->findOrFail($id);
+            $query = NrCohReport::with('location');
+            $report = $this->scopeReportQuery($query)->findOrFail($id);
             return view('admin.nightly-reports.reports.show-coh', compact('report'));
         }
 
-        $report = NrNightlyReport::with('location')->whereIn('location_id', $allowedLocationIds)->findOrFail($id);
+        $query = NrNightlyReport::with('location');
+        $report = $this->scopeReportQuery($query)->findOrFail($id);
         $report->update(['is_viewed' => true]);
 
         return view('admin.nightly-reports.reports.show', compact('report'));
@@ -80,29 +81,30 @@ class NightlyReportController extends BaseNightlyReportsController
 
     public function edit($type, $id)
     {
-        $allowedLocationIds = $this->accessibleLocationIds();
         $locations = $this->accessibleLocations();
 
         if ($type === 'boutique') {
-            $report = NrBoutiqueReport::with('location')->whereIn('location_id', $allowedLocationIds)->findOrFail($id);
+            $query = NrBoutiqueReport::with('location');
+            $report = $this->scopeReportQuery($query)->findOrFail($id);
             return view('admin.nightly-reports.reports.edit-boutique', compact('report', 'locations'));
         }
 
         if ($type === 'coh') {
-            $report = NrCohReport::with('location')->whereIn('location_id', $allowedLocationIds)->findOrFail($id);
+            $query = NrCohReport::with('location');
+            $report = $this->scopeReportQuery($query)->findOrFail($id);
             return view('admin.nightly-reports.reports.edit-coh', compact('report', 'locations'));
         }
 
-        $report = NrNightlyReport::with('location')->whereIn('location_id', $allowedLocationIds)->findOrFail($id);
+        $query = NrNightlyReport::with('location');
+        $report = $this->scopeReportQuery($query)->findOrFail($id);
         return view('admin.nightly-reports.reports.edit', compact('report', 'locations'));
     }
 
     public function update(Request $request, $type, $id)
     {
-        $allowedLocationIds = $this->accessibleLocationIds();
-
         if ($type === 'boutique') {
-            $report = NrBoutiqueReport::whereIn('location_id', $allowedLocationIds)->findOrFail($id);
+            $query = NrBoutiqueReport::query();
+            $report = $this->scopeReportQuery($query)->findOrFail($id);
             $validated = $request->validate([
                 'gross_daily_sales' => 'required|numeric|min:0',
                 'total_guest_count' => 'required|integer|min:0',
@@ -117,7 +119,8 @@ class NightlyReportController extends BaseNightlyReportsController
         }
 
         if ($type === 'coh') {
-            $report = NrCohReport::whereIn('location_id', $allowedLocationIds)->findOrFail($id);
+            $query = NrCohReport::query();
+            $report = $this->scopeReportQuery($query)->findOrFail($id);
             $validated = $request->validate([
                 'drop_safe' => 'nullable|numeric|min:0',
                 'main_safe' => 'nullable|numeric|min:0',
@@ -129,7 +132,8 @@ class NightlyReportController extends BaseNightlyReportsController
                 ->with('success', 'COH report updated successfully.');
         }
 
-        $report = NrNightlyReport::whereIn('location_id', $allowedLocationIds)->findOrFail($id);
+        $query = NrNightlyReport::query();
+        $report = $this->scopeReportQuery($query)->findOrFail($id);
         $validated = $request->validate([
             'net_sales' => 'required|numeric|min:0',
             'nightly_goal' => 'nullable|numeric|min:0',
@@ -166,23 +170,24 @@ class NightlyReportController extends BaseNightlyReportsController
 
     public function destroy($type, $id)
     {
-        $allowedLocationIds = $this->accessibleLocationIds();
-
         if ($type === 'boutique') {
-            $report = NrBoutiqueReport::whereIn('location_id', $allowedLocationIds)->findOrFail($id);
+            $query = NrBoutiqueReport::query();
+            $report = $this->scopeReportQuery($query)->findOrFail($id);
             $report->delete();
             return redirect()->route('admin.nightly-reports.boutique.index')
                 ->with('success', 'Boutique report deleted successfully.');
         }
 
         if ($type === 'coh') {
-            $report = NrCohReport::whereIn('location_id', $allowedLocationIds)->findOrFail($id);
+            $query = NrCohReport::query();
+            $report = $this->scopeReportQuery($query)->findOrFail($id);
             $report->delete();
             return redirect()->route('admin.nightly-reports.coh.index')
                 ->with('success', 'COH report deleted successfully.');
         }
 
-        $report = NrNightlyReport::whereIn('location_id', $allowedLocationIds)->findOrFail($id);
+        $query = NrNightlyReport::query();
+        $report = $this->scopeReportQuery($query)->findOrFail($id);
         $report->delete();
 
         return redirect()->route('admin.nightly-reports.reports.index')
@@ -191,8 +196,8 @@ class NightlyReportController extends BaseNightlyReportsController
 
     public function previewEmail($type, $id)
     {
-        $allowedLocationIds = $this->accessibleLocationIds();
-        $report = NrNightlyReport::with('location')->whereIn('location_id', $allowedLocationIds)->findOrFail($id);
+        $query = NrNightlyReport::with('location');
+        $report = $this->scopeReportQuery($query)->findOrFail($id);
 
         return view('admin.nightly-reports.reports.email-preview', compact('report'));
     }

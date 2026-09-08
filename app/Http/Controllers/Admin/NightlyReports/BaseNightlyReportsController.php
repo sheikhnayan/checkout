@@ -14,12 +14,13 @@ class BaseNightlyReportsController extends Controller
      */
     protected function accessibleLocations()
     {
-        $user = Auth::guard('ambassador')->user() ?: Auth::user();
+        $ambassador = Auth::guard('ambassador')->user();
+        $user = $ambassador ?: Auth::user();
         if (!$user) {
             return NrLocation::whereRaw('1=0')->get();
         }
 
-        if ($ambassador = Auth::guard('ambassador')->user()) {
+        if ($ambassador) {
             $ambassadorLocs = NrLocation::whereIn('website_id', $ambassador->clubs()->pluck('websites.id'))
                 ->where('active', true)
                 ->orderBy('name')
@@ -34,7 +35,7 @@ class BaseNightlyReportsController extends Controller
             return NrLocation::where('active', true)->orderBy('name')->get();
         }
 
-        $locationIds = $user->accessibleNrLocationIds();
+        $locationIds = $this->accessibleLocationIds();
         if (!empty($locationIds)) {
             return NrLocation::whereIn('id', $locationIds)
                 ->where('active', true)
@@ -42,7 +43,7 @@ class BaseNightlyReportsController extends Controller
                 ->get();
         }
 
-        return NrLocation::where('active', true)->orderBy('name')->get();
+        return NrLocation::whereRaw('1=0')->get();
     }
 
     /**
@@ -72,12 +73,93 @@ class BaseNightlyReportsController extends Controller
             return NrLocation::pluck('id')->map(fn ($id) => (int) $id)->all();
         }
 
-        $locationIds = $user->accessibleNrLocationIds();
-        if (!empty($locationIds)) {
-            return $locationIds;
+        $directLocationIds = $user->accessibleNrLocationIds();
+
+        // Include locations of ambassadors created/managed by this user
+        $ambassadorWebsiteIds = \Illuminate\Support\Facades\DB::table('ambassador_website')
+            ->join('nightly_report_ambassadors', 'ambassador_website.nightly_report_ambassador_id', '=', 'nightly_report_ambassadors.id')
+            ->where('nightly_report_ambassadors.created_by_user_id', $user->id)
+            ->pluck('ambassador_website.website_id')
+            ->toArray();
+
+        $ambassadorLocationIds = [];
+        if (!empty($ambassadorWebsiteIds)) {
+            $ambassadorLocationIds = NrLocation::whereIn('website_id', $ambassadorWebsiteIds)
+                ->pluck('id')
+                ->map(fn ($id) => (int) $id)
+                ->all();
         }
 
-        return NrLocation::pluck('id')->map(fn ($id) => (int) $id)->all();
+        return array_values(array_unique(array_merge($directLocationIds, $ambassadorLocationIds)));
+    }
+
+    /**
+     * Get email addresses of ambassadors created/managed by the current user.
+     */
+    protected function managedAmbassadorEmails(): array
+    {
+        $ambassador = Auth::guard('ambassador')->user();
+        $user = $ambassador ?: Auth::user();
+        if (!$user || $user->isAdmin() || $user->isSuperAdmin()) {
+            return [];
+        }
+
+        return \App\Models\NightlyReportAmbassador::where('created_by_user_id', $user->id)
+            ->pluck('email')
+            ->map(fn($e) => strtolower(trim($e)))
+            ->filter()
+            ->all();
+    }
+
+    /**
+     * Scope a report query to only show reports the user is allowed to see:
+     * - Admins/SuperAdmins: All reports
+     * - Managers/Users: Reports for their accessible locations OR submitted by them OR submitted by ambassadors under them.
+     */
+    protected function scopeReportQuery($query)
+    {
+        $user = Auth::guard('ambassador')->user() ?: Auth::user();
+        if (!$user) {
+            return $query->whereRaw('1=0');
+        }
+
+        if ($user->isAdmin() || $user->isSuperAdmin()) {
+            return $query;
+        }
+
+        $allowedLocationIds = $this->accessibleLocationIds();
+        $userEmail = strtolower(trim($user->email ?? ''));
+        $ambassadorEmails = $this->managedAmbassadorEmails();
+
+        return $query->where(function ($q) use ($allowedLocationIds, $userEmail, $ambassadorEmails) {
+            $hasCondition = false;
+            if (!empty($allowedLocationIds)) {
+                $q->whereIn('location_id', $allowedLocationIds);
+                $hasCondition = true;
+            }
+            if ($userEmail) {
+                if ($hasCondition) {
+                    $q->orWhereRaw('LOWER(submitter_email) = ?', [$userEmail]);
+                } else {
+                    $q->whereRaw('LOWER(submitter_email) = ?', [$userEmail]);
+                    $hasCondition = true;
+                }
+            }
+            if (!empty($ambassadorEmails)) {
+                foreach ($ambassadorEmails as $aEmail) {
+                    if ($hasCondition) {
+                        $q->orWhereRaw('LOWER(submitter_email) = ?', [$aEmail]);
+                    } else {
+                        $q->whereRaw('LOWER(submitter_email) = ?', [$aEmail]);
+                        $hasCondition = true;
+                    }
+                }
+            }
+
+            if (!$hasCondition) {
+                $q->whereRaw('1=0');
+            }
+        });
     }
 
     /**
