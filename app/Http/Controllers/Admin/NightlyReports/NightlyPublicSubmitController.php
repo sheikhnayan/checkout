@@ -81,6 +81,8 @@ class NightlyPublicSubmitController extends Controller
 
         $report = NrNightlyReport::create($validated);
 
+        BaseNightlyReportsController::sendReportNotificationEmails($report);
+
         return redirect()->route('nightly.submit.success', ['id' => $report->id, 'type' => 'nightly']);
     }
 
@@ -128,6 +130,8 @@ class NightlyPublicSubmitController extends Controller
         $validated['guest_average_ticket'] = $validated['total_guest_count'] > 0 ? ($validated['gross_daily_sales'] / $validated['total_guest_count']) : 0;
 
         $report = NrBoutiqueReport::create($validated);
+
+        BaseNightlyReportsController::sendReportNotificationEmails($report);
 
         return redirect()->route('nightly.submit.success', ['id' => $report->id, 'type' => 'boutique']);
     }
@@ -177,6 +181,8 @@ class NightlyPublicSubmitController extends Controller
         $validated['vu_cash_on_hand'] = ($safes + $registers + $atms + $other) - $paidOuts;
 
         $report = NrCohReport::create($validated);
+
+        BaseNightlyReportsController::sendReportNotificationEmails($report);
 
         return redirect()->route('nightly.submit.success', ['id' => $report->id, 'type' => 'coh']);
     }
