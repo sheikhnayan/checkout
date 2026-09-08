@@ -13043,7 +13043,7 @@
                 '  <h4 id="shipping-address-title" style="margin:0 0 14px; font-size:18px; line-height:1.3; font-weight:700; color:rgba(255,255,255,0.96);">Shipping Address</h4>' +
                 '  <div class="checkbox-container payment-consent-group" style="margin:0 0 12px 0;">' +
                 '    <label class="consent-label" style="margin:0;">' +
-                '      <input type="checkbox" name="shipping_same_as_billing" id="shipping_same_as_billing" value="1" />' +
+                '      <input type="checkbox" name="shipping_same_as_billing" id="shipping_same_as_billing" value="1" checked />' +
                 '      <span>Shipping same as billing details</span>' +
                 '    </label>' +
                 '  </div>' +
@@ -13268,27 +13268,7 @@
             }
 
             function cartHasPhysicalProducts() {
-                if (!Array.isArray(window.cart) || !window.cart.length) {
-                    return false;
-                }
-
-                return window.cart.some(function (item) {
-                    if (!item || typeof item !== 'object') {
-                        return false;
-                    }
-
-                    var directFlag = item.physical_product_enabled;
-                    if (typeof directFlag !== 'undefined') {
-                        return parseTruthyFlag(directFlag);
-                    }
-
-                    var packageId = item.packageId || item.package_id;
-                    if (!packageId) {
-                        return false;
-                    }
-
-                    return parseTruthyFlag($('.vip-btn[data-id="' + packageId + '"]').first().data('physical-product-enabled'));
-                });
+                return Array.isArray(window.cart) && window.cart.length > 0;
             }
 
             function updateShippingFieldsVisibility() {

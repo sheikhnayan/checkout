@@ -300,7 +300,7 @@ class TransactionController extends Controller
         }
 
         $requiresTransportation = !$isPhysicalProductCheckout && $this->cartRequiresTransportation($cartItems, $selectedPackage);
-        $requiresPhysicalProducts = $this->cartRequiresPhysicalProducts($cartItems, $selectedPackage);
+        $requiresPhysicalProducts = $isPhysicalProductCheckout || $this->cartRequiresPhysicalProducts($cartItems, $selectedPackage);
         $isSelfDriveTransportation = $requiresTransportation && $request->boolean('transportation_self_drive_ack');
         $requiresArrivalTime = !$isPhysicalProductCheckout && (!$requiresTransportation || $isSelfDriveTransportation);
 
@@ -453,11 +453,8 @@ class TransactionController extends Controller
                     $add->payment_card_last4 = $stripeCardLast4;
                     $add->payment_card_brand = $stripeCardBrand;
                     $add->ticket_qr_code = $this->generateTicketQrCode();
-                    $add->package_first_name = $request->input('package_first_name');
+                    $this->populateTransactionCustomerFields($add, $request);
                     $add->ip_address = $ipAddress;
-                    $add->package_last_name = $request->input('package_last_name');
-                    $add->package_phone = $request->input('package_phone');
-                    $add->package_email = $request->input('package_email');
                     $add->package_number_of_guest = $cartSummary['total_guests'];
                     $add->package_use_date = $request->input('package_use_date');
                     $add->business_company = $request->input('business_company');
@@ -482,10 +479,6 @@ class TransactionController extends Controller
                     $add->addons = $cartSummary['addons_summary'];
                     $add->package_id = $cartSummary['primary_package_id'] ?: $request->input('package_id');
                     $add->cart_items = !empty($cartItems) ? $cartItems : null;
-                    $add->payment_first_name = $request->input('payment_first_name');
-                    $add->payment_last_name = $request->input('payment_last_name');
-                    $add->payment_phone = $request->input('payment_phone');
-                    $add->payment_email = $request->input('payment_email');
                     $add->payment_address = $request->input('payment_address');
                     $add->payment_city = $request->input('payment_city');
                     $add->payment_state = $request->input('payment_state');
@@ -495,9 +488,8 @@ class TransactionController extends Controller
                     $payment_month = $request->input('payment_month');
                     $payment_day = $request->input('payment_day');
                     $payment_year = $request->input('payment_year');
-                    $add->payment_dob = ($payment_year && $payment_month && $payment_day) ? (sprintf('%04d-%02d-%02d', $payment_year, $payment_month, $payment_day)) : null;
+                    $add->payment_dob = ($payment_year && $payment_month && $package_day) ? (sprintf('%04d-%02d-%02d', $payment_year, $payment_month, $payment_day)) : null;
                     $add->payment_zip_code = $request->input('payment_zip_code');
-
 
                     $event_id = $this->resolvePackageTransactionEventId($request, $selectedPackage);
                     $website_id = $request->website_id;
@@ -522,10 +514,10 @@ class TransactionController extends Controller
                         // Prepare all transaction data for the email body
                         $mailData = [
                             'transaction_id' => $transaction_id,
-                            'package_first_name' => $request->input('package_first_name'),
-                            'package_last_name' => $request->input('package_last_name'),
-                            'package_phone' => $request->input('package_phone'),
-                            'package_email' => $request->input('package_email'),
+                            'package_first_name' => $add->package_first_name,
+                            'package_last_name' => $add->package_last_name,
+                            'package_phone' => $add->package_phone,
+                            'package_email' => $add->package_email,
                             'package_use_date' => $request->input('package_use_date'),
                             'package_dob' => $add->package_dob,
                             'package_note' => $request->input('package_note'),
@@ -545,10 +537,10 @@ class TransactionController extends Controller
                             'addons' => $cartSummary['addons_summary'],
                             'package_id' => $cartSummary['primary_package_id'] ?: $request->input('package_id'),
                             'cart_items' => $cartItems,
-                            'payment_first_name' => $request->input('payment_first_name'),
-                            'payment_last_name' => $request->input('payment_last_name'),
-                            'payment_phone' => $request->input('payment_phone'),
-                            'payment_email' => $request->input('payment_email'),
+                            'payment_first_name' => $add->payment_first_name,
+                            'payment_last_name' => $add->payment_last_name,
+                            'payment_phone' => $add->payment_phone,
+                            'payment_email' => $add->payment_email,
                             'payment_address' => $request->input('payment_address'),
                             'payment_city' => $request->input('payment_city'),
                             'payment_state' => $request->input('payment_state'),
@@ -598,8 +590,8 @@ class TransactionController extends Controller
                             \Illuminate\Support\Facades\Mail::to($clubEmail)->send(clone $send_mail_club);
                         }
 
-                        $purchaserEmail = $request->input('package_email');
-                        if ($purchaserEmail && filter_var($purchaserEmail, FILTER_VALIDATE_EMAIL)) {
+                        $purchaserEmail = $this->resolvePurchaserEmail($request, $add);
+                        if ($purchaserEmail) {
                             \Illuminate\Support\Facades\Mail::to($purchaserEmail)->send($send_mail_purchaser);
                         }
 
@@ -787,11 +779,8 @@ class TransactionController extends Controller
                     $add->payment_card_last4 = $anet['card_last4'];
                     $add->payment_card_brand = $anet['account_type'];
                     $add->ticket_qr_code = $this->generateTicketQrCode();
-                    $add->package_first_name = $request->input('package_first_name');
+                    $this->populateTransactionCustomerFields($add, $request);
                     $add->ip_address = $ipAddress;
-                    $add->package_last_name = $request->input('package_last_name');
-                    $add->package_phone = $request->input('package_phone');
-                    $add->package_email = $request->input('package_email');
                     $add->package_number_of_guest = $cartSummary['total_guests'];
                     $add->package_use_date = $request->input('package_use_date');
                     $add->business_company = $request->input('business_company');
@@ -816,10 +805,6 @@ class TransactionController extends Controller
                     $add->addons = $cartSummary['addons_summary'];
                     $add->package_id = $cartSummary['primary_package_id'] ?: $request->input('package_id');
                     $add->cart_items = !empty($cartItems) ? $cartItems : null;
-                    $add->payment_first_name = $request->input('payment_first_name');
-                    $add->payment_last_name = $request->input('payment_last_name');
-                    $add->payment_phone = $request->input('payment_phone');
-                    $add->payment_email = $request->input('payment_email');
                     $add->payment_address = $request->input('payment_address');
                     $add->payment_city = $request->input('payment_city');
                     $add->payment_state = $request->input('payment_state');
@@ -829,7 +814,7 @@ class TransactionController extends Controller
                     $payment_month = $request->input('payment_month');
                     $payment_day = $request->input('payment_day');
                     $payment_year = $request->input('payment_year');
-                    $add->payment_dob = ($payment_year && $payment_month && $payment_day) ? (sprintf('%04d-%02d-%02d', $payment_year, $payment_month, $payment_day)) : null;
+                    $add->payment_dob = ($payment_year && $payment_month && $package_day) ? (sprintf('%04d-%02d-%02d', $payment_year, $payment_month, $payment_day)) : null;
                     $add->payment_zip_code = $request->input('payment_zip_code');
 
 
@@ -856,10 +841,10 @@ class TransactionController extends Controller
                         // Prepare all transaction data for the email body
                         $mailData = [
                             'transaction_id' => $transaction_id,
-                            'package_first_name' => $request->input('package_first_name'),
-                            'package_last_name' => $request->input('package_last_name'),
-                            'package_phone' => $request->input('package_phone'),
-                            'package_email' => $request->input('package_email'),
+                            'package_first_name' => $add->package_first_name,
+                            'package_last_name' => $add->package_last_name,
+                            'package_phone' => $add->package_phone,
+                            'package_email' => $add->package_email,
                             'package_use_date' => $request->input('package_use_date'),
                             'package_dob' => $add->package_dob,
                             'package_note' => $request->input('package_note'),
@@ -879,10 +864,10 @@ class TransactionController extends Controller
                             'addons' => $cartSummary['addons_summary'],
                             'package_id' => $cartSummary['primary_package_id'] ?: $request->input('package_id'),
                             'cart_items' => $cartItems,
-                            'payment_first_name' => $request->input('payment_first_name'),
-                            'payment_last_name' => $request->input('payment_last_name'),
-                            'payment_phone' => $request->input('payment_phone'),
-                            'payment_email' => $request->input('payment_email'),
+                            'payment_first_name' => $add->payment_first_name,
+                            'payment_last_name' => $add->payment_last_name,
+                            'payment_phone' => $add->payment_phone,
+                            'payment_email' => $add->payment_email,
                             'payment_address' => $request->input('payment_address'),
                             'payment_city' => $request->input('payment_city'),
                             'payment_state' => $request->input('payment_state'),
@@ -932,8 +917,8 @@ class TransactionController extends Controller
                             \Illuminate\Support\Facades\Mail::to($clubEmail)->send(clone $send_mail_club);
                         }
 
-                        $purchaserEmail = $request->input('package_email');
-                        if ($purchaserEmail && filter_var($purchaserEmail, FILTER_VALIDATE_EMAIL)) {
+                        $purchaserEmail = $this->resolvePurchaserEmail($request, $add);
+                        if ($purchaserEmail) {
                             \Illuminate\Support\Facades\Mail::to($purchaserEmail)->send($send_mail_purchaser);
                         }
                     } catch (\Throwable $th) {
@@ -1030,11 +1015,8 @@ class TransactionController extends Controller
         $transaction->gateway_response_code = 'free_checkout';
         $transaction->gateway_message = 'Zero-dollar checkout completed without payment gateway processing.';
         $transaction->ticket_qr_code = $this->generateTicketQrCode();
-        $transaction->package_first_name = $request->input('package_first_name');
+        $this->populateTransactionCustomerFields($transaction, $request);
         $transaction->ip_address = $ipAddress;
-        $transaction->package_last_name = $request->input('package_last_name');
-        $transaction->package_phone = $request->input('package_phone');
-        $transaction->package_email = $request->input('package_email');
         $transaction->package_number_of_guest = $cartSummary['total_guests'];
         $transaction->package_use_date = $request->input('package_use_date');
         $transaction->business_company = $request->input('business_company');
@@ -1062,10 +1044,6 @@ class TransactionController extends Controller
         $transaction->addons = $cartSummary['addons_summary'];
         $transaction->package_id = $cartSummary['primary_package_id'] ?: $request->input('package_id');
         $transaction->cart_items = !empty($cartItems) ? $cartItems : null;
-        $transaction->payment_first_name = $request->input('payment_first_name');
-        $transaction->payment_last_name = $request->input('payment_last_name');
-        $transaction->payment_phone = $request->input('payment_phone');
-        $transaction->payment_email = $request->input('payment_email');
         $transaction->payment_address = $request->input('payment_address');
         $transaction->payment_city = $request->input('payment_city');
         $transaction->payment_state = $request->input('payment_state');
@@ -1097,10 +1075,10 @@ class TransactionController extends Controller
         try {
             $mailData = [
                 'transaction_id' => $transactionId,
-                'package_first_name' => $request->input('package_first_name'),
-                'package_last_name' => $request->input('package_last_name'),
-                'package_phone' => $request->input('package_phone'),
-                'package_email' => $request->input('package_email'),
+                'package_first_name' => $transaction->package_first_name,
+                'package_last_name' => $transaction->package_last_name,
+                'package_phone' => $transaction->package_phone,
+                'package_email' => $transaction->package_email,
                 'package_use_date' => $request->input('package_use_date'),
                 'package_dob' => $transaction->package_dob,
                 'package_note' => $request->input('package_note'),
@@ -1120,14 +1098,24 @@ class TransactionController extends Controller
                 'addons' => $cartSummary['addons_summary'],
                 'package_id' => $cartSummary['primary_package_id'] ?: $request->input('package_id'),
                 'cart_items' => $cartItems,
-                'payment_first_name' => $request->input('payment_first_name'),
-                'payment_last_name' => $request->input('payment_last_name'),
-                'payment_phone' => $request->input('payment_phone'),
-                'payment_email' => $request->input('payment_email'),
+                'payment_first_name' => $transaction->payment_first_name,
+                'payment_last_name' => $transaction->payment_last_name,
+                'payment_phone' => $transaction->payment_phone,
+                'payment_email' => $transaction->payment_email,
                 'payment_address' => $request->input('payment_address'),
                 'payment_city' => $request->input('payment_city'),
                 'payment_state' => $request->input('payment_state'),
                 'payment_country' => $request->input('payment_country'),
+                'shipping_same_as_billing' => $transaction->shipping_same_as_billing,
+                'shipping_first_name' => $transaction->shipping_first_name,
+                'shipping_last_name' => $transaction->shipping_last_name,
+                'shipping_phone' => $transaction->shipping_phone,
+                'shipping_email' => $transaction->shipping_email,
+                'shipping_address' => $transaction->shipping_address,
+                'shipping_city' => $transaction->shipping_city,
+                'shipping_state' => $transaction->shipping_state,
+                'shipping_country' => $transaction->shipping_country,
+                'shipping_zip_code' => $transaction->shipping_zip_code,
                 'payment_dob' => $transaction->payment_dob,
                 'payment_zip_code' => $request->input('payment_zip_code'),
                 'event_id' => $eventId,
@@ -1159,8 +1147,8 @@ class TransactionController extends Controller
                 Mail::to($clubEmail)->send(clone $sendMailClub);
             }
 
-            $purchaserEmail = $request->input('package_email');
-            if ($purchaserEmail && filter_var($purchaserEmail, FILTER_VALIDATE_EMAIL)) {
+            $purchaserEmail = $this->resolvePurchaserEmail($request, $transaction);
+            if ($purchaserEmail) {
                 Mail::to($purchaserEmail)->send($sendMailPurchaser);
             }
         } catch (\Throwable $exception) {
@@ -1339,10 +1327,12 @@ class TransactionController extends Controller
 
         $candidates[] = $request->input('payment_phone_e164');
         $candidates[] = $request->input('payment_phone');
+        $candidates[] = $request->input('shipping_phone');
 
         if ($transaction) {
             $candidates[] = $transaction->package_phone;
             $candidates[] = $transaction->payment_phone;
+            $candidates[] = $transaction->shipping_phone;
         }
 
         foreach ($candidates as $candidate) {
@@ -2826,6 +2816,50 @@ class TransactionController extends Controller
         }
 
         return $this->isTruthy($website->is_physical_product_checkout ?? false);
+    }
+
+    private function populateTransactionCustomerFields(Transaction $transaction, Request $request): void
+    {
+        $pkgFirstName = trim((string) ($request->input('package_first_name') ?: $request->input('payment_first_name') ?: $request->input('shipping_first_name')));
+        $pkgLastName = trim((string) ($request->input('package_last_name') ?: $request->input('payment_last_name') ?: $request->input('shipping_last_name')));
+        $pkgPhone = trim((string) ($request->input('package_phone') ?: $request->input('payment_phone') ?: $request->input('shipping_phone')));
+        $pkgEmail = trim((string) ($request->input('package_email') ?: $request->input('payment_email') ?: $request->input('shipping_email')));
+
+        $transaction->package_first_name = $pkgFirstName !== '' ? $pkgFirstName : null;
+        $transaction->package_last_name = $pkgLastName !== '' ? $pkgLastName : null;
+        $transaction->package_phone = $pkgPhone !== '' ? $pkgPhone : null;
+        $transaction->package_email = $pkgEmail !== '' ? $pkgEmail : null;
+
+        $pmtFirstName = trim((string) ($request->input('payment_first_name') ?: $pkgFirstName));
+        $pmtLastName = trim((string) ($request->input('payment_last_name') ?: $pkgLastName));
+        $pmtPhone = trim((string) ($request->input('payment_phone') ?: $pkgPhone));
+        $pmtEmail = trim((string) ($request->input('payment_email') ?: $pkgEmail));
+
+        $transaction->payment_first_name = $pmtFirstName !== '' ? $pmtFirstName : null;
+        $transaction->payment_last_name = $pmtLastName !== '' ? $pmtLastName : null;
+        $transaction->payment_phone = $pmtPhone !== '' ? $pmtPhone : null;
+        $transaction->payment_email = $pmtEmail !== '' ? $pmtEmail : null;
+    }
+
+    private function resolvePurchaserEmail(Request $request, ?Transaction $transaction = null): ?string
+    {
+        $candidates = [
+            $request->input('package_email'),
+            $request->input('payment_email'),
+            $request->input('shipping_email'),
+            $transaction?->package_email,
+            $transaction?->payment_email,
+            $transaction?->shipping_email,
+        ];
+
+        foreach ($candidates as $candidate) {
+            $email = trim((string) $candidate);
+            if ($email !== '' && filter_var($email, FILTER_VALIDATE_EMAIL)) {
+                return $email;
+            }
+        }
+
+        return null;
     }
 
     private function validateShippingDetails(Request $request, bool $requiresPhysicalProducts): bool

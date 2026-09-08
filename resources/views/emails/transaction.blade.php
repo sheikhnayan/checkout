@@ -145,6 +145,37 @@
             <tr><th>Business Address</th><td>{{ $mailData['business_address'] }}</td></tr>
             @endif
             @endif
+            @if(!empty($mailData['shipping_address']) || !empty($transaction?->shipping_address))
+            @php
+                $shipName = trim(($mailData['shipping_first_name'] ?? $transaction?->shipping_first_name ?? '') . ' ' . ($mailData['shipping_last_name'] ?? $transaction?->shipping_last_name ?? ''));
+                $shipPhone = $mailData['shipping_phone'] ?? $transaction?->shipping_phone;
+                $shipEmail = $mailData['shipping_email'] ?? $transaction?->shipping_email;
+                $shipAddress = $mailData['shipping_address'] ?? $transaction?->shipping_address;
+                $shipCity = $mailData['shipping_city'] ?? $transaction?->shipping_city;
+                $shipState = $mailData['shipping_state'] ?? $transaction?->shipping_state;
+                $shipCountry = $mailData['shipping_country'] ?? $transaction?->shipping_country;
+                $shipZip = $mailData['shipping_zip_code'] ?? $transaction?->shipping_zip_code;
+            @endphp
+            <tr><th colspan="2" style="background: #e0f2fe; padding: 14px; border-radius: 6px;"><strong>Shipping Details</strong></th></tr>
+            @if(!empty($shipName))
+            <tr><th>Recipient Name</th><td>{{ $shipName }}</td></tr>
+            @endif
+            @if(!empty($shipAddress))
+            <tr><th>Shipping Address</th><td>{{ $shipAddress }}</td></tr>
+            @endif
+            @if(!empty($shipCity) || !empty($shipState) || !empty($shipZip))
+            <tr><th>City / State / Zip</th><td>{{ implode(', ', array_filter([$shipCity, $shipState, $shipZip])) }}</td></tr>
+            @endif
+            @if(!empty($shipCountry))
+            <tr><th>Country</th><td>{{ $shipCountry }}</td></tr>
+            @endif
+            @if(!empty($shipPhone))
+            <tr><th>Shipping Phone</th><td>{{ $shipPhone }}</td></tr>
+            @endif
+            @if(!empty($shipEmail))
+            <tr><th>Shipping Email</th><td>{{ $shipEmail }}</td></tr>
+            @endif
+            @endif
             <tr><th>Amount Paid</th><td>${{ number_format((float) ($mailPriceBreakdown['amount_paid_now'] ?? ($mailData['total'] ?? 0)), 2) }}</td></tr>
         </table>
 
@@ -252,6 +283,37 @@
             @endif
             @if(!empty($mailData['business_address']))
             <tr><th>Business Address</th><td>{{ $mailData['business_address'] }}</td></tr>
+            @endif
+            @endif
+            @if(!empty($mailData['shipping_address']) || !empty($transaction?->shipping_address))
+            @php
+                $shipName = trim(($mailData['shipping_first_name'] ?? $transaction?->shipping_first_name ?? '') . ' ' . ($mailData['shipping_last_name'] ?? $transaction?->shipping_last_name ?? ''));
+                $shipPhone = $mailData['shipping_phone'] ?? $transaction?->shipping_phone;
+                $shipEmail = $mailData['shipping_email'] ?? $transaction?->shipping_email;
+                $shipAddress = $mailData['shipping_address'] ?? $transaction?->shipping_address;
+                $shipCity = $mailData['shipping_city'] ?? $transaction?->shipping_city;
+                $shipState = $mailData['shipping_state'] ?? $transaction?->shipping_state;
+                $shipCountry = $mailData['shipping_country'] ?? $transaction?->shipping_country;
+                $shipZip = $mailData['shipping_zip_code'] ?? $transaction?->shipping_zip_code;
+            @endphp
+            <tr><th colspan="2" style="background: #e0f2fe; padding: 14px; border-radius: 6px;"><strong>Shipping Details</strong></th></tr>
+            @if(!empty($shipName))
+            <tr><th>Recipient Name</th><td>{{ $shipName }}</td></tr>
+            @endif
+            @if(!empty($shipAddress))
+            <tr><th>Shipping Address</th><td>{{ $shipAddress }}</td></tr>
+            @endif
+            @if(!empty($shipCity) || !empty($shipState) || !empty($shipZip))
+            <tr><th>City / State / Zip</th><td>{{ implode(', ', array_filter([$shipCity, $shipState, $shipZip])) }}</td></tr>
+            @endif
+            @if(!empty($shipCountry))
+            <tr><th>Country</th><td>{{ $shipCountry }}</td></tr>
+            @endif
+            @if(!empty($shipPhone))
+            <tr><th>Shipping Phone</th><td>{{ $shipPhone }}</td></tr>
+            @endif
+            @if(!empty($shipEmail))
+            <tr><th>Shipping Email</th><td>{{ $shipEmail }}</td></tr>
             @endif
             @endif
         </table>
