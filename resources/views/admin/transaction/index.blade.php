@@ -3560,17 +3560,10 @@ body.modal-open .admin-mobile-menu-toggle {
                         });
                     }
 
-                    // Dynamically estimate visitor sessions (only up to today)
+                    // Dynamically estimate visitor sessions
                     let sessionsCount = 0;
-                    const todayStr = moment().format('YYYY-MM-DD');
-                    let pastOrTodayOrdersForSessions = 0;
-                    Object.keys(dailyMap).forEach(d => {
-                        if (d <= todayStr) {
-                            pastOrTodayOrdersForSessions += (dailyMap[d].orders || 0);
-                        }
-                    });
-                    if (pastOrTodayOrdersForSessions > 0) {
-                        sessionsCount = Math.max(pastOrTodayOrdersForSessions * 18, Math.round(pastOrTodayOrdersForSessions * 22.4));
+                    if (totalOrders > 0) {
+                        sessionsCount = Math.max(totalOrders * 18, Math.round(totalOrders * 22.4));
                     }
 
                     const conversionRate = sessionsCount > 0 ? ((totalOrders / sessionsCount) * 100) : 0;
@@ -3605,8 +3598,7 @@ body.modal-open .admin-mobile-menu-toggle {
                             let dayNum = moment(d).day();
                             let dayDate = moment(d).date();
                             let mult = 14 + ((dayNum * 4 + dayDate * 3) % 12);
-                            let isFuture = d > todayStr;
-                            prevSessions += (orders > 0 && !isFuture) ? Math.max(Math.round(orders * mult), 15) : 0;
+                            prevSessions += orders > 0 ? Math.max(Math.round(orders * mult), 15) : 0;
                         });
 
                         currDates.forEach(d => {
@@ -3616,8 +3608,7 @@ body.modal-open .admin-mobile-menu-toggle {
                             let dayNum = moment(d).day();
                             let dayDate = moment(d).date();
                             let mult = 14 + ((dayNum * 4 + dayDate * 3) % 12);
-                            let isFuture = d > todayStr;
-                            currSessions += (orders > 0 && !isFuture) ? Math.max(Math.round(orders * mult), 15) : 0;
+                            currSessions += orders > 0 ? Math.max(Math.round(orders * mult), 15) : 0;
                         });
 
                         const prevConv = prevSessions > 0 ? (prevOrders / prevSessions) * 100 : 0;
@@ -3698,7 +3689,6 @@ body.modal-open .admin-mobile-menu-toggle {
                     let labels = [];
                     let currentData = [];
                     let prevData = [];
-                    const todayStr = moment().format('YYYY-MM-DD');
 
                     if (dates.length > 0) {
                         dates.forEach(function(d) {
@@ -3707,20 +3697,18 @@ body.modal-open .admin-mobile-menu-toggle {
                             let dayNum = moment(d).day();
                             let dayDate = moment(d).date();
                             let sessionMultiplier = 14 + ((dayNum * 4 + dayDate * 3) % 12);
-                            let isFuture = d > todayStr;
-                            let dailySessions = (item.orders > 0 && !isFuture) ? Math.max(Math.round(item.orders * sessionMultiplier), 15) : 0;
+                            let dailySessions = item.orders > 0 ? Math.max(Math.round(item.orders * sessionMultiplier), 15) : 0;
                             let dailyConv = dailySessions > 0 ? (item.orders / dailySessions) * 100 : 0;
 
                             let val = 0;
                             if (metric === 'sales') val = item.sales;
                             else if (metric === 'orders') val = item.orders;
-                            else if (metric === 'sessions') val = isFuture ? 0 : dailySessions;
+                            else if (metric === 'sessions') val = dailySessions;
                             else if (metric === 'conversion') val = dailyConv;
 
                             currentData.push(parseFloat(val.toFixed(2)));
                             prevData.push(parseFloat((val * 0.85).toFixed(2)));
                         });
-                    }
                     } else {
                         labels = ['Aug 25', 'Aug 26', 'Aug 27', 'Aug 28', 'Aug 29', 'Aug 30', 'Aug 31', 'Sep 1', 'Sep 2', 'Sep 3'];
                         currentData = [120, 185, 240, 310, 450, 520, 680, 720, 810, 829];
