@@ -7154,7 +7154,7 @@
             </div>{{-- end cv-main-col --}}
 
             {{-- RIGHT: Order Summary Sidebar --}}
-            <aside class="cv-sidebar" id="cv-order-sidebar">
+            <aside class="cv-sidebar" id="cv-order-sidebar" style="width: 100% !important;">
                 <div class="cv-sidebar-header">
                     <span>ORDER SUMMARY</span>
                     {{-- <button type="button" class="cv-sidebar-edit-btn" id="cv-edit-cart" style="display:none;"><i class="fas fa-pen"></i> Edit Cart</button> --}}
