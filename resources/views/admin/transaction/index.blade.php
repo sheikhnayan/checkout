@@ -2605,6 +2605,7 @@ body.modal-open .admin-mobile-menu-toggle {
                                         data-discounted_amount="{{ $item->discounted_amount }}"
                                         data-package_use_date="{{ $item->package_use_date }}"
                                         data-date="{{ $purchaseAtLocal?->format('Y-m-d h:i A T') ?? '' }}"
+                                        data-date-iso="{{ $purchaseAtLocal?->format('Y-m-d') ?? '' }}"
                                         data-men="{{ $item->men ?? '' }}"
                                         data-women="{{ $item->women ?? '' }}"
                                         data-requires_transportation="{{ $requiresTransportationForRow ? 1 : 0 }}"
@@ -3560,10 +3561,17 @@ body.modal-open .admin-mobile-menu-toggle {
                         });
                     }
 
-                    // Dynamically estimate visitor sessions
+                    // Dynamically estimate visitor sessions (only up to today)
                     let sessionsCount = 0;
-                    if (totalOrders > 0) {
-                        sessionsCount = Math.max(totalOrders * 18, Math.round(totalOrders * 22.4));
+                    const todayStr = moment().format('YYYY-MM-DD');
+                    let pastOrTodayOrdersForSessions = 0;
+                    Object.keys(dailyMap).forEach(d => {
+                        if (d <= todayStr) {
+                            pastOrTodayOrdersForSessions += (dailyMap[d].orders || 0);
+                        }
+                    });
+                    if (pastOrTodayOrdersForSessions > 0) {
+                        sessionsCount = Math.max(pastOrTodayOrdersForSessions * 18, Math.round(pastOrTodayOrdersForSessions * 22.4));
                     }
 
                     const conversionRate = sessionsCount > 0 ? ((totalOrders / sessionsCount) * 100) : 0;
@@ -3686,6 +3694,11 @@ body.modal-open .admin-mobile-menu-toggle {
                         }
                     }
 
+                    if (metric === 'sessions') {
+                        const todayStr = moment().format('YYYY-MM-DD');
+                        dates = dates.filter(d => d <= todayStr);
+                    }
+
                     let labels = [];
                     let currentData = [];
                     let prevData = [];
@@ -3710,9 +3723,16 @@ body.modal-open .admin-mobile-menu-toggle {
                             prevData.push(parseFloat((val * 0.85).toFixed(2)));
                         });
                     } else {
-                        labels = ['Aug 25', 'Aug 26', 'Aug 27', 'Aug 28', 'Aug 29', 'Aug 30', 'Aug 31', 'Sep 1', 'Sep 2', 'Sep 3'];
-                        currentData = [120, 185, 240, 310, 450, 520, 680, 720, 810, 829];
-                        prevData = [100, 150, 200, 260, 380, 440, 580, 620, 700, 750];
+                        labels = [];
+                        currentData = [];
+                        prevData = [];
+                        const today = moment();
+                        for (let i = 9; i >= 0; i--) {
+                            const m = today.clone().subtract(i, 'days');
+                            labels.push(m.format('MMM D'));
+                            currentData.push(0);
+                            prevData.push(0);
+                        }
                     }
 
                     if (typeof Chart === 'undefined') return;
