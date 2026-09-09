@@ -7920,6 +7920,7 @@ body #package_use_date::-webkit-calendar-picker-indicator {
                         if (pkgCard.length) {
                             var clubId = formFields.selected_club || pkgCard.data('club-id') || pkgCard.attr('data-club-id');
                             if (clubId) {
+                                $('input[name="website_id"], #website_id').val(clubId);
                                 var locEl = $('#package-location-filter-main, #locationFilter, .aff-location-mobile-select, .location-filter-select, select[name="location_id"]');
                                 if (locEl.length) {
                                     locEl.val(clubId).trigger('change');

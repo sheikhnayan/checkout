@@ -2662,6 +2662,14 @@ body.modal-open .admin-mobile-menu-toggle {
                                                 </a>
                                             </li>
                                             <li>
+                                                <form action="{{ route('admin.transaction.resend-email', $item->id) }}" method="POST" class="d-inline" onsubmit="return confirm('Resend receipt confirmation email to purchaser?');">
+                                                    @csrf
+                                                    <button type="submit" class="dropdown-item" style="color:#60a5fa;font-size:0.82rem">
+                                                        <i class="fas fa-envelope-open-text me-2 text-info"></i>Resend Confirmation Email
+                                                    </button>
+                                                </form>
+                                            </li>
+                                            <li>
                                                 <a class="dropdown-item btn-toggle-sandbox-trigger" style="color:rgba(255,255,255,0.7);font-size:0.82rem" href="javascript:void(0)"
                                                    data-id="{{ $item->id }}"
                                                    data-is-sandbox="{{ $item->is_sandbox ? '1' : '0' }}">

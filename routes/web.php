@@ -316,6 +316,7 @@ Route::group(['prefix'=> 'admins', 'as' => 'admin.', 'middleware' => ['admin.or.
         Route::post('/{id}/archive', [TransactionController::class, 'archive'])->name('archive');
         Route::post('/{id}/unarchive', [TransactionController::class, 'unarchive'])->name('unarchive');
         Route::post('/{id}/send-repay-email', [TransactionController::class, 'sendRepayEmail'])->name('send-repay-email');
+        Route::post('/{id}/resend-email', [TransactionController::class, 'resendConfirmationEmail'])->name('resend-email');
         Route::post('/{id}/toggle-sandbox', [TransactionController::class, 'toggleSandboxFlag'])->name('toggle-sandbox');
         Route::get('/show/{id}', [TransactionController::class,'show'])->name('show');
         Route::get('/{id}/details', [TransactionController::class,'details'])->name('details');

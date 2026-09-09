@@ -289,6 +289,24 @@ class TransactionController extends Controller
         }
 
         $selectedPackage = Package::find($cartSummary['primary_package_id'] ?: $request->input('package_id'));
+        if (!$selectedPackage && !empty($cartItems)) {
+            foreach ($cartItems as $cItem) {
+                $cPkgId = $cItem['package_id'] ?? null;
+                if ($cPkgId) {
+                    $p = Package::find($cPkgId);
+                    if ($p && !empty($p->website_id)) {
+                        $selectedPackage = $p;
+                        break;
+                    }
+                }
+            }
+        }
+
+        // CRITICAL FIX: Ensure website_id is strictly resolved to the owner club of the selected package
+        if ($selectedPackage && !empty($selectedPackage->website_id)) {
+            $request->merge(['website_id' => (int) $selectedPackage->website_id]);
+        }
+
         $w = Website::find($request->website_id);
         $isPhysicalProductCheckout = $this->isPhysicalProductCheckoutEnabled($w);
 
@@ -2841,12 +2859,12 @@ class TransactionController extends Controller
         $transaction->payment_email = $pmtEmail !== '' ? $pmtEmail : null;
     }
 
-    private function resolvePurchaserEmail(Request $request, ?Transaction $transaction = null): ?string
+    private function resolvePurchaserEmail(?Request $request = null, ?Transaction $transaction = null): ?string
     {
         $candidates = [
-            $request->input('package_email'),
-            $request->input('payment_email'),
-            $request->input('shipping_email'),
+            $request?->input('package_email'),
+            $request?->input('payment_email'),
+            $request?->input('shipping_email'),
             $transaction?->package_email,
             $transaction?->payment_email,
             $transaction?->shipping_email,
@@ -2860,6 +2878,134 @@ class TransactionController extends Controller
         }
 
         return null;
+    }
+
+    /**
+     * Resend confirmation email for a specific transaction by ID.
+     */
+    public function resendConfirmationEmail($id)
+    {
+        try {
+            $transaction = Transaction::findOrFail($id);
+            $sentCount = $this->sendConfirmationEmailForTransaction($transaction);
+
+            return redirect()->back()->with('success', "Confirmation email successfully re-sent to purchaser ({$sentCount} email(s) dispatched).");
+        } catch (\Throwable $e) {
+            \Log::error('Failed to resend confirmation email: ' . $e->getMessage(), ['exception' => $e]);
+            return redirect()->back()->with('error', 'Failed to send email: ' . $e->getMessage());
+        }
+    }
+
+    /**
+     * Dispatch confirmation email for a transaction object.
+     */
+    public function sendConfirmationEmailForTransaction(Transaction $transaction): int
+    {
+        $transaction = $transaction->fresh();
+        
+        // Auto-correct website_id if package owner club differs
+        $cartItems = is_array($transaction->cart_items) 
+            ? $transaction->cart_items 
+            : (json_decode($transaction->cart_items, true) ?: []);
+            
+        $pkgId = $transaction->package_id ?: ($cartItems[0]['package_id'] ?? null);
+        $pkgName = $cartItems[0]['package_name'] ?? ($cartItems[0]['name'] ?? null);
+        
+        $p = null;
+        if ($pkgId) {
+            $p = Package::find($pkgId);
+        } elseif ($pkgName) {
+            $p = Package::where('name', $pkgName)->first();
+        }
+
+        if ($p && !empty($p->website_id) && (int)$p->website_id !== (int)$transaction->website_id) {
+            $transaction->website_id = (int) $p->website_id;
+            $transaction->save();
+            $transaction = $transaction->fresh();
+        }
+
+        $website = Website::findOrFail($transaction->website_id);
+
+        $mailData = [
+            'transaction_id' => $transaction->transaction_id,
+            'package_first_name' => $transaction->package_first_name,
+            'package_last_name' => $transaction->package_last_name,
+            'package_phone' => $transaction->package_phone,
+            'package_email' => $transaction->package_email,
+            'package_use_date' => $transaction->package_use_date,
+            'package_dob' => $transaction->package_dob,
+            'package_note' => $transaction->package_note,
+            'transportation_pickup_time' => $transaction->transportation_pickup_time,
+            'transportation_arrival_time' => $transaction->transportation_arrival_time,
+            'transportation_mode' => $transaction->transportation_address ? 'Pickup Requested' : null,
+            'transportation_address' => $transaction->transportation_address,
+            'transportation_phone' => $transaction->transportation_phone,
+            'transportation_guest' => $transaction->transportation_guest,
+            'transportation_note' => $transaction->transportation_note,
+            'host_name' => null,
+            'business_company' => $transaction->business_company,
+            'business_vat' => $transaction->business_vat,
+            'business_address' => $transaction->business_address,
+            'addons' => $transaction->addons,
+            'package_id' => $transaction->package_id,
+            'cart_items' => $cartItems,
+            'payment_first_name' => $transaction->payment_first_name,
+            'payment_last_name' => $transaction->payment_last_name,
+            'payment_phone' => $transaction->payment_phone,
+            'payment_email' => $transaction->payment_email,
+            'payment_address' => $transaction->payment_address,
+            'payment_city' => $transaction->payment_city,
+            'payment_state' => $transaction->payment_state,
+            'payment_country' => $transaction->payment_country,
+            'shipping_same_as_billing' => $transaction->shipping_same_as_billing,
+            'shipping_first_name' => $transaction->shipping_first_name,
+            'shipping_last_name' => $transaction->shipping_last_name,
+            'shipping_phone' => $transaction->shipping_phone,
+            'shipping_email' => $transaction->shipping_email,
+            'shipping_address' => $transaction->shipping_address,
+            'shipping_city' => $transaction->shipping_city,
+            'shipping_state' => $transaction->shipping_state,
+            'shipping_country' => $transaction->shipping_country,
+            'shipping_zip_code' => $transaction->shipping_zip_code,
+            'payment_dob' => $transaction->payment_dob,
+            'payment_zip_code' => $transaction->payment_zip_code,
+            'event_id' => $transaction->event_id,
+            'website_id' => $website->id,
+            'club_name' => $website->name,
+            'website_name' => $website->name,
+            'total' => $transaction->total,
+            'type' => $transaction->type ?: 'package',
+            'ticket_qr_code' => $transaction->ticket_qr_code,
+            'ticket_qr_image_url' => $this->buildTicketQrImageUrl($transaction->ticket_qr_code),
+            'price_breakdown' => $this->buildPackagePriceBreakdown($transaction, $website),
+        ];
+
+        $this->applyWebsiteSmtpConfig($website);
+
+        $sent = 0;
+        $purchaserEmail = $this->resolvePurchaserEmail(null, $transaction);
+
+        if (!empty($purchaserEmail)) {
+            $send_mail_purchaser = new \App\Mail\TransactionMail($mailData, $transaction, $cartItems, $mailData['price_breakdown'], $website, true, 'guest');
+            \Illuminate\Support\Facades\Mail::to($purchaserEmail)->send($send_mail_purchaser);
+            $sent++;
+        }
+
+        // Send copy to venue manager email(s)
+        $mailDataNoQr = array_diff_key($mailData, array_flip(['ticket_qr_code', 'ticket_qr_image_url']));
+        $send_mail_club = new \App\Mail\TransactionMail($mailDataNoQr, $transaction, $cartItems, $mailData['price_breakdown'], $website, false, 'manager');
+        
+        $clubEmails = collect($website->emails ?? [])
+            ->filter(fn ($email) => filter_var($email, FILTER_VALIDATE_EMAIL))
+            ->values()
+            ->all();
+
+        if (!empty($clubEmails)) {
+            \Illuminate\Support\Facades\Mail::to($clubEmails)->send($send_mail_club);
+            $sent += count($clubEmails);
+        }
+
+        return $sent;
     }
 
     private function validateShippingDetails(Request $request, bool $requiresPhysicalProducts): bool
