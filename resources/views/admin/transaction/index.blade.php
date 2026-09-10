@@ -3525,42 +3525,9 @@ body.modal-open .admin-mobile-menu-toggle {
                                 }
                             }
 
-                            let resDateRaw = $tempBtn.length ? String($tempBtn.data('package_use_date') || '').trim() : '';
-                            let resDateKey = '';
-                            if (resDateRaw) {
-                                if (resDateRaw.length >= 10 && resDateRaw.match(/^\d{4}-\d{2}-\d{2}/)) {
-                                    resDateKey = resDateRaw.substring(0, 10);
-                                } else {
-                                    const rMom = (typeof parseRowDateToMoment === 'function') ? parseRowDateToMoment(resDateRaw) : moment(resDateRaw);
-                                    if (rMom && rMom.isValid()) {
-                                        resDateKey = rMom.format('YYYY-MM-DD');
-                                    }
-                                }
-                            }
-
-                            let dateKey = '';
-                            const hasExplicitDateFilter = Boolean(filterStartStr && filterEndStr);
+                            // Graphs NEVER show data based on reservation date — ONLY sale date
                             const todayPst = (typeof getPstMoment === 'function') ? getPstMoment().format('YYYY-MM-DD') : moment().format('YYYY-MM-DD');
-
-                            if (hasExplicitDateFilter) {
-                                if (currentTarget === 'reservation') {
-                                    dateKey = resDateKey || saleDateKey;
-                                } else if (currentTarget === 'sale') {
-                                    dateKey = saleDateKey || resDateKey;
-                                } else { // 'either'
-                                    if (resDateKey && resDateKey >= filterStartStr && resDateKey <= filterEndStr) {
-                                        dateKey = resDateKey;
-                                    } else if (saleDateKey && saleDateKey >= filterStartStr && saleDateKey <= filterEndStr) {
-                                        dateKey = saleDateKey;
-                                    } else {
-                                        dateKey = resDateKey || saleDateKey;
-                                    }
-                                }
-                            } else {
-                                // Default / initial state: restrict initial graph so it NEVER shows future days data.
-                                // Map to the sale date (when transaction occurred), ignoring any future reservation dates.
-                                dateKey = (saleDateKey && saleDateKey <= todayPst) ? saleDateKey : (resDateKey && resDateKey <= todayPst ? resDateKey : '');
-                            }
+                            let dateKey = (saleDateKey && saleDateKey <= todayPst) ? saleDateKey : '';
 
                             if (dateKey) {
                                 if (!dailyMap[dateKey]) {
@@ -3678,14 +3645,20 @@ body.modal-open .admin-mobile-menu-toggle {
                     if (hasExplicitDateRange) {
                         const parts = dateRangeVal.split(' - ');
                         const sMom = moment(parts[0], 'MM/DD/YYYY', true);
-                        const eMom = moment(parts[1], 'MM/DD/YYYY', true);
+                        let eMom = moment(parts[1], 'MM/DD/YYYY', true);
                         if (sMom.isValid() && eMom.isValid() && eMom.isSameOrAfter(sMom)) {
-                            const curr = sMom.clone();
-                            while (curr.isSameOrBefore(eMom, 'day')) {
-                                const dKey = curr.format('YYYY-MM-DD');
-                                dates.push(dKey);
-                                targetMap[dKey] = dailyMap[dKey] || { sales: 0, orders: 0, guests: 0 };
-                                curr.add(1, 'day');
+                            // Graphs strictly show sale dates — sales cannot be in the future, so cap at today
+                            if (eMom.isAfter(todayMom)) {
+                                eMom = todayMom.clone();
+                            }
+                            if (sMom.isSameOrBefore(eMom, 'day')) {
+                                const curr = sMom.clone();
+                                while (curr.isSameOrBefore(eMom, 'day')) {
+                                    const dKey = curr.format('YYYY-MM-DD');
+                                    dates.push(dKey);
+                                    targetMap[dKey] = dailyMap[dKey] || { sales: 0, orders: 0, guests: 0 };
+                                    curr.add(1, 'day');
+                                }
                             }
                         }
                     }
