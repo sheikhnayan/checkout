@@ -156,7 +156,7 @@
   @endphp
 
   <!-- Recipients Banner -->
-  <div class="alert no-print mb-4 p-3 d-flex align-items-center justify-content-between" style="background: rgba(30, 41, 59, 0.7); border: 1px solid #334155; border-radius: 8px;">
+  <div class="alert no-print mb-4 p-3 d-flex align-items-center" style="background: rgba(30, 41, 59, 0.7); border: 1px solid #334155; border-radius: 8px;">
     <div class="small">
       <span class="text-gold fw-bold me-2"><i class="fas fa-envelope-open-text me-1"></i> Delivery Recipients:</span>
       @if(count($recipientList) > 0)
@@ -165,7 +165,6 @@
         <span class="text-warning">No email recipients configured on this report or venue.</span>
       @endif
     </div>
-    <div class="badge bg-secondary text-light">Official Briefing Preview</div>
   </div>
 
   <!-- Email Card Container -->
