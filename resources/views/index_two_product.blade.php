@@ -6852,7 +6852,6 @@
                                                         <button type="button" class="btn-next"
                                                             id="next-to-payment">Next: Payment Details</button>
                                                     </div>
-                                                </div>
                                             </section>
 
                                             <input type="hidden" name="addons" id="addons">
@@ -7038,40 +7037,41 @@
                                                                                 id="cvv" placeholder="CVV"
                                                                                 required data-card-required="1" />
                                                                         </div>
-                                                                    @else
-                                                                        <div class="form-row">
-                                                                            @foreach($paymentLogosToRender as $logo)
-                                                                                <img src="{{ $logo['src'] }}"
-                                                                                    alt="{{ $logo['name'] }}"
-                                                                                    style="height:32px; margin-right:4px;">
-                                                                            @endforeach
+                                                                    </div>
+                                                                @else
+                                                                    <div class="form-row">
+                                                                        @foreach($paymentLogosToRender as $logo)
+                                                                            <img src="{{ $logo['src'] }}"
+                                                                                alt="{{ $logo['name'] }}"
+                                                                                style="height:32px; margin-right:4px;">
+                                                                        @endforeach
+                                                                    </div>
+                                                                    <div style="margin-bottom: 10px;">
+                                                                        <div class="form-group" style="width: 100%;"
+                                                                            id="card_number">
+                                                                            <label for="card_number">Card
+                                                                                Number</label>
+                                                                            {{-- <input type="tel" name="card_number"
+                                                                            placeholder="" required /> --}}
                                                                         </div>
-                                                                        <div style="margin-bottom: 10px;">
-                                                                            <div class="form-group" style="width: 100%;"
-                                                                                id="card_number">
-                                                                                <label for="card_number">Card
-                                                                                    Number</label>
-                                                                                {{-- <input type="tel" name="card_number"
-                                                                                placeholder="" required /> --}}
-                                                                            </div>
 
+                                                                    </div>
+                                                                    <div class="form-row">
+                                                                        <div class="form-group" style="width: 50%;"
+                                                                            id="expiration_date">
+                                                                            <label>Expiry Date</label>
+                                                                            {{-- <input type="text"  name="expiration_date"
+                                                                                placeholder="MM/YY" required /> --}}
                                                                         </div>
-                                                                        <div class="form-row">
-                                                                            <div class="form-group" style="width: 50%;"
-                                                                                id="expiration_date">
-                                                                                <label>Expiry Date</label>
-                                                                                {{-- <input type="text"  name="expiration_date"
-                                                                                    placeholder="MM/YY" required /> --}}
-                                                                            </div>
-                                                                            <div class="form-group" style="width: 50%;"
-                                                                                id="cvv">
-                                                                                <label>CVV</label>
-                                                                                {{-- <input type="tel" name="card_cvv"
-                                                                                placeholder="CVV" required /> --}}
-                                                                            </div>
+                                                                        <div class="form-group" style="width: 50%;"
+                                                                            id="cvv">
+                                                                            <label>CVV</label>
+                                                                            {{-- <input type="tel" name="card_cvv"
+                                                                            placeholder="CVV" required /> --}}
+                                                                        </div>
+                                                                    </div>
                                                                 @endif
-                                                            </div>
-                                                            </div>
+                                                                </div>
                                                             <div id="zero-total-payment-note" style="display: none; margin: 0 0 18px; padding: 14px 16px; border: 1px solid rgba(34, 197, 94, 0.35); border-radius: 12px; background: rgba(34, 197, 94, 0.08); color: #d1fae5; font-size: 13px; line-height: 1.5;">
                                                                 This order total is $0.00. No card information is required to complete checkout.
                                                             </div>
