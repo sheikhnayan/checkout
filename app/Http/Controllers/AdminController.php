@@ -60,13 +60,15 @@ class AdminController extends Controller
             $activePromotersCount = Affiliate::where('status', 'approved')->where('is_active', 1)->count();
             $activeEntertainersCount = Entertainer::where('status', 'approved')->where('is_active', 1)->count();
 
-            // 14-day sales & volume trend for ApexCharts
+            // Sales & volume trend for ApexCharts (Today and last 10 days)
+            $tz = 'America/Los_Angeles';
+            $today = now()->timezone($tz);
             $chartDates = [];
             $chartRevenues = [];
             $chartBookings = [];
 
-            for ($i = 13; $i >= 0; $i--) {
-                $date = now()->subDays($i);
+            for ($i = 10; $i >= 0; $i--) {
+                $date = $today->copy()->subDays($i);
                 $dateStr = $date->format('Y-m-d');
                 $displayDate = $date->format('M d');
 
@@ -139,12 +141,14 @@ class AdminController extends Controller
         $scopedTransactionCount = $getScopedTxQuery()->count();
         $scopedRevenue = $getScopedTxQuery()->where('status', 'completed')->sum('total');
 
+        $tz = 'America/Los_Angeles';
+        $today = now()->timezone($tz);
         $chartDates = [];
         $chartRevenues = [];
         $chartBookings = [];
 
-        for ($i = 13; $i >= 0; $i--) {
-            $date = now()->subDays($i);
+        for ($i = 10; $i >= 0; $i--) {
+            $date = $today->copy()->subDays($i);
             $dateStr = $date->format('Y-m-d');
             $displayDate = $date->format('M d');
 

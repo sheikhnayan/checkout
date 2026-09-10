@@ -346,7 +346,7 @@
                 <div class="dash-panel h-100">
                     <div class="dash-panel-header">
                         <div>
-                            <h5 class="mb-0 text-white fw-bold"><i class="fas fa-chart-area text-warning me-2"></i>14-Day Sales & Booking Trajectory</h5>
+                            <h5 class="mb-0 text-white fw-bold"><i class="fas fa-chart-area text-warning me-2"></i>Sales & Booking Trajectory (Today & Last 10 Days)</h5>
                             <small class="text-muted">Daily revenue ($) & transaction count</small>
                         </div>
                         <span class="badge bg-warning-subtle text-warning border border-warning-subtle">Live Feed</span>

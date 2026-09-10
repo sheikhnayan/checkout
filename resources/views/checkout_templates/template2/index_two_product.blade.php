@@ -6971,6 +6971,7 @@
                                                                             id="cvv" placeholder="CVV"
                                                                             required data-card-required="1" />
                                                                     </div>
+                                                                </div>
                                                                 @else
                                                                     <div class="form-row">
                                                                         @foreach($paymentLogosToRender as $logo)
@@ -7002,8 +7003,8 @@
                                                                             {{-- <input type="tel" name="card_cvv"
                                                                             placeholder="CVV" required /> --}}
                                                                         </div>
+                                                                    </div>
                                                             @endif
-                                                        </div>
                                                         </div>
                                                         <div id="zero-total-payment-note" style="display: none; margin: 0 0 18px; padding: 14px 16px; border: 1px solid rgba(34, 197, 94, 0.35); border-radius: 12px; background: rgba(34, 197, 94, 0.08); color: #d1fae5; font-size: 13px; line-height: 1.5;">
                                                             This order total is $0.00. No card information is required to complete checkout.

@@ -1333,9 +1333,9 @@ body.modal-open .admin-mobile-menu-toggle {
             $pwRevenue = (float) $prevWeekData->sum('total');
             $revenueTrend = $pwRevenue > 0 ? round((($twRevenue - $pwRevenue) / $pwRevenue) * 100, 1) : 0;
 
-            // 30-day chart data
+            // Today and last 10 days chart data (11 days total)
             $chartDays = collect();
-            for ($i = 29; $i >= 0; $i--) {
+            for ($i = 10; $i >= 0; $i--) {
                 $dateStr = $now->copy()->subDays($i)->format('Y-m-d');
                 $dayData = $reportableData->filter(fn($t) => $t->created_at->timezone($tz)->format('Y-m-d') === $dateStr);
                 $chartDays->push([
@@ -1345,8 +1345,8 @@ body.modal-open .admin-mobile-menu-toggle {
                     'commission' => $dayData->sum(fn($t) => (float)($t->affiliate_commission_amount ?? 0) + (float)($t->entertainer_commission_amount ?? 0)),
                 ]);
             }
-            $chart14 = $chartDays->slice(16)->values();
-            $chart7  = $chartDays->slice(23)->values();
+            $chart14 = $chartDays;
+            $chart7  = $chartDays->slice(4)->values();
 
             // Top packages donut with Club Name
             $allPkgGroups = $reportableData->where('type', 'package')
@@ -3270,8 +3270,8 @@ body.modal-open .admin-mobile-menu-toggle {
                             curr.add(1, 'day');
                         }
                     } else {
-                        const period = $('#chartPeriod').val() || '30';
-                        const numDays = parseInt(period, 10) || 30;
+                        const period = $('#chartPeriod').val() || '11';
+                        const numDays = parseInt(period, 10) || 11;
                         const pstNow = (typeof getPstMoment === 'function') ? getPstMoment() : moment();
 
                         for (let i = numDays - 1; i >= 0; i--) {
@@ -3539,12 +3539,15 @@ body.modal-open .admin-mobile-menu-toggle {
                             }
 
                             let dateKey = '';
-                            if (currentTarget === 'reservation') {
-                                dateKey = resDateKey || saleDateKey;
-                            } else if (currentTarget === 'sale') {
-                                dateKey = saleDateKey || resDateKey;
-                            } else { // 'either'
-                                if (filterStartStr && filterEndStr) {
+                            const hasExplicitDateFilter = Boolean(filterStartStr && filterEndStr);
+                            const todayPst = (typeof getPstMoment === 'function') ? getPstMoment().format('YYYY-MM-DD') : moment().format('YYYY-MM-DD');
+
+                            if (hasExplicitDateFilter) {
+                                if (currentTarget === 'reservation') {
+                                    dateKey = resDateKey || saleDateKey;
+                                } else if (currentTarget === 'sale') {
+                                    dateKey = saleDateKey || resDateKey;
+                                } else { // 'either'
                                     if (resDateKey && resDateKey >= filterStartStr && resDateKey <= filterEndStr) {
                                         dateKey = resDateKey;
                                     } else if (saleDateKey && saleDateKey >= filterStartStr && saleDateKey <= filterEndStr) {
@@ -3552,9 +3555,11 @@ body.modal-open .admin-mobile-menu-toggle {
                                     } else {
                                         dateKey = resDateKey || saleDateKey;
                                     }
-                                } else {
-                                    dateKey = resDateKey || saleDateKey;
                                 }
+                            } else {
+                                // Default / initial state: restrict initial graph so it NEVER shows future days data.
+                                // Map to the sale date (when transaction occurred), ignoring any future reservation dates.
+                                dateKey = (saleDateKey && saleDateKey <= todayPst) ? saleDateKey : (resDateKey && resDateKey <= todayPst ? resDateKey : '');
                             }
 
                             if (dateKey) {
@@ -3588,7 +3593,9 @@ body.modal-open .admin-mobile-menu-toggle {
                     let sessionsDelta = 0;
                     let convDelta = 0;
 
-                    const sortedDates = Object.keys(dailyMap).sort();
+                    const chartWindowForDeltas = resolveChartDateWindow(dailyMap);
+                    const sortedDates = chartWindowForDeltas.dates;
+                    const dateMapForDeltas = chartWindowForDeltas.targetMap;
                     if (sortedDates.length >= 2) {
                         const halfIndex = Math.floor(sortedDates.length / 2);
                         const prevDates = sortedDates.slice(0, halfIndex);
@@ -3596,12 +3603,12 @@ body.modal-open .admin-mobile-menu-toggle {
 
                         let prevSales = 0, currSales = 0;
                         let prevOrders = 0, currOrders = 0;
-
                         let prevSessions = 0, currSessions = 0;
 
                         prevDates.forEach(d => {
-                            let orders = dailyMap[d].sales ? (dailyMap[d].orders || 0) : 0;
-                            prevSales += dailyMap[d].sales || 0;
+                            let item = dateMapForDeltas[d] || {};
+                            let orders = item.sales ? (item.orders || 0) : 0;
+                            prevSales += item.sales || 0;
                             prevOrders += orders;
                             let dayNum = moment(d).day();
                             let dayDate = moment(d).date();
@@ -3610,8 +3617,9 @@ body.modal-open .admin-mobile-menu-toggle {
                         });
 
                         currDates.forEach(d => {
-                            let orders = dailyMap[d].sales ? (dailyMap[d].orders || 0) : 0;
-                            currSales += dailyMap[d].sales || 0;
+                            let item = dateMapForDeltas[d] || {};
+                            let orders = item.sales ? (item.orders || 0) : 0;
+                            currSales += item.sales || 0;
                             currOrders += orders;
                             let dayNum = moment(d).day();
                             let dayDate = moment(d).date();
@@ -3659,40 +3667,53 @@ body.modal-open .admin-mobile-menu-toggle {
                     }
                 }
 
-                function drawShopifyChartDataset(dailyMap, metric) {
-                    const ctx = document.getElementById('shopifyTrendChart');
-                    if (!ctx) return;
-
-                    let dates = [];
-                    let targetMap = dailyMap;
-                    
-                    // Check if an explicit date filter range is applied
+                function resolveChartDateWindow(dailyMap) {
+                    const todayMom = (typeof getPstMoment === 'function') ? getPstMoment().startOf('day') : moment().startOf('day');
                     const dateRangeVal = String($('#txnDateRange').val() || $('#mobileTxnDateRange').val() || '').trim();
                     const hasExplicitDateRange = dateRangeVal && dateRangeVal.includes(' - ');
+
+                    let dates = [];
+                    const targetMap = {};
 
                     if (hasExplicitDateRange) {
                         const parts = dateRangeVal.split(' - ');
                         const sMom = moment(parts[0], 'MM/DD/YYYY', true);
                         const eMom = moment(parts[1], 'MM/DD/YYYY', true);
                         if (sMom.isValid() && eMom.isValid() && eMom.isSameOrAfter(sMom)) {
-                            const filledMap = {};
                             const curr = sMom.clone();
                             while (curr.isSameOrBefore(eMom, 'day')) {
                                 const dKey = curr.format('YYYY-MM-DD');
-                                filledMap[dKey] = dailyMap[dKey] || { sales: 0, orders: 0, guests: 0 };
+                                dates.push(dKey);
+                                targetMap[dKey] = dailyMap[dKey] || { sales: 0, orders: 0, guests: 0 };
                                 curr.add(1, 'day');
                             }
-                            targetMap = filledMap;
-                            dates = Object.keys(filledMap).sort();
-                        } else {
-                            dates = Object.keys(dailyMap).sort();
-                        }
-                    } else {
-                        dates = Object.keys(dailyMap).sort();
-                        if (dates.length > 30) {
-                            dates = dates.slice(-30);
                         }
                     }
+
+                    // If NO explicit date range filter is selected (initial / default state):
+                    // Restrict initial graph so it NEVER shows future days data.
+                    // Initially show data of today and the last 10 days (11 continuous days total).
+                    if (dates.length === 0) {
+                        const startMom = todayMom.clone().subtract(10, 'days');
+                        const curr = startMom.clone();
+                        while (curr.isSameOrBefore(todayMom, 'day')) {
+                            const dKey = curr.format('YYYY-MM-DD');
+                            dates.push(dKey);
+                            targetMap[dKey] = dailyMap[dKey] || { sales: 0, orders: 0, guests: 0 };
+                            curr.add(1, 'day');
+                        }
+                    }
+
+                    return { dates: dates, targetMap: targetMap, hasExplicitDateRange: hasExplicitDateRange };
+                }
+
+                function drawShopifyChartDataset(dailyMap, metric) {
+                    const ctx = document.getElementById('shopifyTrendChart');
+                    if (!ctx) return;
+
+                    const chartWindow = resolveChartDateWindow(dailyMap);
+                    const dates = chartWindow.dates;
+                    const targetMap = chartWindow.targetMap;
 
                     let labels = [];
                     let currentData = [];
@@ -3822,35 +3843,9 @@ body.modal-open .admin-mobile-menu-toggle {
                     const ctx = document.getElementById('classicPerformanceChart');
                     if (!ctx || typeof Chart === 'undefined') return;
 
-                    let dates = [];
-                    let targetMap = dailyMap;
-                    
-                    const dateRangeVal = String($('#txnDateRange').val() || $('#mobileTxnDateRange').val() || '').trim();
-                    const hasExplicitDateRange = dateRangeVal && dateRangeVal.includes(' - ');
-
-                    if (hasExplicitDateRange) {
-                        const parts = dateRangeVal.split(' - ');
-                        const sMom = moment(parts[0], 'MM/DD/YYYY', true);
-                        const eMom = moment(parts[1], 'MM/DD/YYYY', true);
-                        if (sMom.isValid() && eMom.isValid() && eMom.isSameOrAfter(sMom)) {
-                            const filledMap = {};
-                            const curr = sMom.clone();
-                            while (curr.isSameOrBefore(eMom, 'day')) {
-                                const dKey = curr.format('YYYY-MM-DD');
-                                filledMap[dKey] = dailyMap[dKey] || { sales: 0, orders: 0, guests: 0 };
-                                curr.add(1, 'day');
-                            }
-                            targetMap = filledMap;
-                            dates = Object.keys(filledMap).sort();
-                        } else {
-                            dates = Object.keys(dailyMap).sort();
-                        }
-                    } else {
-                        dates = Object.keys(dailyMap).sort();
-                        if (dates.length > 30) {
-                            dates = dates.slice(-30);
-                        }
-                    }
+                    const chartWindow = resolveChartDateWindow(dailyMap);
+                    const dates = chartWindow.dates;
+                    const targetMap = chartWindow.targetMap;
 
                     let labels = [];
                     let revenueData = [];
@@ -3971,35 +3966,9 @@ body.modal-open .admin-mobile-menu-toggle {
                     const ctx = document.getElementById('ordersGuestsChart');
                     if (!ctx || typeof Chart === 'undefined') return;
 
-                    let dates = [];
-                    let targetMap = dailyMap;
-
-                    const dateRangeVal = String($('#txnDateRange').val() || $('#mobileTxnDateRange').val() || '').trim();
-                    const hasExplicitDateRange = dateRangeVal && dateRangeVal.includes(' - ');
-
-                    if (hasExplicitDateRange) {
-                        const parts = dateRangeVal.split(' - ');
-                        const sMom = moment(parts[0], 'MM/DD/YYYY', true);
-                        const eMom = moment(parts[1], 'MM/DD/YYYY', true);
-                        if (sMom.isValid() && eMom.isValid() && eMom.isSameOrAfter(sMom)) {
-                            const filledMap = {};
-                            const curr = sMom.clone();
-                            while (curr.isSameOrBefore(eMom, 'day')) {
-                                const dKey = curr.format('YYYY-MM-DD');
-                                filledMap[dKey] = dailyMap[dKey] || { sales: 0, orders: 0, guests: 0 };
-                                curr.add(1, 'day');
-                            }
-                            targetMap = filledMap;
-                            dates = Object.keys(filledMap).sort();
-                        } else {
-                            dates = Object.keys(dailyMap).sort();
-                        }
-                    } else {
-                        dates = Object.keys(dailyMap).sort();
-                        if (dates.length > 30) {
-                            dates = dates.slice(-30);
-                        }
-                    }
+                    const chartWindow = resolveChartDateWindow(dailyMap);
+                    const dates = chartWindow.dates;
+                    const targetMap = chartWindow.targetMap;
 
                     let labels = [];
                     let ordersData = [];
