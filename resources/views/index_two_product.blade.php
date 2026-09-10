@@ -24,6 +24,17 @@
         <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
         <link rel="stylesheet" href="{{ asset('styles/main.css') }}">
         <style>
+            @media (min-width: 768px) {
+                #cv-checkout-layout:not(.is-guest-mode) > #cv-order-sidebar {
+                    grid-column: 2 !important;
+                    grid-row: 1 !important;
+                    width: 100% !important;
+                    max-width: 100% !important;
+                    position: sticky !important;
+                    top: 24px !important;
+                    display: block !important;
+                }
+            }
             #Pick-up-time,
             input[name="transportation_pickup_time"] {
                 background: #ffffff !important;
@@ -5938,66 +5949,66 @@
                             $cvPRgb = "$cvPr,$cvPg,$cvPb";
                         @endphp
                         <style>
-.cv-access-card[data-name="guest"] { border-color: rgba({{ $cvGRgb }},0.34); background: rgba({{ $cvGRgb }},0.10); }
-.cv-access-card[data-name="guest"]::before { border-color: rgba({{ $cvGRgb }},0.58); }
-.cv-access-card[data-name="guest"]::after { background: radial-gradient(circle, #{{ $cvGuestHex }} 0%, rgba({{ $cvGRgb }},0.8) 100%); box-shadow: 0 0 10px rgba({{ $cvGRgb }},0.8); }
-.cv-access-card[data-name="guest"] .cv-ac-icon-wrap { background: rgba({{ $cvGRgb }},0.18); border-color: rgba({{ $cvGRgb }},0.4); }
-.cv-access-card[data-name="guest"] .cv-ac-icon-wrap i { color: rgba({{ $cvGRgb }},0.85) !important; }
-.cv-access-card[data-name="guest"].is-active { border-color: #{{ $cvGuestHex }}; background: radial-gradient(ellipse at 94% 50%, rgba({{ $cvGRgb }},0.2) 0%, transparent 50%), linear-gradient(145deg, rgba({{ $cvGRgb }},0.14), rgba(4,36,20,0.22)); box-shadow: 0 0 0 1px rgba({{ $cvGRgb }},0.3), 0 8px 32px rgba({{ $cvGRgb }},0.22), inset 0 1px 0 rgba({{ $cvGRgb }},0.12); }
-.cv-access-card[data-name="guest"].is-active::before { border-color: #{{ $cvGuestHex }}; background: rgba({{ $cvGRgb }},0.2); }
-.cv-access-card[data-name="guest"].is-active::after { background: radial-gradient(circle, #fff300 0%, rgba({{ $cvGRgb }},0.8) 100%); }
-.cv-access-card[data-name="guest"].is-active .cv-ac-icon-wrap { background: rgba({{ $cvGRgb }},0.22); border-color: rgba({{ $cvGRgb }},0.55); box-shadow: 0 0 22px rgba({{ $cvGRgb }},0.45); }
-.cv-access-card[data-name="guest"].is-active .cv-ac-icon-wrap i { color: #{{ $cvGuestHex }} !important; }
-.cv-access-card[data-name="guest"].is-active .cv-ac-body::before { color: rgba({{ $cvGRgb }},0.06); }
-.cv-access-card[data-name="guest"].is-active .cv-ac-body::after { background: linear-gradient(90deg, rgba({{ $cvGRgb }},0.75), rgba({{ $cvGRgb }},0)); }
-.cv-access-card[data-name="package"] { border-color: rgba({{ $cvPRgb }},0.36); background: rgba({{ $cvPRgb }},0.11); }
-.cv-access-card[data-name="package"]::before { border-color: rgba({{ $cvPRgb }},0.6); }
-.cv-access-card[data-name="package"]::after { background: radial-gradient(circle, #{{ $cvPkgHex }} 0%, rgba({{ $cvPRgb }},0.8) 100%); box-shadow: 0 0 10px rgba({{ $cvPRgb }},0.8); }
-.cv-access-card[data-name="package"] .cv-ac-icon-wrap { background: rgba({{ $cvPRgb }},0.18); border-color: rgba({{ $cvPRgb }},0.42); }
-.cv-access-card[data-name="package"] .cv-ac-icon-wrap i { color: rgba({{ $cvPRgb }},0.88) !important; }
-.cv-access-card[data-name="package"].is-active { border-color: #{{ $cvPkgHex }}; background: radial-gradient(ellipse at 94% 50%, rgba({{ $cvPRgb }},0.22) 0%, transparent 50%), linear-gradient(145deg, rgba({{ $cvPRgb }},0.14), rgba(50,35,5,0.22)); box-shadow: 0 0 0 1px rgba({{ $cvPRgb }},0.35), 0 8px 32px rgba({{ $cvPRgb }},0.2), inset 0 1px 0 rgba({{ $cvPRgb }},0.15); }
-.cv-access-card[data-name="package"].is-active::before { border-color: #{{ $cvPkgHex }}; background: rgba({{ $cvPRgb }},0.2); }
-.cv-access-card[data-name="package"].is-active::after { background: radial-gradient(circle, #fff300 0%, rgba({{ $cvPRgb }},0.8) 100%); transform: translateY(-50%) scale(1); }
-.cv-access-card[data-name="package"].is-active .cv-ac-icon-wrap { background: rgba({{ $cvPRgb }},0.22); border-color: rgba({{ $cvPRgb }},0.6); box-shadow: 0 0 22px rgba({{ $cvPRgb }},0.45); }
-.cv-access-card[data-name="package"].is-active .cv-ac-icon-wrap i { color: #{{ $cvPkgHex }} !important; }
-.cv-access-card[data-name="package"].is-active .cv-ac-body::before { color: rgba({{ $cvPRgb }},0.07); }
-.cv-access-card[data-name="package"].is-active .cv-ac-body::after { background: linear-gradient(90deg, rgba({{ $cvPRgb }},0.75), rgba({{ $cvPRgb }},0)); }
-.cv-access-card[data-name="guest"].cv-access-tab:hover .cv-ac-icon-wrap { background: rgba({{ $cvGRgb }},0.22); border-color: rgba({{ $cvGRgb }},0.55); box-shadow: 0 0 22px rgba({{ $cvGRgb }},0.45); }
-.cv-access-card[data-name="guest"].cv-access-tab:hover .cv-ac-icon-wrap i { color: #{{ $cvGuestHex }} !important; }
-.cv-access-card[data-name="package"].cv-access-tab:hover .cv-ac-icon-wrap { background: rgba({{ $cvPRgb }},0.22); border-color: rgba({{ $cvPRgb }},0.6); box-shadow: 0 0 22px rgba({{ $cvPRgb }},0.45); }
-.cv-access-card[data-name="package"].cv-access-tab:hover .cv-ac-icon-wrap i { color: #{{ $cvPkgHex }} !important; }
-.cv-access-card[data-name="package"] { border-color: rgba({{ $cvPRgb }},0.44); background: radial-gradient(ellipse at 94% 50%, rgba({{ $cvPRgb }},0.15) 0%, transparent 54%), linear-gradient(145deg, rgba({{ $cvPRgb }},0.1), rgba(50,35,5,0.18)); box-shadow: 0 0 0 1px rgba({{ $cvPRgb }},0.24), 0 6px 22px rgba({{ $cvPRgb }},0.14), inset 0 1px 0 rgba({{ $cvPRgb }},0.1); }
-.cv-access-card[data-name="package"]::before { border-color: rgba({{ $cvPRgb }},0.62); background: rgba({{ $cvPRgb }},0.14); transform: translateY(-50%) scale(1); }
-.cv-access-card[data-name="package"]::after { transform: translateY(-50%) scale(0); }
-.cv-access-card[data-name="package"] .cv-ac-icon-wrap { background: rgba({{ $cvPRgb }},0.18); border-color: rgba({{ $cvPRgb }},0.42); box-shadow: 0 0 16px rgba({{ $cvPRgb }},0.3); }
-.cv-access-card[data-name="package"] .cv-ac-icon-wrap i { color: rgba({{ $cvPRgb }},0.9) !important; font-size: 20px; }
-.cv-access-card[data-name="package"] strong { color: rgba(255,255,255,0.86) !important; font-size: 14px; }
-.cv-access-card[data-name="package"] span { color: rgba(255,255,255,0.52) !important; }
-.cv-access-card[data-name="package"] .cv-ac-body::before { color: rgba({{ $cvPRgb }},0.05); }
-.cv-access-card[data-name="package"] .cv-ac-body::after { background: linear-gradient(90deg, rgba({{ $cvPRgb }},0.55), rgba({{ $cvPRgb }},0)); }
-.cv-access-card[data-name="package"] { --cv-package-rgb: {{ $cvPRgb }}; }
-.cv-access-card[data-name="package"],
-.cv-access-card[data-name="package"].is-active {
-    border-color: #{{ $cvPkgHex }};
-    background: radial-gradient(ellipse at 94% 50%, rgba({{ $cvPRgb }},0.28) 0%, transparent 50%), linear-gradient(145deg, rgba({{ $cvPRgb }},0.2), rgba(80,52,7,0.28));
-    box-shadow: 0 0 0 1px rgba({{ $cvPRgb }},0.46), 0 10px 34px rgba({{ $cvPRgb }},0.3), inset 0 1px 0 rgba({{ $cvPRgb }},0.22);
-}
-.cv-access-card[data-name="package"]::before,
-.cv-access-card[data-name="package"].is-active::before { border-color: #{{ $cvPkgHex }}; background: rgba({{ $cvPRgb }},0.24); }
-.cv-access-card[data-name="package"] .cv-ac-icon-wrap,
-.cv-access-card[data-name="package"].is-active .cv-ac-icon-wrap { background: rgba({{ $cvPRgb }},0.3); border-color: rgba({{ $cvPRgb }},0.72); box-shadow: 0 0 24px rgba({{ $cvPRgb }},0.52); }
-.cv-access-card[data-name="package"] .cv-ac-icon-wrap i,
-.cv-access-card[data-name="package"].is-active .cv-ac-icon-wrap i { color: #fff2b3 !important; font-size: 21px; }
-.cv-access-card[data-name="package"] strong,
-.cv-access-card[data-name="package"].is-active strong { color: #fff !important; font-size: 15px; }
-.cv-access-card[data-name="package"] span,
-.cv-access-card[data-name="package"].is-active span { color: #000 !important; }
-.cv-access-card[data-name="package"] .cv-ac-body::before,
-.cv-access-card[data-name="package"].is-active .cv-ac-body::before { color: rgba({{ $cvPRgb }},0.16); }
-.cv-access-card[data-name="package"] .cv-ac-body::after,
-.cv-access-card[data-name="package"].is-active .cv-ac-body::after { background: linear-gradient(90deg, rgba({{ $cvPRgb }},0.95), rgba({{ $cvPRgb }},0)); }
-.cv-access-card[data-name="package"] .cv-ac-shimmer { opacity: .92; }
-.cv-access-card[data-name="package"] .cv-ac-shimmer::before { background: linear-gradient(115deg, transparent 0%, transparent 30%, rgba(255,255,255,.84) 47%, rgba(var(--cv-package-rgb),.42) 56%, transparent 70%, transparent 100%); }
+                            .cv-access-card[data-name="guest"] { border-color: rgba({{ $cvGRgb }},0.34); background: rgba({{ $cvGRgb }},0.10); }
+                            .cv-access-card[data-name="guest"]::before { border-color: rgba({{ $cvGRgb }},0.58); }
+                            .cv-access-card[data-name="guest"]::after { background: radial-gradient(circle, #{{ $cvGuestHex }} 0%, rgba({{ $cvGRgb }},0.8) 100%); box-shadow: 0 0 10px rgba({{ $cvGRgb }},0.8); }
+                            .cv-access-card[data-name="guest"] .cv-ac-icon-wrap { background: rgba({{ $cvGRgb }},0.18); border-color: rgba({{ $cvGRgb }},0.4); }
+                            .cv-access-card[data-name="guest"] .cv-ac-icon-wrap i { color: rgba({{ $cvGRgb }},0.85) !important; }
+                            .cv-access-card[data-name="guest"].is-active { border-color: #{{ $cvGuestHex }}; background: radial-gradient(ellipse at 94% 50%, rgba({{ $cvGRgb }},0.2) 0%, transparent 50%), linear-gradient(145deg, rgba({{ $cvGRgb }},0.14), rgba(4,36,20,0.22)); box-shadow: 0 0 0 1px rgba({{ $cvGRgb }},0.3), 0 8px 32px rgba({{ $cvGRgb }},0.22), inset 0 1px 0 rgba({{ $cvGRgb }},0.12); }
+                            .cv-access-card[data-name="guest"].is-active::before { border-color: #{{ $cvGuestHex }}; background: rgba({{ $cvGRgb }},0.2); }
+                            .cv-access-card[data-name="guest"].is-active::after { background: radial-gradient(circle, #fff300 0%, rgba({{ $cvGRgb }},0.8) 100%); }
+                            .cv-access-card[data-name="guest"].is-active .cv-ac-icon-wrap { background: rgba({{ $cvGRgb }},0.22); border-color: rgba({{ $cvGRgb }},0.55); box-shadow: 0 0 22px rgba({{ $cvGRgb }},0.45); }
+                            .cv-access-card[data-name="guest"].is-active .cv-ac-icon-wrap i { color: #{{ $cvGuestHex }} !important; }
+                            .cv-access-card[data-name="guest"].is-active .cv-ac-body::before { color: rgba({{ $cvGRgb }},0.06); }
+                            .cv-access-card[data-name="guest"].is-active .cv-ac-body::after { background: linear-gradient(90deg, rgba({{ $cvGRgb }},0.75), rgba({{ $cvGRgb }},0)); }
+                            .cv-access-card[data-name="package"] { border-color: rgba({{ $cvPRgb }},0.36); background: rgba({{ $cvPRgb }},0.11); }
+                            .cv-access-card[data-name="package"]::before { border-color: rgba({{ $cvPRgb }},0.6); }
+                            .cv-access-card[data-name="package"]::after { background: radial-gradient(circle, #{{ $cvPkgHex }} 0%, rgba({{ $cvPRgb }},0.8) 100%); box-shadow: 0 0 10px rgba({{ $cvPRgb }},0.8); }
+                            .cv-access-card[data-name="package"] .cv-ac-icon-wrap { background: rgba({{ $cvPRgb }},0.18); border-color: rgba({{ $cvPRgb }},0.42); }
+                            .cv-access-card[data-name="package"] .cv-ac-icon-wrap i { color: rgba({{ $cvPRgb }},0.88) !important; }
+                            .cv-access-card[data-name="package"].is-active { border-color: #{{ $cvPkgHex }}; background: radial-gradient(ellipse at 94% 50%, rgba({{ $cvPRgb }},0.22) 0%, transparent 50%), linear-gradient(145deg, rgba({{ $cvPRgb }},0.14), rgba(50,35,5,0.22)); box-shadow: 0 0 0 1px rgba({{ $cvPRgb }},0.35), 0 8px 32px rgba({{ $cvPRgb }},0.2), inset 0 1px 0 rgba({{ $cvPRgb }},0.15); }
+                            .cv-access-card[data-name="package"].is-active::before { border-color: #{{ $cvPkgHex }}; background: rgba({{ $cvPRgb }},0.2); }
+                            .cv-access-card[data-name="package"].is-active::after { background: radial-gradient(circle, #fff300 0%, rgba({{ $cvPRgb }},0.8) 100%); transform: translateY(-50%) scale(1); }
+                            .cv-access-card[data-name="package"].is-active .cv-ac-icon-wrap { background: rgba({{ $cvPRgb }},0.22); border-color: rgba({{ $cvPRgb }},0.6); box-shadow: 0 0 22px rgba({{ $cvPRgb }},0.45); }
+                            .cv-access-card[data-name="package"].is-active .cv-ac-icon-wrap i { color: #{{ $cvPkgHex }} !important; }
+                            .cv-access-card[data-name="package"].is-active .cv-ac-body::before { color: rgba({{ $cvPRgb }},0.07); }
+                            .cv-access-card[data-name="package"].is-active .cv-ac-body::after { background: linear-gradient(90deg, rgba({{ $cvPRgb }},0.75), rgba({{ $cvPRgb }},0)); }
+                            .cv-access-card[data-name="guest"].cv-access-tab:hover .cv-ac-icon-wrap { background: rgba({{ $cvGRgb }},0.22); border-color: rgba({{ $cvGRgb }},0.55); box-shadow: 0 0 22px rgba({{ $cvGRgb }},0.45); }
+                            .cv-access-card[data-name="guest"].cv-access-tab:hover .cv-ac-icon-wrap i { color: #{{ $cvGuestHex }} !important; }
+                            .cv-access-card[data-name="package"].cv-access-tab:hover .cv-ac-icon-wrap { background: rgba({{ $cvPRgb }},0.22); border-color: rgba({{ $cvPRgb }},0.6); box-shadow: 0 0 22px rgba({{ $cvPRgb }},0.45); }
+                            .cv-access-card[data-name="package"].cv-access-tab:hover .cv-ac-icon-wrap i { color: #{{ $cvPkgHex }} !important; }
+                            .cv-access-card[data-name="package"] { border-color: rgba({{ $cvPRgb }},0.44); background: radial-gradient(ellipse at 94% 50%, rgba({{ $cvPRgb }},0.15) 0%, transparent 54%), linear-gradient(145deg, rgba({{ $cvPRgb }},0.1), rgba(50,35,5,0.18)); box-shadow: 0 0 0 1px rgba({{ $cvPRgb }},0.24), 0 6px 22px rgba({{ $cvPRgb }},0.14), inset 0 1px 0 rgba({{ $cvPRgb }},0.1); }
+                            .cv-access-card[data-name="package"]::before { border-color: rgba({{ $cvPRgb }},0.62); background: rgba({{ $cvPRgb }},0.14); transform: translateY(-50%) scale(1); }
+                            .cv-access-card[data-name="package"]::after { transform: translateY(-50%) scale(0); }
+                            .cv-access-card[data-name="package"] .cv-ac-icon-wrap { background: rgba({{ $cvPRgb }},0.18); border-color: rgba({{ $cvPRgb }},0.42); box-shadow: 0 0 16px rgba({{ $cvPRgb }},0.3); }
+                            .cv-access-card[data-name="package"] .cv-ac-icon-wrap i { color: rgba({{ $cvPRgb }},0.9) !important; font-size: 20px; }
+                            .cv-access-card[data-name="package"] strong { color: rgba(255,255,255,0.86) !important; font-size: 14px; }
+                            .cv-access-card[data-name="package"] span { color: rgba(255,255,255,0.52) !important; }
+                            .cv-access-card[data-name="package"] .cv-ac-body::before { color: rgba({{ $cvPRgb }},0.05); }
+                            .cv-access-card[data-name="package"] .cv-ac-body::after { background: linear-gradient(90deg, rgba({{ $cvPRgb }},0.55), rgba({{ $cvPRgb }},0)); }
+                            .cv-access-card[data-name="package"] { --cv-package-rgb: {{ $cvPRgb }}; }
+                            .cv-access-card[data-name="package"],
+                            .cv-access-card[data-name="package"].is-active {
+                                border-color: #{{ $cvPkgHex }};
+                                background: radial-gradient(ellipse at 94% 50%, rgba({{ $cvPRgb }},0.28) 0%, transparent 50%), linear-gradient(145deg, rgba({{ $cvPRgb }},0.2), rgba(80,52,7,0.28));
+                                box-shadow: 0 0 0 1px rgba({{ $cvPRgb }},0.46), 0 10px 34px rgba({{ $cvPRgb }},0.3), inset 0 1px 0 rgba({{ $cvPRgb }},0.22);
+                            }
+                            .cv-access-card[data-name="package"]::before,
+                            .cv-access-card[data-name="package"].is-active::before { border-color: #{{ $cvPkgHex }}; background: rgba({{ $cvPRgb }},0.24); }
+                            .cv-access-card[data-name="package"] .cv-ac-icon-wrap,
+                            .cv-access-card[data-name="package"].is-active .cv-ac-icon-wrap { background: rgba({{ $cvPRgb }},0.3); border-color: rgba({{ $cvPRgb }},0.72); box-shadow: 0 0 24px rgba({{ $cvPRgb }},0.52); }
+                            .cv-access-card[data-name="package"] .cv-ac-icon-wrap i,
+                            .cv-access-card[data-name="package"].is-active .cv-ac-icon-wrap i { color: #fff2b3 !important; font-size: 21px; }
+                            .cv-access-card[data-name="package"] strong,
+                            .cv-access-card[data-name="package"].is-active strong { color: #fff !important; font-size: 15px; }
+                            .cv-access-card[data-name="package"] span,
+                            .cv-access-card[data-name="package"].is-active span { color: #000 !important; }
+                            .cv-access-card[data-name="package"] .cv-ac-body::before,
+                            .cv-access-card[data-name="package"].is-active .cv-ac-body::before { color: rgba({{ $cvPRgb }},0.16); }
+                            .cv-access-card[data-name="package"] .cv-ac-body::after,
+                            .cv-access-card[data-name="package"].is-active .cv-ac-body::after { background: linear-gradient(90deg, rgba({{ $cvPRgb }},0.95), rgba({{ $cvPRgb }},0)); }
+                            .cv-access-card[data-name="package"] .cv-ac-shimmer { opacity: .92; }
+                            .cv-access-card[data-name="package"] .cv-ac-shimmer::before { background: linear-gradient(115deg, transparent 0%, transparent 30%, rgba(255,255,255,.84) 47%, rgba(var(--cv-package-rgb),.42) 56%, transparent 70%, transparent 100%); }
 
                         </style>
                         @if ($data->reservation != 1)
@@ -6052,782 +6063,650 @@
                         @endif
                     </div>
 
-                @if ($data->reservation == 1)
-                    <div class="guest">
-                        <form action="{{ route('reservations.store', ['slug' => $data->slug]) }}" method="post">
-                            @csrf
-                            <input type="hidden" name="website_id" value="{{ $data->id }}">
-                            <input type="hidden" name="affiliate_slug" value="{{ $affiliateReferral->slug ?? '' }}">
-                            <!-- Reservation date - synced from header dropdown -->
-                            <input type="hidden" name="package_use_date" value="">
-                            <section style="width: 100%">
-                                <h5 class="section-kicker-lg">Guest List Reservation</h5>
-                                <div class="">
+                    @if ($data->reservation == 1)
+                        <div class="guest">
+                            <form action="{{ route('reservations.store', ['slug' => $data->slug]) }}" method="post">
+                                @csrf
+                                <input type="hidden" name="website_id" value="{{ $data->id }}">
+                                <input type="hidden" name="affiliate_slug" value="{{ $affiliateReferral->slug ?? '' }}">
+                                <!-- Reservation date - synced from header dropdown -->
+                                <input type="hidden" name="package_use_date" value="">
+                                <section style="width: 100%">
+                                    <h5 class="section-kicker-lg">Guest List Reservation</h5>
+                                    <div class="">
 
-                                    <div class="row">
-                                        <div class="col-md-12">
-                                            <!-- Left: Form Fields -->
-                                            <div class="">
+                                        <div class="row">
+                                            <div class="col-md-12">
+                                                <!-- Left: Form Fields -->
+                                                <div class="">
 
-                                                <div class="form-row" style="margin-bottom: 1rem;">
-                                                    <div class="form-group" style="width: 50%;">
-                                                        <label for="firstName">First Name</label>
-                                                        <input type="text" name="reservation_first_name"
-                                                            id="firstName" placeholder="First Name" required />
+                                                    <div class="form-row" style="margin-bottom: 1rem;">
+                                                        <div class="form-group" style="width: 50%;">
+                                                            <label for="firstName">First Name</label>
+                                                            <input type="text" name="reservation_first_name"
+                                                                id="firstName" placeholder="First Name" required />
+                                                        </div>
+                                                        <div class="form-group" style="width: 50%;">
+                                                            <label for="lastName">Last Name</label>
+                                                            <input type="text" name="reservation_last_name"
+                                                                id="lastName" placeholder="Last Name" required />
+                                                        </div>
                                                     </div>
-                                                    <div class="form-group" style="width: 50%;">
-                                                        <label for="lastName">Last Name</label>
-                                                        <input type="text" name="reservation_last_name"
-                                                            id="lastName" placeholder="Last Name" required />
+
+                                                    <div class="form-row" style="margin-bottom: 1rem;">
+                                                        <div class="form-group" style="width: 50%;">
+                                                            <label for="phone">Phone Number</label>
+                                                            <input type="tel" name="reservation_phone" id="reservation_phone"
+                                                                placeholder="(555) 123-4567" required />
+                                                            <div class="phone-note" style="font-size: 0.75rem; color: rgba(255,255,255,0.6); margin-top: 4px;">Phone formatting may vary by country. International SMS delivery is not guaranteed.</div>
+                                                        </div>
+                                                        <div class="form-group" style="width: 50%;">
+                                                            <label for="email">Email</label>
+                                                            <input type="email" name="reservation_email" id="email"
+                                                                placeholder="For Confirmation" required />
+                                                        </div>
+                                                    </div>
+
+                                                    <div class="form-row" style="margin-bottom: 1rem;">
+                                                        <div class="form-group ddoobb" style="width: 50%;">
+                                                            <label for="dob-month">Date of Birth <span class="text-danger">*</span></label>
+                                                            <div class="form-row">
+                                                                <select id="dob-month" name="reservation_day"
+                                                                    class="form-select"
+                                                                    style="width: 32%; display: inline-block; margin-right: 2%; text-align: center !important; padding-left: 5px !important"
+                                                                    required></select>
+                                                                <select id="dob-day" name="reservation_month"
+                                                                    class="form-select"
+                                                                    style="width: 32%; display: inline-block; margin-right: 2%;"
+                                                                    required></select>
+                                                                <select id="dob-year" name="reservation_year"
+                                                                    class="form-select"
+                                                                    style="width: 32%; display: inline-block;"
+                                                                    required></select>
+                                                            </div>
+                                                        </div>
+                                                    </div>
+
+                                                    <div class="form-group" style="margin-bottom: 1rem;">
+                                                        <label for="note">Booking Note</label>
+                                                        <textarea id="note" name="reservation_description" placeholder="Your occasion or special request?"></textarea>
+                                                    </div>
+                                                    <div class="form-group">
+                                                        <label for="host">Host / Promoter Referral</label>
+                                                        <input id="host" name="host_name"
+                                                            placeholder="Enter host/promoter name or referral code (optional)">
                                                     </div>
                                                 </div>
 
-                                                <div class="form-row" style="margin-bottom: 1rem;">
-                                                    <div class="form-group" style="width: 50%;">
-                                                        <label for="phone">Phone Number</label>
-                                                        <input type="tel" name="reservation_phone" id="reservation_phone"
-                                                            placeholder="(555) 123-4567" required />
-                                                        <div class="phone-note" style="font-size: 0.75rem; color: rgba(255,255,255,0.6); margin-top: 4px;">Phone formatting may vary by country. International SMS delivery is not guaranteed.</div>
-                                                    </div>
-                                                    <div class="form-group" style="width: 50%;">
-                                                        <label for="email">Email</label>
-                                                        <input type="email" name="reservation_email" id="email"
-                                                            placeholder="For Confirmation" required />
-                                                    </div>
-                                                </div>
+                                            </div>
+                                        </div>
 
-                                                <div class="form-row" style="margin-bottom: 1rem;">
-                                                    <div class="form-group ddoobb" style="width: 50%;">
-                                                        <label for="dob-month">Date of Birth <span class="text-danger">*</span></label>
-                                                        <div class="form-row">
-                                                            <select id="dob-month" name="reservation_day"
-                                                                class="form-select"
-                                                                style="width: 32%; display: inline-block; margin-right: 2%; text-align: center !important; padding-left: 5px !important"
-                                                                required></select>
-                                                            <select id="dob-day" name="reservation_month"
-                                                                class="form-select"
-                                                                style="width: 32%; display: inline-block; margin-right: 2%;"
-                                                                required></select>
-                                                            <select id="dob-year" name="reservation_year"
-                                                                class="form-select"
-                                                                style="width: 32%; display: inline-block;"
-                                                                required></select>
+                                    </div>
+                                </section>
+
+
+                                <section class="guest-count">
+                                    <div class="container">
+                                        <div class="row">
+                                            <div class="col-md-12 guest-list">
+                                                <h2>Total Guests</h2>
+                                                <div class="guest-gender-row">
+                                                    <div class="guest-section guest-section--men"
+                                                        style="border-color: {{ $brandPrimary }} !important;">
+                                                        <span class="label">Men</span>
+                                                        <div class="counter">
+                                                            <span class="addon-qty-stepper guest-qty-stepper">
+                                                                <button class="addon-qty-btn guest-qty-btn" type="button"
+                                                                    data-type="men" data-action="dec"
+                                                                    onclick="decrements('men')">−</button>
+                                                                <span class="count addon-qty-val guest-qty-val" id="menCount">0</span>
+                                                                <button class="addon-qty-btn guest-qty-btn" type="button"
+                                                                    data-type="men" data-action="inc"
+                                                                    onclick="increments('men')">+</button>
+                                                            </span>
+                                                        </div>
+                                                    </div>
+                                                    <div class="guest-section guest-section--women"
+                                                        style="border-color: {{ $brandPrimary }} !important;">
+                                                        <span class="label">Women</span>
+                                                        <div class="counter">
+                                                            <span class="addon-qty-stepper guest-qty-stepper">
+                                                                <button class="addon-qty-btn guest-qty-btn" type="button"
+                                                                    data-type="women" data-action="dec"
+                                                                    onclick="decrements('women')">−</button>
+                                                                <span class="count addon-qty-val guest-qty-val" id="womenCount">0</span>
+                                                                <button class="addon-qty-btn guest-qty-btn" type="button"
+                                                                    data-type="women" data-action="inc"
+                                                                    onclick="increments('women')">+</button>
+                                                            </span>
+                                                        </div>
+                                                    </div>
+                                                    <div class="guest-section guest-section--total"
+                                                        style="border-color: {{ $brandPrimary }} !important;">
+                                                        <span class="label">Total Guests</span>
+                                                        <div class="counter">
+                                                            <span class="addon-qty-stepper guest-qty-stepper">
+                                                                <span class="count addon-qty-val guest-qty-val" id="totalCount" style="margin-right: 0px !important">0</span>
+                                                            </span>
                                                         </div>
                                                     </div>
                                                 </div>
-
-                                                <div class="form-group" style="margin-bottom: 1rem;">
-                                                    <label for="note">Booking Note</label>
-                                                    <textarea id="note" name="reservation_description" placeholder="Your occasion or special request?"></textarea>
-                                                </div>
-                                                <div class="form-group">
-                                                    <label for="host">Host / Promoter Referral</label>
-                                                    <input id="host" name="host_name"
-                                                        placeholder="Enter host/promoter name or referral code (optional)">
-                                                </div>
+                                                <input type="hidden" name="men_count" id="men_count" value="0">
+                                                <input type="hidden" name="women_count" id="women_count"
+                                                    value="0">
                                             </div>
-
-                                        </div>
-                                    </div>
-
-                                </div>
-                            </section>
-
-
-                            <section class="guest-count">
-                                <div class="container">
-                                    <div class="row">
-                                        <div class="col-md-12 guest-list">
-                                            <h2>Total Guests</h2>
-                                            <div class="guest-gender-row">
-                                                <div class="guest-section guest-section--men"
-                                                    style="border-color: {{ $brandPrimary }} !important;">
-                                                    <span class="label">Men</span>
-                                                    <div class="counter">
-                                                        <span class="addon-qty-stepper guest-qty-stepper">
-                                                            <button class="addon-qty-btn guest-qty-btn" type="button"
-                                                                data-type="men" data-action="dec"
-                                                                onclick="decrements('men')">−</button>
-                                                            <span class="count addon-qty-val guest-qty-val" id="menCount">0</span>
-                                                            <button class="addon-qty-btn guest-qty-btn" type="button"
-                                                                data-type="men" data-action="inc"
-                                                                onclick="increments('men')">+</button>
-                                                        </span>
-                                                    </div>
-                                                </div>
-                                                <div class="guest-section guest-section--women"
-                                                    style="border-color: {{ $brandPrimary }} !important;">
-                                                    <span class="label">Women</span>
-                                                    <div class="counter">
-                                                        <span class="addon-qty-stepper guest-qty-stepper">
-                                                            <button class="addon-qty-btn guest-qty-btn" type="button"
-                                                                data-type="women" data-action="dec"
-                                                                onclick="decrements('women')">−</button>
-                                                            <span class="count addon-qty-val guest-qty-val" id="womenCount">0</span>
-                                                            <button class="addon-qty-btn guest-qty-btn" type="button"
-                                                                data-type="women" data-action="inc"
-                                                                onclick="increments('women')">+</button>
-                                                        </span>
-                                                    </div>
-                                                </div>
-                                                <div class="guest-section guest-section--total"
-                                                    style="border-color: {{ $brandPrimary }} !important;">
-                                                    <span class="label">Total Guests</span>
-                                                    <div class="counter">
-                                                        <span class="addon-qty-stepper guest-qty-stepper">
-                                                            <span class="count addon-qty-val guest-qty-val" id="totalCount" style="margin-right: 0px !important">0</span>
-                                                        </span>
-                                                    </div>
-                                                </div>
+                                            <div class="col-md-12 mt-4">
                                             </div>
-                                            <input type="hidden" name="men_count" id="men_count" value="0">
-                                            <input type="hidden" name="women_count" id="women_count"
-                                                value="0">
-                                        </div>
-                                        <div class="col-md-12 mt-4">
-                                        </div>
-                                        <div class="col-md-12">
-                                            <div class="checkbox-container">
-                                                @if (url()->current() !== 'https://app.cartvip.com/erotic-museum-vegas')
+                                            <div class="col-md-12">
+                                                <div class="checkbox-container">
+                                                    @if (url()->current() !== 'https://app.cartvip.com/erotic-museum-vegas')
+                                                        <label class="consent-label">
+                                                            <input type="checkbox" id="smsConsent_two" required />
+                                                            <span>
+                                                                I agree to receive SMS communications regarding my reservation,
+                                                                transportation updates, VIP services, and related notifications.
+                                                                Message and data rates may apply. Messaging frequency may vary.
+                                                                Reply STOP to opt out at any time.
+                                                            </span>
+                                                        </label>
+                                                    @endif
                                                     <label class="consent-label">
-                                                        <input type="checkbox" id="smsConsent_two" required />
-                                                        <span>
-                                                            I agree to receive SMS communications regarding my reservation,
-                                                            transportation updates, VIP services, and related notifications.
-                                                            Message and data rates may apply. Messaging frequency may vary.
-                                                            Reply STOP to opt out at any time.
-                                                        </span>
+                                                        <input type="checkbox" id="termsConsent_two" required />
+                                                        <span>I have read and agree to the <a
+                                                            target="_blank" href="{{ $data->terms }}">Terms of Service</a> / <a target="_blank" href="{{ $data->terms }}">Venue Policies</a></span>
                                                     </label>
-                                                @endif
-                                                <label class="consent-label">
-                                                    <input type="checkbox" id="termsConsent_two" required />
-                                                    <span>I have read and agree to the <a
-                                                        target="_blank" href="{{ $data->terms }}">Terms of Service</a> / <a target="_blank" href="{{ $data->terms }}">Venue Policies</a></span>
-                                                </label>
+                                                </div>
+                                                <button class="submit-btn" type="submit" id="submitBtn_two">Create
+                                                    Reservation</button>
+
                                             </div>
-                                            <button class="submit-btn" type="submit" id="submitBtn_two">Create
-                                                Reservation</button>
-
+                                            <div class="col-md-4"></div>
                                         </div>
-                                        <div class="col-md-4"></div>
                                     </div>
-                                </div>
 
-                            </section>
+                                </section>
 
-                            {{-- Location card removed (now lives in the hero .cv-hero-location panel) --}}
-
-
-                            <input type="hidden" name="type" value="guest">
-                            <input type="hidden" name="recaptcha_token" id="recaptcha_token" value="">
-                            <input type="hidden" name="form_load_time" id="form_load_time" value="">
-
-                        </form>
-                    </div>
-                @endif
+                                {{-- Location card removed (now lives in the hero .cv-hero-location panel) --}}
 
 
-                <div class="package">
-                    <section class="vip-pack">
-                        <div class="">
+                                <input type="hidden" name="type" value="guest">
+                                <input type="hidden" name="recaptcha_token" id="recaptcha_token" value="">
+                                <input type="hidden" name="form_load_time" id="form_load_time" value="">
 
-                            <div class="row">
-                                <div class="col-md-12">
+                            </form>
+                        </div>
+                    @endif
 
-                                    @php
-                                        $mostPopularPackageName = '';
-                                        if (isset($packageCategories) && $packageCategories->count()) {
-                                            $mostPopularPackage = collect($packageCategories)
-                                                ->flatMap(function ($category) {
-                                                    return is_array($category)
-                                                        ? collect($category['packages'] ?? [])
-                                                        : collect($category->packages ?? []);
-                                                })
-                                                ->first(function ($package) {
-                                                    return (int) ($package->is_most_popular ?? 0) === 1;
-                                                });
 
-                                            $mostPopularPackageName = $mostPopularPackage->name ?? '';
-                                        }
-                                    @endphp
-                                    @if(!empty($isSinglePackageCheckout))
-                                    <style>
-                                        .cv-package-section-header p { display: none !important; }
-                                    </style>
-                                    @endif
-                                    <div class="cv-package-section-header" style="display:flex; justify-content:space-between; align-items:center; margin: 18px 0 12px; flex-wrap:wrap; gap:10px;">
-                                        <div>
-                                            @if(!empty($isSinglePackageCheckout))
-                                            <style>
-                                                .cv-package-section-header { margin: 0px 0 12px !important; }
-                                            </style>
-                                                <h5 class="section-kicker-lg" style="margin:0 !important; text-transform: unset; font-size: 0.8rem">Select your package to checkout, or <a href="{{ $allPackagesCheckoutUrl }}" style="text-transform: uppercase; color:inherit;text-decoration:underline;">View all packages.</a></h5>
-                                            @else
-                                                <h5 class="section-kicker-lg" style="margin:0 !important;">{{ $data->package_section_title ?: 'Select Your Package' }}</h5>
-                                                <p style="margin: 4px 0 0; font-size: 12.5px; color: rgba(255,255,255,0.5);">{{ $data->package_section_subtext ?: 'All packages include free ride, club entry, and priority access.' }}</p>
+                    <div class="package">
+                        <section class="vip-pack">
+                            <div class="">
+
+                                <div class="row">
+                                    <div class="col-md-12">
+
+                                        @php
+                                            $mostPopularPackageName = '';
+                                            if (isset($packageCategories) && $packageCategories->count()) {
+                                                $mostPopularPackage = collect($packageCategories)
+                                                    ->flatMap(function ($category) {
+                                                        return is_array($category)
+                                                            ? collect($category['packages'] ?? [])
+                                                            : collect($category->packages ?? []);
+                                                    })
+                                                    ->first(function ($package) {
+                                                        return (int) ($package->is_most_popular ?? 0) === 1;
+                                                    });
+
+                                                $mostPopularPackageName = $mostPopularPackage->name ?? '';
+                                            }
+                                        @endphp
+                                        @if(!empty($isSinglePackageCheckout))
+                                        <style>
+                                            .cv-package-section-header p { display: none !important; }
+                                        </style>
+                                        @endif
+                                        <div class="cv-package-section-header" style="display:flex; justify-content:space-between; align-items:center; margin: 18px 0 12px; flex-wrap:wrap; gap:10px;">
+                                            <div>
+                                                @if(!empty($isSinglePackageCheckout))
+                                                <style>
+                                                    .cv-package-section-header { margin: 0px 0 12px !important; }
+                                                </style>
+                                                    <h5 class="section-kicker-lg" style="margin:0 !important; text-transform: unset; font-size: 0.8rem">Select your package to checkout, or <a href="{{ $allPackagesCheckoutUrl }}" style="text-transform: uppercase; color:inherit;text-decoration:underline;">View all packages.</a></h5>
+                                                @else
+                                                    <h5 class="section-kicker-lg" style="margin:0 !important;">{{ $data->package_section_title ?: 'Select Your Package' }}</h5>
+                                                    <p style="margin: 4px 0 0; font-size: 12.5px; color: rgba(255,255,255,0.5);">{{ $data->package_section_subtext ?: 'All packages include free ride, club entry, and priority access.' }}</p>
+                                                @endif
+                                            </div>
+                                            @if($mostPopularPackageName)
+                                            <div class="cv-most-popular-tag" style="display:inline-flex; align-items:center; gap:10px; padding: 7px 14px; border-radius: 999px; background: rgba(167,116,255,0.08); border: 1px solid rgba(167,116,255,0.32); font-size: 12.5px; color: rgba(255,255,255,0.9); font-weight: 600;">
+                                                <span style="background: linear-gradient(135deg, #a774ff 0%, #7c3aed 50%, #5b21b6 100%); color: #fff; padding: 3px 9px; border-radius: 999px; font-size: 10px; font-weight: 800; letter-spacing: .06em; display: inline-flex; align-items: center; gap: 4px; box-shadow: 0 2px 8px rgba(124,58,237,0.35), inset 0 1px 0 rgba(255,255,255,0.2); border: 1px solid rgba(255,255,255,0.18); text-transform: uppercase;"><i class="fas fa-fire" style="font-size:9px;"></i>MOST POPULAR</span>
+                                                <span>{{ $mostPopularPackageName }}</span>
+                                            </div>
                                             @endif
                                         </div>
-                                        @if($mostPopularPackageName)
-                                        <div class="cv-most-popular-tag" style="display:inline-flex; align-items:center; gap:10px; padding: 7px 14px; border-radius: 999px; background: rgba(167,116,255,0.08); border: 1px solid rgba(167,116,255,0.32); font-size: 12.5px; color: rgba(255,255,255,0.9); font-weight: 600;">
-                                            <span style="background: linear-gradient(135deg, #a774ff 0%, #7c3aed 50%, #5b21b6 100%); color: #fff; padding: 3px 9px; border-radius: 999px; font-size: 10px; font-weight: 800; letter-spacing: .06em; display: inline-flex; align-items: center; gap: 4px; box-shadow: 0 2px 8px rgba(124,58,237,0.35), inset 0 1px 0 rgba(255,255,255,0.2); border: 1px solid rgba(255,255,255,0.18); text-transform: uppercase;"><i class="fas fa-fire" style="font-size:9px;"></i>MOST POPULAR</span>
-                                            <span>{{ $mostPopularPackageName }}</span>
-                                        </div>
-                                        @endif
-                                    </div>
 
-                                    @if(!empty($isIframeCheckout))
-                                        <div class="hero-date-card iframe-date-card">
-                                            <label>Choose Your Reservation Date</label>
-                                            <div class="date-input-wrapper">
-                                                <input id="package_use_date_iframe" type="text"
-                                                    value="" placeholder="{{ \Carbon\Carbon::now($data->resolved_timezone)->format('M d, Y') }}" style="width: 100%;" readonly aria-describedby="package_use_date_iframe_error">
-                                                <span class="custom-calendar-icon custom-calendar-icon-iframe"></span>
+                                        @if(!empty($isIframeCheckout))
+                                            <div class="hero-date-card iframe-date-card">
+                                                <label>Choose Your Reservation Date</label>
+                                                <div class="date-input-wrapper">
+                                                    <input id="package_use_date_iframe" type="text"
+                                                        value="" placeholder="{{ \Carbon\Carbon::now($data->resolved_timezone)->format('M d, Y') }}" style="width: 100%;" readonly aria-describedby="package_use_date_iframe_error">
+                                                    <span class="custom-calendar-icon custom-calendar-icon-iframe"></span>
+                                                </div>
+                                                <small id="package_use_date_iframe_error" class="reservation-date-error" style="display:none;">Please select a reservation date.</small>
                                             </div>
-                                            <small id="package_use_date_iframe_error" class="reservation-date-error" style="display:none;">Please select a reservation date.</small>
-                                        </div>
-                                    @endif
-
-                                    @if(isset($packageCategories) && $packageCategories->count())
-                                        @if(empty($isSinglePackageCheckout))
-                                        <div class="mb-3 package-category-tiles" style="width:100%;">
-                                            @foreach ($packageCategories as $category)
-                                                @php
-                                                    $catRgbStr = null;
-                                                    if (!empty($category['color'])) {
-                                                        $ch = ltrim($category['color'], '#');
-                                                        [$cr, $cg, $cb] = sscanf($ch, '%02x%02x%02x');
-                                                        $catRgbStr = "$cr,$cg,$cb";
-                                                    }
-                                                @endphp
-                                                <button
-                                                    type="button"
-                                                    class="package-category-tile{{ $catRgbStr ? ' has-cat-color' : '' }}"
-                                                    data-target="#category-group-{{ $category['id'] }}"
-                                                    @if($catRgbStr) style="--cat-rgb: {{ $catRgbStr }}" @endif
-                                                >
-                                                    @if(!empty($category['icon']))
-                                                        <i class="fas {{ $category['icon'] }} package-category-tile-icon"></i>
-                                                    @endif
-                                                    <span class="package-category-name">{{ $category['name'] }}</span>
-                                                    <span class="package-category-indicator">+</span>
-                                                </button>
-                                            @endforeach
-                                        </div>
                                         @endif
 
-                                        @foreach ($packageCategories as $category)
-                                            <div id="category-group-{{ $category['id'] }}" class="package-category-group" style="display: {{ !empty($isSinglePackageCheckout) ? 'block' : 'none' }};">
-                                                @foreach ($category['packages'] as $item)
+                                        @if(isset($packageCategories) && $packageCategories->count())
+                                            @if(empty($isSinglePackageCheckout))
+                                            <div class="mb-3 package-category-tiles" style="width:100%;">
+                                                @foreach ($packageCategories as $category)
                                                     @php
-                                                        $pkgTierIdx = ($loop->index % 5) + 1;
-                                                        $pkgTierIcons = ['fas fa-crown','fas fa-star','fas fa-gem','fas fa-fire','fas fa-bolt'];
-                                                        $pkgTierIcon = $pkgTierIcons[$pkgTierIdx - 1];
-                                                        $pkgGuestCap = max(1, (int) ($item->guests_per_table ?: $item->number_of_guest ?: 1));
-                                                        $pkgTableCap = max(2, (int) ($item->guests_per_table ?: $item->number_of_guest ?: 2));
-                                                        $pkgIsTicket = ($item->package_type ?? 'table') === 'ticket';
-                                                        $pkgTicketMax = max(1, (int) ($item->number_of_guest ?: 1));
-                                                        $pkgTableMax  = max(2, (int) ($item->guests_per_table ?: $item->number_of_guest ?: 2));
-                                                        $fallbackVisual = $data->logo ? asset('uploads/' . $data->logo) : asset('images/logo.png');
-                                                        $packageVisual = !empty($item->image) ? asset('uploads/' . $item->image) : $fallbackVisual;
-                                                        $packageMobileVisual = !empty($item->mobile_image) ? asset('uploads/' . $item->mobile_image) : $packageVisual;
+                                                        $catRgbStr = null;
+                                                        if (!empty($category['color'])) {
+                                                            $ch = ltrim($category['color'], '#');
+                                                            [$cr, $cg, $cb] = sscanf($ch, '%02x%02x%02x');
+                                                            $catRgbStr = "$cr,$cg,$cb";
+                                                        }
                                                     @endphp
-                                                    <div class="vip-card cv-tier-{{ $pkgTierIdx }} cv-exact-card" id="pkg-card-{{ $item->id }}">
-                                                        <div class="cv-pkg-media-wrap">
-                                                            <picture>
-                                                                <source media="(max-width: 767px)" srcset="{{ $packageMobileVisual }}">
-                                                                <img src="{{ $packageVisual }}" alt="{{ $item->name }}" class="cv-pkg-media">
-                                                            </picture>
-                                                            @if ((int) ($item->is_most_popular ?? 0) === 1)
-                                                                <span class="cv-popular-pill">MOST POPULAR</span>
-                                                            @endif
-                                                        </div>
-
-                                                        <div class="vip-card-main">
-                                                            <div class="cv-pkg-title-row">
-                                                                <i class="{{ $pkgTierIcon }} cv-pkg-title-icon"></i>
-                                                                <div class="cv-pkg-title">{{ $item->name }}</div>
-                                                                @if(trim((string) ($item->tooltip ?? '')) !== '')
-                                                                    <button type="button" class="cv-pkg-tooltip-trigger" aria-label="View package details" data-title="{{ $item->name }}" data-tooltip="{{ trim((string) ($item->tooltip ?? '')) }}">i</button>
-                                                                @endif
-                                                            </div>
-                                                            @if($pkgIsTicket)
-                                                                <span class="cv-pkg-sub"><i class="fas fa-ticket-alt"></i>1 ticket per person</span>
-                                                            @else
-                                                                <span class="cv-pkg-sub"><i class="fas fa-user-friends"></i>Up to {{ $pkgTableMax }} guests</span>
-                                                            @endif
-                                                            @if($item->description)
-                                                                <p class="cv-pkg-desc">{{ strip_tags($item->description) }}</p>
-                                                            @endif
-                                                            @php
-                                                                $defaultPackageFeatures = [
-                                                                    ['icon' => 'fa-chair', 'text' => 'VIP Table'],
-                                                                    ['icon' => 'fa-wine-bottle', 'text' => '1 Premium Bottle'],
-                                                                    ['icon' => 'fa-user-shield', 'text' => 'VIP Hosts'],
-                                                                    ['icon' => 'fa-shield-alt', 'text' => $item->package_type === 'ticket' ? 'Free Entry' : 'Skip the Line'],
-                                                                ];
-
-                                                                $packageFeatures = collect(is_array($item->package_features) ? $item->package_features : [])
-                                                                    ->map(function ($feature) {
-                                                                        $icon = trim((string) ($feature['icon'] ?? ''));
-                                                                        $text = trim((string) ($feature['text'] ?? ''));
-
-                                                                        if ($text === '') {
-                                                                            return null;
-                                                                        }
-
-                                                                        if (!preg_match('/^fa-[a-z0-9-]+$/i', $icon)) {
-                                                                            $icon = 'fa-chair';
-                                                                        }
-
-                                                                        return [
-                                                                            'icon' => strtolower($icon),
-                                                                            'text' => $text,
-                                                                        ];
-                                                                    })
-                                                                    ->filter()
-                                                                    ->values();
-
-                                                                if ($packageFeatures->isEmpty()) {
-                                                                    $packageFeatures = collect($defaultPackageFeatures);
-                                                                }
-                                                            @endphp
-                                                            <div class="cv-pkg-features">
-                                                                @foreach($packageFeatures as $feature)
-                                                                    <span class="cv-pkg-feature"><i class="fas {{ $feature['icon'] }}"></i>{{ $feature['text'] }}</span>
-                                                                @endforeach
-                                                            </div>
-                                                        </div>
-
-                                                        <div class="vip-card-side">
-                                                            <div class="vip-price-tag price-{{ $item->id }}"
-                                                                data-price="{{ $item->price }}">${{ number_format((float) $item->price, 2) }}</div>
-                                                            @if(!$pkgIsTicket)
-                                                                <div class="cv-price-meta">Per Package</div>
-                                                            @endif
-
-                                                            <div class="package-guest-input-wrap">
-                                                                    @if ($item->package_type === 'ticket')
-                                                                        @php $ticketInitMax = min(15, max(1, (int) ($item->number_of_guest ?? 1))); @endphp
-                                                                        <select
-                                                                            data-package-type="{{ $item->package_type }}"
-                                                                            data-guests-per-table="{{ (int) ($item->guests_per_table ?? 0) }}"
-                                                                            data-package-guest-limit="{{ (int) ($item->number_of_guest ?? 1) }}"
-                                                                            data-ticket-max="{{ (int) ($item->number_of_guest ?? 1) }}"
-                                                                            data-multiple="{{ $item->multiple }}"
-                                                                            data-id="{{ $item->id }}"
-                                                                            class="form-select package_number_of_guestss ticket-select-lazy"
-                                                                            required
-                                                                        >
-                                                                            <option value=""># of Tickets</option>
-                                                                            @for ($i = 1; $i <= $ticketInitMax; $i++)
-                                                                                <option value="{{ $i }}">{{ $i }} {{ $i === 1 ? 'ticket' : 'tickets' }}</option>
-                                                                            @endfor
-                                                                        </select>
-                                                                    @else
-                                                                        <select
-                                                                            data-package-type="{{ $item->package_type }}"
-                                                                            data-guests-per-table="{{ (int) ($item->guests_per_table ?? 0) }}"
-                                                                            data-package-guest-limit="{{ $pkgTableCap }}"
-                                                                            data-multiple="{{ $item->multiple }}"
-                                                                            data-id="{{ $item->id }}"
-                                                                            class="form-select package_number_of_guestss"
-                                                                            required
-                                                                        >
-                                                                            <option value="">Select Guests ▼</option>
-                                                                            @for ($i = 1; $i <= $pkgTableCap; $i++)
-                                                                                <option value="{{ $i }}">{{ $i }} {{ $i === 1 ? 'guest' : 'guests' }}</option>
-                                                                            @endfor
-                                                                        </select>
-                                                                    @endif
-                                                            </div>
-                                                            <button class="vip-btn btn-{{ $item->id }} mt-2"
-                                                                style="background-color: {{ $brandPrimary }} !important;"
-                                                                data-id="{{ $item->id }}"
-                                                                data-name="{{ $item->name }}"
-                                                                data-price="{{ $item->price }}"
-                                                                data-gratuity="{{ $data->gratuity_fee }}"
-                                                                data-refundable="{{ $data->refundable_fee }}"
-                                                                data-sales_tax="{{ $data->sales_tax_fee ?? 10 }}"
-                                                                data-transportation="{{ $item->transportation }}"
-                                                                data-physical-product-enabled="{{ (int) ($item->physical_product_enabled ?? 0) }}"
-                                                                data-service_charge="{{ $data->service_charge_fee ?? 10 }}"
-                                                                data-default-label="Add to Cart">Add to Cart</button>
-
-                                                            <small class="package-guest-error" style="display:none;color:#ff6b6b;font-size:11px;line-height:1.35;margin-top:4px;"></small>
-                                                            <div class="package-soldout" style="display:none;color:#ff2b2b;font-size:12px;font-weight:700;line-height:1.35;margin-top:4px;">Sold Out!</div>
-                                                        </div>
-                                                    </div>
+                                                    <button
+                                                        type="button"
+                                                        class="package-category-tile{{ $catRgbStr ? ' has-cat-color' : '' }}"
+                                                        data-target="#category-group-{{ $category['id'] }}"
+                                                        @if($catRgbStr) style="--cat-rgb: {{ $catRgbStr }}" @endif
+                                                    >
+                                                        @if(!empty($category['icon']))
+                                                            <i class="fas {{ $category['icon'] }} package-category-tile-icon"></i>
+                                                        @endif
+                                                        <span class="package-category-name">{{ $category['name'] }}</span>
+                                                        <span class="package-category-indicator">+</span>
+                                                    </button>
                                                 @endforeach
                                             </div>
-                                        @endforeach
-                                    @else
-                                        <p style="opacity:.6;">No packages are available yet.</p>
-                                    @endif
-
-                                    {{-- <div class="cv-freeride-callout">
-                                        <div class="cv-freeride-icon"><i class="fas fa-car-side"></i></div>
-                                        <div>
-                                            <strong>Free Ride Included</strong>
-                                            <span>Complimentary pickup &amp; return for you and your guests. We'll contact you after booking to confirm details.</span>
-                                        </div>
-                                    </div> --}}
-
-                                    <section id="cart-section" class="container py-4" style="display:none; margin-bottom:2rem;">
-                                        <div class="cart-heading">Your Cart</div>
-                                        <div id="cart-list"></div>
-                                        <div id="cart-total" style="font-size:15px;margin-top:8px;font-weight:600;"></div>
-                                        <div id="cart-coupon" style="font-size:13px;color:#4caf7d;margin-top:4px;"></div>
-                                    </section>
-
-                                    <div class="row pricing-shell g-3">
-                                        <div class="text-start mt-3 col-md-6">
-                                            <div style="font-size: 16px;" class="default-price">Package:
-                                                <span>$0.00</span>
-                                            </div>
-                                            <div class="dynamic-price" style="display: none;">
-                                                <input type="hidden" id="old_price">
-                                                <div style="font-size: 16px;" class="default-package-price"><span>Subtotal</span>
-                                                    <span>$0.00</span>
-                                                </div>
-                                                <div class="addonns"></div>
-
-                                                @if ($data->service_charge_name != 0)
-                                                    <div style="font-size: 16px;" class="default-service-charge" data-tip="Covers reservation coordination, operational support, and service-related costs.">
-                                                        <span>{{ $data->service_charge_name ?? 'Service Fee' }}</span>
-                                                        <span>$0.00</span>
-                                                    </div>
-                                                @endif
-                                                <div class="sales_tax"></div>
-                                                @if ($data->sales_tax_name != 0)
-                                                    <div style="font-size: 16px;" class="default-sales-tax" data-tip="Government-required sales tax based on local and state regulations.">
-                                                        <span>{{ $data->sales_tax_name ?? 'Tax' }}</span> <span>$0.00</span>
-                                                    </div>
-                                                @endif
-
-                                                @if ($data->gratuity_name != 0)
-                                                    <div style="font-size: 16px;" class="default-gratuity" data-tip="Supports venue staff and hospitality service. Calculated based on subtotal.">
-                                                        <span>{{ $data->gratuity_name ?? 'Gratuity Fee' }}</span>
-                                                        <span>$0.00</span></div>
-                                                @else
-                                                    <div class="default-gratuity"></div>
-                                                @endif
-
-                                                <div style="font-size: 16px; font-weight: bold; display: none"
-                                                    class="default-total"><span>Total</span> <span>$0.00</span></div>
-                                            </div>
-
-                                            <!-- Shareable Link Button -->
-                                            <div class="mt-3" id="shareLinkContainer">
-                                                <button type="button" id="generateShareLink">Generate
-                                                    Shareable Link</button>
-                                                <div style="position: relative;">
-                                                    <input type="text" id="shareableLink" readonly
-                                                        style="width:100%;margin-top:8px;display:none;padding-right:40px;"
-  required />
-                                                    <div id="copyTooltip" style="position: absolute; top: -35px; right: 0; background: #d6a857; color: #1f1400; padding: 8px 12px; border-radius: 4px; font-size: 12px; display: none; white-space: nowrap; z-index: 1000;">
-                                                        Link copied!
-                                                    </div>
-                                                </div>
-                                                <div id="shareActions" style="display:none;gap:8px;flex-wrap:wrap;margin-top:8px;">
-                                                    <button type="button" class="checkout-share-btn" data-share="email" style="background:#0f172a;color:#fff;border:1px solid #334155;padding:6px 10px;border-radius:8px;font-size:12px;">Email</button>
-                                                    <button type="button" class="checkout-share-btn" data-share="whatsapp" style="background:#0f172a;color:#fff;border:1px solid #334155;padding:6px 10px;border-radius:8px;font-size:12px;">WhatsApp</button>
-                                                    <button type="button" class="checkout-share-btn" data-share="facebook" style="background:#0f172a;color:#fff;border:1px solid #334155;padding:6px 10px;border-radius:8px;font-size:12px;">Facebook</button>
-                                                    <button type="button" class="checkout-share-btn" data-share="copy" style="background:#0f172a;color:#fff;border:1px solid #334155;padding:6px 10px;border-radius:8px;font-size:12px;">Copy</button>
-                                                </div>
-                                            </div>
-
-                                            <div class="default-deposit" style="border-top: unset !important; background: transparent !important; padding: 21px 29px !important;"><span>Total</span><span>$0.00</span></div>
-                                            @if ($data->refundable_fee > 0)
-                                                <div style="font-size: 16px; font-weight: 700; color: {{ $brandSecondary }} !important;"
-                                                    class="vip-price default-refundable">
-                                                    {{ $data->refundable_name ?? 'Non Refundable Processing Fees' }}:
-                                                    <span class="refundable-amount">$0.00</span><span class="pay-now-tag">(Pay Now)</span>
-                                                </div>
-                                                <div style="font-size: 16px; font-weight: 700; color: {{ $brandSecondary }} !important;"
-                                                    class="vip-price default-due">DUE ON ARRIVAL: <span class="due-amount">$0.00</span>
-                                                </div>
                                             @endif
-                                            {{-- @if ($data->sales_tax_name == 0)
-                                                <div style="font-size: 10px; font-weight: 700; color: {{ $brandSecondary }} !important;"
-                                                    class="vip-price">
-                                                    <span>*No sales tax applied. Services sold are
-                                                        not subject to sales tax under Nevada law. Please consult a tax
-                                                        advisor for your local region if applicable.</span>
-                                                    </div>
-                                            @endif --}}
-                                        </div>
-                                        <div class="col-md-6 dynamic-price" style="display: none;">
-                                            <label
-                                                style="color: rgba(255,255,255,0.7); font-size: 13.5px;">{{ $data->promo_code_name ?: 'Have a promo code?' }}</label>
-                                            <div class="row">
-                                                <div class="col-md-8 col-8" style="padding-right: 0%;">
-                                                    <input type="text" id="promo_code"
-                                                        style="color: #fff;"
-                                                        placeholder="Enter code"  required />
-                                                </div>
-                                                <div class="col-md-4 col-4" style="padding-left: 0%;">
-                                                    <button type="button" class="vip-btn-submit"
-                                                        id="applyPromoBtn">Apply</button>
-                                                </div>
-                                            </div>
-                                        </div>
-                                    </div>
 
-                                    <!-- New visual step indicator -->
-                                    <div class="cv-steps" id="cv-steps" style="display:none; margin-bottom:20px;">
-                                        <div class="cv-step cv-step-active" id="cv-vstep-1">
-                                            <div class="cv-step-inner">
-                                                <div class="cv-step-circle">1</div>
-                                                <div class="cv-step-label">Package<br>Details</div>
-                                            </div>
-                                            <div class="cv-step-connector"></div>
-                                        </div>
-                                        <div class="cv-step" id="cv-vstep-2">
-                                            <div class="cv-step-inner">
-                                                <div class="cv-step-circle">2</div>
-                                                <div class="cv-step-label">Transport/<br>Confirm</div>
-                                            </div>
-                                            <div class="cv-step-connector"></div>
-                                        </div>
-                                        <div class="cv-step" id="cv-vstep-3">
-                                            <div class="cv-step-inner">
-                                                <div class="cv-step-circle">3</div>
-                                                <div class="cv-step-label">Review<br>&amp; Pay</div>
-                                            </div>
-                                        </div>
-                                    </div>
+                                            @foreach ($packageCategories as $category)
+                                                <div id="category-group-{{ $category['id'] }}" class="package-category-group" style="display: {{ !empty($isSinglePackageCheckout) ? 'block' : 'none' }};">
+                                                    @foreach ($category['packages'] as $item)
+                                                        @php
+                                                            $pkgTierIdx = ($loop->index % 5) + 1;
+                                                            $pkgTierIcons = ['fas fa-crown','fas fa-star','fas fa-gem','fas fa-fire','fas fa-bolt'];
+                                                            $pkgTierIcon = $pkgTierIcons[$pkgTierIdx - 1];
+                                                            $pkgGuestCap = max(1, (int) ($item->guests_per_table ?: $item->number_of_guest ?: 1));
+                                                            $pkgTableCap = max(2, (int) ($item->guests_per_table ?: $item->number_of_guest ?: 2));
+                                                            $pkgIsTicket = ($item->package_type ?? 'table') === 'ticket';
+                                                            $pkgTicketMax = max(1, (int) ($item->number_of_guest ?: 1));
+                                                            $pkgTableMax  = max(2, (int) ($item->guests_per_table ?: $item->number_of_guest ?: 2));
+                                                            $fallbackVisual = $data->logo ? asset('uploads/' . $data->logo) : asset('images/logo.png');
+                                                            $packageVisual = !empty($item->image) ? asset('uploads/' . $item->image) : $fallbackVisual;
+                                                            $packageMobileVisual = !empty($item->mobile_image) ? asset('uploads/' . $item->mobile_image) : $packageVisual;
+                                                        @endphp
+                                                        <div class="vip-card cv-tier-{{ $pkgTierIdx }} cv-exact-card" id="pkg-card-{{ $item->id }}">
+                                                            <div class="cv-pkg-media-wrap">
+                                                                <picture>
+                                                                    <source media="(max-width: 767px)" srcset="{{ $packageMobileVisual }}">
+                                                                    <img src="{{ $packageVisual }}" alt="{{ $item->name }}" class="cv-pkg-media">
+                                                                </picture>
+                                                                @if ((int) ($item->is_most_popular ?? 0) === 1)
+                                                                    <span class="cv-popular-pill">MOST POPULAR</span>
+                                                                @endif
+                                                            </div>
 
-                                    <!-- Step Progress Indicator -->
-                                    <ul class="checkout-steps" id="checkout-steps" style="display: none;">
-                                        <li class="step active" id="step-1">
-                                            <div class="step-number">1</div>
-                                            <p class="step-title">Package Details</p>
-                                        </li>
-                                        <li class="step" id="step-2">
-                                            <div class="step-number">2</div>
-                                            <p class="step-title">Arrival</p>
-                                        </li>
-                                        <li class="step" id="step-3">
-                                            <div class="step-number">3</div>
-                                            <p class="step-title">Payment</p>
-                                        </li>
-                                    </ul>
-
-                                    <div style="display:none; margin: 10px 5px 14px; font-size: 12px; line-height: 1.5; color: rgba(255,255,255,0.82);" class="dynamic-price">
-                                        This experience is fulfilled by the venue. Entry is subject to venue rules including minimum age requirements (18+ or 21+ depending on venue), valid ID, and dress code.
-                                    </div>
-
-                                    <form action="{{ route('checkout.store', ['slug' => $data->slug]) }}"
-                                        id="payment-form" method="post">
-                                        @csrf
-
-
-
-                                        <!-- Step 1: Package Holder Info -->
-                                        <section class="checkout-section holder-info dynamic-price mt-4"
-                                            id="section-1" style="display: none; width: 100%;">
-                                            <div class="">
-                                                <div class="row">
-
-                                                    <div class="col-md-12">
-
-                                                        <h2 style="margin-bottom: 35px;">Personal details <span
-                                                                style="font-size: 1rem;"> Is this package being purchased for someone else? If so enter their legal name here (must present ID upon entry): </span></h2>
-
-                                                        <!-- Left: Form Fields -->
-                                                        <div class="form-left">
-
-                                                            <div class="form-row">
-                                                                <div class="form-group" style="width: 50%;">
-                                                                    <label for="firstName">First Name</label>
-                                                                    <input type="text" id="firstName"
-                                                                        name="package_first_name"
-                                                                        placeholder="First Name" required />
+                                                            <div class="vip-card-main">
+                                                                <div class="cv-pkg-title-row">
+                                                                    <i class="{{ $pkgTierIcon }} cv-pkg-title-icon"></i>
+                                                                    <div class="cv-pkg-title">{{ $item->name }}</div>
+                                                                    @if(trim((string) ($item->tooltip ?? '')) !== '')
+                                                                        <button type="button" class="cv-pkg-tooltip-trigger" aria-label="View package details" data-title="{{ $item->name }}" data-tooltip="{{ trim((string) ($item->tooltip ?? '')) }}">i</button>
+                                                                    @endif
                                                                 </div>
-                                                                <div class="form-group" style="width: 50%;">
-                                                                    <label for="lastName">Last Name</label>
-                                                                    <input type="text" id="lastName"
-                                                                        name="package_last_name"
-                                                                        placeholder="Last Name" required />
+                                                                @if($pkgIsTicket)
+                                                                    <span class="cv-pkg-sub"><i class="fas fa-ticket-alt"></i>1 ticket per person</span>
+                                                                @else
+                                                                    <span class="cv-pkg-sub"><i class="fas fa-user-friends"></i>Up to {{ $pkgTableMax }} guests</span>
+                                                                @endif
+                                                                @if($item->description)
+                                                                    <p class="cv-pkg-desc">{{ strip_tags($item->description) }}</p>
+                                                                @endif
+                                                                @php
+                                                                    $defaultPackageFeatures = [
+                                                                        ['icon' => 'fa-chair', 'text' => 'VIP Table'],
+                                                                        ['icon' => 'fa-wine-bottle', 'text' => '1 Premium Bottle'],
+                                                                        ['icon' => 'fa-user-shield', 'text' => 'VIP Hosts'],
+                                                                        ['icon' => 'fa-shield-alt', 'text' => $item->package_type === 'ticket' ? 'Free Entry' : 'Skip the Line'],
+                                                                    ];
+
+                                                                    $packageFeatures = collect(is_array($item->package_features) ? $item->package_features : [])
+                                                                        ->map(function ($feature) {
+                                                                            $icon = trim((string) ($feature['icon'] ?? ''));
+                                                                            $text = trim((string) ($feature['text'] ?? ''));
+
+                                                                            if ($text === '') {
+                                                                                return null;
+                                                                            }
+
+                                                                            if (!preg_match('/^fa-[a-z0-9-]+$/i', $icon)) {
+                                                                                $icon = 'fa-chair';
+                                                                            }
+
+                                                                            return [
+                                                                                'icon' => strtolower($icon),
+                                                                                'text' => $text,
+                                                                            ];
+                                                                        })
+                                                                        ->filter()
+                                                                        ->values();
+
+                                                                    if ($packageFeatures->isEmpty()) {
+                                                                        $packageFeatures = collect($defaultPackageFeatures);
+                                                                    }
+                                                                @endphp
+                                                                <div class="cv-pkg-features">
+                                                                    @foreach($packageFeatures as $feature)
+                                                                        <span class="cv-pkg-feature"><i class="fas {{ $feature['icon'] }}"></i>{{ $feature['text'] }}</span>
+                                                                    @endforeach
                                                                 </div>
                                                             </div>
 
-                                                            <div class="form-row">
-                                                                <div class="form-group" style="width: 50%;">
-                                                                    <label for="phone">Phone Number</label>
-                                                                    <input type="tel" id="package_phone"
-                                                                        name="package_phone"
-                                                                        placeholder="(555) 123-4567" required />
-                                                                    <div class="phone-note" style="font-size: 0.75rem; color: rgba(255,255,255,0.6); margin-top: 4px;">Phone formatting may vary by country. International SMS delivery is not guaranteed.</div>
-                                                                </div>
-                                                                <div class="form-group" style="width: 50%;">
-                                                                    <label for="email">Email</label>
-                                                                    <input type="email" id="email"
-                                                                        name="package_email"
-                                                                        placeholder="sample@sample.com" required />
-                                                                    <div class="email-note" style="font-size: 0.75rem; color: yellow; margin-top: 4px;">Your booking confirmation will be sent to this email. Please make sure it’s correct.</div>
-                                                                </div>
-                                                            </div>
+                                                            <div class="vip-card-side">
+                                                                <div class="vip-price-tag price-{{ $item->id }}"
+                                                                    data-price="{{ $item->price }}">${{ number_format((float) $item->price, 2) }}</div>
+                                                                @if(!$pkgIsTicket)
+                                                                    <div class="cv-price-meta">Per Package</div>
+                                                                @endif
 
-                                                            <div class="form-row">
-                                                                <div class="form-group" style="width: 100%;">
-                                                                    <label for="dob-month">Date of Birth <span class="text-danger">*</span></label>
-                                                                    <div class="form-row">
-                                                                        <select id="package-dob-month"
-                                                                            name="package_month" class="form-select"
-                                                                            style="width: 32%; display: inline-block; margin-right: 2%;"
-                                                                            required></select>
-                                                                        <select id="package-dob-day"
-                                                                            name="package_day" class="form-select"
-                                                                            style="width: 32%; display: inline-block; margin-right: 2%;"
-                                                                            required></select>
-                                                                        <select id="package-dob-year"
-                                                                            name="package_year" class="form-select"
-                                                                            style="width: 32%; display: inline-block;"
-                                                                            required></select>
-                                                                    </div>
+                                                                <div class="package-guest-input-wrap">
+                                                                        @if ($item->package_type === 'ticket')
+                                                                            @php $ticketInitMax = min(15, max(1, (int) ($item->number_of_guest ?? 1))); @endphp
+                                                                            <select
+                                                                                data-package-type="{{ $item->package_type }}"
+                                                                                data-guests-per-table="{{ (int) ($item->guests_per_table ?? 0) }}"
+                                                                                data-package-guest-limit="{{ (int) ($item->number_of_guest ?? 1) }}"
+                                                                                data-ticket-max="{{ (int) ($item->number_of_guest ?? 1) }}"
+                                                                                data-multiple="{{ $item->multiple }}"
+                                                                                data-id="{{ $item->id }}"
+                                                                                class="form-select package_number_of_guestss ticket-select-lazy"
+                                                                                required
+                                                                            >
+                                                                                <option value=""># of Tickets</option>
+                                                                                @for ($i = 1; $i <= $ticketInitMax; $i++)
+                                                                                    <option value="{{ $i }}">{{ $i }} {{ $i === 1 ? 'ticket' : 'tickets' }}</option>
+                                                                                @endfor
+                                                                            </select>
+                                                                        @else
+                                                                            <select
+                                                                                data-package-type="{{ $item->package_type }}"
+                                                                                data-guests-per-table="{{ (int) ($item->guests_per_table ?? 0) }}"
+                                                                                data-package-guest-limit="{{ $pkgTableCap }}"
+                                                                                data-multiple="{{ $item->multiple }}"
+                                                                                data-id="{{ $item->id }}"
+                                                                                class="form-select package_number_of_guestss"
+                                                                                required
+                                                                            >
+                                                                                <option value="">Select Guests ▼</option>
+                                                                                @for ($i = 1; $i <= $pkgTableCap; $i++)
+                                                                                    <option value="{{ $i }}">{{ $i }} {{ $i === 1 ? 'guest' : 'guests' }}</option>
+                                                                                @endfor
+                                                                            </select>
+                                                                        @endif
                                                                 </div>
-                                                            </div>
+                                                                <button class="vip-btn btn-{{ $item->id }} mt-2"
+                                                                    style="background-color: {{ $brandPrimary }} !important;"
+                                                                    data-id="{{ $item->id }}"
+                                                                    data-name="{{ $item->name }}"
+                                                                    data-price="{{ $item->price }}"
+                                                                    data-gratuity="{{ $data->gratuity_fee }}"
+                                                                    data-refundable="{{ $data->refundable_fee }}"
+                                                                    data-sales_tax="{{ $data->sales_tax_fee ?? 10 }}"
+                                                                    data-transportation="{{ $item->transportation }}"
+                                                                    data-physical-product-enabled="{{ (int) ($item->physical_product_enabled ?? 0) }}"
+                                                                    data-service_charge="{{ $data->service_charge_fee ?? 10 }}"
+                                                                    data-default-label="Add to Cart">Add to Cart</button>
 
-                                                            <div class="form-group">
-                                                                <label for="note">Booking Note</label>
-                                                                <textarea id="note" name="package_note" placeholder="Your occasion or special request?"></textarea>
-                                                            </div>
-                                                            <div class="form-group">
-                                                                <label for="host">Host / Promoter Referral</label>
-                                                                <input id="host" name="host_name"
-                                                                    placeholder="Enter host/promoter name or referral code (optional)">
+                                                                <small class="package-guest-error" style="display:none;color:#ff6b6b;font-size:11px;line-height:1.35;margin-top:4px;"></small>
+                                                                <div class="package-soldout" style="display:none;color:#ff2b2b;font-size:12px;font-weight:700;line-height:1.35;margin-top:4px;">Sold Out!</div>
                                                             </div>
                                                         </div>
+                                                    @endforeach
+                                                </div>
+                                            @endforeach
+                                        @else
+                                            <p style="opacity:.6;">No packages are available yet.</p>
+                                        @endif
+
+                                        {{-- <div class="cv-freeride-callout">
+                                            <div class="cv-freeride-icon"><i class="fas fa-car-side"></i></div>
+                                            <div>
+                                                <strong>Free Ride Included</strong>
+                                                <span>Complimentary pickup &amp; return for you and your guests. We'll contact you after booking to confirm details.</span>
+                                            </div>
+                                        </div> --}}
+
+                                        <section id="cart-section" class="container py-4" style="display:none; margin-bottom:2rem;">
+                                            <div class="cart-heading">Your Cart</div>
+                                            <div id="cart-list"></div>
+                                            <div id="cart-total" style="font-size:15px;margin-top:8px;font-weight:600;"></div>
+                                            <div id="cart-coupon" style="font-size:13px;color:#4caf7d;margin-top:4px;"></div>
+                                        </section>
+
+                                        <div class="row pricing-shell g-3">
+                                            <div class="text-start mt-3 col-md-6">
+                                                <div style="font-size: 16px;" class="default-price">Package:
+                                                    <span>$0.00</span>
+                                                </div>
+                                                <div class="dynamic-price" style="display: none;">
+                                                    <input type="hidden" id="old_price">
+                                                    <div style="font-size: 16px;" class="default-package-price"><span>Subtotal</span>
+                                                        <span>$0.00</span>
+                                                    </div>
+                                                    <div class="addonns"></div>
+
+                                                    @if ($data->service_charge_name != 0)
+                                                        <div style="font-size: 16px;" class="default-service-charge" data-tip="Covers reservation coordination, operational support, and service-related costs.">
+                                                            <span>{{ $data->service_charge_name ?? 'Service Fee' }}</span>
+                                                            <span>$0.00</span>
+                                                        </div>
+                                                    @endif
+                                                    <div class="sales_tax"></div>
+                                                    @if ($data->sales_tax_name != 0)
+                                                        <div style="font-size: 16px;" class="default-sales-tax" data-tip="Government-required sales tax based on local and state regulations.">
+                                                            <span>{{ $data->sales_tax_name ?? 'Tax' }}</span> <span>$0.00</span>
+                                                        </div>
+                                                    @endif
+
+                                                    @if ($data->gratuity_name != 0)
+                                                        <div style="font-size: 16px;" class="default-gratuity" data-tip="Supports venue staff and hospitality service. Calculated based on subtotal.">
+                                                            <span>{{ $data->gratuity_name ?? 'Gratuity Fee' }}</span>
+                                                            <span>$0.00</span></div>
+                                                    @else
+                                                        <div class="default-gratuity"></div>
+                                                    @endif
+
+                                                    <div style="font-size: 16px; font-weight: bold; display: none"
+                                                        class="default-total"><span>Total</span> <span>$0.00</span></div>
+                                                </div>
+
+                                                <!-- Shareable Link Button -->
+                                                <div class="mt-3" id="shareLinkContainer">
+                                                    <button type="button" id="generateShareLink">Generate
+                                                        Shareable Link</button>
+                                                    <div style="position: relative;">
+                                                        <input type="text" id="shareableLink" readonly
+                                                            style="width:100%;margin-top:8px;display:none;padding-right:40px;" required />
+                                                        <div id="copyTooltip" style="position: absolute; top: -35px; right: 0; background: #d6a857; color: #1f1400; padding: 8px 12px; border-radius: 4px; font-size: 12px; display: none; white-space: nowrap; z-index: 1000;">
+                                                            Link copied!
+                                                        </div>
+                                                    </div>
+                                                    <div id="shareActions" style="display:none;gap:8px;flex-wrap:wrap;margin-top:8px;">
+                                                        <button type="button" class="checkout-share-btn" data-share="email" style="background:#0f172a;color:#fff;border:1px solid #334155;padding:6px 10px;border-radius:8px;font-size:12px;">Email</button>
+                                                        <button type="button" class="checkout-share-btn" data-share="whatsapp" style="background:#0f172a;color:#fff;border:1px solid #334155;padding:6px 10px;border-radius:8px;font-size:12px;">WhatsApp</button>
+                                                        <button type="button" class="checkout-share-btn" data-share="facebook" style="background:#0f172a;color:#fff;border:1px solid #334155;padding:6px 10px;border-radius:8px;font-size:12px;">Facebook</button>
+                                                        <button type="button" class="checkout-share-btn" data-share="copy" style="background:#0f172a;color:#fff;border:1px solid #334155;padding:6px 10px;border-radius:8px;font-size:12px;">Copy</button>
+                                                    </div>
+                                                </div>
+
+                                                <div class="default-deposit" style="border-top: unset !important; background: transparent !important; padding: 21px 29px !important;"><span>Total</span><span>$0.00</span></div>
+                                                @if ($data->refundable_fee > 0)
+                                                    <div style="font-size: 16px; font-weight: 700; color: {{ $brandSecondary }} !important;"
+                                                        class="vip-price default-refundable">
+                                                        {{ $data->refundable_name ?? 'Non Refundable Processing Fees' }}:
+                                                        <span class="refundable-amount">$0.00</span><span class="pay-now-tag">(Pay Now)</span>
+                                                    </div>
+                                                    <div style="font-size: 16px; font-weight: 700; color: {{ $brandSecondary }} !important;"
+                                                        class="vip-price default-due">DUE ON ARRIVAL: <span class="due-amount">$0.00</span>
+                                                    </div>
+                                                @endif
+                                                {{-- @if ($data->sales_tax_name == 0)
+                                                    <div style="font-size: 10px; font-weight: 700; color: {{ $brandSecondary }} !important;"
+                                                        class="vip-price">
+                                                        <span>*No sales tax applied. Services sold are
+                                                            not subject to sales tax under Nevada law. Please consult a tax
+                                                            advisor for your local region if applicable.</span>
+                                                        </div>
+                                                @endif --}}
+                                            </div>
+                                            <div class="col-md-6 dynamic-price" style="display: none;">
+                                                <label
+                                                    style="color: rgba(255,255,255,0.7); font-size: 13.5px;">{{ $data->promo_code_name ?: 'Have a promo code?' }}</label>
+                                                <div class="row">
+                                                    <div class="col-md-8 col-8" style="padding-right: 0%;">
+                                                        <input type="text" id="promo_code"
+                                                            style="color: #fff;"
+                                                            placeholder="Enter code"  required />
+                                                    </div>
+                                                    <div class="col-md-4 col-4" style="padding-left: 0%;">
+                                                        <button type="button" class="vip-btn-submit"
+                                                            id="applyPromoBtn">Apply</button>
                                                     </div>
                                                 </div>
                                             </div>
+                                        </div>
 
-                                            <!-- Step Navigation -->
-                                            <div class="step-navigation">
-                                                <button type="button" class="btn-next" id="next-to-transport">Next:
-                                                    Transportation Details</button>
+                                        <!-- New visual step indicator -->
+                                        <div class="cv-steps" id="cv-steps" style="display:none; margin-bottom:20px;">
+                                            <div class="cv-step cv-step-active" id="cv-vstep-1">
+                                                <div class="cv-step-inner">
+                                                    <div class="cv-step-circle">1</div>
+                                                    <div class="cv-step-label">Package<br>Details</div>
+                                                </div>
+                                                <div class="cv-step-connector"></div>
                                             </div>
-                                        </section>
-
-                                        <!-- Step 2: Transportation -->
-                                        <section class="checkout-section transport mt-4" id="section-2"
-                                            style="display: none; width: 100%;">
-
-                                            <!-- Transportation confirmation checkbox -->
-                                            <div class="checkbox-container transportaiton" id="transport-confirmation"
-                                                style="display:none">
-                                                <label>
-                                                    <input type="checkbox" id="transportation_part"  required />
-                                                    {{ $data->transportation_confirmation_text ?? 'I confirm I am arriving in a personal vehicle or approved venue transportation. I am not arriving via Uber, Lyft, taxi, limousine, ride-share, or any other third-party transportation service.' }}
-                                                </label>
-                                                <div class="step-navigation" style="margin-top: 20px;">
-                                                    <button type="button" class="btn-prev"
-                                                        id="prev-to-package">Previous: Package Details</button>
-                                                    <button type="button" class="btn-next"
-                                                        id="next-to-payment-from-confirm">Next: Payment
-                                                        Details</button>
+                                            <div class="cv-step" id="cv-vstep-2">
+                                                <div class="cv-step-inner">
+                                                    <div class="cv-step-circle">2</div>
+                                                    <div class="cv-step-label">Transport/<br>Confirm</div>
+                                                </div>
+                                                <div class="cv-step-connector"></div>
+                                            </div>
+                                            <div class="cv-step" id="cv-vstep-3">
+                                                <div class="cv-step-inner">
+                                                    <div class="cv-step-circle">3</div>
+                                                    <div class="cv-step-label">Review<br>&amp; Pay</div>
                                                 </div>
                                             </div>
+                                        </div>
 
-                                            <!-- Transportation form -->
-                                            <div class="non-transportaiton" id="transport-form"
-                                                style="display: none;">
+                                        <!-- Step Progress Indicator -->
+                                        <ul class="checkout-steps" id="checkout-steps" style="display: none;">
+                                            <li class="step active" id="step-1">
+                                                <div class="step-number">1</div>
+                                                <p class="step-title">Package Details</p>
+                                            </li>
+                                            <li class="step" id="step-2">
+                                                <div class="step-number">2</div>
+                                                <p class="step-title">Arrival</p>
+                                            </li>
+                                            <li class="step" id="step-3">
+                                                <div class="step-number">3</div>
+                                                <p class="step-title">Payment</p>
+                                            </li>
+                                        </ul>
+
+                                        <div style="display:none; margin: 10px 5px 14px; font-size: 12px; line-height: 1.5; color: rgba(255,255,255,0.82);" class="dynamic-price">
+                                            This experience is fulfilled by the venue. Entry is subject to venue rules including minimum age requirements (18+ or 21+ depending on venue), valid ID, and dress code.
+                                        </div>
+
+                                        <form action="{{ route('checkout.store', ['slug' => $data->slug]) }}"
+                                            id="payment-form" method="post">
+                                            @csrf
+
+
+
+                                            <!-- Step 1: Package Holder Info -->
+                                            <section class="checkout-section holder-info dynamic-price mt-4"
+                                                id="section-1" style="display: none; width: 100%;">
                                                 <div class="">
                                                     <div class="row">
 
                                                         <div class="col-md-12">
 
-                                                            <h2 id="transport-section-title" style="margin-bottom: 8px;">Arrival Time</h2>
-                                                            <div id="transportation-hours-range" style="display: none; margin-bottom: 24px; font-size: 16px; font-weight: 700; color: rgba(255,255,255,0.92);"></div>
+                                                            <h2 style="margin-bottom: 35px;">Personal details <span
+                                                                    style="font-size: 1rem;"> Is this package being purchased for someone else? If so enter their legal name here (must present ID upon entry): </span></h2>
 
                                                             <!-- Left: Form Fields -->
                                                             <div class="form-left">
-                                                                <div id="transportation-details-fields">
-
-                                                                    <div class="form-group" style="width: 100%;">
-                                                                        <label for="Pick-up-time">Pick-up Time</label>
-                                                                        <small style="display:block;margin-top:4px;margin-bottom:8px;font-size:12px;line-height:1.4;color:#ffdc66;">Reservations must be made at least 15 minutes in advance. Reservation times are available in 5-minute intervals.</small>
-                                                                        <div class="pickup-time-wrap">
-                                                                            <i class="fas fa-clock pickup-time-icon"></i>
-                                                                            <input name="transportation_pickup_time" type="text" readonly
-                                                                                id="Pick-up-time"
-                                                                                class="form-control"
-                                                                                placeholder="Select pick-up time" required />
-                                                                        </div>
-                                                                    </div>
-                                                                </div>
-                                                                <div class="form-row" style="margin-top: 14px;">
-                                                                    <div class="form-group" style="width: 100%;">
-                                                                        <label for="address">Pick-up Location</label>
-                                                                        <input type="text"
-                                                                            name="transportation_address"
-                                                                            id="address" placeholder="Enter pick-up address" required />
-                                                                    </div>
-                                                                </div>
-                                                                <div id="pickup-hours-badge" class="schedule-hours-badge" style="display: none; margin-top: 12px;"></div>
 
                                                                 <div class="form-row">
-                                                                    <div class="form-group" style="width: 100%;">
-                                                                        <label for="phone">Contact Phone Number or
-                                                                            WhatsApp</label>
-                                                                        <input type="tel"
-                                                                            name="transportation_phone" id="phone"
-                                                                            placeholder="For driver/dispatch to coordinate pickup"  required />
+                                                                    <div class="form-group" style="width: 50%;">
+                                                                        <label for="firstName">First Name</label>
+                                                                        <input type="text" id="firstName"
+                                                                            name="package_first_name"
+                                                                            placeholder="First Name" required />
                                                                     </div>
-
+                                                                    <div class="form-group" style="width: 50%;">
+                                                                        <label for="lastName">Last Name</label>
+                                                                        <input type="text" id="lastName"
+                                                                            name="package_last_name"
+                                                                            placeholder="Last Name" required />
+                                                                    </div>
                                                                 </div>
 
                                                                 <div class="form-row">
-                                                                    <div class="num-guest"
-                                                                        style="width: 100%; display: flex;">
-                                                                        <label for="">Number of
-                                                                            Guest(s)</label>
-
-                                                                        <input type="number" class="form-control"
-                                                                            name="transportation_guest" value="0" min="0"
-                                                                            style="width: 120px; max-width: 120px; color: #fff;" required />
-
-
-
+                                                                    <div class="form-group" style="width: 50%;">
+                                                                        <label for="phone">Phone Number</label>
+                                                                        <input type="tel" id="package_phone"
+                                                                            name="package_phone"
+                                                                            placeholder="(555) 123-4567" required />
+                                                                        <div class="phone-note" style="font-size: 0.75rem; color: rgba(255,255,255,0.6); margin-top: 4px;">Phone formatting may vary by country. International SMS delivery is not guaranteed.</div>
+                                                                    </div>
+                                                                    <div class="form-group" style="width: 50%;">
+                                                                        <label for="email">Email</label>
+                                                                        <input type="email" id="email"
+                                                                            name="package_email"
+                                                                            placeholder="sample@sample.com" required />
+                                                                        <div class="email-note" style="font-size: 0.75rem; color: yellow; margin-top: 4px;">Your booking confirmation will be sent to this email. Please make sure it’s correct.</div>
                                                                     </div>
                                                                 </div>
 
-                                                                <div class="form-group" style="display:none !important;" aria-hidden="true">
-                                                                    <label for="note">Pickup Note</label>
-                                                                    <textarea name="transportation_note" id="note" placeholder="If any"></textarea>
-                                                                </div>
-                                                                </div>
-
-                                                                <div class="form-row" id="transportation-arrival-time-field" style="display:none !important; margin-top: 14px;">
+                                                                <div class="form-row">
                                                                     <div class="form-group" style="width: 100%;">
-                                                                        <label for="Arrival-time">Time of Arrival</label>
-                                                                        <div class="pickup-time-wrap">
-                                                                            <i class="fas fa-clock pickup-time-icon"></i>
-                                                                            <input name="transportation_arrival_time" type="text" readonly
-                                                                                id="Arrival-time"
-                                                                                class="form-control"
-                                                                                placeholder="Select time of arrival" />
+                                                                        <label for="dob-month">Date of Birth <span class="text-danger">*</span></label>
+                                                                        <div class="form-row">
+                                                                            <select id="package-dob-month"
+                                                                                name="package_month" class="form-select"
+                                                                                style="width: 32%; display: inline-block; margin-right: 2%;"
+                                                                                required></select>
+                                                                            <select id="package-dob-day"
+                                                                                name="package_day" class="form-select"
+                                                                                style="width: 32%; display: inline-block; margin-right: 2%;"
+                                                                                required></select>
+                                                                            <select id="package-dob-year"
+                                                                                name="package_year" class="form-select"
+                                                                                style="width: 32%; display: inline-block;"
+                                                                                required></select>
                                                                         </div>
-                                                                        @if(($data->show_arrival_time_verbiage ?? 1) == 1)
-                                                                            <small style="display:block;margin-top:6px;font-size:12px;line-height:1.4;color:rgba(255,255,255,0.6);">Required when self-driving or when package transportation is not included.</small>
-                                                                        @endif
-                                                                        <div id="arrival-hours-badge" class="schedule-hours-badge" style="display: none; margin-top: 12px;"></div>
                                                                     </div>
                                                                 </div>
 
-                                                                <div class="checkbox-container transportaiton" id="transportation-self-drive-wrap" style="margin-top: 20px;">
-                                                                    <label>
-                                                                        <input type="checkbox" id="transportation_self_drive_ack" name="transportation_self_drive_ack" value="1" />
-                                                                        I do not need the complimentary transportation included with my package and will self-drive. My party will arrive by private vehicle. Uber, Lyft, taxis, limousines, and ride-sharing services are not permitted.
-                                                                    </label>
+                                                                <div class="form-group">
+                                                                    <label for="note">Booking Note</label>
+                                                                    <textarea id="note" name="package_note" placeholder="Your occasion or special request?"></textarea>
                                                                 </div>
-
-                                                                <div id="transportation-notice-wrap" class="checkbox-container transportaiton" style="margin-top: 14px; border-color: rgba(255, 204, 0, 0.45) !important; background: linear-gradient(180deg, rgba(51, 34, 5, 0.72), rgba(27, 18, 4, 0.85)) !important;">
-                                                                    <div style="display:flex; align-items:flex-start; gap:10px; color:rgba(255,255,255,0.95); font-size:14px; line-height:1.55;">
-                                                                        <i class="fas fa-triangle-exclamation" style="color:#ffcc00; font-size:16px; margin-top:2px; flex-shrink:0;"></i>
-                                                                        <span><strong style="color:#ffdc66;">Transportation Notice:</strong> Transportation is subject to availability. Requests made shortly before your desired pickup time may not be able to be accommodated. Please allow a reasonable amount of advance notice so we have time to coordinate a driver. While we will always do our best to assist, last-minute transportation cannot be guaranteed.</span>
-                                                                    </div>
+                                                                <div class="form-group">
+                                                                    <label for="host">Host / Promoter Referral</label>
+                                                                    <input id="host" name="host_name"
+                                                                        placeholder="Enter host/promoter name or referral code (optional)">
                                                                 </div>
                                                             </div>
                                                         </div>
@@ -6836,325 +6715,456 @@
 
                                                 <!-- Step Navigation -->
                                                 <div class="step-navigation">
-                                                    <button type="button" class="btn-prev"
-                                                        id="prev-to-package-from-form">Previous: Package
-                                                        Details</button>
-                                                    <button type="button" class="btn-next"
-                                                        id="next-to-payment">Next: Payment Details</button>
+                                                    <button type="button" class="btn-next" id="next-to-transport">Next:
+                                                        Transportation Details</button>
                                                 </div>
-                                            </div>
-                                        </section>
+                                            </section>
 
-                                        <input type="hidden" name="addons" id="addons">
+                                            <!-- Step 2: Transportation -->
+                                            <section class="checkout-section transport mt-4" id="section-2"
+                                                style="display: none; width: 100%;">
 
-                                        <input type="hidden" name="cart_items" id="cart_items">
+                                                <!-- Transportation confirmation checkbox -->
+                                                <div class="checkbox-container transportaiton" id="transport-confirmation"
+                                                    style="display:none">
+                                                    <label>
+                                                        <input type="checkbox" id="transportation_part"  required />
+                                                        {{ $data->transportation_confirmation_text ?? 'I confirm I am arriving in a personal vehicle or approved venue transportation. I am not arriving via Uber, Lyft, taxi, limousine, ride-share, or any other third-party transportation service.' }}
+                                                    </label>
+                                                    <div class="step-navigation" style="margin-top: 20px;">
+                                                        <button type="button" class="btn-prev"
+                                                            id="prev-to-package">Previous: Package Details</button>
+                                                        <button type="button" class="btn-next"
+                                                            id="next-to-payment-from-confirm">Next: Payment
+                                                            Details</button>
+                                                    </div>
+                                                </div>
 
-                                        <input type="hidden" name="package_id" id="package_id">
+                                                <!-- Transportation form -->
+                                                <div class="non-transportaiton" id="transport-form"
+                                                    style="display: none;">
+                                                    <div class="">
+                                                        <div class="row">
 
-                                        <input type="hidden" name="total" id="subtotal">
+                                                            <div class="col-md-12">
 
-                                        <input type="hidden" name="payment_total" class="payment_total">
+                                                                <h2 id="transport-section-title" style="margin-bottom: 8px;">Arrival Time</h2>
+                                                                <div id="transportation-hours-range" style="display: none; margin-bottom: 24px; font-size: 16px; font-weight: 700; color: rgba(255,255,255,0.92);"></div>
 
-                                        <input type="hidden" name="commission_base_amount" id="commission_base_amount">
+                                                                <!-- Left: Form Fields -->
+                                                                <div class="form-left">
+                                                                    <div id="transportation-details-fields">
 
-                                        <input type="hidden" name="website_id" value="{{ $data->id }}">
+                                                                        <div class="form-group" style="width: 100%;">
+                                                                            <label for="Pick-up-time">Pick-up Time</label>
+                                                                            <small style="display:block;margin-top:4px;margin-bottom:8px;font-size:12px;line-height:1.4;color:#ffdc66;">Reservations must be made at least 15 minutes in advance. Reservation times are available in 5-minute intervals.</small>
+                                                                            <div class="pickup-time-wrap">
+                                                                                <i class="fas fa-clock pickup-time-icon"></i>
+                                                                                <input name="transportation_pickup_time" type="text" readonly
+                                                                                    id="Pick-up-time"
+                                                                                    class="form-control"
+                                                                                    placeholder="Select pick-up time" required />
+                                                                            </div>
+                                                                        </div>
+                                                                    </div>
+                                                                    <div class="form-row" style="margin-top: 14px;">
+                                                                        <div class="form-group" style="width: 100%;">
+                                                                            <label for="address">Pick-up Location</label>
+                                                                            <input type="text"
+                                                                                name="transportation_address"
+                                                                                id="address" placeholder="Enter pick-up address" required />
+                                                                        </div>
+                                                                    </div>
+                                                                    <div id="pickup-hours-badge" class="schedule-hours-badge" style="display: none; margin-top: 12px;"></div>
 
-                                        <input type="hidden" name="affiliate_slug" value="{{ $affiliateReferral->slug ?? '' }}">
+                                                                    <div class="form-row">
+                                                                        <div class="form-group" style="width: 100%;">
+                                                                            <label for="phone">Contact Phone Number or
+                                                                                WhatsApp</label>
+                                                                            <input type="tel"
+                                                                                name="transportation_phone" id="phone"
+                                                                                placeholder="For driver/dispatch to coordinate pickup"  required />
+                                                                        </div>
 
-                                        <input type="hidden" name="package_number_of_guest"
-                                            class="package_number_of_guest" value="2">
+                                                                    </div>
 
-                                        <!-- Step 3: Payment Information -->
-                                        <section class="checkout-section payment-info dynamic-price mt-4"
-                                            id="section-3" style="display: none; width: 100%;">
-                                            <div class="">
-                                                <div class="row">
+                                                                    <div class="form-row">
+                                                                        <div class="num-guest"
+                                                                            style="width: 100%; display: flex;">
+                                                                            <label for="">Number of
+                                                                                Guest(s)</label>
 
-                                                    <div class="col-md-12">
-                                                        <h2 style="margin-bottom: 35px;">Payment</h2>
+                                                                            <input type="number" class="form-control"
+                                                                                name="transportation_guest" value="0" min="0"
+                                                                                style="width: 120px; max-width: 120px; color: #fff;" required />
 
-                                                        <!-- Left: Form Fields -->
-                                                        <div class="form-left">
 
-                                                            <div class="form-row">
-                                                                <div class="form-group" style="width: 50%;">
-                                                                    <label for="firstName">First Name</label>
-                                                                    <input name="payment_first_name" type="text"
-                                                                        id="firstName" placeholder="" required />
-                                                                </div>
-                                                                <div class="form-group" style="width: 50%;">
-                                                                    <label for="lastName">Last Name</label>
-                                                                    <input name="payment_last_name" type="text"
-                                                                        id="lastName" placeholder="" required />
+
+                                                                        </div>
+                                                                    </div>
+
+                                                                    <div class="form-group" style="display:none !important;" aria-hidden="true">
+                                                                        <label for="note">Pickup Note</label>
+                                                                        <textarea name="transportation_note" id="note" placeholder="If any"></textarea>
+                                                                    </div>
+                                                                    </div>
+
+                                                                    <div class="form-row" id="transportation-arrival-time-field" style="display:none !important; margin-top: 14px;">
+                                                                        <div class="form-group" style="width: 100%;">
+                                                                            <label for="Arrival-time">Time of Arrival</label>
+                                                                            <div class="pickup-time-wrap">
+                                                                                <i class="fas fa-clock pickup-time-icon"></i>
+                                                                                <input name="transportation_arrival_time" type="text" readonly
+                                                                                    id="Arrival-time"
+                                                                                    class="form-control"
+                                                                                    placeholder="Select time of arrival" />
+                                                                            </div>
+                                                                            @if(($data->show_arrival_time_verbiage ?? 1) == 1)
+                                                                                <small style="display:block;margin-top:6px;font-size:12px;line-height:1.4;color:rgba(255,255,255,0.6);">Required when self-driving or when package transportation is not included.</small>
+                                                                            @endif
+                                                                            <div id="arrival-hours-badge" class="schedule-hours-badge" style="display: none; margin-top: 12px;"></div>
+                                                                        </div>
+                                                                    </div>
+
+                                                                    <div class="checkbox-container transportaiton" id="transportation-self-drive-wrap" style="margin-top: 20px;">
+                                                                        <label>
+                                                                            <input type="checkbox" id="transportation_self_drive_ack" name="transportation_self_drive_ack" value="1" />
+                                                                            I do not need the complimentary transportation included with my package and will self-drive. My party will arrive by private vehicle. Uber, Lyft, taxis, limousines, and ride-sharing services are not permitted.
+                                                                        </label>
+                                                                    </div>
+
+                                                                    <div id="transportation-notice-wrap" class="checkbox-container transportaiton" style="margin-top: 14px; border-color: rgba(255, 204, 0, 0.45) !important; background: linear-gradient(180deg, rgba(51, 34, 5, 0.72), rgba(27, 18, 4, 0.85)) !important;">
+                                                                        <div style="display:flex; align-items:flex-start; gap:10px; color:rgba(255,255,255,0.95); font-size:14px; line-height:1.55;">
+                                                                            <i class="fas fa-triangle-exclamation" style="color:#ffcc00; font-size:16px; margin-top:2px; flex-shrink:0;"></i>
+                                                                            <span><strong style="color:#ffdc66;">Transportation Notice:</strong> Transportation is subject to availability. Requests made shortly before your desired pickup time may not be able to be accommodated. Please allow a reasonable amount of advance notice so we have time to coordinate a driver. While we will always do our best to assist, last-minute transportation cannot be guaranteed.</span>
+                                                                        </div>
+                                                                    </div>
                                                                 </div>
                                                             </div>
+                                                        </div>
+                                                    </div>
 
-                                                            <div class="form-row">
-                                                                <div class="form-group" style="width: 50%;">
-                                                                    <label for="hidden_payment_phone">Phone Number</label>
-                                                                    <input type="tel" name="payment_phone"
-                                                                        id="hidden_payment_phone" placeholder="(555) 123-4567" required />
+                                                    <!-- Step Navigation -->
+                                                    <div class="step-navigation">
+                                                        <button type="button" class="btn-prev"
+                                                            id="prev-to-package-from-form">Previous: Package
+                                                            Details</button>
+                                                        <button type="button" class="btn-next"
+                                                            id="next-to-payment">Next: Payment Details</button>
+                                                    </div>
+                                                </div>
+                                            </section>
+
+                                            <input type="hidden" name="addons" id="addons">
+
+                                            <input type="hidden" name="cart_items" id="cart_items">
+
+                                            <input type="hidden" name="package_id" id="package_id">
+
+                                            <input type="hidden" name="total" id="subtotal">
+
+                                            <input type="hidden" name="payment_total" class="payment_total">
+
+                                            <input type="hidden" name="commission_base_amount" id="commission_base_amount">
+
+                                            <input type="hidden" name="website_id" value="{{ $data->id }}">
+
+                                            <input type="hidden" name="affiliate_slug" value="{{ $affiliateReferral->slug ?? '' }}">
+
+                                            <input type="hidden" name="package_number_of_guest"
+                                                class="package_number_of_guest" value="2">
+
+                                            <!-- Step 3: Payment Information -->
+                                            <section class="checkout-section payment-info dynamic-price mt-4"
+                                                id="section-3" style="display: none; width: 100%;">
+                                                <div class="">
+                                                    <div class="row">
+
+                                                        <div class="col-md-12">
+                                                            <h2 style="margin-bottom: 35px;">Payment</h2>
+
+                                                            <!-- Left: Form Fields -->
+                                                            <div class="form-left">
+
+                                                                <div class="form-row">
+                                                                    <div class="form-group" style="width: 50%;">
+                                                                        <label for="firstName">First Name</label>
+                                                                        <input name="payment_first_name" type="text"
+                                                                            id="firstName" placeholder="" required />
+                                                                    </div>
+                                                                    <div class="form-group" style="width: 50%;">
+                                                                        <label for="lastName">Last Name</label>
+                                                                        <input name="payment_last_name" type="text"
+                                                                            id="lastName" placeholder="" required />
+                                                                    </div>
                                                                 </div>
-                                                                <div class="form-group" style="width: 50%;">
-                                                                    <label for="hidden_payment_email">Email</label>
-                                                                    <input type="email" name="payment_email"
-                                                                        id="hidden_payment_email" placeholder="sample@sample.com" required />
+
+                                                                <div class="form-row">
+                                                                    <div class="form-group" style="width: 50%;">
+                                                                        <label for="hidden_payment_phone">Phone Number</label>
+                                                                        <input type="tel" name="payment_phone"
+                                                                            id="hidden_payment_phone" placeholder="(555) 123-4567" required />
+                                                                    </div>
+                                                                    <div class="form-group" style="width: 50%;">
+                                                                        <label for="hidden_payment_email">Email</label>
+                                                                        <input type="email" name="payment_email"
+                                                                            id="hidden_payment_email" placeholder="sample@sample.com" required />
+                                                                    </div>
                                                                 </div>
-                                                            </div>
 
-                                                            <input type="hidden" name="payment_month"
-                                                                id="hidden_payment_month" />
-                                                            <input type="hidden" name="payment_day"
-                                                                id="hidden_payment_day" />
-                                                            <input type="hidden" name="payment_year"
-                                                                id="hidden_payment_year" />
+                                                                <input type="hidden" name="payment_month"
+                                                                    id="hidden_payment_month" />
+                                                                <input type="hidden" name="payment_day"
+                                                                    id="hidden_payment_day" />
+                                                                <input type="hidden" name="payment_year"
+                                                                    id="hidden_payment_year" />
 
-                                                            <div class="form-row">
-                                                                <div class="form-group" style="width: 100%;">
-                                                                    <label for="bill-add">Address</label>
-                                                                    <input name="payment_address" type="text"
-                                                                        id="bill-add" placeholder="" required />
-                                                                </div>
-                                                            </div>
-                                                            <div class="form-row">
-                                                                <div class="form-group" style="width: 50%;">
-                                                                    <label for="country">Country</label>
-                                                                    <select id="country" name="payment_country"
-                                                                        class="form-select" required></select>
-                                                                </div>
-                                                                <div class="form-group" style="width: 50%;">
-                                                                    <label for="st-pv">State/ Province</label>
-                                                                    <select name="payment_state" id="st-pv"
-                                                                        class="form-select" required>
-                                                                        <option value="null" selected disabled>Select
-                                                                            State/Province</option>
-                                                                        <!-- Options will be loaded dynamically -->
-                                                                    </select>
-                                                                </div>
-                                                            </div>
-
-                                                            <div class="form-row">
-                                                                <div class="form-group" style="width: 50%;">
-                                                                    <label for="city">City</label>
-                                                                    <input type="text" name="payment_city"
-                                                                        id="city" placeholder="" required />
-                                                                </div>
-                                                                <div class="form-group" style="width: 50%;">
-                                                                    <label for="zip">Zip/Postal Code</label>
-                                                                    <input type="text" name="payment_zip_code"
-                                                                        id="zip" placeholder="" required />
-                                                                </div>
-                                                            </div>
-
-
-                                                            @php
-                                                                $stockPaymentLogoMap = [
-                                                                    'visa' => ['name' => 'Visa', 'logo' => 'https://img.icons8.com/color/48/000000/visa.png'],
-                                                                    'mastercard' => ['name' => 'Mastercard', 'logo' => 'https://img.icons8.com/color/48/000000/mastercard-logo.png'],
-                                                                    'amex' => ['name' => 'Amex', 'logo' => 'https://img.icons8.com/color/48/000000/amex.png'],
-                                                                    'google_pay' => ['name' => 'Google Pay', 'logo' => 'https://img.icons8.com/color/48/000000/google-pay-india.png'],
-                                                                    'apple_pay' => ['name' => 'Apple Pay', 'logo' => 'https://img.icons8.com/color/48/000000/apple-pay.png'],
-                                                                ];
-
-                                                                $paymentLogosToRender = $data->paymentLogos->map(function ($logo) use ($stockPaymentLogoMap) {
-                                                                    $logoKey = strtolower(trim((string) $logo->logo));
-
-                                                                    if (isset($stockPaymentLogoMap[$logoKey])) {
-                                                                        return [
-                                                                            'src' => $stockPaymentLogoMap[$logoKey]['logo'],
-                                                                            'name' => $stockPaymentLogoMap[$logoKey]['name'],
-                                                                        ];
-                                                                    }
-
-                                                                    if ($logoKey === '') {
-                                                                        return null;
-                                                                    }
-
-                                                                    if (str_starts_with($logoKey, 'http://') || str_starts_with($logoKey, 'https://')) {
-                                                                        return [
-                                                                            'src' => $logoKey,
-                                                                            'name' => $logo->name,
-                                                                        ];
-                                                                    }
-
-                                                                    return [
-                                                                        'src' => asset('uploads/' . $logo->logo),
-                                                                        'name' => $logo->name,
-                                                                    ];
-                                                                })->filter()->values();
-
-                                                                if ($paymentLogosToRender->isEmpty()) {
-                                                                    $paymentLogosToRender = collect($stockPaymentLogoMap)->map(fn ($method) => [
-                                                                        'src' => $method['logo'],
-                                                                        'name' => $method['name'],
-                                                                    ])->values();
-                                                                }
-                                                            @endphp
-                                                            <div id="checkout-card-fields">
-                                                            @if ($data->payment_method == 'authorize')
                                                                 <div class="form-row">
                                                                     <div class="form-group" style="width: 100%;">
-                                                                        <!-- Payment method logos start -->
-                                                                        <div style="margin-bottom: 10px;">
+                                                                        <label for="bill-add">Address</label>
+                                                                        <input name="payment_address" type="text"
+                                                                            id="bill-add" placeholder="" required />
+                                                                    </div>
+                                                                </div>
+                                                                <div class="form-row">
+                                                                    <div class="form-group" style="width: 50%;">
+                                                                        <label for="country">Country</label>
+                                                                        <select id="country" name="payment_country"
+                                                                            class="form-select" required></select>
+                                                                    </div>
+                                                                    <div class="form-group" style="width: 50%;">
+                                                                        <label for="st-pv">State/ Province</label>
+                                                                        <select name="payment_state" id="st-pv"
+                                                                            class="form-select" required>
+                                                                            <option value="null" selected disabled>Select
+                                                                                State/Province</option>
+                                                                            <!-- Options will be loaded dynamically -->
+                                                                        </select>
+                                                                    </div>
+                                                                </div>
+
+                                                                <div class="form-row">
+                                                                    <div class="form-group" style="width: 50%;">
+                                                                        <label for="city">City</label>
+                                                                        <input type="text" name="payment_city"
+                                                                            id="city" placeholder="" required />
+                                                                    </div>
+                                                                    <div class="form-group" style="width: 50%;">
+                                                                        <label for="zip">Zip/Postal Code</label>
+                                                                        <input type="text" name="payment_zip_code"
+                                                                            id="zip" placeholder="" required />
+                                                                    </div>
+                                                                </div>
+
+
+                                                                @php
+                                                                    $stockPaymentLogoMap = [
+                                                                        'visa' => ['name' => 'Visa', 'logo' => 'https://img.icons8.com/color/48/000000/visa.png'],
+                                                                        'mastercard' => ['name' => 'Mastercard', 'logo' => 'https://img.icons8.com/color/48/000000/mastercard-logo.png'],
+                                                                        'amex' => ['name' => 'Amex', 'logo' => 'https://img.icons8.com/color/48/000000/amex.png'],
+                                                                        'google_pay' => ['name' => 'Google Pay', 'logo' => 'https://img.icons8.com/color/48/000000/google-pay-india.png'],
+                                                                        'apple_pay' => ['name' => 'Apple Pay', 'logo' => 'https://img.icons8.com/color/48/000000/apple-pay.png'],
+                                                                    ];
+
+                                                                    $paymentLogosToRender = $data->paymentLogos->map(function ($logo) use ($stockPaymentLogoMap) {
+                                                                        $logoKey = strtolower(trim((string) $logo->logo));
+
+                                                                        if (isset($stockPaymentLogoMap[$logoKey])) {
+                                                                            return [
+                                                                                'src' => $stockPaymentLogoMap[$logoKey]['logo'],
+                                                                                'name' => $stockPaymentLogoMap[$logoKey]['name'],
+                                                                            ];
+                                                                        }
+
+                                                                        if ($logoKey === '') {
+                                                                            return null;
+                                                                        }
+
+                                                                        if (str_starts_with($logoKey, 'http://') || str_starts_with($logoKey, 'https://')) {
+                                                                            return [
+                                                                                'src' => $logoKey,
+                                                                                'name' => $logo->name,
+                                                                            ];
+                                                                        }
+
+                                                                        return [
+                                                                            'src' => asset('uploads/' . $logo->logo),
+                                                                            'name' => $logo->name,
+                                                                        ];
+                                                                    })->filter()->values();
+
+                                                                    if ($paymentLogosToRender->isEmpty()) {
+                                                                        $paymentLogosToRender = collect($stockPaymentLogoMap)->map(fn ($method) => [
+                                                                            'src' => $method['logo'],
+                                                                            'name' => $method['name'],
+                                                                        ])->values();
+                                                                    }
+                                                                @endphp
+                                                                <div id="checkout-card-fields">
+                                                                @if ($data->payment_method == 'authorize')
+                                                                    <div class="form-row">
+                                                                        <div class="form-group" style="width: 100%;">
+                                                                            <!-- Payment method logos start -->
+                                                                            <div style="margin-bottom: 10px;">
+                                                                                @foreach($paymentLogosToRender as $logo)
+                                                                                    <img src="{{ $logo['src'] }}"
+                                                                                        alt="{{ $logo['name'] }}"
+                                                                                        style="height:32px; margin-right:4px;">
+                                                                                @endforeach
+                                                                            </div>
+                                                                            <label for="card_number">Card Number</label>
+                                                                            <input type="tel" name="card_number"
+                                                                                id="card_number" placeholder="" inputmode="numeric" autocomplete="cc-number"
+                                                                                maxlength="19" required data-card-required="1" />
+                                                                        </div>
+
+                                                                    </div>
+                                                                    <div class="form-row">
+                                                                        <div class="form-group" style="width: 25%;">
+                                                                            <label>Month</label>
+                                                                            <input type="tel" maxlength="2"
+                                                                                name="card_month" id="city"
+                                                                                placeholder="(MM)" required data-card-required="1" />
+                                                                        </div>
+                                                                        <div class="form-group" style="width: 25%;">
+                                                                            <label>Year</label>
+                                                                            <input type="tel" maxlength="2"
+                                                                                name="card_year" placeholder="(YY)"
+                                                                                required data-card-required="1" />
+                                                                        </div>
+                                                                        <div class="form-group" style="width: 25%;">
+                                                                            <label>CVV</label>
+                                                                            <input type="tel" name="card_cvv"
+                                                                                id="cvv" placeholder="CVV"
+                                                                                required data-card-required="1" />
+                                                                        </div>
+                                                                    @else
+                                                                        <div class="form-row">
                                                                             @foreach($paymentLogosToRender as $logo)
                                                                                 <img src="{{ $logo['src'] }}"
                                                                                     alt="{{ $logo['name'] }}"
                                                                                     style="height:32px; margin-right:4px;">
                                                                             @endforeach
                                                                         </div>
-                                                                        <label for="card_number">Card Number</label>
-                                                                        <input type="tel" name="card_number"
-                                                                            id="card_number" placeholder="" inputmode="numeric" autocomplete="cc-number"
-                                                                            maxlength="19" required data-card-required="1" />
-                                                                    </div>
+                                                                        <div style="margin-bottom: 10px;">
+                                                                            <div class="form-group" style="width: 100%;"
+                                                                                id="card_number">
+                                                                                <label for="card_number">Card
+                                                                                    Number</label>
+                                                                                {{-- <input type="tel" name="card_number"
+                                                                                placeholder="" required /> --}}
+                                                                            </div>
 
+                                                                        </div>
+                                                                        <div class="form-row">
+                                                                            <div class="form-group" style="width: 50%;"
+                                                                                id="expiration_date">
+                                                                                <label>Expiry Date</label>
+                                                                                {{-- <input type="text"  name="expiration_date"
+                                                                                    placeholder="MM/YY" required /> --}}
+                                                                            </div>
+                                                                            <div class="form-group" style="width: 50%;"
+                                                                                id="cvv">
+                                                                                <label>CVV</label>
+                                                                                {{-- <input type="tel" name="card_cvv"
+                                                                                placeholder="CVV" required /> --}}
+                                                                            </div>
+                                                                @endif
+                                                            </div>
+                                                            </div>
+                                                            <div id="zero-total-payment-note" style="display: none; margin: 0 0 18px; padding: 14px 16px; border: 1px solid rgba(34, 197, 94, 0.35); border-radius: 12px; background: rgba(34, 197, 94, 0.08); color: #d1fae5; font-size: 13px; line-height: 1.5;">
+                                                                This order total is $0.00. No card information is required to complete checkout.
+                                                            </div>
+                                                            <div id="card-errors" style="margin-bottom: 14px; color: #ff9b9b; font-size: 13px;"></div>
+                                                            <div class="checkbox-container payment-consent-group" style="margin-top: 1.5rem; display: none;">
+                                                                <label class="consent-label">
+                                                                    <input type="checkbox" id="businessExpenseCheckbox" />
+                                                                    <span>This purchase is for business purposes</span>
+                                                                </label>
+                                                            </div>
+                                                            <div id="businessFields"
+                                                                style="display: none; margin-top: 1rem;">
+                                                                <div class="form-row">
+                                                                    <div class="form-group" style="width: 50%;">
+                                                                        <label for="business_company">Company Name</label>
+                                                                        <input type="text" name="business_company"
+                                                                            id="business_company"
+                                                                            placeholder="Company Name"  required />
+                                                                    </div>
+                                                                    <div class="form-group" style="width: 50%;">
+                                                                        <label for="business_vat">VAT or Tax ID</label>
+                                                                        <input type="text" name="business_vat"
+                                                                            id="business_vat"
+                                                                            placeholder="VAT or Tax ID"  required />
+                                                                    </div>
                                                                 </div>
                                                                 <div class="form-row">
-                                                                    <div class="form-group" style="width: 25%;">
-                                                                        <label>Month</label>
-                                                                        <input type="tel" maxlength="2"
-                                                                            name="card_month" id="city"
-                                                                            placeholder="(MM)" required data-card-required="1" />
+                                                                    <div class="form-group" style="width: 100%;">
+                                                                        <label for="business_address">Business
+                                                                            Address</label>
+                                                                        <input type="text" name="business_address"
+                                                                            id="business_address"
+                                                                            placeholder="Business Address"  required />
                                                                     </div>
-                                                                    <div class="form-group" style="width: 25%;">
-                                                                        <label>Year</label>
-                                                                        <input type="tel" maxlength="2"
-                                                                            name="card_year" placeholder="(YY)"
-                                                                            required data-card-required="1" />
-                                                                    </div>
-                                                                    <div class="form-group" style="width: 25%;">
-                                                                        <label>CVV</label>
-                                                                        <input type="tel" name="card_cvv"
-                                                                            id="cvv" placeholder="CVV"
-                                                                            required data-card-required="1" />
-                                                                    </div>
-                                                                @else
-                                                                    <div class="form-row">
-                                                                        @foreach($paymentLogosToRender as $logo)
-                                                                            <img src="{{ $logo['src'] }}"
-                                                                                alt="{{ $logo['name'] }}"
-                                                                                style="height:32px; margin-right:4px;">
-                                                                        @endforeach
-                                                                    </div>
-                                                                    <div style="margin-bottom: 10px;">
-                                                                        <div class="form-group" style="width: 100%;"
-                                                                            id="card_number">
-                                                                            <label for="card_number">Card
-                                                                                Number</label>
-                                                                            {{-- <input type="tel" name="card_number"
-                                                                            placeholder="" required /> --}}
-                                                                        </div>
-
-                                                                    </div>
-                                                                    <div class="form-row">
-                                                                        <div class="form-group" style="width: 50%;"
-                                                                            id="expiration_date">
-                                                                            <label>Expiry Date</label>
-                                                                            {{-- <input type="text"  name="expiration_date"
-                                                                                 placeholder="MM/YY" required /> --}}
-                                                                        </div>
-                                                                        <div class="form-group" style="width: 50%;"
-                                                                            id="cvv">
-                                                                            <label>CVV</label>
-                                                                            {{-- <input type="tel" name="card_cvv"
-                                                                            placeholder="CVV" required /> --}}
-                                                                        </div>
-                                                            @endif
-                                                        </div>
-                                                        </div>
-                                                        <div id="zero-total-payment-note" style="display: none; margin: 0 0 18px; padding: 14px 16px; border: 1px solid rgba(34, 197, 94, 0.35); border-radius: 12px; background: rgba(34, 197, 94, 0.08); color: #d1fae5; font-size: 13px; line-height: 1.5;">
-                                                            This order total is $0.00. No card information is required to complete checkout.
-                                                        </div>
-                                                        <div id="card-errors" style="margin-bottom: 14px; color: #ff9b9b; font-size: 13px;"></div>
-                                                        <div class="checkbox-container payment-consent-group" style="margin-top: 1.5rem; display: none;">
-                                                            <label class="consent-label">
-                                                                <input type="checkbox" id="businessExpenseCheckbox" />
-                                                                <span>This purchase is for business purposes</span>
-                                                            </label>
-                                                        </div>
-                                                        <div id="businessFields"
-                                                            style="display: none; margin-top: 1rem;">
-                                                            <div class="form-row">
-                                                                <div class="form-group" style="width: 50%;">
-                                                                    <label for="business_company">Company Name</label>
-                                                                    <input type="text" name="business_company"
-                                                                        id="business_company"
-                                                                        placeholder="Company Name"  required />
-                                                                </div>
-                                                                <div class="form-group" style="width: 50%;">
-                                                                    <label for="business_vat">VAT or Tax ID</label>
-                                                                    <input type="text" name="business_vat"
-                                                                        id="business_vat"
-                                                                        placeholder="VAT or Tax ID"  required />
                                                                 </div>
                                                             </div>
-                                                            <div class="form-row">
-                                                                <div class="form-group" style="width: 100%;">
-                                                                    <label for="business_address">Business
-                                                                        Address</label>
-                                                                    <input type="text" name="business_address"
-                                                                        id="business_address"
-                                                                        placeholder="Business Address"  required />
-                                                                </div>
+
+                                                            @if(($data->show_sms_consent ?? true) || ($data->show_terms_consent ?? true))
+                                                            <div class="checkbox-container payment-consent-group" id="payment-consent-group">
+                                                                @if($data->show_sms_consent ?? true)
+                                                                <label class="consent-label">
+                                                                    <input type="checkbox" id="smsConsent_two" required />
+                                                                    <span>{{ $data->sms_consent_text }}</span>
+                                                                </label>
+                                                                @endif
+
+                                                                @if($data->show_terms_consent ?? true)
+                                                                <label class="consent-label" style="{{ ($data->show_sms_consent ?? true) ? 'margin-top: 1.4rem;' : '' }}">
+                                                                    <input type="checkbox" id="termsConsent" required />
+                                                                    <span>
+                                                                        @if(empty($data->getRawOriginal('terms_consent_text')))
+                                                                            I have read and agree to the <a target="_blank" href="{{ $data->terms }}">Terms of Service</a> / <a target="_blank" href="{{ $data->terms }}">Venue Policies</a>
+                                                                        @else
+                                                                            {!! nl2br(e($data->terms_consent_text)) !!}
+                                                                        @endif
+                                                                    </span>
+                                                                </label>
+                                                                @endif
                                                             </div>
-                                                        </div>
-
-                                                        @if(($data->show_sms_consent ?? true) || ($data->show_terms_consent ?? true))
-                                                        <div class="checkbox-container payment-consent-group" id="payment-consent-group">
-                                                            @if($data->show_sms_consent ?? true)
-                                                            <label class="consent-label">
-                                                                <input type="checkbox" id="smsConsent_two" required />
-                                                                <span>{{ $data->sms_consent_text }}</span>
-                                                            </label>
                                                             @endif
 
-                                                            @if($data->show_terms_consent ?? true)
-                                                            <label class="consent-label" style="{{ ($data->show_sms_consent ?? true) ? 'margin-top: 1.4rem;' : '' }}">
-                                                                <input type="checkbox" id="termsConsent" required />
-                                                                <span>
-                                                                    @if(empty($data->getRawOriginal('terms_consent_text')))
-                                                                        I have read and agree to the <a target="_blank" href="{{ $data->terms }}">Terms of Service</a> / <a target="_blank" href="{{ $data->terms }}">Venue Policies</a>
-                                                                    @else
-                                                                        {!! nl2br(e($data->terms_consent_text)) !!}
-                                                                    @endif
-                                                                </span>
-                                                            </label>
-                                                            @endif
-                                                        </div>
-                                                        @endif
+                                                            <input type="hidden" class="package_use_date"
+                                                                name="package_use_date"
+                                                                value="{{ \Carbon\Carbon::now($data->resolved_timezone)->format('Y-m-d') }}">
+                                                            <input type="hidden" class="promo_code" name="promo_code">
+                                                            <input type="hidden" class="discounted_amount"
+                                                                name="discounted_amount">
 
-                                                        <input type="hidden" class="package_use_date"
-                                                            name="package_use_date"
-                                                            value="{{ \Carbon\Carbon::now($data->resolved_timezone)->format('Y-m-d') }}">
-                                                        <input type="hidden" class="promo_code" name="promo_code">
-                                                        <input type="hidden" class="discounted_amount"
-                                                            name="discounted_amount">
+                                                            <!-- Step Navigation -->
+                                                            <div class="step-navigation">
+                                                                <button type="button" class="btn-prev"
+                                                                    id="prev-to-transport">Previous:
+                                                                    Transportation</button>
+                                                                <button style="margin-top: 0px !important;" class="submit-btn" id="submitBtn"
+                                                                    type="submit">Complete Purchase</button>
+                                                            </div>
 
-                                                        <!-- Step Navigation -->
-                                                        <div class="step-navigation">
-                                                            <button type="button" class="btn-prev"
-                                                                id="prev-to-transport">Previous:
-                                                                Transportation</button>
-                                                            <button style="margin-top: 0px !important;" class="submit-btn" id="submitBtn"
-                                                                type="submit">Complete Purchase</button>
                                                         </div>
 
                                                     </div>
 
+
+
+
+
+
                                                 </div>
+                                    </div>
+                        </section>
+                        </form>
 
-
-
-
-
-
-                                            </div>
-                                </div>
-                    </section>
-                    </form>
-
+                    </div>
                 </div>
-            </div>
             </div>
 
 
