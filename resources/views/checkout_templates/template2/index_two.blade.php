@@ -4730,6 +4730,36 @@
         .cv-checkout-body.is-guest-mode .cv-sidebar { display: none !important; }
         .cv-checkout-body.is-guest-mode .cv-main-col { max-width: 100% !important; width: 100%; }
         .cv-checkout-body.is-guest-mode ~ * { width: 100%; }
+        /* Bulletproof desktop layout: explicitly pin the two columns so the Order Summary
+           always sits in the right column (top row), regardless of any stray grid item or
+           auto-placement quirk. Scoped to desktop and to non-guest mode. */
+        @media (min-width: 992px) {
+            #cv-checkout-layout:not(.is-guest-mode) {
+                display: grid !important;
+                grid-template-columns: minmax(0, 1fr) 440px !important;
+                gap: 28px !important;
+                align-items: start !important;
+            }
+            @media (max-width: 1199px) {
+                #cv-checkout-layout:not(.is-guest-mode) {
+                    grid-template-columns: minmax(0, 1fr) 400px !important;
+                    gap: 20px !important;
+                }
+            }
+            #cv-checkout-layout:not(.is-guest-mode) > .cv-main-col {
+                grid-column: 1 !important;
+                grid-row: 1 !important;
+                min-width: 0 !important;
+                width: 100% !important;
+                max-width: 100% !important;
+            }
+            #cv-checkout-layout:not(.is-guest-mode) > #cv-order-sidebar {
+                grid-column: 2 !important;
+                grid-row: 1 !important;
+                width: 100% !important;
+                max-width: 100% !important;
+            }
+        }
         .is-guest-mode {
             width: 100% !important;
             max-width: 100% !important;
