@@ -530,6 +530,7 @@ Route::group(['prefix'=> 'admins', 'as' => 'admin.', 'middleware' => ['admin.or.
         Route::put('/reports/{type}/{id}', [\App\Http\Controllers\Admin\NightlyReports\NightlyReportController::class, 'update'])->name('reports.update');
         Route::delete('/reports/{type}/{id}', [\App\Http\Controllers\Admin\NightlyReports\NightlyReportController::class, 'destroy'])->name('reports.destroy');
         Route::get('/reports/{type}/{id}/email-preview', [\App\Http\Controllers\Admin\NightlyReports\NightlyReportController::class, 'previewEmail'])->name('reports.email-preview');
+        Route::post('/reports/{type}/{id}/send-email', [\App\Http\Controllers\Admin\NightlyReports\NightlyReportController::class, 'sendEmail'])->name('reports.send-email');
 
         // Trends & YoY
         Route::get('/trends', [\App\Http\Controllers\Admin\NightlyReports\NightlyTrendController::class, 'index'])->name('trends.index');

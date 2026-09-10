@@ -152,14 +152,14 @@
       font-weight: 500;
     }
 
-    .card-body,
-    .card-body div,
-    .card-body p,
-    .card-body span,
-    .card-body td,
-    .p-3.rounded,
-    .rounded.p-3,
-    .card-text {
+    .card-body:not(.email-preview-card *),
+    .card-body div:not(.email-preview-card *),
+    .card-body p:not(.email-preview-card *),
+    .card-body span:not(.email-preview-card *),
+    .card-body td:not(.email-preview-card *),
+    .p-3.rounded:not(.email-preview-card *),
+    .rounded.p-3:not(.email-preview-card *),
+    .card-text:not(.email-preview-card *) {
       color: #f8fafc !important;
     }
 

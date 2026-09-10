@@ -197,6 +197,16 @@ class NightlyReportController extends BaseNightlyReportsController
         return view('admin.nightly-reports.reports.email-preview', compact('report'));
     }
 
+    public function sendEmail(Request $request, $type, $id)
+    {
+        $allowedLocationIds = $this->accessibleLocationIds();
+        $report = NrNightlyReport::with('location')->whereIn('location_id', $allowedLocationIds)->findOrFail($id);
+
+        BaseNightlyReportsController::sendReportNotificationEmails($report);
+
+        return redirect()->back()->with('success', 'Email briefing sent successfully to designated recipients.');
+    }
+
     public function importCsv(Request $request)
     {
         $request->validate([
