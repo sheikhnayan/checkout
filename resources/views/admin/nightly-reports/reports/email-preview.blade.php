@@ -125,7 +125,7 @@
       </a>
       <h4 class="text-white fw-bold mb-0">Executive Email Briefing Preview</h4>
       <p class="text-muted small mb-0">
-        Generated for <strong class="text-white">{{ $report->location->name ?? 'Venue' }}</strong> &bull; Business Date: {{ $report->business_date->format('M d, Y') }}
+        Generated for <strong class="text-white">{{ $report->location->name ?? 'Venue' }}</strong> • Business Date: {{ $report->business_date->format('M d, Y') }}
       </p>
     </div>
     <div class="d-flex align-items-center gap-2">
@@ -160,7 +160,7 @@
     <div class="small">
       <span class="text-gold fw-bold me-2"><i class="fas fa-envelope-open-text me-1"></i> Delivery Recipients:</span>
       @if(count($recipientList) > 0)
-        <span class="text-white">{{ implode(' &bull; ', $recipientList) }}</span>
+        <span class="text-white">{{ implode(' • ', $recipientList) }}</span>
       @else
         <span class="text-warning">No email recipients configured on this report or venue.</span>
       @endif
@@ -231,7 +231,7 @@
 
       <!-- Footer Sign-off -->
       <div class="ep-footer-text">
-        Submitted by {{ $report->submitter_name }} ({{ $report->submitter_email }}) &bull; The Nightly Reports System
+        Submitted by {{ $report->submitter_name }} ({{ $report->submitter_email }}) • The Nightly Reports System
       </div>
     </div>
   </div>
