@@ -309,8 +309,9 @@ class TransactionController extends Controller
 
         $w = Website::find($request->website_id);
         $isPhysicalProductCheckout = $this->isPhysicalProductCheckoutEnabled($w);
+        $isPhysicalClubOrCheckout = $isPhysicalProductCheckout || ($w && $this->isTruthy($w->physical_product_enabled ?? false));
 
-        $requiresPhysicalProducts = $isPhysicalProductCheckout || $this->cartRequiresPhysicalProducts($cartItems, $selectedPackage);
+        $requiresPhysicalProducts = $this->cartRequiresPhysicalProducts($cartItems, $selectedPackage);
 
         if ($requiresPhysicalProducts && !$request->filled('package_use_date')) {
             $fallbackTimezone = $w?->resolved_timezone ?: config('app.timezone', 'America/Los_Angeles');
@@ -319,9 +320,9 @@ class TransactionController extends Controller
             ]);
         }
 
-        $requiresTransportation = !$requiresPhysicalProducts && $this->cartRequiresTransportation($cartItems, $selectedPackage);
+        $requiresTransportation = !$requiresPhysicalProducts && !$isPhysicalClubOrCheckout && $this->cartRequiresTransportation($cartItems, $selectedPackage);
         $isSelfDriveTransportation = $requiresTransportation && $request->boolean('transportation_self_drive_ack');
-        $requiresArrivalTime = !$requiresPhysicalProducts && (!$requiresTransportation || $isSelfDriveTransportation);
+        $requiresArrivalTime = !$requiresPhysicalProducts && !$isPhysicalClubOrCheckout && (!$requiresTransportation || $isSelfDriveTransportation);
 
         $this->normalizeTransportationTimeInputs($request, !$isSelfDriveTransportation, $requiresArrivalTime);
         $shippingSameAsBilling = $this->validateShippingDetails($request, $requiresPhysicalProducts);
@@ -1013,10 +1014,10 @@ class TransactionController extends Controller
         $websiteId = (int) $request->website_id;
         $website = Website::find($request->website_id);
         $isPhysicalProductCheckout = $this->isPhysicalProductCheckoutEnabled($website);
-        $requiresPhysicalProducts = $requiresPhysicalProducts || $isPhysicalProductCheckout;
-        $requiresTransportation = !$requiresPhysicalProducts && $this->cartRequiresTransportation($cartItems, $selectedPackage);
+        $isPhysicalClubOrCheckout = $isPhysicalProductCheckout || ($website && $this->isTruthy($website->physical_product_enabled ?? false));
+        $requiresTransportation = !$requiresPhysicalProducts && !$isPhysicalClubOrCheckout && $this->cartRequiresTransportation($cartItems, $selectedPackage);
         $isSelfDriveTransportation = $requiresTransportation && $request->boolean('transportation_self_drive_ack');
-        $requiresArrivalTime = !$requiresPhysicalProducts && (!$requiresTransportation || $isSelfDriveTransportation);
+        $requiresArrivalTime = !$requiresPhysicalProducts && !$isPhysicalClubOrCheckout && (!$requiresTransportation || $isSelfDriveTransportation);
 
         $this->normalizeTransportationTimeInputs($request, !$isSelfDriveTransportation, $requiresArrivalTime);
 
