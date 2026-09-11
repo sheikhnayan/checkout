@@ -8930,6 +8930,12 @@
                         if (typeof pkg.isMultiple === 'undefined' && typeof getPackageMultipleFromDom === 'function') {
                             pkg.isMultiple = getPackageMultipleFromDom(pkg.packageId);
                         }
+                        if (typeof pkg.physical_product_enabled === 'undefined') {
+                            let domBtn = $('.vip-btn[data-id="' + pkg.packageId + '"]').first();
+                            if (domBtn.length) {
+                                pkg.physical_product_enabled = parseTruthyFlag(domBtn.data('physical-product-enabled'));
+                            }
+                        }
                         return pkg;
                     });
 
@@ -13344,7 +13350,34 @@
             }
 
             function cartHasPhysicalProducts() {
-                return Array.isArray(window.cart) && window.cart.length > 0;
+                if (!Array.isArray(window.cart) || window.cart.length === 0) {
+                    return false;
+                }
+
+                function isTruthy(val) {
+                    return val === true || val === 1 || val === '1' || val === 'true';
+                }
+
+                return window.cart.some(function (item) {
+                    if (!item) return false;
+                    if (typeof item.physical_product_enabled !== 'undefined') {
+                        return isTruthy(item.physical_product_enabled);
+                    }
+                    if (typeof item.physicalProduct !== 'undefined') {
+                        return isTruthy(item.physicalProduct);
+                    }
+                    if (typeof item.physical_product !== 'undefined') {
+                        return isTruthy(item.physical_product);
+                    }
+                    var pkgId = item.packageId || item.package_id;
+                    if (pkgId) {
+                        var btn = $('.vip-btn[data-id="' + pkgId + '"]').first();
+                        if (btn.length) {
+                            return isTruthy(btn.data('physical-product-enabled'));
+                        }
+                    }
+                    return false;
+                });
             }
 
             function updateShippingFieldsVisibility() {
@@ -13441,7 +13474,8 @@
                 }
 
                 if (!cartHasPhysicalProducts()) {
-                    var hiddenShippingFields = form.querySelectorAll('input[name^="shipping_"]');
+                    var targetForm = form || document.getElementById('payment-form');
+                    var hiddenShippingFields = targetForm ? targetForm.querySelectorAll('input[name^="shipping_"]') : [];
                     hiddenShippingFields.forEach(function (field) {
                         field.required = false;
                         field.removeAttribute('readonly');
