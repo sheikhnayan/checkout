@@ -6837,11 +6837,13 @@
                                                                     <label for="hidden_payment_phone">Phone Number</label>
                                                                     <input type="tel" name="payment_phone"
                                                                         id="hidden_payment_phone" placeholder="(555) 123-4567" required />
+                                                                    <div class="phone-note" style="font-size: 0.75rem; color: rgba(255,255,255,0.6); margin-top: 4px;">Phone formatting may vary by country. International SMS delivery is not guaranteed.</div>
                                                                 </div>
                                                                 <div class="form-group" style="width: 50%;">
                                                                     <label for="hidden_payment_email">Email</label>
                                                                     <input type="email" name="payment_email"
                                                                         id="hidden_payment_email" placeholder="sample@sample.com" required />
+                                                                    <div class="email-note" style="font-size: 0.75rem; color: yellow; margin-top: 4px;">Your booking confirmation will be sent to this email. Please make sure it’s correct.</div>
                                                                 </div>
                                                             </div>
 
@@ -10724,28 +10726,66 @@
                         return;
                     }
 
+                    // Validate country code on any visible phone country picker exactly like index_two.blade.php
+                    var __ccFields = form.querySelectorAll('.country-code-field');
+                    for (var __ci = 0; __ci < __ccFields.length; __ci++) {
+                        var __cc = __ccFields[__ci];
+                        if (__cc.offsetParent === null) continue;
+                        var __ccWrap = __cc.closest('.country-code-input');
+                        if (!__ccWrap) continue;
+                        var __opts = __ccWrap.querySelectorAll('.country-option');
+                        if (!__opts.length) continue;
+                        var __ccVal = (__cc.value || '').trim();
+                        var __ccCode = (__cc.dataset.code || '').trim();
+                        var __ccOk = false;
+                        for (var __oi = 0; __oi < __opts.length; __oi++) {
+                            var __optCode = __opts[__oi].getAttribute('data-code');
+                            var __optVal = (__opts[__oi].getAttribute('data-flag') + ' ' + __optCode).trim();
+                            if (__optVal === __ccVal || __optCode === __ccVal || __optCode === __ccCode) {
+                                __ccOk = true;
+                                break;
+                            }
+                        }
+                        if (!__ccOk) {
+                            e.preventDefault();
+                            __cc.style.borderColor = '#ff6b6b';
+                            const errorMsg = document.getElementById('validation-error-msg-package') || document.createElement('div');
+                            if (!errorMsg.id) {
+                                errorMsg.id = 'validation-error-msg-package';
+                                errorMsg.style.cssText = 'color: #ff6b6b; padding: 12px; margin: 10px 0; font-weight: 600; text-align: center; background: rgba(255, 107, 107, 0.1); border-radius: 6px; border-left: 4px solid #ff6b6b;';
+                                form.parentElement.insertBefore(errorMsg, form);
+                            }
+                            errorMsg.textContent = 'Please select a valid country code from the list (search and click your country, or type the full +code in the phone box).';
+                            errorMsg.style.display = 'block';
+                            errorMsg.scrollIntoView({ behavior: 'smooth', block: 'center' });
+                            return;
+                        }
+                        __cc.style.borderColor = '';
+                    }
+
+                    // Validate phone input
                     const paymentPhoneInput = form.querySelector('input[name="payment_phone"]');
                     const paymentPhoneCountry = form.querySelector('input[name="payment_phone_country"]');
-                    if (paymentPhoneInput && paymentPhoneCountry) {
-                        validateAndFormatPhone(paymentPhoneInput, paymentPhoneCountry);
-
-                        const ccWrap = paymentPhoneCountry.closest('.country-code-input');
-                        const options = ccWrap ? ccWrap.querySelectorAll('.country-option') : [];
-                        let hasValidCountryCode = false;
-                        if (options.length) {
-                            for (let i = 0; i < options.length; i++) {
-                                const optionValue = (options[i].getAttribute('data-flag') + ' ' + options[i].getAttribute('data-code'));
-                                if (optionValue === (paymentPhoneCountry.value || '').trim()) {
-                                    hasValidCountryCode = true;
-                                    break;
-                                }
-                            }
-                        } else {
-                            hasValidCountryCode = !!(paymentPhoneCountry.dataset.code || '').trim();
+                    if (paymentPhoneInput) {
+                        if (paymentPhoneCountry) {
+                            validateAndFormatPhone(paymentPhoneInput, paymentPhoneCountry);
                         }
-
-                        const paymentE164 = form.querySelector('input[name="payment_phone_e164"]');
-                        if (!hasValidCountryCode || !paymentE164 || !paymentE164.value) {
+                        if (!paymentPhoneInput.value.trim()) {
+                            e.preventDefault();
+                            paymentPhoneInput.classList.add('required-field');
+                            const errorMsg = document.getElementById('validation-error-msg-package') || document.createElement('div');
+                            if (!errorMsg.id) {
+                                errorMsg.id = 'validation-error-msg-package';
+                                errorMsg.style.cssText = 'color: #ff6b6b; padding: 12px; margin: 10px 0; font-weight: 600; text-align: center; background: rgba(255, 107, 107, 0.1); border-radius: 6px; border-left: 4px solid #ff6b6b;';
+                                form.parentElement.insertBefore(errorMsg, form);
+                            }
+                            errorMsg.textContent = 'Please enter your phone number.';
+                            errorMsg.style.display = 'block';
+                            errorMsg.scrollIntoView({ behavior: 'smooth', block: 'center' });
+                            paymentPhoneInput.focus();
+                            return;
+                        }
+                        if (paymentPhoneInput.classList.contains('is-invalid')) {
                             e.preventDefault();
                             const errorMsg = document.getElementById('validation-error-msg-package') || document.createElement('div');
                             if (!errorMsg.id) {
@@ -10753,13 +10793,16 @@
                                 errorMsg.style.cssText = 'color: #ff6b6b; padding: 12px; margin: 10px 0; font-weight: 600; text-align: center; background: rgba(255, 107, 107, 0.1); border-radius: 6px; border-left: 4px solid #ff6b6b;';
                                 form.parentElement.insertBefore(errorMsg, form);
                             }
-                            errorMsg.textContent = 'Please enter a valid phone number and select a valid country code.';
+                            errorMsg.textContent = 'Please enter a valid phone number.';
                             errorMsg.style.display = 'block';
                             errorMsg.scrollIntoView({ behavior: 'smooth', block: 'center' });
                             paymentPhoneInput.focus();
                             return;
                         }
                     }
+
+                    const prevPkgError = document.getElementById('validation-error-msg-package');
+                    if (prevPkgError) prevPkgError.style.display = 'none';
 
                     // Validation passed - show processing overlay
                     showCheckoutProcessingOverlay();
@@ -12525,6 +12568,10 @@
             phoneInput.addEventListener('blur', () => {
                 validateAndFormatPhone(phoneInput, countryCodeInput);
             });
+
+            if (phoneInput.value) {
+                validateAndFormatPhone(phoneInput, countryCodeInput);
+            }
         }
 
         function selectCountry(countryCodeInput, optionEl, country, phoneInput) {
@@ -12686,6 +12733,11 @@
 
             // Remove all non-digits (allow only numbers)
             let digitsOnly = phoneValue.replace(/\D/g, '');
+
+            // Remove leading 1 if it's a North American number (already in country code) before enforcing maxDigits
+            if (countryCode === '+1' && digitsOnly.length === 11 && digitsOnly.startsWith('1')) {
+                digitsOnly = digitsOnly.substring(1);
+            }
 
             // Enforce max digits by truncating if needed (don't include formatting chars)
             const maxDigits = parseInt(phoneInput.dataset.maxDigits || requirements.max);
