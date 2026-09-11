@@ -51,6 +51,7 @@ class ClubLifterService
     protected function request(string $method, string $path, ?array $payload): ?array
     {
         if (! config('services.clublifter.enabled', false)) {
+            Log::info('ClubLifter: integration is disabled in config (services.clublifter.enabled is false)', ['path' => $path]);
             return null;
         }
 

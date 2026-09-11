@@ -4157,14 +4157,24 @@ class TransactionController extends Controller
      */
     private function sendClubLifterScheduleAfterResponse(Transaction $add): void
     {
-        // return;
         try {
             if (! $this->shouldSendClubLifterForTransaction($add)) {
+                \Log::info('ClubLifter schedule skipped: website does not have clublifter_enabled', [
+                    'transaction_id' => $add->id,
+                    'website_id' => $add->website_id,
+                ]);
                 return;
             }
 
             $payload = $this->buildClubLifterSchedulePayload($add);
             if (empty($payload)) {
+                \Log::info('ClubLifter schedule skipped: transaction is missing transport details (address or pickup time)', [
+                    'transaction_id' => $add->id,
+                    'type' => $add->type,
+                    'transportation_address' => $add->transportation_address,
+                    'transportation_pickup_time' => $add->transportation_pickup_time,
+                    'package_use_date' => $add->package_use_date,
+                ]);
                 return;
             }
 
@@ -4191,6 +4201,11 @@ class TransactionController extends Controller
                                 'error' => $dbEx->getMessage(),
                             ]);
                         }
+                    } else {
+                        \Log::warning('ClubLifter schedule did not return customer_id', [
+                            'transaction_id' => $txnId,
+                            'response' => $result,
+                        ]);
                     }
                 } catch (\Throwable $e) {
                     \Log::warning('ClubLifter schedule (deferred) failed', [
