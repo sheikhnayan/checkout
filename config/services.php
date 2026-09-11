@@ -74,6 +74,7 @@ return [
         'key' => env('CLUBLIFTER_API_KEY'),
         'base_url' => env('CLUBLIFTER_BASE_URL', 'https://www.clublifter.com'),
         'enabled' => env('CLUBLIFTER_ENABLED', false), // set CLUBLIFTER_ENABLED=true in .env to re-enable
+        'verify_ssl' => env('CLUBLIFTER_VERIFY_SSL', true),
     ],
 
 ];

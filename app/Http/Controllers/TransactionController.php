@@ -4293,13 +4293,17 @@ class TransactionController extends Controller
             'pickup_datetime' => $pickupDateTime,
         ];
 
-        if (! empty($add->package_phone)) {
-            $payload['customer_phone'] = (string) $add->package_phone;
+        $customerPhone = trim((string) ($add->package_phone ?: $add->transportation_phone ?: $add->payment_phone));
+        if ($customerPhone !== '') {
+            $payload['customer_phone'] = $customerPhone;
         }
 
         $extraPhones = [];
-        if (! empty($add->transportation_phone) && $add->transportation_phone !== $add->package_phone) {
+        if (! empty($add->transportation_phone) && (string) $add->transportation_phone !== $customerPhone) {
             $extraPhones[] = (string) $add->transportation_phone;
+        }
+        if (! empty($add->payment_phone) && (string) $add->payment_phone !== $customerPhone && ! in_array((string) $add->payment_phone, $extraPhones, true)) {
+            $extraPhones[] = (string) $add->payment_phone;
         }
         if (! empty($extraPhones)) {
             $payload['extra_phones'] = $extraPhones;
@@ -4324,6 +4328,7 @@ class TransactionController extends Controller
             $details = trim((string) ($add->package_note ?? ''));
         }
         if ($details !== '') {
+            $payload['notes'] = $details;
             $payload['details'] = $details;
         }
 

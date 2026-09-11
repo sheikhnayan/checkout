@@ -38,6 +38,40 @@ class ClubLifterService
         return $this->post('/api/v1/customer/' . $customerId . '/cancel', []);
     }
 
+    /** List packages. GET /api/v1/packages */
+    public function getPackages(): ?array
+    {
+        return $this->get('/api/v1/packages');
+    }
+
+    /** List clubs. GET /api/v1/clubs */
+    public function getClubs(): ?array
+    {
+        return $this->get('/api/v1/clubs');
+    }
+
+    /** Look up a booking by phone. GET /api/ai/lookup?phone=... */
+    public function lookup(string $phone): ?array
+    {
+        return $this->get('/api/ai/lookup?phone=' . urlencode($phone));
+    }
+
+    /** Add or update notes on a booking. POST /api/ai/update-notes */
+    public function updateNotes(string $phone, string $notes, bool $append = false): ?array
+    {
+        return $this->post('/api/ai/update-notes', [
+            'phone' => $phone,
+            'notes' => $notes,
+            'append' => $append,
+        ]);
+    }
+
+    /** Request the driver to call the customer (masked). POST /api/ai/request-driver-call */
+    public function requestDriverCall(string $phone): ?array
+    {
+        return $this->post('/api/ai/request-driver-call', ['phone' => $phone]);
+    }
+
     protected function get(string $path): ?array
     {
         return $this->request('get', $path, null);
@@ -68,6 +102,10 @@ class ClubLifterService
                 ->acceptJson()
                 ->connectTimeout(5)
                 ->timeout(12);
+
+            if (! config('services.clublifter.verify_ssl', true)) {
+                $http = $http->withoutVerifying();
+            }
 
             $response = $method === 'post'
                 ? $http->post($base . $path, $payload ?? [])
