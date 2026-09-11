@@ -9379,6 +9379,7 @@
                             $('#checkout-steps').show();
                             showStep(1);
                         }
+                    }, 1500);
                 } else if (typeof window.restoreCartFromStorage === 'function') {
                     var restored = window.restoreCartFromStorage();
                     if (restored && window.cart.length > 0) {
@@ -9663,6 +9664,7 @@
                     'Vatican City', 'Venezuela', 'Yemen', 'Zambia', 'Zimbabwe'
                 ];
                 const select = document.getElementById(selectId);
+                if (!select) return;
                 select.innerHTML = '<option value="">Select Country</option>';
                 countries.forEach(function(country) {
                     select.innerHTML += `<option value="${country}">${country}</option>`;
@@ -9696,6 +9698,7 @@
                     'Vatican City', 'Venezuela', 'Yemen', 'Zambia', 'Zimbabwe'
                 ];
                 const select = document.getElementById(selectId);
+                if (!select) return;
                 select.innerHTML = '<option value="">Select Country</option>';
                 countries.forEach(function(country) {
                     select.innerHTML += `<option value="${country}">${country}</option>`;
