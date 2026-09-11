@@ -109,6 +109,15 @@
       [data-metric-trend] {
         display: none !important;
       }
+      @media (max-width: 575.98px), (max-width: 767.98px), (max-width: 991.98px), (max-width: 1199.98px) {
+        .shopify-delta-badge,
+        .growth-tag,
+        .txn-stat-trend,
+        .metric-trend-badge,
+        [data-metric-trend] {
+          display: none !important;
+        }
+      }
       @endif
 
       .table,

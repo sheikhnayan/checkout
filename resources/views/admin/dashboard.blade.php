@@ -180,6 +180,25 @@
 
     .growth-up { background: rgba(16, 185, 129, 0.15); color: #34d399; }
     .growth-down { background: rgba(244, 63, 94, 0.15); color: #fb7185; }
+
+    @if(!\App\Models\Setting::showMetricTrends())
+    .growth-tag,
+    .shopify-delta-badge,
+    .txn-stat-trend,
+    .metric-trend-badge,
+    [data-metric-trend] {
+        display: none !important;
+    }
+    @media (max-width: 575.98px), (max-width: 767.98px), (max-width: 991.98px), (max-width: 1199.98px) {
+        .growth-tag,
+        .shopify-delta-badge,
+        .txn-stat-trend,
+        .metric-trend-badge,
+        [data-metric-trend] {
+            display: none !important;
+        }
+    }
+    @endif
 </style>
 
 <div class="content-wrapper">

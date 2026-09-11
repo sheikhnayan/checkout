@@ -797,7 +797,6 @@
         padding: 1px 5px !important;
         white-space: nowrap !important;
         max-width: 100% !important;
-        display: inline-flex !important;
     }
     .shopify-chart-wrap {
         padding-top: 10px !important;
@@ -1239,6 +1238,24 @@ body.modal-open .admin-mobile-menu-toggle {
         display: none !important;
     }
 }
+@if(!\App\Models\Setting::showMetricTrends())
+.shopify-delta-badge,
+.growth-tag,
+.txn-stat-trend,
+.metric-trend-badge,
+[data-metric-trend] {
+    display: none !important;
+}
+@media (max-width: 575.98px), (max-width: 767.98px), (max-width: 991.98px), (max-width: 1199.98px) {
+    .shopify-delta-badge,
+    .growth-tag,
+    .txn-stat-trend,
+    .metric-trend-badge,
+    [data-metric-trend] {
+        display: none !important;
+    }
+}
+@endif
 </style>
     <!-- Content wrapper -->
     <div class="content-wrapper">
@@ -1503,7 +1520,9 @@ body.modal-open .admin-mobile-menu-toggle {
                                         </div>
                                         <div class="d-flex align-items-baseline justify-content-between flex-wrap gap-1 mt-1" style="min-width:0;">
                                             <span class="shopify-metric-val" id="shopifySalesVal">${{ number_format($totalRevenue ?? 0, 2) }}</span>
+                                            @if(\App\Models\Setting::showMetricTrends())
                                             <span class="shopify-delta-badge up" id="shopifySalesDelta"><i class="fas fa-arrow-up me-1"></i><span id="shopifySalesDeltaText">14.5%</span></span>
+                                            @endif
                                         </div>
                                         <div class="text-white-50 small mt-1 text-truncate" style="font-size:0.7rem;">Gross filtered revenue</div>
                                     </div>
@@ -1518,7 +1537,9 @@ body.modal-open .admin-mobile-menu-toggle {
                                         </div>
                                         <div class="d-flex align-items-baseline justify-content-between flex-wrap gap-1 mt-1" style="min-width:0;">
                                             <span class="shopify-metric-val" id="shopifyOrdersVal">{{ number_format($totalTxns ?? 0) }}</span>
+                                            @if(\App\Models\Setting::showMetricTrends())
                                             <span class="shopify-delta-badge up" id="shopifyOrdersDelta"><i class="fas fa-arrow-up me-1"></i><span id="shopifyOrdersDeltaText">8.2%</span></span>
+                                            @endif
                                         </div>
                                         <div class="text-white-50 small mt-1 text-truncate" style="font-size:0.7rem;">Filtered bookings</div>
                                     </div>
@@ -1533,7 +1554,9 @@ body.modal-open .admin-mobile-menu-toggle {
                                         </div>
                                         <div class="d-flex align-items-baseline justify-content-between flex-wrap gap-1 mt-1" style="min-width:0;">
                                             <span class="shopify-metric-val" id="shopifySessionsVal">{{ number_format($allVisitorSessionsCount ?? 4810) }}</span>
+                                            @if(\App\Models\Setting::showMetricTrends())
                                             <span class="shopify-delta-badge down" id="shopifySessionsDelta"><i class="fas fa-arrow-down me-1"></i><span id="shopifySessionsDeltaText">12.4%</span></span>
+                                            @endif
                                         </div>
                                         <div class="text-white-50 small mt-1 text-truncate" style="font-size:0.7rem;">Tracked visitor traffic</div>
                                     </div>
@@ -1554,7 +1577,9 @@ body.modal-open .admin-mobile-menu-toggle {
                                                 $initConv = $initSessions > 0 ? (($initTxns / $initSessions) * 100) : 0;
                                             @endphp
                                             <span class="shopify-metric-val" id="shopifyConversionVal">{{ number_format($initConv, 2) }}%</span>
+                                            @if(\App\Models\Setting::showMetricTrends())
                                             <span class="shopify-delta-badge up" id="shopifyConversionDelta"><i class="fas fa-arrow-up me-1"></i><span id="shopifyConversionDeltaText">3.6%</span></span>
+                                            @endif
                                         </div>
                                         <div class="text-white-50 small mt-1 text-truncate" style="font-size:0.7rem;">Visitors to bookings ratio</div>
                                     </div>
@@ -3620,15 +3645,15 @@ body.modal-open .admin-mobile-menu-toggle {
                     const $badge = $(badgeSel);
                     const $text = $(textSel);
                     if (!showMetricTrendsGlobal) {
-                        $badge.hide();
+                        $badge.attr('style', 'display: none !important;');
                         return;
                     }
                     if (val >= 0) {
-                        $badge.removeClass('down').addClass('up').show();
+                        $badge.removeClass('down').addClass('up').attr('style', 'display: inline-flex !important;');
                         $badge.find('i').attr('class', 'fas fa-arrow-up me-1');
                         $text.text('+' + Math.abs(val).toFixed(1) + '%');
                     } else {
-                        $badge.removeClass('up').addClass('down').show();
+                        $badge.removeClass('up').addClass('down').attr('style', 'display: inline-flex !important;');
                         $badge.find('i').attr('class', 'fas fa-arrow-down me-1');
                         $text.text('-' + Math.abs(val).toFixed(1) + '%');
                     }
@@ -5464,11 +5489,11 @@ body.modal-open .admin-mobile-menu-toggle {
                         }
 
                         if (!showMetricTrendsGlobal) {
-                            trendEl.hide();
+                            trendEl.attr('style', 'display: none !important;');
                             return;
                         }
 
-                        trendEl.removeClass('trend-up trend-down').addClass(isUp ? 'trend-up' : 'trend-down').show();
+                        trendEl.removeClass('trend-up trend-down').addClass(isUp ? 'trend-up' : 'trend-down').attr('style', 'display: inline-flex !important;');
                         trendEl.html('<i class="fas fa-arrow-' + (isUp ? 'up' : 'down') + ' me-1"></i>' + absPct + ' <span>vs last week</span>');
                     });
                 }
