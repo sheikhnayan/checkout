@@ -302,6 +302,11 @@ class TransactionController extends Controller
             }
         }
 
+        // Block checkout if cart is empty and no package is selected
+        if (empty($cartItems) && !$selectedPackage) {
+            return $this->backWithError($request, 'Your cart is empty. Please select a package before completing your purchase.');
+        }
+
         // CRITICAL FIX: Ensure website_id is strictly resolved to the owner club of the selected package
         if ($selectedPackage && !empty($selectedPackage->website_id)) {
             $request->merge(['website_id' => (int) $selectedPackage->website_id]);
@@ -396,7 +401,7 @@ class TransactionController extends Controller
         $amount = $this->sanitizeAmount($request->total);
 
         if ($amount < 0) {
-            return back()->with('error', 'Invalid order amount. You have not been charged. Please refresh the page and try again.');
+            return $this->backWithError($request, 'Invalid order amount. You have not been charged. Please refresh the page and try again.');
         }
 
         // Idempotency guard: stop a rapid double-submit / refresh-resubmit from
@@ -409,10 +414,44 @@ class TransactionController extends Controller
                 . json_encode($request->input('cart_items'))
         );
         if (! \Illuminate\Support\Facades\Cache::add($idempotencyKey, 1, 20)) {
-            return back()->with('error', 'Your previous order is still being processed. Please wait a few seconds before trying again.');
+            return $this->backWithError($request, 'Your previous order is still being processed. Please wait a few seconds before trying again.');
         }
 
         if ($amount == 0.0) {
+            // Guard: calculate actual base total from cart items
+            $computedBaseSubtotal = 0.0;
+            foreach ($cartItems as $item) {
+                $itemGuests = max(1, (int) ($item['guests'] ?? $item['quantity'] ?? 1));
+                $itemPrice = (float) ($item['unit_price'] ?? 0);
+                $isMultiple = !empty($item['is_multiple']);
+                $lineTotal = $isMultiple ? ($itemPrice * $itemGuests) : $itemPrice;
+                if (!empty($item['addons']) && is_array($item['addons'])) {
+                    foreach ($item['addons'] as $addon) {
+                        $lineTotal += (float) ($addon['price'] ?? 0);
+                    }
+                }
+                $computedBaseSubtotal += $lineTotal;
+            }
+
+            if ($computedBaseSubtotal <= 0 && $selectedPackage) {
+                $computedBaseSubtotal = (float) $selectedPackage->price;
+            }
+
+            // Zero-dollar checkout is ONLY legitimate if the base price is 0,
+            // or if a valid promo code covers the full subtotal.
+            $isLegitFree = ($computedBaseSubtotal <= 0.001) ||
+                ($validatedPromoCodeId && ($validatedDiscountAmount >= $computedBaseSubtotal - 0.01));
+
+            if (!$isLegitFree) {
+                \Log::warning('Rejected invalid zero-dollar checkout attempt', [
+                    'website_id' => $request->website_id,
+                    'computed_subtotal' => $computedBaseSubtotal,
+                    'validated_discount' => $validatedDiscountAmount,
+                    'request_total' => $request->total,
+                ]);
+                return $this->backWithError($request, 'Invalid order amount. You have not been charged. Please refresh the page and try again.');
+            }
+
             return $this->completeZeroAmountPackageCheckout(
                 $request,
                 $cartItems,
@@ -453,10 +492,10 @@ class TransactionController extends Controller
                     ]);
                 } catch (\Stripe\Exception\CardException $e) {
                     \Log::warning('Stripe card declined', ['website_id' => $request->website_id, 'message' => $e->getMessage()]);
-                    return back()->with('error', 'Payment failed: ' . $e->getMessage());
+                    return $this->backWithError($request, 'Payment failed: ' . $e->getMessage());
                 } catch (\Throwable $e) {
                     \Log::error('Stripe charge error', ['website_id' => $request->website_id, 'error' => $e->getMessage()]);
-                    return back()->with('error', 'We could not process your card. You have NOT been charged. Please try again.');
+                    return $this->backWithError($request, 'We could not process your card. You have NOT been charged. Please try again.');
                 }
             }
 
@@ -688,16 +727,16 @@ class TransactionController extends Controller
                 ? ($expYear . '-' . $expMonth)
                 : null;
             if (empty($expirationDate)) {
-                return back()->with('error', 'Invalid card expiration date. You have not been charged. Please re-check your card details and try again.');
+                return $this->backWithError($request, 'Invalid card expiration date. You have not been charged. Please re-check your card details and try again.');
             }
             $cvv = preg_replace('/\D/', '', (string) $request->input('card_cvv'));
 
             // Strong server-side format checks before any gateway call.
             if (strlen($cardNumber) < 12 || strlen($cardNumber) > 19 || !$this->passesLuhnCheck($cardNumber)) {
-                return back()->with('error', 'Invalid card number. You have not been charged. Please re-check your card details and try again.');
+                return $this->backWithError($request, 'Invalid card number. You have not been charged. Please re-check your card details and try again.');
             }
             if (strlen($cvv) < 3 || strlen($cvv) > 4) {
-                return back()->with('error', 'Invalid card security code. You have not been charged. Please re-check your card details and try again.');
+                return $this->backWithError($request, 'Invalid card security code. You have not been charged. Please re-check your card details and try again.');
             }
 
             $merchantAuthentication = new AnetAPI\MerchantAuthenticationType();
@@ -720,6 +759,16 @@ class TransactionController extends Controller
             $transactionRequestType->setAmount(number_format($gatewayAmount, 2, '.', ''));
             $transactionRequestType->setPayment($payment);
 
+            $countryVal = (string) $request->input('payment_country');
+            $countryUpper = strtoupper(trim($countryVal));
+            $normalizedState = $this->normalizeBillingState($request->input('payment_state'), $countryVal);
+
+            if ($countryUpper === '' || in_array($countryUpper, ['US', 'USA', 'UNITED STATES'])) {
+                if (empty($normalizedState)) {
+                    return $this->backWithError($request, 'Please select a valid billing State or Province.');
+                }
+            }
+
             // Billing address for AVS (Address Verification Service). Without the
             // street + ZIP, Authorize.Net returns AVS code "U", and fraud filters
             // set to reject "unavailable" will decline/hold legitimate cards.
@@ -728,9 +777,9 @@ class TransactionController extends Controller
             $billTo->setLastName((string) $request->input('payment_last_name'));
             $billTo->setAddress((string) $request->input('payment_address'));
             $billTo->setCity((string) $request->input('payment_city'));
-            $billTo->setState((string) $request->input('payment_state'));
+            $billTo->setState($normalizedState ?: (string) $request->input('payment_state'));
             $billTo->setZip((string) $request->input('payment_zip_code'));
-            $billTo->setCountry((string) $request->input('payment_country'));
+            $billTo->setCountry($countryVal ?: 'US');
             $transactionRequestType->setBillTo($billTo);
 
             // Extra signals for the Advanced Fraud Detection Suite so legitimate
@@ -755,7 +804,7 @@ class TransactionController extends Controller
                     'website_id' => $request->website_id,
                     'error' => $gatewayException->getMessage(),
                 ]);
-                return back()->with('error', 'We could not reach the payment processor. You have NOT been charged. Please try again in a moment.');
+                return $this->backWithError($request, 'We could not reach the payment processor. You have NOT been charged. Please try again in a moment.');
             }
 
             // Normalize the two-layer Authorize.Net response once. responseCode
@@ -983,13 +1032,13 @@ class TransactionController extends Controller
                         'response_code' => $anet['response_code'],
                         'message' => $anet['message'],
                     ]);
-                    return back()->with('error', 'Payment failed: ' . $anet['message']);
+                    return $this->backWithError($request, 'Payment failed: ' . $anet['message']);
                 }
             } else {
                 \Log::error('Authorize.Net returned a null response (no charge made)', [
                     'website_id' => $request->website_id,
                 ]);
-                return back()->with('error', 'Payment failed: ' . $anet['message']);
+                return $this->backWithError($request, 'Payment failed: ' . $anet['message']);
             }
         }
 
@@ -2724,6 +2773,48 @@ class TransactionController extends Controller
                 'transportation' => $item['transportation'] ?? $item['transport'] ?? optional($package)->transportation,
             ];
         })->values()->all();
+    }
+
+    private function backWithError(Request $request, string $message)
+    {
+        return back()
+            ->withInput($request->except(['card_number', 'card_cvv', 'card_month', 'card_year']))
+            ->with('error', $message);
+    }
+
+    private function normalizeBillingState(?string $state, ?string $country = 'US'): string
+    {
+        $state = trim((string) $state);
+        if ($state === '' || strtolower($state) === 'null' || strtolower($state) === 'select state/province') {
+            return '';
+        }
+
+        $usStates = [
+            'ALABAMA' => 'AL', 'ALASKA' => 'AK', 'ARIZONA' => 'AZ', 'ARKANSAS' => 'AR',
+            'CALIFORNIA' => 'CA', 'COLORADO' => 'CO', 'CONNECTICUT' => 'CT', 'DELAWARE' => 'DE',
+            'DISTRICT OF COLUMBIA' => 'DC', 'FLORIDA' => 'FL', 'GEORGIA' => 'GA', 'HAWAII' => 'HI',
+            'IDAHO' => 'ID', 'ILLINOIS' => 'IL', 'INDIANA' => 'IN', 'IOWA' => 'IA',
+            'KANSAS' => 'KS', 'KENTUCKY' => 'KY', 'LOUISIANA' => 'LA', 'MAINE' => 'ME',
+            'MARYLAND' => 'MD', 'MASSACHUSETTS' => 'MA', 'MICHIGAN' => 'MI', 'MINNESOTA' => 'MN',
+            'MISSISSIPPI' => 'MS', 'MISSOURI' => 'MO', 'MONTANA' => 'MT', 'NEBRASKA' => 'NE',
+            'NEVADA' => 'NV', 'NEW HAMPSHIRE' => 'NH', 'NEW JERSEY' => 'NJ', 'NEW MEXICO' => 'NM',
+            'NEW YORK' => 'NY', 'NORTH CAROLINA' => 'NC', 'NORTH DAKOTA' => 'ND', 'OHIO' => 'OH',
+            'OKLAHOMA' => 'OK', 'OREGON' => 'OR', 'PENNSYLVANIA' => 'PA', 'RHODE ISLAND' => 'RI',
+            'SOUTH CAROLINA' => 'SC', 'SOUTH DAKOTA' => 'SD', 'TENNESSEE' => 'TN', 'TEXAS' => 'TX',
+            'UTAH' => 'UT', 'VERMONT' => 'VT', 'VIRGINIA' => 'VA', 'WASHINGTON' => 'WA',
+            'WEST VIRGINIA' => 'WV', 'WISCONSIN' => 'WI', 'WYOMING' => 'WY'
+        ];
+
+        $upper = strtoupper($state);
+        if (isset($usStates[$upper])) {
+            return $usStates[$upper];
+        }
+
+        if (strlen($upper) === 2 && in_array($upper, $usStates, true)) {
+            return $upper;
+        }
+
+        return $state;
     }
 
     private function summarizeCartItems(array $cartItems): array

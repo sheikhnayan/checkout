@@ -496,8 +496,19 @@
     </div>
 
     <script>
-        // Optional: Confetti effect on page load
+        // Confetti & cleanup after confirmed successful payment
         console.log('Payment successful! Transaction processed.');
+        try {
+            @if(isset($website) && !empty($website->slug))
+                sessionStorage.removeItem('cv_cart_v1_{{ $website->slug }}');
+                sessionStorage.removeItem('cv_form_v1_{{ $website->slug }}');
+            @endif
+            Object.keys(sessionStorage).forEach(function(k) {
+                if (k.indexOf('cv_cart_v1_') === 0 || k.indexOf('cv_form_v1_') === 0) {
+                    sessionStorage.removeItem(k);
+                }
+            });
+        } catch (e) {}
     </script>
 </body>
 </html>
