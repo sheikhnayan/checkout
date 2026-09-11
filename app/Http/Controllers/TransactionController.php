@@ -2102,6 +2102,7 @@ class TransactionController extends Controller
         // Reverse approved commissions if transaction is canceled or refunded.
         if (in_array((string) $status, ['0', '2'], true) && !in_array($previousStatus, ['0', '2'], true)) {
             $this->reverseCommissionsIfNeeded($change);
+            $this->cancelClubLifterBookingIfNeeded($change);
         }
 
         return back();
@@ -4199,6 +4200,44 @@ class TransactionController extends Controller
             });
         } catch (\Throwable $e) {
             \Log::warning('ClubLifter schedule build failed', ['error' => $e->getMessage()]);
+        }
+    }
+
+    /**
+     * If a transaction used the ClubLifter API (has clublifter_customer_id),
+     * cancel the booking in ClubLifter when the transaction is canceled or refunded.
+     * Runs deferred after the response so it never blocks or fails the admin action.
+     */
+    private function cancelClubLifterBookingIfNeeded(Transaction $transaction): void
+    {
+        try {
+            $customerId = trim((string) ($transaction->clublifter_customer_id ?? ''));
+            if ($customerId === '') {
+                return;
+            }
+
+            $txnId = $transaction->id;
+            app()->terminating(function () use ($customerId, $txnId) {
+                try {
+                    $result = app(\App\Services\ClubLifterService::class)->cancel($customerId);
+                    \Log::info('ClubLifter booking cancelled', [
+                        'transaction_id' => $txnId,
+                        'clublifter_customer_id' => $customerId,
+                        'result' => $result,
+                    ]);
+                } catch (\Throwable $e) {
+                    \Log::warning('ClubLifter booking cancel failed', [
+                        'transaction_id' => $txnId,
+                        'clublifter_customer_id' => $customerId,
+                        'error' => $e->getMessage(),
+                    ]);
+                }
+            });
+        } catch (\Throwable $e) {
+            \Log::warning('ClubLifter cancel dispatch failed', [
+                'transaction_id' => $transaction->id ?? null,
+                'error' => $e->getMessage(),
+            ]);
         }
     }
 
