@@ -4922,9 +4922,13 @@ class TransactionController extends Controller
                 ]);
             }
 
-            // Defensive lookup for status across multiple possible JSON shapes
-            $status = $data['status']
+            // Defensive lookup for status across multiple possible JSON shapes from ClubLifter API
+            $status = $data['pickup_status']
+                ?? $data['status']
+                ?? $data['club_status']
+                ?? $data['customer']['pickup_status']
                 ?? $data['customer']['status']
+                ?? $data['data']['pickup_status']
                 ?? $data['data']['status']
                 ?? $data['booking']['status']
                 ?? $data['ride_status']
@@ -4939,14 +4943,35 @@ class TransactionController extends Controller
                 ?? $data['data']['driver_notes']
                 ?? $data['booking']['driver_note']
                 ?? $data['driver']['note']
-                ?? $data['notes']
                 ?? null;
+
+            // If driver_note is still empty, check lookup via customer phone if available
+            $phone = trim((string) ($data['customer_phone'] ?? $data['phone'] ?? optional($transaction)->package_phone ?: optional($transaction)->transportation_phone ?: optional($transaction)->payment_phone ?: ''));
+            if ((empty($driverNote) || trim((string)$driverNote) === '') && !empty($phone)) {
+                try {
+                    $lookup = app(\App\Services\ClubLifterService::class)->lookup($phone);
+                    if (is_array($lookup)) {
+                        $driverNote = $lookup['driver_notes']
+                            ?? $lookup['driver_note']
+                            ?? null;
+
+                        if (empty($status)) {
+                            $status = $lookup['status'] ?? $lookup['pickup_status'] ?? null;
+                        }
+                    }
+                } catch (\Throwable $lookupEx) {
+                    // keep existing driverNote
+                }
+            }
 
             return response()->json([
                 'success' => true,
                 'customer_id' => $cleanId,
                 'status' => $status,
                 'driver_note' => $driverNote,
+                'driver_name' => $data['driver_name'] ?? null,
+                'driver_phone' => $data['driver_phone'] ?? null,
+                'car' => $data['car'] ?? null,
                 'raw' => $data,
             ]);
         } catch (\Throwable $e) {

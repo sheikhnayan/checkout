@@ -5651,13 +5651,15 @@ body.modal-open .admin-mobile-menu-toggle {
             window.fetchClubLifterCustomerStatus = function(customerId, $modal) {
                 var $statusEl = $modal.find('.clublifter-status-val');
                 var $driverNoteEl = $modal.find('.clublifter-driver-note-val');
+                var $driverDetailsRow = $modal.find('.clublifter-driver-details-row');
+                var $driverDetailsVal = $modal.find('.clublifter-driver-details-val');
 
                 if (!customerId || customerId === '0' || customerId === 'null') {
                     return;
                 }
 
-                $statusEl.html('<span style="color:#94a3b8;"><i class="fas fa-spinner fa-spin me-1"></i>Loading...</span>');
-                $driverNoteEl.html('<span style="color:#94a3b8;"><i class="fas fa-spinner fa-spin me-1"></i>Loading...</span>');
+                $statusEl.html('<span style="color:#94a3b8;"><i class="fas fa-spinner fa-spin me-1"></i>Fetching live status...</span>');
+                $driverNoteEl.html('<span style="color:#94a3b8;"><i class="fas fa-spinner fa-spin me-1"></i>Fetching live note...</span>');
 
                 $.ajax({
                     url: '{{ url("/admins/transaction/clublifter-status") }}/' + encodeURIComponent(customerId),
@@ -5667,7 +5669,7 @@ body.modal-open .admin-mobile-menu-toggle {
                         var safeEsc = window.txnEsc || function(v) { return String(v == null ? '' : v).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;').replace(/'/g,'&#39;'); };
                         if (res && res.success) {
                             var statusText = res.status ? String(res.status) : 'N/A';
-                            var driverNoteText = (res.driver_note != null && String(res.driver_note).trim() !== '') ? String(res.driver_note) : 'None';
+                            var rawNote = (res.driver_note != null && String(res.driver_note).trim() !== '') ? String(res.driver_note).trim() : '';
 
                             var badgeClass = 'bg-primary';
                             var lowerStatus = statusText.toLowerCase();
@@ -5681,17 +5683,34 @@ body.modal-open .admin-mobile-menu-toggle {
                                 badgeClass = 'bg-warning text-dark';
                             }
 
-                            $statusEl.html('<span class="badge ' + badgeClass + '" style="font-size:0.78rem;text-transform:capitalize;padding:4px 8px;">' + safeEsc(statusText) + '</span>');
-                            $driverNoteEl.css('color', '#e2e8f0').text(driverNoteText);
+                            $statusEl.html('<span class="badge ' + badgeClass + '" style="font-size:0.78rem;text-transform:capitalize;padding:5px 10px;"><i class="fas fa-check-circle me-1"></i>' + safeEsc(statusText) + '</span>');
+
+                            if (rawNote) {
+                                $driverNoteEl.css({'color': '#e2e8f0', 'font-style': 'normal'}).text(rawNote);
+                            } else {
+                                $driverNoteEl.css({'color': '#94a3b8', 'font-style': 'italic'}).text('No driver note yet');
+                            }
+
+                            var driverParts = [];
+                            if (res.driver_name) {
+                                driverParts.push(safeEsc(res.driver_name) + (res.driver_phone ? ' (' + safeEsc(res.driver_phone) + ')' : ''));
+                            }
+                            if (res.car) {
+                                driverParts.push(safeEsc(res.car));
+                            }
+                            if (driverParts.length && $driverDetailsRow.length) {
+                                $driverDetailsVal.html(driverParts.join(' • '));
+                                $driverDetailsRow.show();
+                            }
                         } else {
                             var errMsg = (res && res.message) ? res.message : 'Unavailable';
                             $statusEl.html('<span class="badge bg-secondary" style="font-size:0.75rem;">' + safeEsc(errMsg) + '</span>');
-                            $driverNoteEl.css('color', '#94a3b8').text('Unavailable');
+                            $driverNoteEl.css({'color': '#94a3b8', 'font-style': 'italic'}).text('Unavailable');
                         }
                     },
                     error: function() {
                         $statusEl.html('<span class="badge bg-danger" style="font-size:0.75rem;">Unavailable</span>');
-                        $driverNoteEl.css('color', '#94a3b8').text('Unavailable');
+                        $driverNoteEl.css({'color': '#94a3b8', 'font-style': 'italic'}).text('Unavailable');
                     }
                 });
             };
@@ -6441,8 +6460,9 @@ body.modal-open .admin-mobile-menu-toggle {
                 if (hasClubLifterId) {
                     pushPdfRow('ClubLifter ID', clublifterCustomerId);
                     html += '<div class="txn-detail-row"><span class="txn-detail-label">ClubLifter ID:</span><span class="txn-detail-value" style="font-weight:600;color:#c084fc;">' + esc(clublifterCustomerId) + '</span></div>';
-                    html += '<div class="txn-detail-row"><span class="txn-detail-label">Transport Status:</span><span class="txn-detail-value clublifter-status-val" style="color:#94a3b8;"><i class="fas fa-spinner fa-spin me-1"></i>Loading...</span></div>';
-                    html += '<div class="txn-detail-row"><span class="txn-detail-label">Driver Note:</span><span class="txn-detail-value clublifter-driver-note-val" style="color:#94a3b8;"><i class="fas fa-spinner fa-spin me-1"></i>Loading...</span></div>';
+                    html += '<div class="txn-detail-row"><span class="txn-detail-label">Transport Status:</span><span class="txn-detail-value clublifter-status-val" style="color:#94a3b8;"><i class="fas fa-spinner fa-spin me-1"></i>Fetching live status...</span></div>';
+                    html += '<div class="txn-detail-row"><span class="txn-detail-label">Driver Note:</span><span class="txn-detail-value clublifter-driver-note-val" style="color:#94a3b8;"><i class="fas fa-spinner fa-spin me-1"></i>Fetching live note...</span></div>';
+                    html += '<div class="txn-detail-row clublifter-driver-details-row" style="display:none;"><span class="txn-detail-label">Assigned Driver:</span><span class="txn-detail-value clublifter-driver-details-val" style="color:#93c5fd;"></span></div>';
                 }
                 html += '</div>';
 
@@ -7337,8 +7357,9 @@ body.modal-open .admin-mobile-menu-toggle {
                 html += row(hasPickupTime ? 'Transport Note' : 'Arrival Note', transportationNote || 'N/A');
                 if (hasClubLifterId) {
                     html += '<div class="txn-detail-row"><span class="txn-detail-label">ClubLifter ID:</span><span class="txn-detail-value" style="font-weight:600;color:#c084fc;">' + esc(clublifterCustomerId) + '</span></div>';
-                    html += '<div class="txn-detail-row"><span class="txn-detail-label">Transport Status:</span><span class="txn-detail-value clublifter-status-val" style="color:#94a3b8;"><i class="fas fa-spinner fa-spin me-1"></i>Loading...</span></div>';
-                    html += '<div class="txn-detail-row"><span class="txn-detail-label">Driver Note:</span><span class="txn-detail-value clublifter-driver-note-val" style="color:#94a3b8;"><i class="fas fa-spinner fa-spin me-1"></i>Loading...</span></div>';
+                    html += '<div class="txn-detail-row"><span class="txn-detail-label">Transport Status:</span><span class="txn-detail-value clublifter-status-val" style="color:#94a3b8;"><i class="fas fa-spinner fa-spin me-1"></i>Fetching live status...</span></div>';
+                    html += '<div class="txn-detail-row"><span class="txn-detail-label">Driver Note:</span><span class="txn-detail-value clublifter-driver-note-val" style="color:#94a3b8;"><i class="fas fa-spinner fa-spin me-1"></i>Fetching live note...</span></div>';
+                    html += '<div class="txn-detail-row clublifter-driver-details-row" style="display:none;"><span class="txn-detail-label">Assigned Driver:</span><span class="txn-detail-value clublifter-driver-details-val" style="color:#93c5fd;"></span></div>';
                 }
                 html += '</div>';
                 html += '</div>';
