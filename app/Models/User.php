@@ -229,6 +229,12 @@ class User extends Authenticatable
                 ->exists();
         }
 
+        if ($routeName === 'admin.transaction.clublifter-status') {
+            return $role->permissions()
+                ->where('key', 'admin.transaction.index')
+                ->exists();
+        }
+
         return false;
     }
 

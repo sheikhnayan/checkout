@@ -2283,7 +2283,7 @@ body.modal-open .admin-mobile-menu-toggle {
                             </td>
                             <td class="txn-pkg-name">
                                 <div style="font-size:0.85rem;font-weight:600;margin-bottom:8px;">{{ $venueName }}</div>
-                                <button type="button" class="btn btn-sm btn-link-package view-btn" data-total="{{ (float)($item->total ?? 0) }}" data-guests="{{ $item->package_number_of_guest ?? 1 }}" data-date="{{ $purchaseAtLocal?->format('M d, Y') ?? '' }}" data-date-iso="{{ $purchaseAtLocal?->format('Y-m-d') ?? '' }}" data-bs-toggle="modal" data-bs-target="#packageDetailsModal" data-transaction-id="{{ $item->id }}" data-id="{{ $item->id }}" data-requires_transportation="{{ $requiresTransportationForRow ? 1 : 0 }}" data-admin_notes="{{ $item->admin_notes ?? '' }}" data-admin_notes_by="{{ $item->admin_notes_by ?? '' }}" data-admin_notes_at="{{ $formatDatePst($item->admin_notes_at) }}" data-confirmation-number="{{ $item->transaction_id ?? 'N/A' }}" data-cart-items='@json($cartItems)' data-package-descriptions-b64="{{ base64_encode(json_encode($packageDescriptionsPayload)) }}" data-breakdown='@json($item->price_breakdown)' data-transaction-type='{{ $item->type }}' data-men='{{ $item->package_men ?? 0 }}' data-women='{{ $item->package_women ?? 0 }}' data-package-label="{{ $packageDetailsText }}" data-package_use_date="{{ $item->package_use_date ?? '' }}" data-checked_in_status="{{ $item->checked_in_status ?? $item->checked_in ?? 0 }}" data-package_number_of_guest="{{ $item->package_number_of_guest ?? 0 }}" data-package_first_name="{{ $item->package_first_name ?? '' }}" data-package_last_name="{{ $item->package_last_name ?? '' }}" data-package_phone="{{ $item->package_phone ?? '' }}" data-package_email="{{ $item->package_email ?? '' }}" data-package_dob="{{ $item->package_dob ?? '' }}" data-package_note="{{ $item->package_note ?? '' }}" data-host_name="{{ $item->host_name ?? '' }}" data-transportation_pickup_time="{{ $item->transportation_pickup_time ?? '' }}" data-transportation_arrival_time="{{ $item->transportation_arrival_time ?? '' }}" data-transportation_address="{{ $item->transportation_address ?? '' }}" data-transportation_phone="{{ $item->transportation_phone ?? '' }}" data-transportation_note="{{ $item->transportation_note ?? '' }}" data-payment_first_name="{{ $item->payment_first_name ?? '' }}" data-payment_last_name="{{ $item->payment_last_name ?? '' }}" data-payment_phone="{{ $item->payment_phone ?? '' }}" data-payment_email="{{ $item->payment_email ?? '' }}" data-payment_address="{{ $item->payment_address ?? '' }}" data-payment_city="{{ $item->payment_city ?? '' }}" data-payment_state="{{ $item->payment_state ?? '' }}" data-payment_country="{{ $item->payment_country ?? '' }}" data-payment_dob="{{ $item->payment_dob ?? '' }}" data-payment_zip_code="{{ $item->payment_zip_code ?? '' }}" data-type="{{ $item->type }}" data-status="{{ $item->status }}" data-ip_address="{{ $item->ip_address ?? '' }}" data-website_id="{{ $item->website->name ?? '' }}" data-affiliate_name="{{ $affiliateName ?: '' }}" data-affiliate_sub_name="{{ $subName ?: '' }}" data-affiliate_parent_name="{{ $parentName ?: '' }}" data-entertainer_name="{{ $item->entertainer ? ($item->entertainer->display_name ?: optional($item->entertainer->user)->name) : '' }}" data-addons="{{ $addons }}" style="font-size:0.85rem;min-width:72px;">Quick View</button>
+                                <button type="button" class="btn btn-sm btn-link-package view-btn" data-total="{{ (float)($item->total ?? 0) }}" data-guests="{{ $item->package_number_of_guest ?? 1 }}" data-date="{{ $purchaseAtLocal?->format('M d, Y') ?? '' }}" data-date-iso="{{ $purchaseAtLocal?->format('Y-m-d') ?? '' }}" data-bs-toggle="modal" data-bs-target="#packageDetailsModal" data-transaction-id="{{ $item->id }}" data-id="{{ $item->id }}" data-requires_transportation="{{ $requiresTransportationForRow ? 1 : 0 }}" data-admin_notes="{{ $item->admin_notes ?? '' }}" data-admin_notes_by="{{ $item->admin_notes_by ?? '' }}" data-admin_notes_at="{{ $formatDatePst($item->admin_notes_at) }}" data-confirmation-number="{{ $item->transaction_id ?? 'N/A' }}" data-cart-items='@json($cartItems)' data-package-descriptions-b64="{{ base64_encode(json_encode($packageDescriptionsPayload)) }}" data-breakdown='@json($item->price_breakdown)' data-transaction-type='{{ $item->type }}' data-men='{{ $item->package_men ?? 0 }}' data-women='{{ $item->package_women ?? 0 }}' data-package-label="{{ $packageDetailsText }}" data-package_use_date="{{ $item->package_use_date ?? '' }}" data-checked_in_status="{{ $item->checked_in_status ?? $item->checked_in ?? 0 }}" data-package_number_of_guest="{{ $item->package_number_of_guest ?? 0 }}" data-package_first_name="{{ $item->package_first_name ?? '' }}" data-package_last_name="{{ $item->package_last_name ?? '' }}" data-package_phone="{{ $item->package_phone ?? '' }}" data-package_email="{{ $item->package_email ?? '' }}" data-package_dob="{{ $item->package_dob ?? '' }}" data-package_note="{{ $item->package_note ?? '' }}" data-host_name="{{ $item->host_name ?? '' }}" data-transportation_pickup_time="{{ $item->transportation_pickup_time ?? '' }}" data-transportation_arrival_time="{{ $item->transportation_arrival_time ?? '' }}" data-transportation_address="{{ $item->transportation_address ?? '' }}" data-transportation_phone="{{ $item->transportation_phone ?? '' }}" data-transportation_note="{{ $item->transportation_note ?? '' }}" data-clublifter_customer_id="{{ $item->clublifter_customer_id ?? '' }}" data-payment_first_name="{{ $item->payment_first_name ?? '' }}" data-payment_last_name="{{ $item->payment_last_name ?? '' }}" data-payment_phone="{{ $item->payment_phone ?? '' }}" data-payment_email="{{ $item->payment_email ?? '' }}" data-payment_address="{{ $item->payment_address ?? '' }}" data-payment_city="{{ $item->payment_city ?? '' }}" data-payment_state="{{ $item->payment_state ?? '' }}" data-payment_country="{{ $item->payment_country ?? '' }}" data-payment_dob="{{ $item->payment_dob ?? '' }}" data-payment_zip_code="{{ $item->payment_zip_code ?? '' }}" data-type="{{ $item->type }}" data-status="{{ $item->status }}" data-ip_address="{{ $item->ip_address ?? '' }}" data-website_id="{{ $item->website->name ?? '' }}" data-affiliate_name="{{ $affiliateName ?: '' }}" data-affiliate_sub_name="{{ $subName ?: '' }}" data-affiliate_parent_name="{{ $parentName ?: '' }}" data-entertainer_name="{{ $item->entertainer ? ($item->entertainer->display_name ?: optional($item->entertainer->user)->name) : '' }}" data-addons="{{ $addons }}" style="font-size:0.85rem;min-width:72px;">Quick View</button>
                             </td>
                             <td class="txn-host-name">
                                 @if(!empty($item->host_name))
@@ -2583,6 +2583,7 @@ body.modal-open .admin-mobile-menu-toggle {
                                         data-transportation_phone="{{ $item->transportation_phone }}"
                                         data-transportation_guest="{{ $item->transportation_guest }}"
                                         data-transportation_note="{{ $item->transportation_note }}"
+                                        data-clublifter_customer_id="{{ $item->clublifter_customer_id ?? '' }}"
                                         data-payment_first_name="{{ $item->payment_first_name }}"
                                         data-payment_last_name="{{ $item->payment_last_name }}"
                                         data-payment_phone="{{ $item->payment_phone }}"
@@ -5647,6 +5648,54 @@ body.modal-open .admin-mobile-menu-toggle {
                 }
             })();
 
+            window.fetchClubLifterCustomerStatus = function(customerId, $modal) {
+                var $statusEl = $modal.find('.clublifter-status-val');
+                var $driverNoteEl = $modal.find('.clublifter-driver-note-val');
+
+                if (!customerId || customerId === '0' || customerId === 'null') {
+                    return;
+                }
+
+                $statusEl.html('<span style="color:#94a3b8;"><i class="fas fa-spinner fa-spin me-1"></i>Loading...</span>');
+                $driverNoteEl.html('<span style="color:#94a3b8;"><i class="fas fa-spinner fa-spin me-1"></i>Loading...</span>');
+
+                $.ajax({
+                    url: '{{ url("/admins/transaction/clublifter-status") }}/' + encodeURIComponent(customerId),
+                    type: 'GET',
+                    dataType: 'json',
+                    success: function(res) {
+                        var safeEsc = window.txnEsc || function(v) { return String(v == null ? '' : v).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;').replace(/'/g,'&#39;'); };
+                        if (res && res.success) {
+                            var statusText = res.status ? String(res.status) : 'N/A';
+                            var driverNoteText = (res.driver_note != null && String(res.driver_note).trim() !== '') ? String(res.driver_note) : 'None';
+
+                            var badgeClass = 'bg-primary';
+                            var lowerStatus = statusText.toLowerCase();
+                            if (lowerStatus.indexOf('cancel') !== -1) {
+                                badgeClass = 'bg-danger';
+                            } else if (lowerStatus.indexOf('complete') !== -1 || lowerStatus.indexOf('picked') !== -1 || lowerStatus.indexOf('drop') !== -1) {
+                                badgeClass = 'bg-success';
+                            } else if (lowerStatus.indexOf('assign') !== -1 || lowerStatus.indexOf('dispatch') !== -1 || lowerStatus.indexOf('en route') !== -1 || lowerStatus.indexOf('way') !== -1) {
+                                badgeClass = 'bg-info text-dark';
+                            } else if (lowerStatus.indexOf('wait') !== -1 || lowerStatus.indexOf('pending') !== -1) {
+                                badgeClass = 'bg-warning text-dark';
+                            }
+
+                            $statusEl.html('<span class="badge ' + badgeClass + '" style="font-size:0.78rem;text-transform:capitalize;padding:4px 8px;">' + safeEsc(statusText) + '</span>');
+                            $driverNoteEl.css('color', '#e2e8f0').text(driverNoteText);
+                        } else {
+                            var errMsg = (res && res.message) ? res.message : 'Unavailable';
+                            $statusEl.html('<span class="badge bg-secondary" style="font-size:0.75rem;">' + safeEsc(errMsg) + '</span>');
+                            $driverNoteEl.css('color', '#94a3b8').text('Unavailable');
+                        }
+                    },
+                    error: function() {
+                        $statusEl.html('<span class="badge bg-danger" style="font-size:0.75rem;">Unavailable</span>');
+                        $driverNoteEl.css('color', '#94a3b8').text('Unavailable');
+                    }
+                });
+            };
+
             window.buildAdminNotesCardHtml = function(txnId, noteText, noteBy, noteAt) {
                 var safeEsc = window.txnEsc || function(v) { return String(v == null ? '' : v).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;').replace(/'/g,'&#39;'); };
                 var authorInfo = '';
@@ -6374,6 +6423,12 @@ body.modal-open .admin-mobile-menu-toggle {
                 html += row('Notes', $(this).data('package_note') || 'N/A');
                 html += '</div>';
 
+                var clublifterCustomerId = String(
+                    $(this).data('clublifter_customer_id') ||
+                    ($(this).closest('tr').find('.view-btn').data('clublifter_customer_id') || '')
+                ).trim();
+                var hasClubLifterId = clublifterCustomerId !== '' && clublifterCustomerId !== '0' && clublifterCustomerId !== 'null' && clublifterCustomerId !== 'undefined';
+
                 html += '<div class="txn-detail-card">';
                 html += '<div class="txn-detail-title">Transportation</div>';
                 beginPdfSection('Transportation');
@@ -6383,6 +6438,12 @@ body.modal-open .admin-mobile-menu-toggle {
                 html += row('Transport Phone', $(this).data('transportation_phone') || 'N/A');
                 html += row('Transport Address', $(this).data('transportation_address') || 'N/A');
                 html += row('Transport Note', $(this).data('transportation_note') || 'N/A');
+                if (hasClubLifterId) {
+                    pushPdfRow('ClubLifter ID', clublifterCustomerId);
+                    html += '<div class="txn-detail-row"><span class="txn-detail-label">ClubLifter ID:</span><span class="txn-detail-value" style="font-weight:600;color:#c084fc;">' + esc(clublifterCustomerId) + '</span></div>';
+                    html += '<div class="txn-detail-row"><span class="txn-detail-label">Transport Status:</span><span class="txn-detail-value clublifter-status-val" style="color:#94a3b8;"><i class="fas fa-spinner fa-spin me-1"></i>Loading...</span></div>';
+                    html += '<div class="txn-detail-row"><span class="txn-detail-label">Driver Note:</span><span class="txn-detail-value clublifter-driver-note-val" style="color:#94a3b8;"><i class="fas fa-spinner fa-spin me-1"></i>Loading...</span></div>';
+                }
                 html += '</div>';
 
                 html += '<div class="txn-detail-card">';
@@ -6439,6 +6500,10 @@ body.modal-open .admin-mobile-menu-toggle {
                 }
 
                 $('#transactionDetailsContent').html(html);
+
+                if (hasClubLifterId) {
+                    window.fetchClubLifterCustomerStatus(clublifterCustomerId, $('#viewTransactionModal'));
+                }
 
                 $('#viewTransactionModal').data('pdfPayload', {
                     title: 'Transaction #' + String($(this).data('transaction_id') || transactionId),
@@ -7076,6 +7141,11 @@ body.modal-open .admin-mobile-menu-toggle {
                 var transportationAddress = String($(this).data('transportation_address') || '').trim();
                 var transportationPhone = String($(this).data('transportation_phone') || '').trim();
                 var transportationNote = String($(this).data('transportation_note') || '').trim();
+                var clublifterCustomerId = String(
+                    $(this).data('clublifter_customer_id') ||
+                    (rowViewBtn.data('clublifter_customer_id') || '')
+                ).trim();
+                var hasClubLifterId = clublifterCustomerId !== '' && clublifterCustomerId !== '0' && clublifterCustomerId !== 'null' && clublifterCustomerId !== 'undefined';
                 var requiresTransportationRaw = String(
                     $(this).data('requires_transportation') ||
                     ($(this).closest('tr').find('.view-btn').data('requires_transportation') || '')
@@ -7265,6 +7335,11 @@ body.modal-open .admin-mobile-menu-toggle {
                 html += row('Pickup Address', transportationAddress || 'N/A');
                 html += row(hasPickupTime ? 'Transport Phone' : 'Contact Phone', transportationPhone || 'N/A');
                 html += row(hasPickupTime ? 'Transport Note' : 'Arrival Note', transportationNote || 'N/A');
+                if (hasClubLifterId) {
+                    html += '<div class="txn-detail-row"><span class="txn-detail-label">ClubLifter ID:</span><span class="txn-detail-value" style="font-weight:600;color:#c084fc;">' + esc(clublifterCustomerId) + '</span></div>';
+                    html += '<div class="txn-detail-row"><span class="txn-detail-label">Transport Status:</span><span class="txn-detail-value clublifter-status-val" style="color:#94a3b8;"><i class="fas fa-spinner fa-spin me-1"></i>Loading...</span></div>';
+                    html += '<div class="txn-detail-row"><span class="txn-detail-label">Driver Note:</span><span class="txn-detail-value clublifter-driver-note-val" style="color:#94a3b8;"><i class="fas fa-spinner fa-spin me-1"></i>Loading...</span></div>';
+                }
                 html += '</div>';
                 html += '</div>';
 
@@ -7438,6 +7513,10 @@ body.modal-open .admin-mobile-menu-toggle {
                 html = adminNotesCard + html;
 
                 $('#packageDetailsContent').html(html);
+
+                if (hasClubLifterId) {
+                    window.fetchClubLifterCustomerStatus(clublifterCustomerId, $('#packageDetailsModal'));
+                }
                 $('#packageDetailsModal').data('pdfPayload', {
                     title: 'Package Details - Order #' + String(orderId),
                     status: statusText,

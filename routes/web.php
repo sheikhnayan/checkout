@@ -329,6 +329,7 @@ Route::group(['prefix'=> 'admins', 'as' => 'admin.', 'middleware' => ['admin.or.
         Route::get('/{transactionId}/id-photo/{side}', [TransactionController::class, 'getIdPhoto'])->name('id-photo');
         Route::post('/{id}/update-admin-note', [TransactionController::class, 'updateAdminNote'])->name('update-admin-note');
         Route::get('/{id}/pdf', [TransactionController::class, 'downloadPdf'])->name('pdf');
+        Route::get('/clublifter-status/{customerId}', [TransactionController::class, 'getClubLifterStatus'])->name('clublifter-status');
     });
 
     Route::group(['prefix' => 'jobs', 'as' => 'jobs.'], function () {

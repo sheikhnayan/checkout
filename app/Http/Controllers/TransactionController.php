@@ -4893,6 +4893,76 @@ class TransactionController extends Controller
         ]);
     }
 
+    public function getClubLifterStatus(Request $request, $customerId)
+    {
+        $cleanId = trim((string) $customerId);
+        if ($cleanId === '' || $cleanId === 'null' || $cleanId === 'undefined') {
+            return response()->json([
+                'success' => false,
+                'message' => 'Valid Customer ID is required',
+                'status' => null,
+                'driver_note' => null,
+            ], 400);
+        }
+
+        $transaction = Transaction::withoutGlobalScopes()->where('clublifter_customer_id', $cleanId)->first();
+        if ($transaction) {
+            $this->ensureCanAccess($transaction);
+        }
+
+        try {
+            $data = app(\App\Services\ClubLifterService::class)->getCustomer($cleanId);
+
+            if (empty($data)) {
+                return response()->json([
+                    'success' => false,
+                    'message' => 'Unable to fetch ClubLifter details',
+                    'status' => null,
+                    'driver_note' => null,
+                ]);
+            }
+
+            // Defensive lookup for status across multiple possible JSON shapes
+            $status = $data['status']
+                ?? $data['customer']['status']
+                ?? $data['data']['status']
+                ?? $data['booking']['status']
+                ?? $data['ride_status']
+                ?? null;
+
+            // Defensive lookup for driver_note across multiple possible JSON shapes
+            $driverNote = $data['driver_note']
+                ?? $data['driver_notes']
+                ?? $data['customer']['driver_note']
+                ?? $data['customer']['driver_notes']
+                ?? $data['data']['driver_note']
+                ?? $data['data']['driver_notes']
+                ?? $data['booking']['driver_note']
+                ?? $data['driver']['note']
+                ?? $data['notes']
+                ?? null;
+
+            return response()->json([
+                'success' => true,
+                'customer_id' => $cleanId,
+                'status' => $status,
+                'driver_note' => $driverNote,
+                'raw' => $data,
+            ]);
+        } catch (\Throwable $e) {
+            \Log::warning('Error fetching ClubLifter status for customer ID ' . $cleanId, [
+                'error' => $e->getMessage(),
+            ]);
+
+            return response()->json([
+                'success' => false,
+                'message' => 'Error querying ClubLifter service',
+                'status' => null,
+                'driver_note' => null,
+            ], 500);
+        }
+    }
+
     public function sendRepayEmail(Request $request, $id)
     {
         $transaction = Transaction::findOrFail($id);
