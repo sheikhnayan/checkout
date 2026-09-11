@@ -402,9 +402,9 @@ class TransactionController extends Controller
         // it auto-expires so a legitimate retry (e.g. after a decline) still works.
         $idempotencyKey = 'checkout_lock:' . md5(
             $request->website_id . '|'
-            . strtolower((string) $request->input('package_email')) . '|'
-            . $this->sanitizeAmount($request->total) . '|'
-            . json_encode($request->input('cart_items'))
+                . strtolower((string) $request->input('package_email')) . '|'
+                . $this->sanitizeAmount($request->total) . '|'
+                . json_encode($request->input('cart_items'))
         );
         if (! \Illuminate\Support\Facades\Cache::add($idempotencyKey, 1, 20)) {
             return back()->with('error', 'Your previous order is still being processed. Please wait a few seconds before trying again.');
@@ -429,232 +429,229 @@ class TransactionController extends Controller
             if ($w->stripe_secret_key != null) {
                 # code...
                 $secret = $w->stripe_secret_key;
-            }else{
+            } else {
                 $secret = $setting->stripe_secret;
             }
 
             Stripe\Stripe::setApiKey($secret);
 
-                        // 3️⃣ Create a one‑time token from the raw card data
-                        // Sanitize amount ("16,000.00" -> 16000.00, not 16) and send
-                        // integer cents to Stripe.
-                        $stripeAmount = $amount;
+            // 3️⃣ Create a one‑time token from the raw card data
+            // Sanitize amount ("16,000.00" -> 16000.00, not 16) and send
+            // integer cents to Stripe.
+            $stripeAmount = $amount;
 
-                        $charge = null;
-                        if ($stripeAmount > 0) {
-                            try {
-                                $charge = Stripe\Charge::create([
-                                    "amount" => (int) round($stripeAmount * 100),
-                                    "currency" => "usd",
-                                    "source" => $request->stripeToken,
-                                    "description" => "Payment fit"
-                                ]);
-                            } catch (\Stripe\Exception\CardException $e) {
-                                \Log::warning('Stripe card declined', ['website_id' => $request->website_id, 'message' => $e->getMessage()]);
-                                return back()->with('error', 'Payment failed: ' . $e->getMessage());
-                            } catch (\Throwable $e) {
-                                \Log::error('Stripe charge error', ['website_id' => $request->website_id, 'error' => $e->getMessage()]);
-                                return back()->with('error', 'We could not process your card. You have NOT been charged. Please try again.');
-                            }
-                        }
+            $charge = null;
+            if ($stripeAmount > 0) {
+                try {
+                    $charge = Stripe\Charge::create([
+                        "amount" => (int) round($stripeAmount * 100),
+                        "currency" => "usd",
+                        "source" => $request->stripeToken,
+                        "description" => "Payment fit"
+                    ]);
+                } catch (\Stripe\Exception\CardException $e) {
+                    \Log::warning('Stripe card declined', ['website_id' => $request->website_id, 'message' => $e->getMessage()]);
+                    return back()->with('error', 'Payment failed: ' . $e->getMessage());
+                } catch (\Throwable $e) {
+                    \Log::error('Stripe charge error', ['website_id' => $request->website_id, 'error' => $e->getMessage()]);
+                    return back()->with('error', 'We could not process your card. You have NOT been charged. Please try again.');
+                }
+            }
 
-                    $transaction_id = $charge ? $charge->id : ('FREE-' . strtoupper(Str::random(16)));
-                    [$stripeCardLast4, $stripeCardBrand] = $this->extractStripeCardMeta($charge);
+            $transaction_id = $charge ? $charge->id : ('FREE-' . strtoupper(Str::random(16)));
+            [$stripeCardLast4, $stripeCardBrand] = $this->extractStripeCardMeta($charge);
 
-                    $ipAddress = $request->ip();
+            $ipAddress = $request->ip();
 
-                    $add = new Transaction();
-                    $add->transaction_id = $transaction_id;
-                    // Stripe charges are captured immediately on success (no held state).
-                    $add->payment_status = 'approved';
-                    $add->gateway_response_code = $charge ? 'stripe_succeeded' : 'free_checkout';
-                    $add->payment_card_last4 = $stripeCardLast4;
-                    $add->payment_card_brand = $stripeCardBrand;
-                    $add->ticket_qr_code = $this->generateTicketQrCode();
-                    $this->populateTransactionCustomerFields($add, $request);
-                    $add->ip_address = $ipAddress;
-                    $add->package_number_of_guest = $cartSummary['total_guests'];
-                    $add->package_use_date = $request->input('package_use_date');
-                    $add->business_company = $request->input('business_company');
-                    $add->business_vat = $request->input('business_vat');
-                    $add->business_address = $request->input('business_address');
-                    // Merge package DOB
-                    $package_month = $request->input('package_month');
-                    $package_day = $request->input('package_day');
-                    $package_year = $request->input('package_year');
-                    $add->package_dob = ($package_year && $package_month && $package_day) ? (sprintf('%04d-%02d-%02d', $package_year, $package_month, $package_day)) : null;
-                    $add->package_note = $request->input('package_note');
-                    $add->host_name = $request->input('host_name');
-                    $add->promo_code = $validatedPromoCodeId;
-                    $add->actual_total = $request->input('payment_total');
-                    $add->discounted_amount = $validatedDiscountAmount;
-                    $add->transportation_pickup_time = $isSelfDriveTransportation ? null : $request->input('transportation_pickup_time');
-                    $add->transportation_arrival_time = $requiresArrivalTime ? $request->input('transportation_arrival_time') : null;
-                    $add->transportation_address = $isSelfDriveTransportation ? null : $request->input('transportation_address');
-                    $add->transportation_phone = $isSelfDriveTransportation ? null : $derivedTransportationPhone;
-                    $add->transportation_guest = $isSelfDriveTransportation ? null : $derivedTransportationGuest;
-                    $add->transportation_note = $isSelfDriveTransportation ? null : $request->input('transportation_note');
-                    $add->addons = $cartSummary['addons_summary'];
-                    $add->package_id = $cartSummary['primary_package_id'] ?: $request->input('package_id');
-                    $add->cart_items = !empty($cartItems) ? $cartItems : null;
-                    $add->payment_address = $request->input('payment_address');
-                    $add->payment_city = $request->input('payment_city');
-                    $add->payment_state = $request->input('payment_state');
-                    $add->payment_country = $request->input('payment_country');
-                    $this->applyShippingFields($add, $request, $requiresPhysicalProducts, $shippingSameAsBilling);
-                    // Merge payment DOB
-                    $payment_month = $request->input('payment_month');
-                    $payment_day = $request->input('payment_day');
-                    $payment_year = $request->input('payment_year');
-                    $add->payment_dob = ($payment_year && $payment_month && $package_day) ? (sprintf('%04d-%02d-%02d', $payment_year, $payment_month, $payment_day)) : null;
-                    $add->payment_zip_code = $request->input('payment_zip_code');
+            $add = new Transaction();
+            $add->transaction_id = $transaction_id;
+            // Stripe charges are captured immediately on success (no held state).
+            $add->payment_status = 'approved';
+            $add->gateway_response_code = $charge ? 'stripe_succeeded' : 'free_checkout';
+            $add->payment_card_last4 = $stripeCardLast4;
+            $add->payment_card_brand = $stripeCardBrand;
+            $add->ticket_qr_code = $this->generateTicketQrCode();
+            $this->populateTransactionCustomerFields($add, $request);
+            $add->ip_address = $ipAddress;
+            $add->package_number_of_guest = $cartSummary['total_guests'];
+            $add->package_use_date = $request->input('package_use_date');
+            $add->business_company = $request->input('business_company');
+            $add->business_vat = $request->input('business_vat');
+            $add->business_address = $request->input('business_address');
+            // Merge package DOB
+            $package_month = $request->input('package_month');
+            $package_day = $request->input('package_day');
+            $package_year = $request->input('package_year');
+            $add->package_dob = ($package_year && $package_month && $package_day) ? (sprintf('%04d-%02d-%02d', $package_year, $package_month, $package_day)) : null;
+            $add->package_note = $request->input('package_note');
+            $add->host_name = $request->input('host_name');
+            $add->promo_code = $validatedPromoCodeId;
+            $add->actual_total = $request->input('payment_total');
+            $add->discounted_amount = $validatedDiscountAmount;
+            $add->transportation_pickup_time = $isSelfDriveTransportation ? null : $request->input('transportation_pickup_time');
+            $add->transportation_arrival_time = $requiresArrivalTime ? $request->input('transportation_arrival_time') : null;
+            $add->transportation_address = $isSelfDriveTransportation ? null : $request->input('transportation_address');
+            $add->transportation_phone = $isSelfDriveTransportation ? null : $derivedTransportationPhone;
+            $add->transportation_guest = $isSelfDriveTransportation ? null : $derivedTransportationGuest;
+            $add->transportation_note = $isSelfDriveTransportation ? null : $request->input('transportation_note');
+            $add->addons = $cartSummary['addons_summary'];
+            $add->package_id = $cartSummary['primary_package_id'] ?: $request->input('package_id');
+            $add->cart_items = !empty($cartItems) ? $cartItems : null;
+            $add->payment_address = $request->input('payment_address');
+            $add->payment_city = $request->input('payment_city');
+            $add->payment_state = $request->input('payment_state');
+            $add->payment_country = $request->input('payment_country');
+            $this->applyShippingFields($add, $request, $requiresPhysicalProducts, $shippingSameAsBilling);
+            // Merge payment DOB
+            $payment_month = $request->input('payment_month');
+            $payment_day = $request->input('payment_day');
+            $payment_year = $request->input('payment_year');
+            $add->payment_dob = ($payment_year && $payment_month && $package_day) ? (sprintf('%04d-%02d-%02d', $payment_year, $payment_month, $payment_day)) : null;
+            $add->payment_zip_code = $request->input('payment_zip_code');
 
-                    $event_id = $this->resolvePackageTransactionEventId($request, $selectedPackage);
-                    $website_id = $request->website_id;
+            $event_id = $this->resolvePackageTransactionEventId($request, $selectedPackage);
+            $website_id = $request->website_id;
 
 
-                    $add->event_id = $event_id;
-                    $add->website_id = $website_id;
-                    $add->total = $request->input('total');
-                    $add->addons = $cartSummary['addons_summary'];
-                    $add->type = 'package';
-                    $add->save();
-                    $this->incrementPromoUsage($validatedPromoCodeId);
-                    $this->applyReferralCommission($request, $add, (float) ($cartSummary['commission_base_amount'] ?? 0));
+            $add->event_id = $event_id;
+            $add->website_id = $website_id;
+            $add->total = $request->input('total');
+            $add->addons = $cartSummary['addons_summary'];
+            $add->type = 'package';
+            $add->save();
+            $this->incrementPromoUsage($validatedPromoCodeId);
+            $this->applyReferralCommission($request, $add, (float) ($cartSummary['commission_base_amount'] ?? 0));
 
-                    // ClubLifter: do not send transportation payload when self-drive is selected.
-                    if (!$isSelfDriveTransportation) {
-                        $this->sendClubLifterScheduleAfterResponse($add);
-                    }
+            // ClubLifter: do not send transportation payload when self-drive is selected.
+            if (!$isSelfDriveTransportation) {
+                $this->sendClubLifterScheduleAfterResponse($add);
+            }
 
-                    try {
-                        //code...
-                        // Prepare all transaction data for the email body
-                        $mailData = [
-                            'transaction_id' => $transaction_id,
-                            'package_first_name' => $add->package_first_name,
-                            'package_last_name' => $add->package_last_name,
-                            'package_phone' => $add->package_phone,
-                            'package_email' => $add->package_email,
-                            'package_use_date' => $request->input('package_use_date'),
-                            'package_dob' => $add->package_dob,
-                            'package_note' => $request->input('package_note'),
-                            'transportation_pickup_time' => $add->transportation_pickup_time,
-                            'transportation_arrival_time' => $add->transportation_arrival_time,
-                            'transportation_mode' => $requiresTransportation
-                                ? ($isSelfDriveTransportation ? 'Self Drive Selected' : 'Pickup Requested')
-                                : null,
-                            'transportation_address' => $add->transportation_address,
-                            'transportation_phone' => $add->transportation_phone,
-                            'transportation_guest' => $add->transportation_guest,
-                            'transportation_note' => $add->transportation_note,
-                            'host_name' => $request->input('host_name'),
-                            'business_company' => $add->business_company,
-                            'business_vat' => $add->business_vat,
-                            'business_address' => $add->business_address,
-                            'addons' => $cartSummary['addons_summary'],
-                            'package_id' => $cartSummary['primary_package_id'] ?: $request->input('package_id'),
-                            'cart_items' => $cartItems,
-                            'payment_first_name' => $add->payment_first_name,
-                            'payment_last_name' => $add->payment_last_name,
-                            'payment_phone' => $add->payment_phone,
-                            'payment_email' => $add->payment_email,
-                            'payment_address' => $request->input('payment_address'),
-                            'payment_city' => $request->input('payment_city'),
-                            'payment_state' => $request->input('payment_state'),
-                            'payment_country' => $request->input('payment_country'),
-                            'shipping_same_as_billing' => $add->shipping_same_as_billing,
-                            'shipping_first_name' => $add->shipping_first_name,
-                            'shipping_last_name' => $add->shipping_last_name,
-                            'shipping_phone' => $add->shipping_phone,
-                            'shipping_email' => $add->shipping_email,
-                            'shipping_address' => $add->shipping_address,
-                            'shipping_city' => $add->shipping_city,
-                            'shipping_state' => $add->shipping_state,
-                            'shipping_country' => $add->shipping_country,
-                            'shipping_zip_code' => $add->shipping_zip_code,
-                            'payment_dob' => $add->payment_dob,
-                            'payment_zip_code' => $request->input('payment_zip_code'),
-                            'event_id' => $event_id,
-                            'website_id' => $website_id,
-                            'total' => $request->input('total'),
-                            'type' => 'package',
+            try {
+                //code...
+                // Prepare all transaction data for the email body
+                $mailData = [
+                    'transaction_id' => $transaction_id,
+                    'package_first_name' => $add->package_first_name,
+                    'package_last_name' => $add->package_last_name,
+                    'package_phone' => $add->package_phone,
+                    'package_email' => $add->package_email,
+                    'package_use_date' => $request->input('package_use_date'),
+                    'package_dob' => $add->package_dob,
+                    'package_note' => $request->input('package_note'),
+                    'transportation_pickup_time' => $add->transportation_pickup_time,
+                    'transportation_arrival_time' => $add->transportation_arrival_time,
+                    'transportation_mode' => $requiresTransportation
+                        ? ($isSelfDriveTransportation ? 'Self Drive Selected' : 'Pickup Requested')
+                        : null,
+                    'transportation_address' => $add->transportation_address,
+                    'transportation_phone' => $add->transportation_phone,
+                    'transportation_guest' => $add->transportation_guest,
+                    'transportation_note' => $add->transportation_note,
+                    'host_name' => $request->input('host_name'),
+                    'business_company' => $add->business_company,
+                    'business_vat' => $add->business_vat,
+                    'business_address' => $add->business_address,
+                    'addons' => $cartSummary['addons_summary'],
+                    'package_id' => $cartSummary['primary_package_id'] ?: $request->input('package_id'),
+                    'cart_items' => $cartItems,
+                    'payment_first_name' => $add->payment_first_name,
+                    'payment_last_name' => $add->payment_last_name,
+                    'payment_phone' => $add->payment_phone,
+                    'payment_email' => $add->payment_email,
+                    'payment_address' => $request->input('payment_address'),
+                    'payment_city' => $request->input('payment_city'),
+                    'payment_state' => $request->input('payment_state'),
+                    'payment_country' => $request->input('payment_country'),
+                    'shipping_same_as_billing' => $add->shipping_same_as_billing,
+                    'shipping_first_name' => $add->shipping_first_name,
+                    'shipping_last_name' => $add->shipping_last_name,
+                    'shipping_phone' => $add->shipping_phone,
+                    'shipping_email' => $add->shipping_email,
+                    'shipping_address' => $add->shipping_address,
+                    'shipping_city' => $add->shipping_city,
+                    'shipping_state' => $add->shipping_state,
+                    'shipping_country' => $add->shipping_country,
+                    'shipping_zip_code' => $add->shipping_zip_code,
+                    'payment_dob' => $add->payment_dob,
+                    'payment_zip_code' => $request->input('payment_zip_code'),
+                    'event_id' => $event_id,
+                    'website_id' => $website_id,
+                    'total' => $request->input('total'),
+                    'type' => 'package',
+                    'ticket_qr_code' => $add->ticket_qr_code,
+                    'ticket_qr_image_url' => $this->buildTicketQrImageUrl($add->ticket_qr_code),
+                ];
+
+                $website = Website::findOrFail($website_id);
+                $mailData['club_name'] = $website->name;
+                $mailData['website_name'] = $website->name;
+                $mailData['price_breakdown'] = $this->buildPackagePriceBreakdown($add->fresh(), $website);
+
+                $this->applyWebsiteSmtpConfig($website);
+
+                // Club/manager email — no QR code
+                $mailDataNoQr = array_diff_key($mailData, array_flip(['ticket_qr_code', 'ticket_qr_image_url']));
+                $send_mail_club = new \App\Mail\TransactionMail($mailDataNoQr, $add, $cartItems, $mailData['price_breakdown'], $website, false, 'manager');
+
+                // Purchaser email — full mail with QR
+                $send_mail_purchaser = new \App\Mail\TransactionMail($mailData, $add, $cartItems, $mailData['price_breakdown'], $website, true, 'guest');
+
+                $clubEmails = collect($website->emails ?? [])
+                    ->pluck('email')
+                    ->filter(fn($email) => filter_var($email, FILTER_VALIDATE_EMAIL))
+                    ->push('hello@cartvip.com')
+                    ->unique()
+                    ->values();
+
+                foreach ($clubEmails as $clubEmail) {
+                    \Illuminate\Support\Facades\Mail::to($clubEmail)->send(clone $send_mail_club);
+                }
+
+                $purchaserEmail = $this->resolvePurchaserEmail($request, $add);
+                if ($purchaserEmail) {
+                    \Illuminate\Support\Facades\Mail::to($purchaserEmail)->send($send_mail_purchaser);
+                }
+
+                // ========== SEND SMS NOTIFICATION ==========
+                try {
+                    $purchaserPhone = $this->resolveClientSmsPhone($request, $add, false);
+                    if ($purchaserPhone) {
+                        $smsService = new \App\Services\TelnyxSmsService();
+                        $smsData = [
+                            'transaction_id' => $add->transaction_id,
+                            'club_name' => $website->name ?? 'Venue',
+                            'club_slug' => $website->slug ?? '',
+                            'package_name' => $cartSummary['package_name'] ?? 'Package',
+                            'quantity' => $request->input('quantity', 1),
+                            'package_use_date' => $add->package_use_date,
+                            'total_amount' => $add->total,
                             'ticket_qr_code' => $add->ticket_qr_code,
                             'ticket_qr_image_url' => $this->buildTicketQrImageUrl($add->ticket_qr_code),
                         ];
-
-                        $website = Website::findOrFail($website_id);
-                        $mailData['club_name'] = $website->name;
-                        $mailData['website_name'] = $website->name;
-                        $mailData['price_breakdown'] = $this->buildPackagePriceBreakdown($add->fresh(), $website);
-
-                        $this->applyWebsiteSmtpConfig($website);
-
-                        // Club/manager email — no QR code
-                        $mailDataNoQr = array_diff_key($mailData, array_flip(['ticket_qr_code', 'ticket_qr_image_url']));
-                        $send_mail_club = new \App\Mail\TransactionMail($mailDataNoQr, $add, $cartItems, $mailData['price_breakdown'], $website, false, 'manager');
-
-                        // Purchaser email — full mail with QR
-                        $send_mail_purchaser = new \App\Mail\TransactionMail($mailData, $add, $cartItems, $mailData['price_breakdown'], $website, true, 'guest');
-
-                        $clubEmails = collect($website->emails ?? [])
-                            ->pluck('email')
-                            ->filter(fn ($email) => filter_var($email, FILTER_VALIDATE_EMAIL))
-                            ->push('hello@cartvip.com')
-                            ->unique()
-                            ->values();
-
-                        foreach ($clubEmails as $clubEmail) {
-                            \Illuminate\Support\Facades\Mail::to($clubEmail)->send(clone $send_mail_club);
-                        }
-
-                        $purchaserEmail = $this->resolvePurchaserEmail($request, $add);
-                        if ($purchaserEmail) {
-                            \Illuminate\Support\Facades\Mail::to($purchaserEmail)->send($send_mail_purchaser);
-                        }
-
-                        // ========== SEND SMS NOTIFICATION ==========
-                        try {
-                            $purchaserPhone = $this->resolveClientSmsPhone($request, $add, false);
-                            if ($purchaserPhone) {
-                                $smsService = new \App\Services\TelnyxSmsService();
-                                $smsData = [
-                                    'transaction_id' => $add->transaction_id,
-                                    'club_name' => $website->name ?? 'Venue',
-                                    'club_slug' => $website->slug ?? '',
-                                    'package_name' => $cartSummary['package_name'] ?? 'Package',
-                                    'quantity' => $request->input('quantity', 1),
-                                    'package_use_date' => $add->package_use_date,
-                                    'total_amount' => $add->total,
-                                    'ticket_qr_code' => $add->ticket_qr_code,
-                                    'ticket_qr_image_url' => $this->buildTicketQrImageUrl($add->ticket_qr_code),
-                                ];
-                                $smsService->sendTransactionNotification($purchaserPhone, $smsData, 'package');
-                            }
-                        } catch (\Exception $e) {
-                            // Log but don't crash if SMS fails
-                            \Log::error('SMS failed: ' . $e->getMessage());
-                        }
-
-                        $this->sendDispatcherBookingSms($website, $add, $cartSummary['package_name'] ?? null);
-                    } catch (\Throwable $th) {
-                        // The card is already charged and the order saved at this point —
-                        // a confirmation-email failure must NOT bounce the customer back to
-                        // checkout (which risks a double charge). Log and continue.
-                        report($th);
+                        $smsService->sendTransactionNotification($purchaserPhone, $smsData, 'package');
                     }
+                } catch (\Exception $e) {
+                    // Log but don't crash if SMS fails
+                    \Log::error('SMS failed: ' . $e->getMessage());
+                }
+
+                $this->sendDispatcherBookingSms($website, $add, $cartSummary['package_name'] ?? null);
+            } catch (\Throwable $th) {
+                // The card is already charged and the order saved at this point —
+                // a confirmation-email failure must NOT bounce the customer back to
+                // checkout (which risks a double charge). Log and continue.
+                report($th);
+            }
 
 
 
 
-                    // Redirect to thank you page with transaction details
-                    return redirect()->route('thank-you')
-                        ->with('transaction', $add->fresh())
-                        ->with('website', $website)
-                        ->with('paymentType', 'full');
-
-
-
+            // Redirect to thank you page with transaction details
+            return redirect()->route('thank-you')
+                ->with('transaction', $add->fresh())
+                ->with('website', $website)
+                ->with('paymentType', 'full');
         } else {
             # code...
             if ($w->authorize_app_key != null) {
@@ -926,7 +923,7 @@ class TransactionController extends Controller
 
                         $clubEmails = collect($website->emails ?? [])
                             ->pluck('email')
-                            ->filter(fn ($email) => filter_var($email, FILTER_VALIDATE_EMAIL))
+                            ->filter(fn($email) => filter_var($email, FILTER_VALIDATE_EMAIL))
                             ->push('hello@cartvip.com')
                             ->unique()
                             ->values();
@@ -1156,7 +1153,7 @@ class TransactionController extends Controller
 
             $clubEmails = collect($website->emails ?? [])
                 ->pluck('email')
-                ->filter(fn ($email) => filter_var($email, FILTER_VALIDATE_EMAIL))
+                ->filter(fn($email) => filter_var($email, FILTER_VALIDATE_EMAIL))
                 ->push('hello@cartvip.com')
                 ->unique()
                 ->values();
@@ -1209,7 +1206,7 @@ class TransactionController extends Controller
             abort(404);
         }
         try {
-            $mailData = [ 'type' => 'package' ];
+            $mailData = ['type' => 'package'];
             $send_mail = new \App\Mail\TransactionMail($mailData);
             $send_mail->subject('Test Mail - ' . now());
             $to = 'nman0171@gmail.com';
@@ -1443,23 +1440,23 @@ class TransactionController extends Controller
         if ($user->isAdmin()) {
             $query = $showArchivedOnly ? Transaction::onlyArchived() : Transaction::query();
         } elseif ($user->isWebsiteUser() && $user->website_id) {
-            $query = Transaction::query()->where(function($query) use ($user) {
+            $query = Transaction::query()->where(function ($query) use ($user) {
                 $query->where('website_id', $user->website_id)
-                    ->orWhereHas('event', function($subQuery) use ($user) {
+                    ->orWhereHas('event', function ($subQuery) use ($user) {
                         $subQuery->where('website_id', $user->website_id);
                     })
-                    ->orWhereHas('package', function($subQuery) use ($user) {
+                    ->orWhereHas('package', function ($subQuery) use ($user) {
                         $subQuery->where('website_id', $user->website_id);
                     });
             });
         } elseif ($user->isManager()) {
             $ids = $user->accessibleWebsiteIds();
-            $query = Transaction::query()->where(function($query) use ($ids) {
+            $query = Transaction::query()->where(function ($query) use ($ids) {
                 $query->whereIn('website_id', $ids)
-                    ->orWhereHas('event', function($subQuery) use ($ids) {
+                    ->orWhereHas('event', function ($subQuery) use ($ids) {
                         $subQuery->whereIn('website_id', $ids);
                     })
-                    ->orWhereHas('package', function($subQuery) use ($ids) {
+                    ->orWhereHas('package', function ($subQuery) use ($ids) {
                         $subQuery->whereIn('website_id', $ids);
                     });
             });
@@ -1545,18 +1542,18 @@ class TransactionController extends Controller
                                 $affiliateQuery->where(function ($subQ) use ($searchNames) {
                                     foreach ($searchNames as $n) {
                                         $subQ->orWhereRaw('LOWER(display_name) LIKE ?', ["%{$n}%"])
-                                             ->orWhereHas('user', function ($uQ) use ($n) {
-                                                 $uQ->whereRaw('LOWER(name) LIKE ?', ["%{$n}%"]);
-                                             });
+                                            ->orWhereHas('user', function ($uQ) use ($n) {
+                                                $uQ->whereRaw('LOWER(name) LIKE ?', ["%{$n}%"]);
+                                            });
                                     }
                                 });
                             })->orWhereHas('entertainer', function ($entertainerQuery) use ($searchNames) {
                                 $entertainerQuery->where(function ($subQ) use ($searchNames) {
                                     foreach ($searchNames as $n) {
                                         $subQ->orWhereRaw('LOWER(display_name) LIKE ?', ["%{$n}%"])
-                                             ->orWhereHas('user', function ($uQ) use ($n) {
-                                                 $uQ->whereRaw('LOWER(name) LIKE ?', ["%{$n}%"]);
-                                             });
+                                            ->orWhereHas('user', function ($uQ) use ($n) {
+                                                $uQ->whereRaw('LOWER(name) LIKE ?', ["%{$n}%"]);
+                                            });
                                     }
                                 });
                             });
@@ -1619,7 +1616,7 @@ class TransactionController extends Controller
             } elseif ($reservationFilter === 'not_checked_in') {
                 $query->where(function ($q) {
                     $q->whereNull('checked_in_status')
-                      ->orWhere('checked_in_status', 0);
+                        ->orWhere('checked_in_status', 0);
                 })->whereNotIn('status', [0, 2]);
             }
         }
@@ -1687,134 +1684,130 @@ class TransactionController extends Controller
             # code...
             $event = Event::findOrFail($request->input('event_id'));
             $website = Website::findOrFail($event->website_id);
-        }else{
+        } else {
             $event = null;
             $website = Website::findOrFail($request->website_id);
-
         }
 
-            $ipAddress = $request->ip();
+        $ipAddress = $request->ip();
 
-            $confirmationNumber = $this->generateConfirmationNumber();
+        $confirmationNumber = $this->generateConfirmationNumber();
 
-            $new = new Transaction;
-            $new->transaction_id = $confirmationNumber;
-            $new->ticket_qr_code = $this->generateTicketQrCode();
-            $new->package_first_name = $request->input('reservation_first_name');
-            $new->package_last_name = $request->input('reservation_last_name');
-            $new->package_phone = $request->input('reservation_phone');
-            $new->package_email = $request->input('reservation_email');
-            $new->ip_address = $ipAddress;
-            // Merge package DOB
-            $package_month = $request->input('reservation_month');
-            $package_day = $request->input('reservation_day');
-            $package_year = $request->input('reservation_year');
-            $new->package_dob = ($package_year && $package_month && $package_day) ? (sprintf('%04d-%02d-%02d', $package_year, $package_month, $package_day)) : null;
-            $new->package_note = $request->input('reservation_description');
-            $new->package_use_date = $request->input('package_use_date');
-            $new->event_id = $request->input('event_id');
-            $new->website_id = $event != null ? $event->website_id : $request->website_id;
-            $new->total = 0; // No payment required for free reservations
-            $new->type = 'reservation';
-            $new->men = $request->men_count;
-            $new->women = $request->women_count;
-            $new->save();
-            $this->applyReferralCommission($request, $new);
+        $new = new Transaction;
+        $new->transaction_id = $confirmationNumber;
+        $new->ticket_qr_code = $this->generateTicketQrCode();
+        $new->package_first_name = $request->input('reservation_first_name');
+        $new->package_last_name = $request->input('reservation_last_name');
+        $new->package_phone = $request->input('reservation_phone');
+        $new->package_email = $request->input('reservation_email');
+        $new->ip_address = $ipAddress;
+        // Merge package DOB
+        $package_month = $request->input('reservation_month');
+        $package_day = $request->input('reservation_day');
+        $package_year = $request->input('reservation_year');
+        $new->package_dob = ($package_year && $package_month && $package_day) ? (sprintf('%04d-%02d-%02d', $package_year, $package_month, $package_day)) : null;
+        $new->package_note = $request->input('reservation_description');
+        $new->package_use_date = $request->input('package_use_date');
+        $new->event_id = $request->input('event_id');
+        $new->website_id = $event != null ? $event->website_id : $request->website_id;
+        $new->total = 0; // No payment required for free reservations
+        $new->type = 'reservation';
+        $new->men = $request->men_count;
+        $new->women = $request->women_count;
+        $new->save();
+        $this->applyReferralCommission($request, $new);
 
-            try {
-                        $mailData = [
-                            'transaction_id' => $confirmationNumber,
-                            'package_first_name' => $new->package_first_name,
-                            'package_last_name' => $new->package_last_name,
-                            'package_phone' => $new->package_phone,
-                            'package_email' => $new->package_email,
-                            'package_dob' => $new->package_dob,
-                            'package_note' => $new->package_note,
-                            'reservation_date' => $new->package_use_date,
-                            'package_use_date' => $new->package_use_date,
-                            'event_id' => $new->event_id,
-                            'website_id' => $new->website_id,
-                            'total' => 0,
-                            'type' => 'reservation',
-                            'ticket_qr_code' => $new->ticket_qr_code,
-                            'ticket_qr_image_url' => $this->buildTicketQrImageUrl($new->ticket_qr_code),
-                            'men' => (int) $new->men,
-                            'women' => (int) $new->women,
-                            'guest_count' => max(0, (int) $new->men) + max(0, (int) $new->women),
-                            'event_name' => optional($event)->name,
-                            'event_date' => optional($event)->date,
-                        ];
+        try {
+            $mailData = [
+                'transaction_id' => $confirmationNumber,
+                'package_first_name' => $new->package_first_name,
+                'package_last_name' => $new->package_last_name,
+                'package_phone' => $new->package_phone,
+                'package_email' => $new->package_email,
+                'package_dob' => $new->package_dob,
+                'package_note' => $new->package_note,
+                'reservation_date' => $new->package_use_date,
+                'package_use_date' => $new->package_use_date,
+                'event_id' => $new->event_id,
+                'website_id' => $new->website_id,
+                'total' => 0,
+                'type' => 'reservation',
+                'ticket_qr_code' => $new->ticket_qr_code,
+                'ticket_qr_image_url' => $this->buildTicketQrImageUrl($new->ticket_qr_code),
+                'men' => (int) $new->men,
+                'women' => (int) $new->women,
+                'guest_count' => max(0, (int) $new->men) + max(0, (int) $new->women),
+                'event_name' => optional($event)->name,
+                'event_date' => optional($event)->date,
+            ];
 
-                        $website = Website::findOrFail($new->website_id);
-                        $mailData['club_name'] = $website->name;
-                        $mailData['website_name'] = $website->name;
+            $website = Website::findOrFail($new->website_id);
+            $mailData['club_name'] = $website->name;
+            $mailData['website_name'] = $website->name;
 
-                        $this->applyWebsiteSmtpConfig($website);
+            $this->applyWebsiteSmtpConfig($website);
 
-                        $clubEmails = collect($website->emails ?? [])
-                            ->pluck('email')
-                            ->filter(fn ($email) => filter_var($email, FILTER_VALIDATE_EMAIL))
-                            ->unique()
-                            ->values();
+            $clubEmails = collect($website->emails ?? [])
+                ->pluck('email')
+                ->filter(fn($email) => filter_var($email, FILTER_VALIDATE_EMAIL))
+                ->unique()
+                ->values();
 
-                        $mailDataNoQr = array_diff_key($mailData, array_flip(['ticket_qr_code', 'ticket_qr_image_url']));
-                        $managerMail = new \App\Mail\TransactionMail($mailDataNoQr, $new, [], null, $website, false, 'manager');
-                        foreach ($clubEmails as $clubEmail) {
-                            \Illuminate\Support\Facades\Mail::to($clubEmail)->send(clone $managerMail);
-                        }
+            $mailDataNoQr = array_diff_key($mailData, array_flip(['ticket_qr_code', 'ticket_qr_image_url']));
+            $managerMail = new \App\Mail\TransactionMail($mailDataNoQr, $new, [], null, $website, false, 'manager');
+            foreach ($clubEmails as $clubEmail) {
+                \Illuminate\Support\Facades\Mail::to($clubEmail)->send(clone $managerMail);
+            }
 
-                        $guestEmail = $new->package_email;
-                        if ($guestEmail && filter_var($guestEmail, FILTER_VALIDATE_EMAIL)) {
-                            $guestMail = new \App\Mail\TransactionMail($mailData, $new, [], null, $website, true, 'guest');
-                            \Illuminate\Support\Facades\Mail::to($guestEmail)->send($guestMail);
-                        }
+            $guestEmail = $new->package_email;
+            if ($guestEmail && filter_var($guestEmail, FILTER_VALIDATE_EMAIL)) {
+                $guestMail = new \App\Mail\TransactionMail($mailData, $new, [], null, $website, true, 'guest');
+                \Illuminate\Support\Facades\Mail::to($guestEmail)->send($guestMail);
+            }
 
-                        // ========== SEND SMS NOTIFICATION ==========
-                        $guestPhone = $this->resolveClientSmsPhone($request, $new, true);
-                        \Log::info('SMS CHECK - Phone value (reservation)', ['phone' => $guestPhone, 'phone_type' => gettype($guestPhone), 'phone_empty' => empty($guestPhone)]);
-                        if ($guestPhone) {
-                            try {
-                                \Log::info('Attempting to send reservation SMS', ['phone' => $guestPhone]);
-                                $smsService = new \App\Services\TelnyxSmsService();
-                                $smsData = [
-                                    'transaction_id' => $new->transaction_id,
-                                    'club_name' => $website->name ?? 'Venue',
-                                    'club_slug' => $website->slug ?? '',
-                                    'reservation_date' => $new->package_use_date,
-                                    'men_count' => $new->men ?? $new->package_men ?? 0,
-                                    'women_count' => $new->women ?? $new->package_women ?? 0,
-                                    'total_amount' => 0,
-                                    'notes' => $new->package_note ?? '',
-                                    'ticket_qr_code' => $new->ticket_qr_code,
-                                    'ticket_qr_image_url' => $this->buildTicketQrImageUrl($new->ticket_qr_code),
-                                ];
-                                $result = $smsService->sendTransactionNotification($guestPhone, $smsData, 'reservation');
-                                \Log::info('SMS result for reservation', ['result' => $result]);
-                            } catch (\Exception $smsError) {
-                                \Log::error('SMS notification failed for reservation: ' . $smsError->getMessage(), ['trace' => $smsError->getTraceAsString()]);
-                                // Don't throw error - SMS failure shouldn't block transaction
-                            }
-                        } else {
-                            \Log::warning('No phone number provided for reservation SMS');
-                        }
+            // ========== SEND SMS NOTIFICATION ==========
+            $guestPhone = $this->resolveClientSmsPhone($request, $new, true);
+            \Log::info('SMS CHECK - Phone value (reservation)', ['phone' => $guestPhone, 'phone_type' => gettype($guestPhone), 'phone_empty' => empty($guestPhone)]);
+            if ($guestPhone) {
+                try {
+                    \Log::info('Attempting to send reservation SMS', ['phone' => $guestPhone]);
+                    $smsService = new \App\Services\TelnyxSmsService();
+                    $smsData = [
+                        'transaction_id' => $new->transaction_id,
+                        'club_name' => $website->name ?? 'Venue',
+                        'club_slug' => $website->slug ?? '',
+                        'reservation_date' => $new->package_use_date,
+                        'men_count' => $new->men ?? $new->package_men ?? 0,
+                        'women_count' => $new->women ?? $new->package_women ?? 0,
+                        'total_amount' => 0,
+                        'notes' => $new->package_note ?? '',
+                        'ticket_qr_code' => $new->ticket_qr_code,
+                        'ticket_qr_image_url' => $this->buildTicketQrImageUrl($new->ticket_qr_code),
+                    ];
+                    $result = $smsService->sendTransactionNotification($guestPhone, $smsData, 'reservation');
+                    \Log::info('SMS result for reservation', ['result' => $result]);
+                } catch (\Exception $smsError) {
+                    \Log::error('SMS notification failed for reservation: ' . $smsError->getMessage(), ['trace' => $smsError->getTraceAsString()]);
+                    // Don't throw error - SMS failure shouldn't block transaction
+                }
+            } else {
+                \Log::warning('No phone number provided for reservation SMS');
+            }
 
-                        $this->sendDispatcherBookingSms($website, $new, 'Reservation');
-                    } catch (\Throwable $th) {
-                        report($th);
-                        throw ValidationException::withMessages([
-                            'email' => 'Email delivery failed: ' . $th->getMessage(),
-                        ]);
-                    }
+            $this->sendDispatcherBookingSms($website, $new, 'Reservation');
+        } catch (\Throwable $th) {
+            report($th);
+            throw ValidationException::withMessages([
+                'email' => 'Email delivery failed: ' . $th->getMessage(),
+            ]);
+        }
 
-            // Redirect to thank you page with transaction details
-            return redirect()->route('thank-you')
-                ->with('transaction', $new->fresh())
-                ->with('website', $website)
-                ->with('paymentType', 'reservation')
-                ->with('success', 'Reservation successful!');
-
-
-
+        // Redirect to thank you page with transaction details
+        return redirect()->route('thank-you')
+            ->with('transaction', $new->fresh())
+            ->with('website', $website)
+            ->with('paymentType', 'reservation')
+            ->with('success', 'Reservation successful!');
     }
 
     public function show($id)
@@ -1914,7 +1907,7 @@ class TransactionController extends Controller
             $transaction->business_company ?? null,
             $transaction->business_vat ?? null,
             $transaction->business_address ?? null,
-        ], static fn ($v) => trim((string) $v) !== '')));
+        ], static fn($v) => trim((string) $v) !== '')));
 
         $row = static function (string $label, string $value): string {
             return '<div class="txn-detail-row"><span class="txn-detail-label">' . $label . '</span><span class="txn-detail-value">' . $value . '</span></div>';
@@ -2006,7 +1999,7 @@ class TransactionController extends Controller
             $transaction->payment_city ?? null,
             $transaction->payment_state ?? null,
             $transaction->payment_zip_code ?? null,
-        ], static fn ($v) => trim((string) $v) !== '')))));
+        ], static fn($v) => trim((string) $v) !== '')))));
         $html .= $row('Payment Country', $esc($transaction->payment_country ?: 'N/A'));
         $html .= $row('Card Brand', $esc($transaction->payment_card_brand ?: 'N/A'));
         $html .= $row('Card Last 4', $esc($transaction->payment_card_last4 ?: 'N/A'));
@@ -2142,7 +2135,7 @@ class TransactionController extends Controller
             'transaction_ids.*' => ['integer'],
         ]);
 
-        $ids = collect($validated['transaction_ids'] ?? [])->map(fn ($id) => (int) $id)->unique()->values();
+        $ids = collect($validated['transaction_ids'] ?? [])->map(fn($id) => (int) $id)->unique()->values();
         if ($ids->isEmpty()) {
             return back()->with('error', 'No transactions selected.');
         }
@@ -2184,7 +2177,7 @@ class TransactionController extends Controller
             'transaction_ids.*' => ['integer'],
         ]);
 
-        $ids = collect($validated['transaction_ids'] ?? [])->map(fn ($id) => (int) $id)->unique()->values();
+        $ids = collect($validated['transaction_ids'] ?? [])->map(fn($id) => (int) $id)->unique()->values();
         if ($ids->isEmpty()) {
             return back()->with('error', 'No transactions selected.');
         }
@@ -2643,9 +2636,9 @@ class TransactionController extends Controller
 
             $package = Package::find($packageId);
             $addons = collect(explode(',', (string) $request->input('addons')))
-                ->map(fn ($name) => trim($name))
+                ->map(fn($name) => trim($name))
                 ->filter()
-                ->map(fn ($name) => ['name' => $name])
+                ->map(fn($name) => ['name' => $name])
                 ->values()
                 ->all();
 
@@ -2736,8 +2729,8 @@ class TransactionController extends Controller
             return max(1, (int) ($item['guests'] ?? 1));
         });
         $addonsSummary = collect($cartItems)
-            ->flatMap(fn (array $item) => $item['addons'] ?? [])
-            ->map(fn (array $addon) => trim((string) ($addon['name'] ?? '')))
+            ->flatMap(fn(array $item) => $item['addons'] ?? [])
+            ->map(fn(array $addon) => trim((string) ($addon['name'] ?? '')))
             ->filter()
             ->implode(', ');
 
@@ -2902,15 +2895,15 @@ class TransactionController extends Controller
     public function sendConfirmationEmailForTransaction(Transaction $transaction): int
     {
         $transaction = $transaction->fresh();
-        
+
         // Auto-correct website_id if package owner club differs
-        $cartItems = is_array($transaction->cart_items) 
-            ? $transaction->cart_items 
+        $cartItems = is_array($transaction->cart_items)
+            ? $transaction->cart_items
             : (json_decode($transaction->cart_items, true) ?: []);
-            
+
         $pkgId = $transaction->package_id ?: ($cartItems[0]['package_id'] ?? null);
         $pkgName = $cartItems[0]['package_name'] ?? ($cartItems[0]['name'] ?? null);
-        
+
         $p = null;
         if ($pkgId) {
             $p = Package::find($pkgId);
@@ -2994,9 +2987,9 @@ class TransactionController extends Controller
         // Send copy to venue manager email(s)
         $mailDataNoQr = array_diff_key($mailData, array_flip(['ticket_qr_code', 'ticket_qr_image_url']));
         $send_mail_club = new \App\Mail\TransactionMail($mailDataNoQr, $transaction, $cartItems, $mailData['price_breakdown'], $website, false, 'manager');
-        
+
         $clubEmails = collect($website->emails ?? [])
-            ->filter(fn ($email) => filter_var($email, FILTER_VALIDATE_EMAIL))
+            ->filter(fn($email) => filter_var($email, FILTER_VALIDATE_EMAIL))
             ->values()
             ->all();
 
@@ -3310,7 +3303,8 @@ class TransactionController extends Controller
         if (trim($dateStr) !== '') {
             try {
                 $dayName = strtolower(Carbon::parse($dateStr)->format('l'));
-            } catch (\Throwable $e) {}
+            } catch (\Throwable $e) {
+            }
         }
 
         $sched = $website->getScheduleForDay($dayName);
@@ -3339,7 +3333,8 @@ class TransactionController extends Controller
         if (trim($dateStr) !== '') {
             try {
                 $dayName = strtolower(Carbon::parse($dateStr)->format('l'));
-            } catch (\Throwable $e) {}
+            } catch (\Throwable $e) {
+            }
         }
 
         $sched = $website->getScheduleForDay($dayName);
@@ -3367,8 +3362,8 @@ class TransactionController extends Controller
         $validDays = ['monday', 'tuesday', 'wednesday', 'thursday', 'friday', 'saturday', 'sunday'];
 
         return collect((array) $website->operating_days)
-            ->map(fn ($day) => strtolower(trim((string) $day)))
-            ->filter(fn ($day) => in_array($day, $validDays, true))
+            ->map(fn($day) => strtolower(trim((string) $day)))
+            ->filter(fn($day) => in_array($day, $validDays, true))
             ->unique()
             ->values()
             ->all();
@@ -3900,7 +3895,7 @@ class TransactionController extends Controller
             $transaction->website_id !== null ? (int) $transaction->website_id : null,
             $transaction->event ? (int) $transaction->event->website_id : null,
             $transaction->package ? (int) $transaction->package->website_id : null,
-        ], fn ($v) => $v !== null)));
+        ], fn($v) => $v !== null)));
     }
 
     /**
@@ -4036,11 +4031,11 @@ class TransactionController extends Controller
                         'price' => round($linePrice, 2),
                     ];
                 })
-                ->filter(fn ($addon) => $addon !== null && $addon['name'] !== '')
+                ->filter(fn($addon) => $addon !== null && $addon['name'] !== '')
                 ->values()
                 ->all();
 
-            $addonsTotal = collect($addons)->sum(fn ($addon) => (float) ($addon['price'] ?? 0));
+            $addonsTotal = collect($addons)->sum(fn($addon) => (float) ($addon['price'] ?? 0));
             $lineTotal = $packageSubtotal + $addonsTotal;
 
             $packagesSubtotal += $packageSubtotal;
@@ -4160,7 +4155,7 @@ class TransactionController extends Controller
      */
     private function sendClubLifterScheduleAfterResponse(Transaction $add): void
     {
-        return;
+        // return;
         try {
             if (! $this->shouldSendClubLifterForTransaction($add)) {
                 return;
@@ -4176,10 +4171,24 @@ class TransactionController extends Controller
                 try {
                     $result = app(\App\Services\ClubLifterService::class)->schedule($payload);
                     if (is_array($result) && ! empty($result['customer_id'])) {
+                        $clublifterCustomerId = (string) $result['customer_id'];
+
                         \Log::info('ClubLifter booking created', [
                             'transaction_id' => $txnId,
-                            'clublifter_customer_id' => $result['customer_id'],
+                            'clublifter_customer_id' => $clublifterCustomerId,
                         ]);
+
+                        try {
+                            Transaction::withoutGlobalScopes()
+                                ->where('id', $txnId)
+                                ->update(['clublifter_customer_id' => $clublifterCustomerId]);
+                        } catch (\Throwable $dbEx) {
+                            \Log::warning('ClubLifter customer_id save failed', [
+                                'transaction_id' => $txnId,
+                                'clublifter_customer_id' => $clublifterCustomerId,
+                                'error' => $dbEx->getMessage(),
+                            ]);
+                        }
                     }
                 } catch (\Throwable $e) {
                     \Log::warning('ClubLifter schedule (deferred) failed', [
@@ -4574,12 +4583,12 @@ class TransactionController extends Controller
         }
 
         $cartItems = $this->extractCartItemsFromRequest($request);
-        $packageIds = collect($cartItems)->map(fn ($item) => (int) ($item['package_id'] ?? 0))->filter(fn ($id) => $id > 0)->unique();
+        $packageIds = collect($cartItems)->map(fn($item) => (int) ($item['package_id'] ?? 0))->filter(fn($id) => $id > 0)->unique();
 
         if (($promo->applies_to ?? PromoCode::APPLIES_TO_ALL_PACKAGES) === PromoCode::APPLIES_TO_SPECIFIC_PACKAGES) {
             $allowedPackageIds = collect((array) ($promo->applies_to_package_ids ?? []))
-                ->map(fn ($id) => (int) $id)
-                ->filter(fn ($id) => $id > 0)
+                ->map(fn($id) => (int) $id)
+                ->filter(fn($id) => $id > 0)
                 ->unique();
 
             if ($allowedPackageIds->isEmpty() || $packageIds->intersect($allowedPackageIds)->isEmpty()) {
@@ -4591,7 +4600,7 @@ class TransactionController extends Controller
 
         $cartSubtotal = $this->calculateCartItemsSubtotal($cartItems);
 
-        $cartQuantity = collect($cartItems)->sum(fn (array $item) => max(1, (int) ($item['guests'] ?? 1)));
+        $cartQuantity = collect($cartItems)->sum(fn(array $item) => max(1, (int) ($item['guests'] ?? 1)));
         $minReqType = (string) ($promo->min_requirement_type ?? PromoCode::MIN_REQUIREMENT_NONE);
 
         if ($minReqType === PromoCode::MIN_REQUIREMENT_AMOUNT) {
@@ -4639,7 +4648,7 @@ class TransactionController extends Controller
             $isMultiple = $this->isTruthy($item['is_multiple'] ?? false);
             $unitPrice = (float) ($item['unit_price'] ?? 0);
             $line = $isMultiple ? $unitPrice * $guests : $unitPrice;
-            $addons = collect((array) ($item['addons'] ?? []))->sum(fn ($addon) => (float) ($addon['price'] ?? 0));
+            $addons = collect((array) ($item['addons'] ?? []))->sum(fn($addon) => (float) ($addon['price'] ?? 0));
 
             return $line + $addons;
         });
@@ -5042,4 +5051,3 @@ class TransactionController extends Controller
         return back()->with('success', "Transaction #{$transaction->id} flagged as {$statusText}.");
     }
 }
-
