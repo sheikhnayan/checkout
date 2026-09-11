@@ -4181,8 +4181,19 @@ class TransactionController extends Controller
             }
 
             $txnId = $add->id;
+            \Log::info('ClubLifter schedule payload built', [
+                'transaction_id' => $txnId,
+                'payload' => $payload,
+                'payload_json' => json_encode($payload, JSON_PRETTY_PRINT | JSON_UNESCAPED_SLASHES),
+            ]);
+
             app()->terminating(function () use ($payload, $txnId) {
                 try {
+                    \Log::info('ClubLifter schedule sending request', [
+                        'transaction_id' => $txnId,
+                        'payload' => $payload,
+                        'payload_json' => json_encode($payload, JSON_PRETTY_PRINT | JSON_UNESCAPED_SLASHES),
+                    ]);
                     $result = app(\App\Services\ClubLifterService::class)->schedule($payload);
                     if (is_array($result) && ! empty($result['customer_id'])) {
                         $clublifterCustomerId = (string) $result['customer_id'];

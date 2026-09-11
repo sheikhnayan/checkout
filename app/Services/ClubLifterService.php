@@ -96,6 +96,14 @@ class ClubLifterService
         }
 
         $base = rtrim((string) config('services.clublifter.base_url', 'https://www.clublifter.com'), '/');
+        $requestJson = ! empty($payload) ? json_encode($payload, JSON_PRETTY_PRINT | JSON_UNESCAPED_SLASHES) : null;
+
+        Log::info('ClubLifter: Outgoing API request', [
+            'method' => strtoupper($method),
+            'url' => $base . $path,
+            'payload' => $payload,
+            'payload_json' => $requestJson,
+        ]);
 
         try {
             $http = Http::withHeaders(['X-API-Key' => $key])
@@ -117,15 +125,27 @@ class ClubLifterService
                 Log::warning('ClubLifter: API returned an error', [
                     'path' => $path,
                     'status' => $response->status(),
-                    'body' => $data,
+                    'request_payload' => $payload,
+                    'request_payload_json' => $requestJson,
+                    'response_body' => $data ?? $response->body(),
                 ]);
                 return null;
             }
+
+            Log::info('ClubLifter: API response success', [
+                'path' => $path,
+                'status' => $response->status(),
+                'request_payload' => $payload,
+                'request_payload_json' => $requestJson,
+                'response_data' => $data,
+            ]);
 
             return is_array($data) ? $data : null;
         } catch (\Throwable $e) {
             Log::warning('ClubLifter: API request failed', [
                 'path' => $path,
+                'request_payload' => $payload,
+                'request_payload_json' => $requestJson,
                 'error' => $e->getMessage(),
             ]);
             return null;
