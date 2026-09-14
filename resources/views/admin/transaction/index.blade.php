@@ -2074,6 +2074,14 @@ body.modal-open .admin-mobile-menu-toggle {
                         </tr>
                     </thead>
                     <tbody>
+                        @php
+                            $preloadedPackages = \App\Models\Package::all(['id', 'name', 'description', 'package_type']);
+                            $preloadedPackagesById = $preloadedPackages->keyBy('id');
+                            $preloadedPackagesByName = $preloadedPackages->keyBy(fn ($pkg) => strtolower(trim((string) ($pkg->name ?? ''))));
+
+                            $preloadedAddonsById = \App\Models\Addon::all(['id', 'name'])->keyBy(fn ($addon) => (string) $addon->id);
+                            $preloadedPromoCodesById = \App\Models\PromoCode::all(['id', 'name'])->keyBy(fn ($promo) => (string) $promo->id);
+                        @endphp
                         @forelse($data as $item)
                         @php
                             try {
@@ -2098,7 +2106,7 @@ body.modal-open .admin-mobile-menu-toggle {
                                 $venueName   = $item->website->name ?? ($item->event->name ?? 'N/A');
 
                                 $cartItems = is_array($item->cart_items ?? null) ? $item->cart_items : json_decode($item->cart_items ?? '[]', true);
-                                $packageDetails = collect($cartItems)->map(function ($ci) {
+                                $packageDetails = collect($cartItems)->map(function ($ci) use ($preloadedPackagesById) {
                                     if (!is_array($ci)) {
                                         return null;
                                     }
@@ -2111,7 +2119,7 @@ body.modal-open .admin-mobile-menu-toggle {
                                     $quantity = max(1, (int) ($ci['quantity'] ?? $ci['guests'] ?? 1));
                                     $packageType = strtolower(trim((string) ($ci['package_type'] ?? $ci['type'] ?? $ci['packageType'] ?? '')));
                                     if ($packageType === '' && !empty($ci['package_id'])) {
-                                        $package = \App\Models\Package::find((int) $ci['package_id']);
+                                        $package = $preloadedPackagesById->get((int) $ci['package_id']);
                                         $packageType = $package ? strtolower(trim((string) ($package->package_type ?? ''))) : '';
                                     }
 
@@ -2132,9 +2140,7 @@ body.modal-open .admin-mobile-menu-toggle {
                                     ->unique()
                                     ->values();
 
-                                $packageRows = $packageIds->isNotEmpty()
-                                    ? \App\Models\Package::whereIn('id', $packageIds)->get(['id', 'name', 'description'])
-                                    : collect();
+                                $packageRows = $packageIds->map(fn ($id) => $preloadedPackagesById->get($id))->filter()->values();
 
                                 $packageNames = collect($cartItems)
                                     ->map(fn ($ci) => trim((string) ($ci['package_name'] ?? $ci['packageName'] ?? $ci['pkgName'] ?? '')))
@@ -2142,9 +2148,7 @@ body.modal-open .admin-mobile-menu-toggle {
                                     ->unique()
                                     ->values();
 
-                                $packageRowsByName = $packageNames->isNotEmpty()
-                                    ? \App\Models\Package::whereIn('name', $packageNames)->get(['id', 'name', 'description'])
-                                    : collect();
+                                $packageRowsByName = $packageNames->map(fn ($name) => $preloadedPackagesByName->get(strtolower($name)))->filter()->values();
 
                                 $packageDescriptionsById = $packageRows
                                     ->mapWithKeys(fn ($pkg) => [(string) $pkg->id => (string) ($pkg->description ?? '')])
@@ -2192,11 +2196,15 @@ body.modal-open .admin-mobile-menu-toggle {
                                 $addons = collect($cartItems)->flatMap(fn($ci) => $ci['addons'] ?? [])->pluck('name')->filter()->implode(', ');
                                 if ($addons === '') {
                                     foreach (explode(',', (string)$item->addons) as $av) {
-                                        $ao = \App\Models\Addon::find(trim($av));
-                                        if ($ao) $addons .= ($addons !== '' ? ', ' : '') . $ao->name;
+                                        $addonKey = trim((string)$av);
+                                        if ($addonKey !== '' && $preloadedAddonsById->has($addonKey)) {
+                                            $ao = $preloadedAddonsById->get($addonKey);
+                                            if ($ao) $addons .= ($addons !== '' ? ', ' : '') . $ao->name;
+                                        }
                                     }
                                 }
-                                $promo_obj = \App\Models\PromoCode::where('id', $item->promo_code)->first();
+                                $promoKey = !empty($item->promo_code) ? (string)$item->promo_code : null;
+                                $promo_obj = ($promoKey && $preloadedPromoCodesById->has($promoKey)) ? $preloadedPromoCodesById->get($promoKey) : null;
                                 $promo_code_name = $promo_obj ? $promo_obj->name : null;
 
                                 // Payout lifecycle
