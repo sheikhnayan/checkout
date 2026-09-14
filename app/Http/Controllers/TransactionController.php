@@ -1421,37 +1421,9 @@ class TransactionController extends Controller
             && strtolower(trim((string) (auth()->user()->email ?? ''))) === 'admin@admin.com';
         $isArchivedView = $request->boolean('archived') && $canArchiveTransactions;
 
-        if ($request->ajax() || $request->boolean('load_data')) {
-            $data = $this->getAccessibleTransactionList($request);
-            return response()->json([
-                'success' => true,
-                'html' => view('admin.transaction.partials.table_rows', [
-                    'data' => $data,
-                    'canArchiveTransactions' => $canArchiveTransactions,
-                    'isArchivedView' => $isArchivedView,
-                    'isPayoutPage' => false,
-                ])->render(),
-                'total' => $data->count(),
-            ]);
-        }
-
+        $data = $this->getAccessibleTransactionList($request);
         $accessibleWebsites = $this->getAccessibleWebsitesForUser(auth()->user());
         $referralRows = $this->getFilterReferralNames();
-
-        if (!$request->boolean('no_async')) {
-            return view('admin.transaction.index', [
-                'data' => collect(),
-                'isInitialShell' => true,
-                'canArchiveTransactions' => $canArchiveTransactions,
-                'isArchivedView' => $isArchivedView,
-                'accessibleWebsites' => $accessibleWebsites,
-                'referralRows' => $referralRows,
-                'dashboardTitle' => 'Transactions Dashboard',
-                'dashboardSubtitle' => "Here's what's happening with your transaction performance.",
-            ]);
-        }
-
-        $data = $this->getAccessibleTransactionList($request);
 
         return view('admin.transaction.index', [
             'data' => $data,
@@ -1474,42 +1446,12 @@ class TransactionController extends Controller
             && strtolower(trim((string) (auth()->user()->email ?? ''))) === 'admin@admin.com';
         $isArchivedView = $request->boolean('archived') && $canArchiveTransactions;
 
-        if ($request->ajax() || $request->boolean('load_data')) {
-            $data = $this->getAccessibleTransactionList($request, function ($query) {
-                $query->whereNotNull('affiliate_id');
-            });
-            return response()->json([
-                'success' => true,
-                'html' => view('admin.transaction.partials.table_rows', [
-                    'data' => $data,
-                    'canArchiveTransactions' => $canArchiveTransactions,
-                    'isArchivedView' => $isArchivedView,
-                    'isPayoutPage' => true,
-                ])->render(),
-                'total' => $data->count(),
-            ]);
-        }
-
-        $accessibleWebsites = $this->getAccessibleWebsitesForUser(auth()->user());
-        $referralRows = $this->getFilterReferralNames();
-
-        if (!$request->boolean('no_async')) {
-            return view('admin.transaction.index', [
-                'data' => collect(),
-                'isInitialShell' => true,
-                'canArchiveTransactions' => $canArchiveTransactions,
-                'isArchivedView' => $isArchivedView,
-                'accessibleWebsites' => $accessibleWebsites,
-                'referralRows' => $referralRows,
-                'dashboardTitle' => 'affiliate Transactions',
-                'dashboardSubtitle' => 'Only affiliate-referred transactions are listed here.',
-                'isPayoutPage' => true,
-            ]);
-        }
-
         $data = $this->getAccessibleTransactionList($request, function ($query) {
             $query->whereNotNull('affiliate_id');
         });
+
+        $accessibleWebsites = $this->getAccessibleWebsitesForUser(auth()->user());
+        $referralRows = $this->getFilterReferralNames();
 
         return view('admin.transaction.index', [
             'data' => $data,
@@ -1533,42 +1475,12 @@ class TransactionController extends Controller
             && strtolower(trim((string) (auth()->user()->email ?? ''))) === 'admin@admin.com';
         $isArchivedView = $request->boolean('archived') && $canArchiveTransactions;
 
-        if ($request->ajax() || $request->boolean('load_data')) {
-            $data = $this->getAccessibleTransactionList($request, function ($query) {
-                $query->whereNotNull('entertainer_id');
-            });
-            return response()->json([
-                'success' => true,
-                'html' => view('admin.transaction.partials.table_rows', [
-                    'data' => $data,
-                    'canArchiveTransactions' => $canArchiveTransactions,
-                    'isArchivedView' => $isArchivedView,
-                    'isPayoutPage' => true,
-                ])->render(),
-                'total' => $data->count(),
-            ]);
-        }
-
-        $accessibleWebsites = $this->getAccessibleWebsitesForUser(auth()->user());
-        $referralRows = $this->getFilterReferralNames();
-
-        if (!$request->boolean('no_async')) {
-            return view('admin.transaction.index', [
-                'data' => collect(),
-                'isInitialShell' => true,
-                'canArchiveTransactions' => $canArchiveTransactions,
-                'isArchivedView' => $isArchivedView,
-                'accessibleWebsites' => $accessibleWebsites,
-                'referralRows' => $referralRows,
-                'dashboardTitle' => 'Entertainer Transactions',
-                'dashboardSubtitle' => 'Only entertainer-referred transactions are listed here.',
-                'isPayoutPage' => true,
-            ]);
-        }
-
         $data = $this->getAccessibleTransactionList($request, function ($query) {
             $query->whereNotNull('entertainer_id');
         });
+
+        $accessibleWebsites = $this->getAccessibleWebsitesForUser(auth()->user());
+        $referralRows = $this->getFilterReferralNames();
 
         return view('admin.transaction.index', [
             'data' => $data,
