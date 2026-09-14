@@ -2039,20 +2039,20 @@ body.modal-open .admin-mobile-menu-toggle {
             @endphp
 
             {{-- Eager Loading Progress Bar & Status State --}}
-            <div id="txnLoadingState" class="p-3 mb-3 rounded-3" style="background: rgba(15,23,42,0.75); border: 1px solid rgba(139,92,246,0.3); backdrop-filter: blur(12px); box-shadow: 0 8px 32px rgba(0,0,0,0.3); {{ $isShellRender ? '' : 'display:none;' }}">
+            <div id="txnLoadingState" class="p-3 mb-3 rounded-3" style="background: rgba(15,23,42,0.75); border: 1px solid rgba(139,92,246,0.3); backdrop-filter: blur(12px); box-shadow: 0 8px 32px rgba(0,0,0,0.3);">
                 <div class="d-flex align-items-center justify-content-between mb-2">
                     <div class="d-flex align-items-center gap-2">
                         <div class="spinner-border text-purple spinner-border-sm" role="status" style="width: 1.1rem; height: 1.1rem; border-width: 2.5px; color: #a855f7 !important;">
                             <span class="visually-hidden">Loading...</span>
                         </div>
                         <span class="fw-semibold text-white small" id="txnLoadingMessage" style="letter-spacing: -0.01em;">
-                            Fetching transactions & analytics...
+                            Initializing transactions & analytics...
                         </span>
                     </div>
-                    <span class="text-white-50 small fw-bold" id="txnLoadingPercentage" style="font-family: ui-monospace, monospace; font-size: 0.8rem; color: #c084fc !important;">20%</span>
+                    <span class="text-white-50 small fw-bold" id="txnLoadingPercentage" style="font-family: ui-monospace, monospace; font-size: 0.8rem; color: #c084fc !important;">100%</span>
                 </div>
                 <div class="progress" style="height: 6px; background: rgba(255,255,255,0.08); border-radius: 999px; overflow: hidden;">
-                    <div id="txnProgressBar" class="progress-bar progress-bar-striped progress-bar-animated" role="progressbar" style="width: 20%; background: linear-gradient(90deg, #8b5cf6, #38bdf8, #ec4899); transition: width 0.3s ease;"></div>
+                    <div id="txnProgressBar" class="progress-bar progress-bar-striped progress-bar-animated" role="progressbar" style="width: 100%; background: linear-gradient(90deg, #8b5cf6, #38bdf8, #ec4899); transition: width 0.3s ease;"></div>
                 </div>
             </div>
 
@@ -2093,7 +2093,7 @@ body.modal-open .admin-mobile-menu-toggle {
                         </tr>
                     </thead>
                     <tbody>
-                        @if(!$isShellRender && isset($data) && $data->count() > 0)
+                        @if(isset($data) && $data->count() > 0)
                             @include('admin.transaction.partials.rows', [
                                 'data' => $data,
                                 'canArchiveTransactions' => $canArchiveTransactions,
@@ -2731,8 +2731,6 @@ body.modal-open .admin-mobile-menu-toggle {
                 }
                 let table = null;
                 window.table = null;
-                const isShellRender = {{ $isShellRender ? 'true' : 'false' }};
-
                 function runDataTableInit() {
                     if (window.table) return;
 
@@ -2785,92 +2783,18 @@ body.modal-open .admin-mobile-menu-toggle {
                     }, 150);
                 }
 
-                if (isShellRender) {
-                    let currentProgress = 25;
-                    const progressTimer = setInterval(function() {
-                        if (currentProgress < 75) {
-                            currentProgress += Math.floor(Math.random() * 6) + 4;
-                        } else if (currentProgress < 90) {
-                            currentProgress += Math.floor(Math.random() * 3) + 1;
-                        } else if (currentProgress < 98) {
-                            currentProgress += 1;
-                        }
-                        $('#txnProgressBar').css('width', currentProgress + '%');
-                        $('#txnLoadingPercentage').text(currentProgress + '%');
-                    }, 160);
+                runStatCardCountUp();
+                runDataTableInit();
 
-                    const currentUrl = new URL(window.location.href);
-                    currentUrl.searchParams.set('lazy_load', '1');
-
-                    $.ajax({
-                        url: currentUrl.toString(),
-                        type: 'GET',
-                        timeout: 30000,
-                        headers: { 'X-Requested-With': 'XMLHttpRequest' },
-                        success: function(res) {
-                            clearInterval(progressTimer);
-                            $('#txnProgressBar').css('width', '100%');
-                            $('#txnLoadingPercentage').text('100%');
-                            $('#txnLoadingMessage').html('<i class="fas fa-check-circle text-success me-1"></i> Loaded ' + (res.totalCount || 0) + ' transactions');
-
-                            if (res && res.rows_html) {
-                                $('#txnDataTable tbody').html(res.rows_html);
-                            }
-
-                            // Populate KPI values
-                            if (res && res.todayRevenueFormatted) {
-                                $('#shopifySalesVal').text(res.todayRevenueFormatted);
-                            }
-                            if (res && res.todayTxns !== undefined) {
-                                $('#shopifyOrdersVal').text(Number(res.todayTxns).toLocaleString());
-                            }
-                            if (res && res.todayGuests !== undefined) {
-                                $('#shopifyGuestsVal').text(Number(res.todayGuests).toLocaleString());
-                            }
-                            if (res && res.todaySessions !== undefined) {
-                                $('#shopifySessionsVal').text(Number(res.todaySessions).toLocaleString());
-                            }
-                            if (res && res.todayConv !== undefined) {
-                                $('#shopifyConversionVal').text(Number(res.todayConv).toFixed(2) + '%');
-                            }
-
-                            // Append any new promoters to filter dropdown
-                            if (res && Array.isArray(res.promoters)) {
-                                res.promoters.forEach(function(promoterName) {
-                                    if (!$('.polaris-filter-cb[data-category="affiliate"][value="' + promoterName + '"]').length) {
-                                        $('#affiliateFilterList').append(
-                                            '<li class="px-2 py-1"><label class="d-flex align-items-center gap-2 small text-white-50 cursor-pointer">' +
-                                            '<input type="checkbox" class="polaris-filter-cb form-check-input" data-category="affiliate" value="' + promoterName + '">' +
-                                            '<span>' + promoterName + '</span></label></li>'
-                                        );
-                                    }
-                                });
-                            }
-
-                            // Initialize DataTable on the populated rows
-                            runDataTableInit();
-
-                            // Smooth slide up of progress bar
-                            setTimeout(function() {
-                                $('#txnLoadingState').slideUp(350);
-                            }, 400);
-                        },
-                        error: function(xhr, status, error) {
-                            clearInterval(progressTimer);
-                            console.warn('Lazy load notice:', status, error);
-                            $('#txnProgressBar').css('background', 'linear-gradient(90deg, #f59e0b, #ef4444)');
-                            $('#txnLoadingMessage').html('<i class="fas fa-sync-alt fa-spin me-1"></i> Finalizing transaction data...');
-                            setTimeout(function() {
-                                const fallbackUrl = new URL(window.location.href);
-                                fallbackUrl.searchParams.set('no_lazy', '1');
-                                window.location.href = fallbackUrl.toString();
-                            }, 500);
-                        }
-                    });
-                } else {
-                    runStatCardCountUp();
-                    runDataTableInit();
-                }
+                // Smooth slide up of the eager loading state bar
+                setTimeout(function() {
+                    $('#txnProgressBar').css('width', '100%');
+                    $('#txnLoadingPercentage').text('100%');
+                    $('#txnLoadingMessage').html('<i class="fas fa-check-circle text-success me-1"></i> Loaded {{ isset($data) ? $data->count() : 0 }} transactions');
+                    setTimeout(function() {
+                        $('#txnLoadingState').slideUp(350);
+                    }, 400);
+                }, 200);
 
                 // Mobile Analytics Collapse Toggle Handler
                 $('#mobileAnalyticsCollapse').on('show.bs.collapse', function () {
