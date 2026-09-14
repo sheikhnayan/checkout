@@ -2788,12 +2788,16 @@ body.modal-open .admin-mobile-menu-toggle {
                 if (isShellRender) {
                     let currentProgress = 25;
                     const progressTimer = setInterval(function() {
-                        if (currentProgress < 85) {
-                            currentProgress += Math.floor(Math.random() * 8) + 4;
-                            $('#txnProgressBar').css('width', currentProgress + '%');
-                            $('#txnLoadingPercentage').text(currentProgress + '%');
+                        if (currentProgress < 75) {
+                            currentProgress += Math.floor(Math.random() * 6) + 4;
+                        } else if (currentProgress < 90) {
+                            currentProgress += Math.floor(Math.random() * 3) + 1;
+                        } else if (currentProgress < 98) {
+                            currentProgress += 1;
                         }
-                    }, 180);
+                        $('#txnProgressBar').css('width', currentProgress + '%');
+                        $('#txnLoadingPercentage').text(currentProgress + '%');
+                    }, 160);
 
                     const currentUrl = new URL(window.location.href);
                     currentUrl.searchParams.set('lazy_load', '1');
@@ -2801,6 +2805,7 @@ body.modal-open .admin-mobile-menu-toggle {
                     $.ajax({
                         url: currentUrl.toString(),
                         type: 'GET',
+                        timeout: 30000,
                         headers: { 'X-Requested-With': 'XMLHttpRequest' },
                         success: function(res) {
                             clearInterval(progressTimer);
@@ -2850,15 +2855,16 @@ body.modal-open .admin-mobile-menu-toggle {
                                 $('#txnLoadingState').slideUp(350);
                             }, 400);
                         },
-                        error: function(xhr) {
+                        error: function(xhr, status, error) {
                             clearInterval(progressTimer);
-                            $('#txnProgressBar').css('background', '#ef4444');
-                            $('#txnLoadingMessage').html('<i class="fas fa-exclamation-triangle text-danger me-1"></i> Background load issue. Falling back to full load...');
+                            console.warn('Lazy load notice:', status, error);
+                            $('#txnProgressBar').css('background', 'linear-gradient(90deg, #f59e0b, #ef4444)');
+                            $('#txnLoadingMessage').html('<i class="fas fa-sync-alt fa-spin me-1"></i> Finalizing transaction data...');
                             setTimeout(function() {
                                 const fallbackUrl = new URL(window.location.href);
                                 fallbackUrl.searchParams.set('no_lazy', '1');
                                 window.location.href = fallbackUrl.toString();
-                            }, 1200);
+                            }, 500);
                         }
                     });
                 } else {

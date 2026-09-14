@@ -1520,74 +1520,93 @@ class TransactionController extends Controller
      */
     private function renderLazyTransactionResponse(Request $request, $data, bool $isPayoutPage = false)
     {
-        $tz = 'America/Los_Angeles';
-        $now = now()->timezone($tz);
-        $reportableData = $data->where('status', 1);
+        @ini_set('memory_limit', '512M');
+        @set_time_limit(180);
 
-        $guestCountForTransaction = function ($t) {
-            $menGuests = (int) ($t->men ?? 0);
-            $womenGuests = (int) ($t->women ?? 0);
-            if ($menGuests > 0 || $womenGuests > 0) {
-                return max(0, $menGuests + $womenGuests);
-            }
-            $packageGuests = (int) ($t->package_number_of_guest ?? 0);
-            if ($packageGuests > 0) {
-                return $packageGuests;
-            }
-            return 0;
-        };
+        try {
+            $tz = 'America/Los_Angeles';
+            $now = now()->timezone($tz);
+            $reportableData = $data->where('status', 1);
 
-        $todayStart   = $now->copy()->startOfDay();
-        $todayEnd     = $now->copy()->endOfDay();
-        $todayData    = $reportableData->filter(fn($t) => $t->created_at->timezone($tz)->between($todayStart, $todayEnd));
-        $todayRevenue = (float) $todayData->sum('total');
-        $todayTxns    = (int) $todayData->count();
-        $todayGuests  = (int) $todayData->sum($guestCountForTransaction);
-        $todaySessions = $todayTxns > 0 ? max($todayTxns * 18, (int) round($todayTxns * 22.4)) : 0;
-        $todayConv    = $todaySessions > 0 ? (($todayTxns / $todaySessions) * 100) : 0;
-
-        $user = auth()->user();
-        $canArchiveTransactions = $user
-            && $user->isAdmin()
-            && strtolower(trim((string) ($user->email ?? ''))) === 'admin@admin.com';
-        $isArchivedView = $request->boolean('archived') && $canArchiveTransactions;
-
-        // Extract promoters for Polaris filter dropdown
-        $referralRows = $data->map(function ($row) {
-            if (!empty($row->affiliate_id) && !empty($row->affiliate)) {
-                if ($row->affiliate->isSubAffiliate()) {
-                    $parent = $row->affiliate->parent;
-                    $parentName = $parent ? ($parent->display_name ?: optional($parent->user)->name) : 'Main Promoter';
-                    $subName = $row->affiliate->display_name ?: optional($row->affiliate->user)->name ?: ('Sub Promoter #' . $row->affiliate_id);
-                    return $subName . ' (Main: ' . $parentName . ')';
+            $guestCountForTransaction = function ($t) {
+                $menGuests = (int) ($t->men ?? 0);
+                $womenGuests = (int) ($t->women ?? 0);
+                if ($menGuests > 0 || $womenGuests > 0) {
+                    return max(0, $menGuests + $womenGuests);
                 }
-                return $row->affiliate->display_name ?: optional($row->affiliate->user)->name ?: ('affiliate #' . $row->affiliate_id);
-            }
-            if (!empty($row->entertainer_id) && !empty($row->entertainer)) {
-                return $row->entertainer->display_name ?: optional($row->entertainer->user)->name ?: ('Entertainer #' . $row->entertainer_id);
-            }
-            return null;
-        })->filter()->unique()->values();
+                $packageGuests = (int) ($t->package_number_of_guest ?? 0);
+                if ($packageGuests > 0) {
+                    return $packageGuests;
+                }
+                return 0;
+            };
 
-        $rowsHtml = view('admin.transaction.partials.rows', [
-            'data' => $data,
-            'canArchiveTransactions' => $canArchiveTransactions,
-            'isArchivedView' => $isArchivedView,
-            'isPayoutPage' => $isPayoutPage,
-        ])->render();
+            $todayStart   = $now->copy()->startOfDay();
+            $todayEnd     = $now->copy()->endOfDay();
+            $todayData    = $reportableData->filter(fn($t) => $t->created_at->timezone($tz)->between($todayStart, $todayEnd));
+            $todayRevenue = (float) $todayData->sum('total');
+            $todayTxns    = (int) $todayData->count();
+            $todayGuests  = (int) $todayData->sum($guestCountForTransaction);
+            $todaySessions = $todayTxns > 0 ? max($todayTxns * 18, (int) round($todayTxns * 22.4)) : 0;
+            $todayConv    = $todaySessions > 0 ? (($todayTxns / $todaySessions) * 100) : 0;
 
-        return response()->json([
-            'status' => 'success',
-            'todayRevenue' => $todayRevenue,
-            'todayRevenueFormatted' => '$' . number_format($todayRevenue, 2),
-            'todayTxns' => $todayTxns,
-            'todayGuests' => $todayGuests,
-            'todaySessions' => $todaySessions,
-            'todayConv' => round($todayConv, 2),
-            'promoters' => $referralRows,
-            'totalCount' => $data->count(),
-            'rows_html' => $rowsHtml,
-        ]);
+            $user = auth()->user();
+            $canArchiveTransactions = $user
+                && $user->isAdmin()
+                && strtolower(trim((string) ($user->email ?? ''))) === 'admin@admin.com';
+            $isArchivedView = $request->boolean('archived') && $canArchiveTransactions;
+
+            // Extract promoters for Polaris filter dropdown
+            $referralRows = $data->map(function ($row) {
+                if (!empty($row->affiliate_id) && !empty($row->affiliate)) {
+                    if ($row->affiliate->isSubAffiliate()) {
+                        $parent = $row->affiliate->parent;
+                        $parentName = $parent ? ($parent->display_name ?: optional($parent->user)->name) : 'Main Promoter';
+                        $subName = $row->affiliate->display_name ?: optional($row->affiliate->user)->name ?: ('Sub Promoter #' . $row->affiliate_id);
+                        return $subName . ' (Main: ' . $parentName . ')';
+                    }
+                    return $row->affiliate->display_name ?: optional($row->affiliate->user)->name ?: ('affiliate #' . $row->affiliate_id);
+                }
+                if (!empty($row->entertainer_id) && !empty($row->entertainer)) {
+                    return $row->entertainer->display_name ?: optional($row->entertainer->user)->name ?: ('Entertainer #' . $row->entertainer_id);
+                }
+                return null;
+            })->filter()->unique()->values();
+
+            $rowsHtml = view('admin.transaction.partials.rows', [
+                'data' => $data,
+                'canArchiveTransactions' => $canArchiveTransactions,
+                'isArchivedView' => $isArchivedView,
+                'isPayoutPage' => $isPayoutPage,
+            ])->render();
+
+            if (function_exists('mb_convert_encoding')) {
+                $rowsHtml = mb_convert_encoding($rowsHtml, 'UTF-8', 'UTF-8');
+            }
+
+            return response()->json([
+                'status' => 'success',
+                'todayRevenue' => $todayRevenue,
+                'todayRevenueFormatted' => '$' . number_format($todayRevenue, 2),
+                'todayTxns' => $todayTxns,
+                'todayGuests' => $todayGuests,
+                'todaySessions' => $todaySessions,
+                'todayConv' => round($todayConv, 2),
+                'promoters' => $referralRows,
+                'totalCount' => $data->count(),
+                'rows_html' => $rowsHtml,
+            ]);
+        } catch (\Throwable $e) {
+            \Log::error('renderLazyTransactionResponse error: ' . $e->getMessage(), [
+                'file' => $e->getFile(),
+                'line' => $e->getLine(),
+            ]);
+
+            return response()->json([
+                'status' => 'error',
+                'message' => $e->getMessage(),
+            ], 500);
+        }
     }
 
     private function getAccessibleWebsitesForUser($user)

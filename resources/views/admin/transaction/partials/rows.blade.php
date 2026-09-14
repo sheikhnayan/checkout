@@ -1,14 +1,38 @@
 @php
-    // Pre-cache packages, addons, and promo codes once to eliminate thousands of N+1 queries
-    $allPackages = \App\Models\Package::all(['id', 'name', 'description', 'package_type', 'transportation']);
-    $packageById = $allPackages->keyBy('id');
-    $packageByName = $allPackages->keyBy(fn($p) => strtolower(trim($p->name)));
+    try {
+        $preloadedPackages = \App\Models\Package::all(['id', 'name', 'description', 'package_type']);
+        $packageById = $preloadedPackages->keyBy('id');
+        $packageByName = $preloadedPackages->keyBy(fn ($pkg) => strtolower(trim((string) ($pkg->name ?? ''))));
+    } catch (\Throwable $e) {
+        $packageById = collect();
+        $packageByName = collect();
+    }
 
-    $allAddons = \App\Models\Addon::all(['id', 'name']);
-    $addonById = $allAddons->keyBy('id');
+    try {
+        $addonById = \App\Models\Addon::all(['id', 'name'])->keyBy('id');
+    } catch (\Throwable $e) {
+        $addonById = collect();
+    }
 
-    $allPromoCodes = \App\Models\PromoCode::all(['id', 'name']);
-    $promoCodeById = $allPromoCodes->keyBy('id');
+    try {
+        $promoCodeById = \App\Models\PromoCode::all(['id', 'name'])->keyBy('id');
+    } catch (\Throwable $e) {
+        $promoCodeById = collect();
+    }
+
+    $formatDatePst = function ($dateVal, $format = 'M d, Y h:i A \P\D\T') {
+        if (empty($dateVal)) {
+            return '';
+        }
+        try {
+            if ($dateVal instanceof \Carbon\CarbonInterface) {
+                return $dateVal->copy()->timezone('America/Los_Angeles')->format($format);
+            }
+            return \Carbon\Carbon::parse($dateVal)->timezone('America/Los_Angeles')->format($format);
+        } catch (\Throwable $e) {
+            return '';
+        }
+    };
 @endphp
 
 @forelse($data as $item)
@@ -35,95 +59,62 @@
         $venueName   = $item->website->name ?? ($item->event->name ?? 'N/A');
 
         $cartItems = is_array($item->cart_items ?? null) ? $item->cart_items : json_decode($item->cart_items ?? '[]', true);
-        $packageDetails = collect($cartItems)->map(function ($ci) use ($packageById) {
-            if (!is_array($ci)) {
-                return null;
-            }
+        if (!is_array($cartItems)) {
+            $cartItems = [];
+        }
 
+        $packageDetailsList = [];
+        $packageDescriptionsById = [];
+        $packageDescriptionsByName = [];
+
+        foreach ($cartItems as $ci) {
+            if (!is_array($ci)) continue;
             $name = trim((string) ($ci['name'] ?? $ci['package_name'] ?? $ci['packageName'] ?? $ci['pkgName'] ?? ''));
-            if ($name === '') {
-                return null;
-            }
+            if ($name === '') continue;
 
             $quantity = max(1, (int) ($ci['quantity'] ?? $ci['guests'] ?? 1));
             $packageType = strtolower(trim((string) ($ci['package_type'] ?? $ci['type'] ?? $ci['packageType'] ?? '')));
-            if ($packageType === '' && !empty($ci['package_id'])) {
-                $package = $packageById->get((int) $ci['package_id']);
-                $packageType = $package ? strtolower(trim((string) ($package->package_type ?? ''))) : '';
+            $cid = (int) ($ci['package_id'] ?? 0);
+            $pkg = $cid > 0 ? $packageById->get($cid) : null;
+            if (!$pkg && $name !== '') {
+                $pkg = $packageByName->get(strtolower($name));
+            }
+            if ($packageType === '' && $pkg) {
+                $packageType = strtolower(trim((string) ($pkg->package_type ?? '')));
             }
 
             if ($packageType === 'ticket') {
-                return $name . ($quantity > 1 ? ' x' . $quantity : '');
+                $packageDetailsList[] = $name . ($quantity > 1 ? ' x' . $quantity : '');
+            } else {
+                $packageDetailsList[] = $name . ': ' . $quantity . ' ' . ($quantity === 1 ? 'guest' : 'guests');
             }
 
-            return $name . ': ' . $quantity . ' ' . ($quantity === 1 ? 'guest' : 'guests');
-        })->filter()->values();
+            if ($pkg && !empty($pkg->description)) {
+                $packageDescriptionsById[(string) $pkg->id] = (string) $pkg->description;
+                $packageDescriptionsByName[strtolower(trim($pkg->name))] = (string) $pkg->description;
+            }
+        }
 
-        $packageDetailsText = $packageDetails->isNotEmpty()
-            ? ($packageDetails->count() > 1 ? $packageDetails->implode(', ') : $packageDetails->first())
+        $packageDetailsText = !empty($packageDetailsList)
+            ? (count($packageDetailsList) > 1 ? implode(', ', $packageDetailsList) : $packageDetailsList[0])
             : $packageName;
-
-        $packageIds = collect($cartItems)
-            ->map(fn ($ci) => (int) ($ci['package_id'] ?? 0))
-            ->filter(fn ($id) => $id > 0)
-            ->unique()
-            ->values();
-
-        $packageRows = $packageIds->map(fn($id) => $packageById->get($id))->filter()->values();
-
-        $packageNames = collect($cartItems)
-            ->map(fn ($ci) => trim((string) ($ci['package_name'] ?? $ci['packageName'] ?? $ci['pkgName'] ?? '')))
-            ->filter(fn ($name) => $name !== '')
-            ->unique()
-            ->values();
-
-        $packageRowsByName = $packageNames->map(fn($n) => $packageByName->get(strtolower(trim($n))))->filter()->values();
-
-        $packageDescriptionsById = $packageRows
-            ->mapWithKeys(fn ($pkg) => [(string) $pkg->id => (string) ($pkg->description ?? '')])
-            ->all();
-
-        $packageDescriptionsByName = $packageRows
-            ->mapWithKeys(function ($pkg) {
-                $key = strtolower(trim((string) ($pkg->name ?? '')));
-                return $key !== '' ? [$key => (string) ($pkg->description ?? '')] : [];
-            })
-            ->all();
-
-        foreach ($packageRowsByName as $pkgByName) {
-            $nameKey = strtolower(trim((string) ($pkgByName->name ?? '')));
-            if ($nameKey === '') {
-                continue;
-            }
-
-            if (!isset($packageDescriptionsByName[$nameKey]) || trim((string) $packageDescriptionsByName[$nameKey]) === '') {
-                $packageDescriptionsByName[$nameKey] = (string) ($pkgByName->description ?? '');
-            }
-
-            $idKey = (string) ($pkgByName->id ?? '');
-            if ($idKey !== '' && (!isset($packageDescriptionsById[$idKey]) || trim((string) $packageDescriptionsById[$idKey]) === '')) {
-                $packageDescriptionsById[$idKey] = (string) ($pkgByName->description ?? '');
-            }
-        }
-
-        foreach ($cartItems as $ci) {
-            if (!is_array($ci)) {
-                continue;
-            }
-            $cid = (int) ($ci['package_id'] ?? 0);
-            $cname = strtolower(trim((string) ($ci['package_name'] ?? $ci['packageName'] ?? $ci['pkgName'] ?? '')));
-            if ($cid > 0 && $cname !== '' && isset($packageDescriptionsById[(string) $cid]) && $packageDescriptionsById[(string) $cid] !== '') {
-                $packageDescriptionsByName[$cname] = $packageDescriptionsById[(string) $cid];
-            }
-        }
 
         $packageDescriptionsPayload = [
             'byId' => $packageDescriptionsById,
             'byName' => $packageDescriptionsByName,
         ];
 
-        $addons = collect($cartItems)->flatMap(fn($ci) => $ci['addons'] ?? [])->pluck('name')->filter()->implode(', ');
-        if ($addons === '') {
+        $addons = '';
+        foreach ($cartItems as $ci) {
+            if (is_array($ci) && !empty($ci['addons']) && is_array($ci['addons'])) {
+                foreach ($ci['addons'] as $ao) {
+                    if (is_array($ao) && !empty($ao['name'])) {
+                        $addons .= ($addons !== '' ? ', ' : '') . $ao['name'];
+                    }
+                }
+            }
+        }
+        if ($addons === '' && !empty($item->addons)) {
             foreach (explode(',', (string)$item->addons) as $av) {
                 $ao = $addonById->get((int) trim($av));
                 if ($ao) $addons .= ($addons !== '' ? ', ' : '') . $ao->name;
@@ -198,20 +189,6 @@
 
         $hasAdminNoteRow = !empty(trim((string) ($item->admin_notes ?? '')));
         $hasAnyNoteRow = $hasAdminNoteRow;
-
-        $formatDatePst = function ($dateVal, $format = 'M d, Y h:i A \P\D\T') {
-            if (empty($dateVal)) {
-                return '';
-            }
-            try {
-                if ($dateVal instanceof \Carbon\CarbonInterface) {
-                    return $dateVal->copy()->timezone('America/Los_Angeles')->format($format);
-                }
-                return \Carbon\Carbon::parse($dateVal)->timezone('America/Los_Angeles')->format($format);
-            } catch (\Throwable $e) {
-                return '';
-            }
-        };
     @endphp
     <td data-order="{{ $purchaseSortOrder }}">
         <div class="txn-date-main">{{ $purchaseAtLocal?->format('M d, Y') ?? '-' }}</div>
