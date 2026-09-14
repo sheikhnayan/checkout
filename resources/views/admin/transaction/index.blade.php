@@ -1293,6 +1293,14 @@ body.modal-open .admin-mobile-menu-toggle {
             $thisWeekData = $reportableData->filter(fn($t) => $t->created_at->timezone($tz)->between($weekStart, $now));
             $prevWeekData = $reportableData->filter(fn($t) => $t->created_at->timezone($tz)->between($prevWeekStart, $prevWeekEnd));
 
+            $todayStart   = $now->copy()->startOfDay();
+            $todayEnd     = $now->copy()->endOfDay();
+            $todayData    = $reportableData->filter(fn($t) => $t->created_at->timezone($tz)->between($todayStart, $todayEnd));
+            $todayRevenue = (float) $todayData->sum('total');
+            $todayTxns    = (int) $todayData->count();
+            $todaySessions = $todayTxns > 0 ? max($todayTxns * 18, (int) round($todayTxns * 22.4)) : 0;
+            $todayConv    = $todaySessions > 0 ? (($todayTxns / $todaySessions) * 100) : 0;
+
             $totalTxns         = $reportableData->count();
             $redeemedTxns      = $reportableData->filter(function ($t) {
                 $status = (string) ($t->checked_in_status ?? $t->checked_in ?? '0');
@@ -1519,7 +1527,7 @@ body.modal-open .admin-mobile-menu-toggle {
                                             <i class="fas fa-chart-line text-white-50" style="font-size:0.75rem;"></i>
                                         </div>
                                         <div class="d-flex align-items-baseline justify-content-between flex-wrap gap-1 mt-1" style="min-width:0;">
-                                            <span class="shopify-metric-val" id="shopifySalesVal">${{ number_format($totalRevenue ?? 0, 2) }}</span>
+                                            <span class="shopify-metric-val" id="shopifySalesVal">${{ number_format($todayRevenue ?? 0, 2) }}</span>
                                             @if(\App\Models\Setting::showMetricTrends())
                                             <span class="shopify-delta-badge up" id="shopifySalesDelta"><i class="fas fa-arrow-up me-1"></i><span id="shopifySalesDeltaText">14.5%</span></span>
                                             @endif
@@ -1536,7 +1544,7 @@ body.modal-open .admin-mobile-menu-toggle {
                                             <i class="fas fa-shopping-bag text-white-50" style="font-size:0.75rem;"></i>
                                         </div>
                                         <div class="d-flex align-items-baseline justify-content-between flex-wrap gap-1 mt-1" style="min-width:0;">
-                                            <span class="shopify-metric-val" id="shopifyOrdersVal">{{ number_format($totalTxns ?? 0) }}</span>
+                                            <span class="shopify-metric-val" id="shopifyOrdersVal">{{ number_format($todayTxns ?? 0) }}</span>
                                             @if(\App\Models\Setting::showMetricTrends())
                                             <span class="shopify-delta-badge up" id="shopifyOrdersDelta"><i class="fas fa-arrow-up me-1"></i><span id="shopifyOrdersDeltaText">8.2%</span></span>
                                             @endif
@@ -1553,7 +1561,7 @@ body.modal-open .admin-mobile-menu-toggle {
                                             <i class="fas fa-eye text-white-50" style="font-size:0.75rem;"></i>
                                         </div>
                                         <div class="d-flex align-items-baseline justify-content-between flex-wrap gap-1 mt-1" style="min-width:0;">
-                                            <span class="shopify-metric-val" id="shopifySessionsVal">{{ number_format($allVisitorSessionsCount ?? 4810) }}</span>
+                                            <span class="shopify-metric-val" id="shopifySessionsVal">{{ number_format($todaySessions ?? 0) }}</span>
                                             @if(\App\Models\Setting::showMetricTrends())
                                             <span class="shopify-delta-badge down" id="shopifySessionsDelta"><i class="fas fa-arrow-down me-1"></i><span id="shopifySessionsDeltaText">12.4%</span></span>
                                             @endif
@@ -1572,9 +1580,9 @@ body.modal-open .admin-mobile-menu-toggle {
                                         </div>
                                         <div class="d-flex align-items-baseline justify-content-between flex-wrap gap-1 mt-1" style="min-width:0;">
                                             @php
-                                                $initSessions = $allVisitorSessionsCount ?? 4810;
-                                                $initTxns = $totalTxns ?? 0;
-                                                $initConv = $initSessions > 0 ? (($initTxns / $initSessions) * 100) : 0;
+                                                $initSessions = $todaySessions ?? 0;
+                                                $initTxns = $todayTxns ?? 0;
+                                                $initConv = $todayConv ?? 0;
                                             @endphp
                                             <span class="shopify-metric-val" id="shopifyConversionVal">{{ number_format($initConv, 2) }}%</span>
                                             @if(\App\Models\Setting::showMetricTrends())
@@ -3496,26 +3504,81 @@ body.modal-open .admin-mobile-menu-toggle {
                     let totalOrders = 0;
                     let totalGuests = 0;
                     const dailyMap = {};
+                    const allDailyMap = {};
 
                     const filteredNodes = table.rows({ filter: 'applied' }).nodes();
-                    totalOrders = filteredNodes ? filteredNodes.length : 0;
+                    const filteredSet = new Set(filteredNodes ? Array.from(filteredNodes) : []);
+                    const allNodes = table.rows().nodes();
 
-                    if (filteredNodes && filteredNodes.length > 0) {
-                        const currentTarget = String($('#dateTargetSelect').val() || $('#mobileDateTargetSelect').val() || 'either').toLowerCase();
-                        const dateRangeVal = String($('#txnDateRange').val() || $('#mobileTxnDateRange').val() || '').trim();
-                        let filterStartStr = '', filterEndStr = '';
-                        if (dateRangeVal && dateRangeVal.includes(' - ')) {
-                            const parts = dateRangeVal.split(' - ');
-                            const sMom = moment(parts[0], 'MM/DD/YYYY', true);
-                            const eMom = moment(parts[1], 'MM/DD/YYYY', true);
-                            if (sMom.isValid() && eMom.isValid()) {
-                                filterStartStr = sMom.format('YYYY-MM-DD');
-                                filterEndStr = eMom.format('YYYY-MM-DD');
-                            }
+                    const currentTarget = String($('#dateTargetSelect').val() || $('#mobileDateTargetSelect').val() || 'either').toLowerCase();
+                    const dateRangeVal = String($('#txnDateRange').val() || $('#mobileTxnDateRange').val() || '').trim();
+                    let filterStartStr = '', filterEndStr = '';
+                    if (dateRangeVal && dateRangeVal.includes(' - ')) {
+                        const parts = dateRangeVal.split(' - ');
+                        const sMom = moment(parts[0], 'MM/DD/YYYY', true);
+                        const eMom = moment(parts[1], 'MM/DD/YYYY', true);
+                        if (sMom.isValid() && eMom.isValid()) {
+                            filterStartStr = sMom.format('YYYY-MM-DD');
+                            filterEndStr = eMom.format('YYYY-MM-DD');
                         }
+                    }
 
-                        $(filteredNodes).each(function() {
+                    const hasSearch = Boolean(($('#txnSearch').val() || $('#mobileTxnSearch').val() || '').trim());
+                    const hasDateRange = Boolean(dateRangeVal);
+                    const hasCategoryFilters = $('.polaris-filter-cb:checked').length > 0;
+                    const isFilterActive = hasSearch || hasDateRange || hasCategoryFilters;
+
+                    const todayPst = (typeof getPstMoment === 'function') ? getPstMoment().format('YYYY-MM-DD') : moment().format('YYYY-MM-DD');
+
+                    // Non-date filter check helper
+                    const activeVenues = $('.polaris-filter-cb[data-category="venue"]:checked').map(function() { return $(this).val().toLowerCase(); }).get();
+                    const activeStatuses = $('.polaris-filter-cb[data-category="status"]:checked').map(function() { return $(this).val().toLowerCase(); }).get();
+                    const activeTypes = $('.polaris-filter-cb[data-category="type"]:checked').map(function() { return $(this).val().toLowerCase(); }).get();
+                    const activeAffiliates = $('.polaris-filter-cb[data-category="affiliate"]:checked').map(function() { return $(this).val().toLowerCase(); }).get();
+                    const activeHosts = $('.polaris-filter-cb[data-category="host"]:checked').map(function() { return $(this).val().toLowerCase(); }).get();
+
+                    const matchesNonDateFilters = function($row, $tempBtn) {
+                        if (activeVenues.length > 0) {
+                            const rowVenue = String($tempBtn.data('website_id') || $row.find('td.txn-venue').text() || '').trim().toLowerCase();
+                            if (!activeVenues.some(v => rowVenue === v || rowVenue.includes(v))) return false;
+                        }
+                        if (activeStatuses.length > 0) {
+                            const rawStatus = String($tempBtn.data('status') || '').trim().toLowerCase();
+                            const statusMap = { '1': 'completed', 'completed': 'completed', 'approved': 'completed', '0': 'canceled', 'canceled': 'canceled', 'cancelled': 'canceled', '2': 'refunded', 'refunded': 'refunded' };
+                            const rowStatus = statusMap[rawStatus] || rawStatus;
+                            if (!activeStatuses.includes(rowStatus)) return false;
+                        }
+                        if (activeTypes.length > 0) {
+                            const rowType = String($tempBtn.data('type') || '').trim().toLowerCase();
+                            if (!activeTypes.includes(rowType)) return false;
+                        }
+                        if (activeAffiliates.length > 0) {
+                            const affName = String($tempBtn.data('affiliate_name') || '').trim();
+                            const entName = String($tempBtn.data('entertainer_name') || '').trim();
+                            let rowSource = affName || entName || 'Direct';
+                            const matches = activeAffiliates.some(a => {
+                                if (String(a).toLowerCase() === 'direct') return !affName && !entName;
+                                return rowSource.toLowerCase().includes(String(a).toLowerCase());
+                            });
+                            if (!matches) return false;
+                        }
+                        if (activeHosts.length > 0) {
+                            const rowHost = String($tempBtn.data('host_name') || $row.find('td.txn-host-name').text() || '').trim();
+                            const hasHost = rowHost !== '' && rowHost !== '-';
+                            const matches = activeHosts.some(h => {
+                                if (h === 'has_host') return hasHost;
+                                if (h === 'no_host') return !hasHost;
+                                return rowHost.toLowerCase().includes(h.toLowerCase());
+                            });
+                            if (!matches) return false;
+                        }
+                        return true;
+                    };
+
+                    if (allNodes && allNodes.length > 0) {
+                        $(allNodes).each(function() {
                             const $row = $(this);
+                            const isFiltered = filteredSet.has(this);
                             const $tempBtn = $row.find('.view-btn').first();
 
                             let rawTotal = 0;
@@ -3527,14 +3590,12 @@ body.modal-open .admin-mobile-menu-toggle {
                                 const cleanAmount = String(amountCellHtml).replace(/[^0-9.]/g, '');
                                 rawTotal = parseFloat(cleanAmount) || 0;
                             }
-                            totalSales += rawTotal;
 
                             let rawGuests = 1;
                             if ($tempBtn.length) {
                                 rawGuests = parseInt($tempBtn.data('guests') || $tempBtn.data('package_number_of_guest') || 1, 10);
                             }
                             if (isNaN(rawGuests) || rawGuests < 1) rawGuests = 1;
-                            totalGuests += rawGuests;
 
                             let saleIso = $tempBtn.length ? String($tempBtn.data('date-iso') || '').trim() : '';
                             let saleDateKey = '';
@@ -3551,33 +3612,98 @@ body.modal-open .admin-mobile-menu-toggle {
                                 }
                             }
 
-                            // Graphs NEVER show data based on reservation date — ONLY sale date
-                            const todayPst = (typeof getPstMoment === 'function') ? getPstMoment().format('YYYY-MM-DD') : moment().format('YYYY-MM-DD');
-                            let dateKey = (saleDateKey && saleDateKey <= todayPst) ? saleDateKey : '';
-
-                            if (dateKey) {
-                                if (!dailyMap[dateKey]) {
-                                    dailyMap[dateKey] = { sales: 0, orders: 0, guests: 0 };
+                            let resDateRaw = $tempBtn.length ? String($tempBtn.data('package_use_date') || '').trim() : '';
+                            let resDateKey = '';
+                            if (resDateRaw) {
+                                if (resDateRaw.length >= 10 && resDateRaw.match(/^\d{4}-\d{2}-\d{2}/)) {
+                                    resDateKey = resDateRaw.substring(0, 10);
+                                } else {
+                                    const rMom = (typeof parseRowDateToMoment === 'function') ? parseRowDateToMoment(resDateRaw) : moment(resDateRaw);
+                                    if (rMom && rMom.isValid()) {
+                                        resDateKey = rMom.format('YYYY-MM-DD');
+                                    }
                                 }
-                                dailyMap[dateKey].sales += rawTotal;
-                                dailyMap[dateKey].orders += 1;
-                                dailyMap[dateKey].guests += rawGuests;
+                            }
+
+                            let dateKey = '';
+                            const hasExplicitDateFilter = Boolean(filterStartStr && filterEndStr);
+
+                            if (hasExplicitDateFilter) {
+                                if (currentTarget === 'reservation') {
+                                    dateKey = resDateKey || saleDateKey;
+                                } else if (currentTarget === 'sale') {
+                                    dateKey = saleDateKey || resDateKey;
+                                } else { // 'either'
+                                    if (resDateKey && resDateKey >= filterStartStr && resDateKey <= filterEndStr) {
+                                        dateKey = resDateKey;
+                                    } else if (saleDateKey && saleDateKey >= filterStartStr && saleDateKey <= filterEndStr) {
+                                        dateKey = saleDateKey;
+                                    } else {
+                                        dateKey = resDateKey || saleDateKey;
+                                    }
+                                }
+                            } else {
+                                if (currentTarget === 'reservation') {
+                                    dateKey = resDateKey || saleDateKey;
+                                } else {
+                                    dateKey = (saleDateKey && saleDateKey <= todayPst) ? saleDateKey : (resDateKey && resDateKey <= todayPst ? resDateKey : '');
+                                }
+                            }
+
+                            if (dateKey && matchesNonDateFilters($row, $tempBtn)) {
+                                if (!allDailyMap[dateKey]) {
+                                    allDailyMap[dateKey] = { sales: 0, orders: 0, guests: 0 };
+                                }
+                                allDailyMap[dateKey].sales += rawTotal;
+                                allDailyMap[dateKey].orders += 1;
+                                allDailyMap[dateKey].guests += rawGuests;
+                            }
+
+                            if (isFiltered) {
+                                totalSales += rawTotal;
+                                totalOrders += 1;
+                                totalGuests += rawGuests;
+
+                                if (dateKey) {
+                                    if (!dailyMap[dateKey]) {
+                                        dailyMap[dateKey] = { sales: 0, orders: 0, guests: 0 };
+                                    }
+                                    dailyMap[dateKey].sales += rawTotal;
+                                    dailyMap[dateKey].orders += 1;
+                                    dailyMap[dateKey].guests += rawGuests;
+                                }
                             }
                         });
                     }
 
-                    // Dynamically estimate visitor sessions
-                    let sessionsCount = 0;
-                    if (totalOrders > 0) {
-                        sessionsCount = Math.max(totalOrders * 18, Math.round(totalOrders * 22.4));
+                    // Card Values: On initial load (no filter), show TODAY ONLY. When filtered, show filtered totals.
+                    let cardSales = 0;
+                    let cardOrders = 0;
+                    let cardGuests = 0;
+
+                    if (!isFilterActive) {
+                        const todayStats = dailyMap[todayPst] || allDailyMap[todayPst] || { sales: 0, orders: 0, guests: 0 };
+                        cardSales = todayStats.sales;
+                        cardOrders = todayStats.orders;
+                        cardGuests = todayStats.guests;
+                    } else {
+                        cardSales = totalSales;
+                        cardOrders = totalOrders;
+                        cardGuests = totalGuests;
                     }
 
-                    const conversionRate = sessionsCount > 0 ? ((totalOrders / sessionsCount) * 100) : 0;
+                    // Dynamically estimate visitor sessions
+                    let sessionsCount = 0;
+                    if (cardOrders > 0) {
+                        sessionsCount = Math.max(cardOrders * 18, Math.round(cardOrders * 22.4));
+                    }
+
+                    const conversionRate = sessionsCount > 0 ? ((cardOrders / sessionsCount) * 100) : 0;
 
                     // Update Metric Card Values
                     $('#shopifySessionsVal').text(sessionsCount.toLocaleString());
-                    $('#shopifySalesVal').text('$' + totalSales.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 }));
-                    $('#shopifyOrdersVal').text(totalOrders.toLocaleString());
+                    $('#shopifySalesVal').text('$' + cardSales.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 }));
+                    $('#shopifyOrdersVal').text(cardOrders.toLocaleString());
                     $('#shopifyConversionVal').text(conversionRate.toFixed(2) + '%');
 
                     // Calculate period-over-period deltas (% comparisons) by comparing recent period vs prior period
@@ -3586,7 +3712,7 @@ body.modal-open .admin-mobile-menu-toggle {
                     let sessionsDelta = 0;
                     let convDelta = 0;
 
-                    const chartWindowForDeltas = resolveChartDateWindow(dailyMap);
+                    const chartWindowForDeltas = resolveChartDateWindow(dailyMap, allDailyMap);
                     const sortedDates = chartWindowForDeltas.dates;
                     const dateMapForDeltas = chartWindowForDeltas.targetMap;
                     if (sortedDates.length >= 2) {
@@ -3635,9 +3761,9 @@ body.modal-open .admin-mobile-menu-toggle {
                     updateDeltaBadge('#shopifyConversionDelta', '#shopifyConversionDeltaText', convDelta);
 
                     // Re-render chart dataset for each tab
-                    drawShopifyChartDataset(dailyMap, currentShopifyMetric);
-                    drawClassicPerformanceChart(dailyMap);
-                    drawOrdersGuestsChart(dailyMap);
+                    drawShopifyChartDataset(dailyMap, currentShopifyMetric, allDailyMap);
+                    drawClassicPerformanceChart(dailyMap, allDailyMap);
+                    drawOrdersGuestsChart(dailyMap, allDailyMap);
                 }
 
                 const showMetricTrendsGlobal = @json(\App\Models\Setting::showMetricTrends());
@@ -3660,10 +3786,12 @@ body.modal-open .admin-mobile-menu-toggle {
                     }
                 }
 
-                function resolveChartDateWindow(dailyMap) {
+                function resolveChartDateWindow(dailyMap, allDailyMap) {
+                    allDailyMap = allDailyMap || dailyMap;
                     const todayMom = (typeof getPstMoment === 'function') ? getPstMoment().startOf('day') : moment().startOf('day');
                     const dateRangeVal = String($('#txnDateRange').val() || $('#mobileTxnDateRange').val() || '').trim();
                     const hasExplicitDateRange = dateRangeVal && dateRangeVal.includes(' - ');
+                    const currentTarget = String($('#dateTargetSelect').val() || $('#mobileDateTargetSelect').val() || 'either').toLowerCase();
 
                     let dates = [];
                     const targetMap = {};
@@ -3673,8 +3801,8 @@ body.modal-open .admin-mobile-menu-toggle {
                         const sMom = moment(parts[0], 'MM/DD/YYYY', true);
                         let eMom = moment(parts[1], 'MM/DD/YYYY', true);
                         if (sMom.isValid() && eMom.isValid() && eMom.isSameOrAfter(sMom)) {
-                            // Graphs strictly show sale dates — sales cannot be in the future, so cap at today
-                            if (eMom.isAfter(todayMom)) {
+                            // Only cap at today if strictly 'sale' date target, because reservations can be in the future
+                            if (currentTarget === 'sale' && eMom.isAfter(todayMom)) {
                                 eMom = todayMom.clone();
                             }
                             if (sMom.isSameOrBefore(eMom, 'day')) {
@@ -3682,23 +3810,27 @@ body.modal-open .admin-mobile-menu-toggle {
                                 while (curr.isSameOrBefore(eMom, 'day')) {
                                     const dKey = curr.format('YYYY-MM-DD');
                                     dates.push(dKey);
-                                    targetMap[dKey] = dailyMap[dKey] || { sales: 0, orders: 0, guests: 0 };
+                                    targetMap[dKey] = (dailyMap && dailyMap[dKey]) ? dailyMap[dKey] : (allDailyMap[dKey] || { sales: 0, orders: 0, guests: 0 });
                                     curr.add(1, 'day');
                                 }
                             }
                         }
                     }
 
-                    // If NO explicit date range filter is selected (initial / default state):
-                    // Restrict initial graph so it NEVER shows future days data.
-                    // Initially show data of today and the last 10 days (11 continuous days total).
-                    if (dates.length === 0) {
-                        const startMom = todayMom.clone().subtract(10, 'days');
+                    // When NO explicit date range filter is selected (initial / default state)
+                    // OR when a single day is selected (dates.length <= 1, e.g. "Today"):
+                    // Do NOT collapse to a single lonely dot! Show the past 10 days leading up to that day (11 continuous days total).
+                    if (dates.length <= 1) {
+                        const anchorMom = (dates.length === 1 && hasExplicitDateRange)
+                            ? moment(dates[0], 'YYYY-MM-DD')
+                            : todayMom;
+                        dates = [];
+                        const startMom = anchorMom.clone().subtract(10, 'days');
                         const curr = startMom.clone();
-                        while (curr.isSameOrBefore(todayMom, 'day')) {
+                        while (curr.isSameOrBefore(anchorMom, 'day')) {
                             const dKey = curr.format('YYYY-MM-DD');
                             dates.push(dKey);
-                            targetMap[dKey] = dailyMap[dKey] || { sales: 0, orders: 0, guests: 0 };
+                            targetMap[dKey] = (dailyMap && dailyMap[dKey]) ? dailyMap[dKey] : (allDailyMap[dKey] || { sales: 0, orders: 0, guests: 0 });
                             curr.add(1, 'day');
                         }
                     }
@@ -3706,11 +3838,11 @@ body.modal-open .admin-mobile-menu-toggle {
                     return { dates: dates, targetMap: targetMap, hasExplicitDateRange: hasExplicitDateRange };
                 }
 
-                function drawShopifyChartDataset(dailyMap, metric) {
+                function drawShopifyChartDataset(dailyMap, metric, allDailyMap) {
                     const ctx = document.getElementById('shopifyTrendChart');
                     if (!ctx) return;
 
-                    const chartWindow = resolveChartDateWindow(dailyMap);
+                    const chartWindow = resolveChartDateWindow(dailyMap, allDailyMap);
                     const dates = chartWindow.dates;
                     const targetMap = chartWindow.targetMap;
 
@@ -3838,11 +3970,11 @@ body.modal-open .admin-mobile-menu-toggle {
                     });
                 }
 
-                function drawClassicPerformanceChart(dailyMap) {
+                function drawClassicPerformanceChart(dailyMap, allDailyMap) {
                     const ctx = document.getElementById('classicPerformanceChart');
                     if (!ctx || typeof Chart === 'undefined') return;
 
-                    const chartWindow = resolveChartDateWindow(dailyMap);
+                    const chartWindow = resolveChartDateWindow(dailyMap, allDailyMap);
                     const dates = chartWindow.dates;
                     const targetMap = chartWindow.targetMap;
 
@@ -3961,11 +4093,11 @@ body.modal-open .admin-mobile-menu-toggle {
                     });
                 }
 
-                function drawOrdersGuestsChart(dailyMap) {
+                function drawOrdersGuestsChart(dailyMap, allDailyMap) {
                     const ctx = document.getElementById('ordersGuestsChart');
                     if (!ctx || typeof Chart === 'undefined') return;
 
-                    const chartWindow = resolveChartDateWindow(dailyMap);
+                    const chartWindow = resolveChartDateWindow(dailyMap, allDailyMap);
                     const dates = chartWindow.dates;
                     const targetMap = chartWindow.targetMap;
 
