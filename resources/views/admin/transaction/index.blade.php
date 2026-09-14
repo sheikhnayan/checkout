@@ -1,6 +1,46 @@
 @extends('admin.main')
 
 @section('content')
+{{-- Full-Screen Glassmorphic Curtain Loader (Zero DOM/Logic interference) --}}
+<div id="txnPageCurtainLoader" style="position: fixed; inset: 0; width: 100vw; height: 100vh; background: rgba(15, 23, 42, 0.75); backdrop-filter: blur(14px); -webkit-backdrop-filter: blur(14px); z-index: 999999; display: flex; align-items: center; justify-content: center; opacity: 1; transition: opacity 0.35s cubic-bezier(0.4, 0, 0.2, 1), visibility 0.35s ease; pointer-events: all;">
+    <div style="background: rgba(30, 41, 59, 0.92); border: 1px solid rgba(139, 92, 246, 0.35); border-radius: 20px; padding: 32px 42px; display: flex; flex-direction: column; align-items: center; text-align: center; box-shadow: 0 20px 50px rgba(0, 0, 0, 0.6), 0 0 25px rgba(139, 92, 246, 0.2); max-width: 90vw;">
+        <div class="spinner-border text-primary mb-3" role="status" style="width: 3.2rem; height: 3.2rem; color: #8b5cf6 !important; border-width: 3.5px;">
+            <span class="visually-hidden">Loading...</span>
+        </div>
+        <div class="text-white fw-bold mb-1" style="font-size: 1.15rem; letter-spacing: -0.01em;">Loading Transactions...</div>
+        <div class="text-white-50 small" style="font-size: 0.82rem;">Preparing records, metrics & analytics</div>
+    </div>
+</div>
+
+<script>
+(function() {
+    function dismissCurtain() {
+        var curtain = document.getElementById('txnPageCurtainLoader');
+        if (curtain && !curtain.classList.contains('dismissed')) {
+            curtain.classList.add('dismissed');
+            curtain.style.opacity = '0';
+            curtain.style.pointerEvents = 'none';
+            setTimeout(function() {
+                if (curtain && curtain.parentNode) {
+                    curtain.parentNode.removeChild(curtain);
+                }
+            }, 380);
+        }
+    }
+
+    if (document.readyState === 'complete') {
+        setTimeout(dismissCurtain, 150);
+    } else {
+        window.addEventListener('load', function() {
+            setTimeout(dismissCurtain, 150);
+        });
+    }
+
+    // Safety fallback (ensures overlay never hangs on slow 3rd-party network assets)
+    setTimeout(dismissCurtain, 4000);
+})();
+</script>
+
 <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 
 <style>
@@ -717,6 +757,10 @@
     cursor: pointer;
     transition: all 0.2s ease-in-out;
     user-select: none;
+    height: 100%;
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
 }
 .shopify-metric-card:hover {
     background: rgba(30, 41, 59, 0.75);
@@ -735,6 +779,15 @@
     display: flex;
     align-items: center;
     justify-content: space-between;
+    gap: 6px;
+}
+.shopify-metric-title-left {
+    display: inline-flex;
+    align-items: center;
+    flex-wrap: wrap;
+    gap: 4px;
+    min-width: 0;
+    flex: 1;
 }
 .shopify-metric-card.active .shopify-metric-title {
     color: #cbd5e1;
@@ -764,39 +817,78 @@
     color: #fb7185;
     border: 1px solid rgba(244, 63, 94, 0.3);
 }
+.shopify-metric-subtext {
+    font-size: 0.72rem;
+    line-height: 1.35;
+    white-space: normal;
+    word-break: normal;
+    overflow-wrap: break-word;
+}
 
 @media (max-width: 575.98px) {
     .shopify-metric-card {
         padding: 10px 10px !important;
-        overflow: hidden !important;
         box-sizing: border-box !important;
         max-width: 100% !important;
-    }
-    .shopify-metric-card .d-flex {
-        flex-wrap: wrap !important;
-        min-width: 0 !important;
-        max-width: 100% !important;
-        overflow: hidden !important;
+        height: 100% !important;
+        display: flex !important;
+        flex-direction: column !important;
+        justify-content: space-between !important;
     }
     .shopify-metric-title {
         font-size: 0.70rem !important;
-        margin-bottom: 2px !important;
+        margin-bottom: 4px !important;
         max-width: 100% !important;
-        overflow: hidden !important;
+        display: flex !important;
+        flex-wrap: nowrap !important;
+        align-items: flex-start !important;
+        justify-content: space-between !important;
+        gap: 4px !important;
+    }
+    .shopify-metric-title i {
+        flex-shrink: 0 !important;
+        margin-top: 2px !important;
+        font-size: 0.70rem !important;
+    }
+    .shopify-metric-title .shopify-metric-title-left {
+        display: inline-flex !important;
+        align-items: center !important;
+        flex-wrap: wrap !important;
+        gap: 3px !important;
+        flex: 1 !important;
+        min-width: 0 !important;
+        line-height: 1.25 !important;
+    }
+    .shopify-metric-title .shopify-today-tag {
+        font-size: 0.60rem !important;
+        padding: 1px 4px !important;
+        vertical-align: middle !important;
+    }
+    .shopify-metric-card .shopify-metric-value-row {
+        flex-wrap: wrap !important;
+        min-width: 0 !important;
+        max-width: 100% !important;
     }
     .shopify-metric-val {
-        font-size: 0.98rem !important;
+        font-size: 1.05rem !important;
         max-width: 100% !important;
-        overflow: hidden !important;
-        text-overflow: ellipsis !important;
-        white-space: nowrap !important;
-        line-height: 1.2 !important;
+        line-height: 1.25 !important;
+        word-break: break-word !important;
     }
     .shopify-delta-badge {
         font-size: 0.62rem !important;
         padding: 1px 5px !important;
         white-space: nowrap !important;
         max-width: 100% !important;
+    }
+    .shopify-metric-subtext {
+        font-size: 0.68rem !important;
+        line-height: 1.35 !important;
+        white-space: normal !important;
+        word-break: normal !important;
+        overflow-wrap: break-word !important;
+        text-overflow: clip !important;
+        overflow: visible !important;
     }
     .shopify-chart-wrap {
         padding-top: 10px !important;
@@ -1521,67 +1613,67 @@ body.modal-open .admin-mobile-menu-toggle {
                             {{-- Metric Selector Cards Row (Shopify Style) --}}
                             <div class="row {{ \App\Models\Setting::showConversionRateCard() ? 'row-cols-2 row-cols-xl-4' : 'row-cols-1 row-cols-md-3' }} g-2 g-md-3 mb-3 mb-md-4" id="shopifyMetricCardsRow">
                                 {{-- 1. Total Sales Card --}}
-                                <div class="col">
-                                    <div class="shopify-metric-card p-2 p-md-3 rounded-3 cursor-pointer active" data-metric="sales" onclick="switchShopifyMetric('sales')">
+                                <div class="col d-flex">
+                                    <div class="shopify-metric-card w-100 p-2 p-md-3 rounded-3 cursor-pointer active" data-metric="sales" onclick="switchShopifyMetric('sales')">
                                         <div class="shopify-metric-title d-flex align-items-center justify-content-between">
-                                            <span>Total sales <span class="shopify-today-tag badge ms-1" style="background:rgba(139,92,246,0.22);color:#c084fc;font-size:0.65rem;padding:2px 6px;border-radius:4px;border:1px solid rgba(139,92,246,0.4);font-weight:600;">Today</span></span>
+                                            <span class="shopify-metric-title-left"><span>Total sales</span> <span class="shopify-today-tag badge ms-1" style="background:rgba(139,92,246,0.22);color:#c084fc;font-size:0.65rem;padding:2px 6px;border-radius:4px;border:1px solid rgba(139,92,246,0.4);font-weight:600;">Today</span></span>
                                             <i class="fas fa-chart-line text-white-50" style="font-size:0.75rem;"></i>
                                         </div>
-                                        <div class="d-flex align-items-baseline justify-content-between flex-wrap gap-1 mt-1" style="min-width:0;">
+                                        <div class="shopify-metric-value-row d-flex align-items-baseline justify-content-between flex-wrap gap-1 mt-1" style="min-width:0;">
                                             <span class="shopify-metric-val" id="shopifySalesVal">${{ number_format($todayRevenue ?? 0, 2) }}</span>
                                             @if(\App\Models\Setting::showMetricTrends())
                                             <span class="shopify-delta-badge up" id="shopifySalesDelta"><i class="fas fa-arrow-up me-1"></i><span id="shopifySalesDeltaText">14.5%</span></span>
                                             @endif
                                         </div>
-                                        <div class="text-white-50 small mt-1 text-truncate shopify-metric-subtext" id="shopifySalesSubtext" style="font-size:0.7rem;">Today's gross revenue</div>
+                                        <div class="text-white-50 small mt-1 shopify-metric-subtext" id="shopifySalesSubtext" style="font-size:0.7rem;">Today's gross revenue</div>
                                     </div>
                                 </div>
 
                                 {{-- 2. Orders Card --}}
-                                <div class="col">
-                                    <div class="shopify-metric-card p-2 p-md-3 rounded-3 cursor-pointer" data-metric="orders" onclick="switchShopifyMetric('orders')">
+                                <div class="col d-flex">
+                                    <div class="shopify-metric-card w-100 p-2 p-md-3 rounded-3 cursor-pointer" data-metric="orders" onclick="switchShopifyMetric('orders')">
                                         <div class="shopify-metric-title d-flex align-items-center justify-content-between">
-                                            <span>Orders / Bookings <span class="shopify-today-tag badge ms-1" style="background:rgba(139,92,246,0.22);color:#c084fc;font-size:0.65rem;padding:2px 6px;border-radius:4px;border:1px solid rgba(139,92,246,0.4);font-weight:600;">Today</span></span>
+                                            <span class="shopify-metric-title-left"><span>Orders / Bookings</span> <span class="shopify-today-tag badge ms-1" style="background:rgba(139,92,246,0.22);color:#c084fc;font-size:0.65rem;padding:2px 6px;border-radius:4px;border:1px solid rgba(139,92,246,0.4);font-weight:600;">Today</span></span>
                                             <i class="fas fa-shopping-bag text-white-50" style="font-size:0.75rem;"></i>
                                         </div>
-                                        <div class="d-flex align-items-baseline justify-content-between flex-wrap gap-1 mt-1" style="min-width:0;">
+                                        <div class="shopify-metric-value-row d-flex align-items-baseline justify-content-between flex-wrap gap-1 mt-1" style="min-width:0;">
                                             <span class="shopify-metric-val" id="shopifyOrdersVal">{{ number_format($todayTxns ?? 0) }}</span>
                                             @if(\App\Models\Setting::showMetricTrends())
                                             <span class="shopify-delta-badge up" id="shopifyOrdersDelta"><i class="fas fa-arrow-up me-1"></i><span id="shopifyOrdersDeltaText">8.2%</span></span>
                                             @endif
                                         </div>
-                                        <div class="text-white-50 small mt-1 text-truncate shopify-metric-subtext" id="shopifyOrdersSubtext" style="font-size:0.7rem;">
+                                        <div class="text-white-50 small mt-1 shopify-metric-subtext" id="shopifyOrdersSubtext" style="font-size:0.7rem;">
                                             <span id="shopifyOrdersSubtextBase">Today's bookings</span> · <span class="text-white-50 fw-semibold" id="shopifyGuestsWrap"><span id="shopifyGuestsVal">{{ number_format($todayGuests ?? 0) }}</span> guests</span>
                                         </div>
                                     </div>
                                 </div>
 
                                 {{-- 3. Sessions Card --}}
-                                <div class="col">
-                                    <div class="shopify-metric-card p-2 p-md-3 rounded-3 cursor-pointer" data-metric="sessions" onclick="switchShopifyMetric('sessions')">
+                                <div class="col d-flex">
+                                    <div class="shopify-metric-card w-100 p-2 p-md-3 rounded-3 cursor-pointer" data-metric="sessions" onclick="switchShopifyMetric('sessions')">
                                         <div class="shopify-metric-title d-flex align-items-center justify-content-between">
-                                            <span>Sessions <span class="shopify-today-tag badge ms-1" style="background:rgba(139,92,246,0.22);color:#c084fc;font-size:0.65rem;padding:2px 6px;border-radius:4px;border:1px solid rgba(139,92,246,0.4);font-weight:600;">Today</span></span>
+                                            <span class="shopify-metric-title-left"><span>Sessions</span> <span class="shopify-today-tag badge ms-1" style="background:rgba(139,92,246,0.22);color:#c084fc;font-size:0.65rem;padding:2px 6px;border-radius:4px;border:1px solid rgba(139,92,246,0.4);font-weight:600;">Today</span></span>
                                             <i class="fas fa-eye text-white-50" style="font-size:0.75rem;"></i>
                                         </div>
-                                        <div class="d-flex align-items-baseline justify-content-between flex-wrap gap-1 mt-1" style="min-width:0;">
+                                        <div class="shopify-metric-value-row d-flex align-items-baseline justify-content-between flex-wrap gap-1 mt-1" style="min-width:0;">
                                             <span class="shopify-metric-val" id="shopifySessionsVal">{{ number_format($todaySessions ?? 0) }}</span>
                                             @if(\App\Models\Setting::showMetricTrends())
                                             <span class="shopify-delta-badge down" id="shopifySessionsDelta"><i class="fas fa-arrow-down me-1"></i><span id="shopifySessionsDeltaText">12.4%</span></span>
                                             @endif
                                         </div>
-                                        <div class="text-white-50 small mt-1 text-truncate shopify-metric-subtext" id="shopifySessionsSubtext" style="font-size:0.7rem;">Today's visitor traffic</div>
+                                        <div class="text-white-50 small mt-1 shopify-metric-subtext" id="shopifySessionsSubtext" style="font-size:0.7rem;">Today's visitor traffic</div>
                                     </div>
                                 </div>
 
                                 {{-- 4. Conversion Rate Card --}}
                                 @if(\App\Models\Setting::showConversionRateCard())
-                                <div class="col">
-                                    <div class="shopify-metric-card p-2 p-md-3 rounded-3 cursor-pointer" data-metric="conversion" onclick="switchShopifyMetric('conversion')">
+                                <div class="col d-flex">
+                                    <div class="shopify-metric-card w-100 p-2 p-md-3 rounded-3 cursor-pointer" data-metric="conversion" onclick="switchShopifyMetric('conversion')">
                                         <div class="shopify-metric-title d-flex align-items-center justify-content-between">
-                                            <span>Conversion rate <span class="shopify-today-tag badge ms-1" style="background:rgba(139,92,246,0.22);color:#c084fc;font-size:0.65rem;padding:2px 6px;border-radius:4px;border:1px solid rgba(139,92,246,0.4);font-weight:600;">Today</span></span>
+                                            <span class="shopify-metric-title-left"><span>Conversion rate</span> <span class="shopify-today-tag badge ms-1" style="background:rgba(139,92,246,0.22);color:#c084fc;font-size:0.65rem;padding:2px 6px;border-radius:4px;border:1px solid rgba(139,92,246,0.4);font-weight:600;">Today</span></span>
                                             <i class="fas fa-percentage text-white-50" style="font-size:0.75rem;"></i>
                                         </div>
-                                        <div class="d-flex align-items-baseline justify-content-between flex-wrap gap-1 mt-1" style="min-width:0;">
+                                        <div class="shopify-metric-value-row d-flex align-items-baseline justify-content-between flex-wrap gap-1 mt-1" style="min-width:0;">
                                             @php
                                                 $initSessions = $todaySessions ?? 0;
                                                 $initTxns = $todayTxns ?? 0;
@@ -1592,7 +1684,7 @@ body.modal-open .admin-mobile-menu-toggle {
                                             <span class="shopify-delta-badge up" id="shopifyConversionDelta"><i class="fas fa-arrow-up me-1"></i><span id="shopifyConversionDeltaText">3.6%</span></span>
                                             @endif
                                         </div>
-                                        <div class="text-white-50 small mt-1 text-truncate shopify-metric-subtext" id="shopifyConversionSubtext" style="font-size:0.7rem;">Today's visitors to bookings ratio</div>
+                                        <div class="text-white-50 small mt-1 shopify-metric-subtext" id="shopifyConversionSubtext" style="font-size:0.7rem;">Today's visitors to bookings ratio</div>
                                     </div>
                                 </div>
                                 @endif
