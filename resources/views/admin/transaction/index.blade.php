@@ -4546,7 +4546,7 @@ body.modal-open .admin-mobile-menu-toggle {
                     autoUpdateInput: false,
                     linkedCalendars: false,
                     alwaysShowCalendars: true,
-                    opens: 'left',
+                    opens: 'right',
                     drops: 'down',
                     showDropdowns: true,
                     locale: { cancelLabel: 'Clear', applyLabel: 'Apply', format: 'MM/DD/YYYY' },
@@ -4560,12 +4560,73 @@ body.modal-open .admin-mobile-menu-toggle {
                     }
                 };
 
+                // Reposition DateRangePicker to stay anchored to the date input in fixed viewport coordinates
+                function repositionTxnDatePicker() {
+                    var picker = $('#txnDateRange').data('daterangepicker');
+                    if (!picker) return;
+
+                    var $container = picker.container;
+                    if (!$container || !$container.length) return;
+
+                    // On mobile (<= 768px), CSS centers the modal dialog via .daterangepicker { position: fixed !important; top: 50% !important; ... }
+                    if (window.innerWidth < 768) {
+                        return;
+                    }
+
+                    var $anchor = $('#txnDateRangeWrap:visible');
+                    if (!$anchor.length) {
+                        $anchor = $('#txnDateRange:visible');
+                    }
+                    if (!$anchor.length) return;
+
+                    var rect = $anchor[0].getBoundingClientRect();
+                    var pickerWidth = $container.outerWidth() || 560;
+                    var pickerHeight = $container.outerHeight() || 340;
+
+                    var top = rect.bottom + 6;
+                    var left = rect.left;
+
+                    // Ensure horizontal containment within viewport
+                    if (left + pickerWidth > window.innerWidth - 16) {
+                        left = Math.max(16, window.innerWidth - pickerWidth - 16);
+                    }
+                    if (left < 16) {
+                        left = 16;
+                    }
+
+                    // Check if it fits below; if not, attempt above or clamp to bottom
+                    if (top + pickerHeight > window.innerHeight - 16) {
+                        var topAbove = rect.top - pickerHeight - 6;
+                        if (topAbove >= 16) {
+                            top = topAbove;
+                        } else {
+                            top = Math.max(16, window.innerHeight - pickerHeight - 16);
+                        }
+                    }
+                    // Hard floor clamp: NEVER allow top to be negative or offscreen
+                    top = Math.max(16, top);
+
+                    $container.css({
+                        'position': 'fixed',
+                        'top': top + 'px',
+                        'left': left + 'px',
+                        'right': 'auto',
+                        'margin': '0',
+                        'transform': 'none',
+                        'z-index': '999999'
+                    });
+                }
+
                 if (initialStartDate && initialEndDate) {
                     dateRangeOptions.startDate = initialStartDate;
                     dateRangeOptions.endDate = initialEndDate;
                 }
 
                 $txnDateRange.daterangepicker(dateRangeOptions);
+                var txnPickerInstance = $txnDateRange.data('daterangepicker');
+                if (txnPickerInstance) {
+                    txnPickerInstance.move = repositionTxnDatePicker;
+                }
 
                 const $mobileTxnDateRange = $('#mobileTxnDateRange');
                 if ($mobileTxnDateRange.length) {
@@ -4622,63 +4683,6 @@ body.modal-open .admin-mobile-menu-toggle {
 
                 if (initialStartDate && initialEndDate) {
                     $txnDateRange.val(initialStartDate.format('MM/DD/YYYY') + ' - ' + initialEndDate.format('MM/DD/YYYY'));
-                }
-
-                // Reposition DateRangePicker to stay anchored to the date input in fixed viewport coordinates
-                function repositionTxnDatePicker() {
-                    var picker = $('#txnDateRange').data('daterangepicker');
-                    if (!picker || !picker.isShowing) return;
-
-                    var $container = picker.container;
-                    if (!$container || !$container.length) return;
-
-                    // On mobile (<= 768px), CSS centers the modal dialog via .daterangepicker { position: fixed !important; top: 50% !important; ... }
-                    if (window.innerWidth < 768) {
-                        return;
-                    }
-
-                    var $anchor = $('#txnDateRangeWrap:visible');
-                    if (!$anchor.length) {
-                        $anchor = $('#txnDateRange:visible');
-                    }
-                    if (!$anchor.length) return;
-
-                    var rect = $anchor[0].getBoundingClientRect();
-                    var pickerWidth = $container.outerWidth() || 560;
-                    var pickerHeight = $container.outerHeight() || 340;
-
-                    var top = rect.bottom + 6;
-                    var left = rect.left;
-
-                    // Ensure horizontal containment within viewport
-                    if (left + pickerWidth > window.innerWidth - 16) {
-                        left = Math.max(16, window.innerWidth - pickerWidth - 16);
-                    }
-                    if (left < 16) {
-                        left = 16;
-                    }
-
-                    // Check if it fits below; if not, attempt above or clamp to bottom
-                    if (top + pickerHeight > window.innerHeight - 16) {
-                        var topAbove = rect.top - pickerHeight - 6;
-                        if (topAbove >= 16) {
-                            top = topAbove;
-                        } else {
-                            top = Math.max(16, window.innerHeight - pickerHeight - 16);
-                        }
-                    }
-                    // Hard floor clamp: NEVER allow top to be negative or offscreen
-                    top = Math.max(16, top);
-
-                    $container.css({
-                        'position': 'fixed',
-                        'top': top + 'px',
-                        'left': left + 'px',
-                        'right': 'auto',
-                        'margin': '0',
-                        'transform': 'none',
-                        'z-index': '999999'
-                    });
                 }
 
                 $txnDateRange.off('apply.daterangepicker.txnDateRange').on('apply.daterangepicker.txnDateRange', function(ev, picker) {
