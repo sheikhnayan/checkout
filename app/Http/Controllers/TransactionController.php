@@ -1414,11 +1414,10 @@ class TransactionController extends Controller
 
     public function index(Request $request)
     {
-        $accessibleWebsites = $this->getAccessibleWebsitesForUser(auth()->user());
-
         app(CommissionLifecycleRunner::class)->runSafely();
 
         $data = $this->getAccessibleTransactionList($request);
+        $accessibleWebsites = $this->getAccessibleWebsitesForUser(auth()->user());
 
         return view('admin.transaction.index', [
             'data' => $data,
@@ -1430,18 +1429,17 @@ class TransactionController extends Controller
 
     public function affiliateIndex(Request $request)
     {
-        $accessibleWebsites = $this->getAccessibleWebsitesForUser(auth()->user());
-
         app(CommissionLifecycleRunner::class)->runSafely();
 
         $data = $this->getAccessibleTransactionList($request, function ($query) {
             $query->whereNotNull('affiliate_id');
         });
+        $accessibleWebsites = $this->getAccessibleWebsitesForUser(auth()->user());
 
         return view('admin.transaction.index', [
             'data' => $data,
             'accessibleWebsites' => $accessibleWebsites,
-            'dashboardTitle' => 'Affiliate Transactions',
+            'dashboardTitle' => 'affiliate Transactions',
             'dashboardSubtitle' => 'Only affiliate-referred transactions are listed here.',
             'isPayoutPage' => true,
         ]);
@@ -1449,13 +1447,12 @@ class TransactionController extends Controller
 
     public function entertainerIndex(Request $request)
     {
-        $accessibleWebsites = $this->getAccessibleWebsitesForUser(auth()->user());
-
         app(CommissionLifecycleRunner::class)->runSafely();
 
         $data = $this->getAccessibleTransactionList($request, function ($query) {
             $query->whereNotNull('entertainer_id');
         });
+        $accessibleWebsites = $this->getAccessibleWebsitesForUser(auth()->user());
 
         return view('admin.transaction.index', [
             'data' => $data,
