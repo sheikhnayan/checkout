@@ -3354,6 +3354,36 @@ body.modal-open .admin-mobile-menu-toggle {
                     nonOrderableTargets.push(actionColumnIndex);
                 }
 
+                var currentShopifyMetric = 'sales';
+                var shopifyChartInstance = null;
+                var classicChartInstance = null;
+                var ordersGuestsChartInstance = null;
+
+                window.latestDailyMap = {};
+                window.latestAllDailyMap = {};
+
+                window.switchShopifyMetric = function(metric) {
+                    currentShopifyMetric = metric;
+                    $('.shopify-metric-card').removeClass('active');
+                    $('.shopify-metric-card[data-metric="' + metric + '"]').addClass('active');
+
+                    const titleMap = {
+                        sessions: 'Sessions over time',
+                        sales: 'Total sales over time',
+                        orders: 'Orders over time',
+                        conversion: 'Conversion rate over time'
+                    };
+                    $('#shopifyChartTitle').text(titleMap[metric] || 'Metric over time');
+
+                    if (typeof USE_SERVER_SIDE !== 'undefined' && USE_SERVER_SIDE) {
+                        if (window.latestDailyMap && Object.keys(window.latestDailyMap).length > 0) {
+                            drawShopifyChartDataset(window.latestDailyMap, currentShopifyMetric, window.latestAllDailyMap || window.latestDailyMap);
+                        }
+                    } else {
+                        updateShopifyAnalyticsFromFilteredTable();
+                    }
+                };
+
                 const USE_SERVER_SIDE = true;
 
                 let dtConfig = {
@@ -3473,18 +3503,22 @@ body.modal-open .admin-mobile-menu-toggle {
                         }
 
                         if (json.chartData && json.chartData.dailyMap) {
-                            drawShopifyChartDataset(json.chartData.dailyMap, currentShopifyMetric, json.chartData.allDailyMap || json.chartData.dailyMap);
-                            drawClassicPerformanceChart(json.chartData.dailyMap, json.chartData.allDailyMap || json.chartData.dailyMap);
-                            drawOrdersGuestsChart(json.chartData.dailyMap, json.chartData.allDailyMap || json.chartData.dailyMap);
+                            window.latestDailyMap = json.chartData.dailyMap;
+                            window.latestAllDailyMap = json.chartData.allDailyMap || json.chartData.dailyMap;
+                            drawShopifyChartDataset(window.latestDailyMap, currentShopifyMetric, window.latestAllDailyMap);
+                            drawClassicPerformanceChart(window.latestDailyMap, window.latestAllDailyMap);
+                            drawOrdersGuestsChart(window.latestDailyMap, window.latestAllDailyMap);
                         }
                     });
 
                     // Initial charts render from server payload if available
                     const initialChartData = @json($initialChartData ?? null);
                     if (initialChartData && initialChartData.dailyMap) {
-                        drawShopifyChartDataset(initialChartData.dailyMap, currentShopifyMetric, initialChartData.allDailyMap || initialChartData.dailyMap);
-                        drawClassicPerformanceChart(initialChartData.dailyMap, initialChartData.allDailyMap || initialChartData.dailyMap);
-                        drawOrdersGuestsChart(initialChartData.dailyMap, initialChartData.allDailyMap || initialChartData.dailyMap);
+                        window.latestDailyMap = initialChartData.dailyMap;
+                        window.latestAllDailyMap = initialChartData.allDailyMap || initialChartData.dailyMap;
+                        drawShopifyChartDataset(window.latestDailyMap, currentShopifyMetric, window.latestAllDailyMap);
+                        drawClassicPerformanceChart(window.latestDailyMap, window.latestAllDailyMap);
+                        drawOrdersGuestsChart(window.latestDailyMap, window.latestAllDailyMap);
                     } else {
                         setTimeout(function() {
                             updateShopifyAnalyticsFromFilteredTable();
@@ -3547,31 +3581,19 @@ body.modal-open .admin-mobile-menu-toggle {
                 $(window).on('resize', updateTabScrollArrows);
                 setTimeout(updateTabScrollArrows, 400);
 
-                let currentShopifyMetric = 'sales';
-                let shopifyChartInstance = null;
-                let classicChartInstance = null;
-                let ordersGuestsChartInstance = null;
-
                 $(document).on('shown.bs.tab', 'button[data-bs-toggle="pill"]', function(e) {
                     $('button[data-bs-toggle="pill"]').css('background-color', 'rgba(30, 41, 59, 0.6)');
                     $(e.target).css('background-color', '#7c3aed');
-                    updateShopifyAnalyticsFromFilteredTable();
+                    if (typeof USE_SERVER_SIDE !== 'undefined' && USE_SERVER_SIDE) {
+                        if (window.latestDailyMap && Object.keys(window.latestDailyMap).length > 0) {
+                            drawShopifyChartDataset(window.latestDailyMap, currentShopifyMetric, window.latestAllDailyMap || window.latestDailyMap);
+                            drawClassicPerformanceChart(window.latestDailyMap, window.latestAllDailyMap || window.latestDailyMap);
+                            drawOrdersGuestsChart(window.latestDailyMap, window.latestAllDailyMap || window.latestDailyMap);
+                        }
+                    } else {
+                        updateShopifyAnalyticsFromFilteredTable();
+                    }
                 });
-
-                window.switchShopifyMetric = function(metric) {
-                    currentShopifyMetric = metric;
-                    $('.shopify-metric-card').removeClass('active');
-                    $('.shopify-metric-card[data-metric="' + metric + '"]').addClass('active');
-
-                    const titleMap = {
-                        sessions: 'Sessions over time',
-                        sales: 'Total sales over time',
-                        orders: 'Orders over time',
-                        conversion: 'Conversion rate over time'
-                    };
-                    $('#shopifyChartTitle').text(titleMap[metric] || 'Metric over time');
-                    updateShopifyAnalyticsFromFilteredTable();
-                };
 
                 function updateShopifyAnalyticsFromFilteredTable() {
                     if (!table) return;
