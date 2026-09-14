@@ -2166,6 +2166,16 @@ body.modal-open .admin-mobile-menu-toggle {
                         </tr>
                     </thead>
                     <tbody>
+                        @php
+                            // Pre-fetch packages, addons, and promo codes once to eliminate 2,000+ N+1 queries in the loop
+                            $allPackages = \App\Models\Package::all(['id', 'name', 'description']);
+                            $packagesById = $allPackages->keyBy('id');
+                            $packagesByName = $allPackages->keyBy(function ($p) {
+                                return strtolower(trim((string) $p->name));
+                            });
+                            $allAddons = \App\Models\Addon::all(['id', 'name'])->keyBy('id');
+                            $allPromoCodes = \App\Models\PromoCode::all(['id', 'name'])->keyBy('id');
+                        @endphp
                         @forelse($data as $item)
                         @php
                             try {
@@ -2190,7 +2200,7 @@ body.modal-open .admin-mobile-menu-toggle {
                                 $venueName   = $item->website->name ?? ($item->event->name ?? 'N/A');
 
                                 $cartItems = is_array($item->cart_items ?? null) ? $item->cart_items : json_decode($item->cart_items ?? '[]', true);
-                                $packageDetails = collect($cartItems)->map(function ($ci) {
+                                $packageDetails = collect($cartItems)->map(function ($ci) use ($packagesById) {
                                     if (!is_array($ci)) {
                                         return null;
                                     }
@@ -2203,7 +2213,7 @@ body.modal-open .admin-mobile-menu-toggle {
                                     $quantity = max(1, (int) ($ci['quantity'] ?? $ci['guests'] ?? 1));
                                     $packageType = strtolower(trim((string) ($ci['package_type'] ?? $ci['type'] ?? $ci['packageType'] ?? '')));
                                     if ($packageType === '' && !empty($ci['package_id'])) {
-                                        $package = \App\Models\Package::find((int) $ci['package_id']);
+                                        $package = $packagesById->get((int) $ci['package_id']);
                                         $packageType = $package ? strtolower(trim((string) ($package->package_type ?? ''))) : '';
                                     }
 
@@ -2224,9 +2234,7 @@ body.modal-open .admin-mobile-menu-toggle {
                                     ->unique()
                                     ->values();
 
-                                $packageRows = $packageIds->isNotEmpty()
-                                    ? \App\Models\Package::whereIn('id', $packageIds)->get(['id', 'name', 'description'])
-                                    : collect();
+                                $packageRows = $packageIds->map(fn($id) => $packagesById->get($id))->filter()->values();
 
                                 $packageNames = collect($cartItems)
                                     ->map(fn ($ci) => trim((string) ($ci['package_name'] ?? $ci['packageName'] ?? $ci['pkgName'] ?? '')))
@@ -2234,9 +2242,7 @@ body.modal-open .admin-mobile-menu-toggle {
                                     ->unique()
                                     ->values();
 
-                                $packageRowsByName = $packageNames->isNotEmpty()
-                                    ? \App\Models\Package::whereIn('name', $packageNames)->get(['id', 'name', 'description'])
-                                    : collect();
+                                $packageRowsByName = $packageNames->map(fn($n) => $packagesByName->get(strtolower(trim($n))))->filter()->values();
 
                                 $packageDescriptionsById = $packageRows
                                     ->mapWithKeys(fn ($pkg) => [(string) $pkg->id => (string) ($pkg->description ?? '')])
@@ -2284,11 +2290,13 @@ body.modal-open .admin-mobile-menu-toggle {
                                 $addons = collect($cartItems)->flatMap(fn($ci) => $ci['addons'] ?? [])->pluck('name')->filter()->implode(', ');
                                 if ($addons === '') {
                                     foreach (explode(',', (string)$item->addons) as $av) {
-                                        $ao = \App\Models\Addon::find(trim($av));
-                                        if ($ao) $addons .= ($addons !== '' ? ', ' : '') . $ao->name;
+                                        $addonKey = trim($av);
+                                        if ($addonKey !== '' && isset($allAddons[$addonKey])) {
+                                            $addons .= ($addons !== '' ? ', ' : '') . $allAddons[$addonKey]->name;
+                                        }
                                     }
                                 }
-                                $promo_obj = \App\Models\PromoCode::where('id', $item->promo_code)->first();
+                                $promo_obj = $item->promo_code ? ($allPromoCodes[$item->promo_code] ?? null) : null;
                                 $promo_code_name = $promo_obj ? $promo_obj->name : null;
 
                                 // Payout lifecycle
