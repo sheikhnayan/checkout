@@ -1416,23 +1416,11 @@ class TransactionController extends Controller
     {
         app(CommissionLifecycleRunner::class)->runSafely();
 
-        if ($request->ajax() && ($request->has('draw') || $request->wantsJson())) {
-            return response()->json(
-                app(\App\Services\TransactionTableService::class)->getAjaxData($request, auth()->user())
-            );
-        }
-
-        $tableService = app(\App\Services\TransactionTableService::class);
-        $pageData = $tableService->getInitialPageData($request, auth()->user());
+        $data = $this->getAccessibleTransactionList($request);
         $accessibleWebsites = $this->getAccessibleWebsitesForUser(auth()->user());
 
         return view('admin.transaction.index', [
-            'data' => $pageData['data'],
-            'recordsTotal' => $pageData['recordsTotal'],
-            'recordsFiltered' => $pageData['recordsFiltered'],
-            'initialKpis' => $pageData['kpis'],
-            'initialChartData' => $pageData['chartData'],
-            'initialAmountTotal' => $pageData['amountTotal'],
+            'data' => $data,
             'accessibleWebsites' => $accessibleWebsites,
             'dashboardTitle' => 'Transactions Dashboard',
             'dashboardSubtitle' => "Here's what's happening with your transaction performance.",
@@ -1443,27 +1431,13 @@ class TransactionController extends Controller
     {
         app(CommissionLifecycleRunner::class)->runSafely();
 
-        $mutator = function ($query) {
+        $data = $this->getAccessibleTransactionList($request, function ($query) {
             $query->whereNotNull('affiliate_id');
-        };
-
-        if ($request->ajax() && ($request->has('draw') || $request->wantsJson())) {
-            return response()->json(
-                app(\App\Services\TransactionTableService::class)->getAjaxData($request, auth()->user(), $mutator)
-            );
-        }
-
-        $tableService = app(\App\Services\TransactionTableService::class);
-        $pageData = $tableService->getInitialPageData($request, auth()->user(), $mutator);
+        });
         $accessibleWebsites = $this->getAccessibleWebsitesForUser(auth()->user());
 
         return view('admin.transaction.index', [
-            'data' => $pageData['data'],
-            'recordsTotal' => $pageData['recordsTotal'],
-            'recordsFiltered' => $pageData['recordsFiltered'],
-            'initialKpis' => $pageData['kpis'],
-            'initialChartData' => $pageData['chartData'],
-            'initialAmountTotal' => $pageData['amountTotal'],
+            'data' => $data,
             'accessibleWebsites' => $accessibleWebsites,
             'dashboardTitle' => 'affiliate Transactions',
             'dashboardSubtitle' => 'Only affiliate-referred transactions are listed here.',
@@ -1475,34 +1449,19 @@ class TransactionController extends Controller
     {
         app(CommissionLifecycleRunner::class)->runSafely();
 
-        $mutator = function ($query) {
+        $data = $this->getAccessibleTransactionList($request, function ($query) {
             $query->whereNotNull('entertainer_id');
-        };
-
-        if ($request->ajax() && ($request->has('draw') || $request->wantsJson())) {
-            return response()->json(
-                app(\App\Services\TransactionTableService::class)->getAjaxData($request, auth()->user(), $mutator)
-            );
-        }
-
-        $tableService = app(\App\Services\TransactionTableService::class);
-        $pageData = $tableService->getInitialPageData($request, auth()->user(), $mutator);
+        });
         $accessibleWebsites = $this->getAccessibleWebsitesForUser(auth()->user());
 
         return view('admin.transaction.index', [
-            'data' => $pageData['data'],
-            'recordsTotal' => $pageData['recordsTotal'],
-            'recordsFiltered' => $pageData['recordsFiltered'],
-            'initialKpis' => $pageData['kpis'],
-            'initialChartData' => $pageData['chartData'],
-            'initialAmountTotal' => $pageData['amountTotal'],
+            'data' => $data,
             'accessibleWebsites' => $accessibleWebsites,
             'dashboardTitle' => 'Entertainer Transactions',
             'dashboardSubtitle' => 'Only entertainer-referred transactions are listed here.',
             'isPayoutPage' => true,
         ]);
     }
-
 
     private function getAccessibleWebsitesForUser($user)
     {
