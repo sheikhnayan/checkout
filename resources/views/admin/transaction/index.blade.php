@@ -4740,17 +4740,8 @@ body.modal-open .admin-mobile-menu-toggle {
                         repositionTxnDatePicker();
                     });
 
-                // Capture-phase event isolation: prevent clicks inside DateRangePicker from bubbling to Bootstrap document dismiss handlers
-                ['click', 'mousedown', 'pointerdown', 'touchstart'].forEach(function(evtName) {
-                    document.addEventListener(evtName, function(e) {
-                        if (e.target && e.target.closest && e.target.closest('.daterangepicker')) {
-                            e.stopPropagation();
-                        }
-                    }, true);
-                });
-
                 // Dismiss DateRangePicker cleanly on outside click (when clicking outside both picker and popover)
-                $(document).on('click.txnDateOutside mousedown.txnDateOutside pointerdown.txnDateOutside', function(e) {
+                $(document).on('click.txnDateOutside', function(e) {
                     var picker = $('#txnDateRange').data('daterangepicker');
                     if (picker && picker.isShowing) {
                         if ($(e.target).closest('.daterangepicker, .polaris-popover-menu, #pillDateRangeBtn').length > 0) {
