@@ -4743,12 +4743,41 @@ body.modal-open .admin-mobile-menu-toggle {
                 // Dismiss DateRangePicker cleanly on outside click (when clicking outside both picker and popover)
                 $(document).on('click.txnDateOutside', function(e) {
                     var picker = $('#txnDateRange').data('daterangepicker');
-                    if (picker && picker.isShowing) {
+                    if (!picker || !picker.isShowing) return;
+
+                    // 1. Modern composedPath check: reliable even if target was re-rendered / detached from DOM during click
+                    var path = (e.originalEvent && typeof e.originalEvent.composedPath === 'function')
+                        ? e.originalEvent.composedPath()
+                        : (typeof e.composedPath === 'function' ? e.composedPath() : null);
+
+                    if (path && path.length) {
+                        for (var i = 0; i < path.length; i++) {
+                            var node = path[i];
+                            if (node && node.nodeType === 1) {
+                                if (node.classList && (
+                                    node.classList.contains('daterangepicker') ||
+                                    node.classList.contains('polaris-popover-menu') ||
+                                    node.id === 'pillDateRangeBtn' ||
+                                    (typeof node.closest === 'function' && node.closest('#pillDateRangeBtn'))
+                                )) {
+                                    return;
+                                }
+                            }
+                        }
+                    }
+
+                    // 2. If target is still in the DOM, standard closest check
+                    if (e.target && document.contains(e.target)) {
                         if ($(e.target).closest('.daterangepicker, .polaris-popover-menu, #pillDateRangeBtn').length > 0) {
                             return;
                         }
-                        picker.hide();
+                    } else if (e.target) {
+                        // 3. Target is detached: this happens when month arrows or dates re-render the calendar HTML table during the click!
+                        // Clicks on elements that were detached during the click event originated inside the calendar.
+                        return;
                     }
+
+                    picker.hide();
                 });
 
                 // Body Teleport for Polaris Filter Dropdowns (escapes all overflow & stacking contexts)
