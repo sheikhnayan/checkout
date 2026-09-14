@@ -1298,6 +1298,7 @@ body.modal-open .admin-mobile-menu-toggle {
             $todayData    = $reportableData->filter(fn($t) => $t->created_at->timezone($tz)->between($todayStart, $todayEnd));
             $todayRevenue = (float) $todayData->sum('total');
             $todayTxns    = (int) $todayData->count();
+            $todayGuests  = (int) $todayData->sum($guestCountForTransaction);
             $todaySessions = $todayTxns > 0 ? max($todayTxns * 18, (int) round($todayTxns * 22.4)) : 0;
             $todayConv    = $todaySessions > 0 ? (($todayTxns / $todaySessions) * 100) : 0;
 
@@ -1522,8 +1523,8 @@ body.modal-open .admin-mobile-menu-toggle {
                                 {{-- 1. Total Sales Card --}}
                                 <div class="col">
                                     <div class="shopify-metric-card p-2 p-md-3 rounded-3 cursor-pointer active" data-metric="sales" onclick="switchShopifyMetric('sales')">
-                                        <div class="shopify-metric-title">
-                                            <span>Total sales</span>
+                                        <div class="shopify-metric-title d-flex align-items-center justify-content-between">
+                                            <span>Total sales <span class="shopify-today-tag badge ms-1" style="background:rgba(139,92,246,0.22);color:#c084fc;font-size:0.65rem;padding:2px 6px;border-radius:4px;border:1px solid rgba(139,92,246,0.4);font-weight:600;">Today</span></span>
                                             <i class="fas fa-chart-line text-white-50" style="font-size:0.75rem;"></i>
                                         </div>
                                         <div class="d-flex align-items-baseline justify-content-between flex-wrap gap-1 mt-1" style="min-width:0;">
@@ -1532,15 +1533,15 @@ body.modal-open .admin-mobile-menu-toggle {
                                             <span class="shopify-delta-badge up" id="shopifySalesDelta"><i class="fas fa-arrow-up me-1"></i><span id="shopifySalesDeltaText">14.5%</span></span>
                                             @endif
                                         </div>
-                                        <div class="text-white-50 small mt-1 text-truncate" style="font-size:0.7rem;">Gross filtered revenue</div>
+                                        <div class="text-white-50 small mt-1 text-truncate shopify-metric-subtext" id="shopifySalesSubtext" style="font-size:0.7rem;">Today's gross revenue</div>
                                     </div>
                                 </div>
 
                                 {{-- 2. Orders Card --}}
                                 <div class="col">
                                     <div class="shopify-metric-card p-2 p-md-3 rounded-3 cursor-pointer" data-metric="orders" onclick="switchShopifyMetric('orders')">
-                                        <div class="shopify-metric-title">
-                                            <span>Orders</span>
+                                        <div class="shopify-metric-title d-flex align-items-center justify-content-between">
+                                            <span>Orders / Bookings <span class="shopify-today-tag badge ms-1" style="background:rgba(139,92,246,0.22);color:#c084fc;font-size:0.65rem;padding:2px 6px;border-radius:4px;border:1px solid rgba(139,92,246,0.4);font-weight:600;">Today</span></span>
                                             <i class="fas fa-shopping-bag text-white-50" style="font-size:0.75rem;"></i>
                                         </div>
                                         <div class="d-flex align-items-baseline justify-content-between flex-wrap gap-1 mt-1" style="min-width:0;">
@@ -1549,15 +1550,17 @@ body.modal-open .admin-mobile-menu-toggle {
                                             <span class="shopify-delta-badge up" id="shopifyOrdersDelta"><i class="fas fa-arrow-up me-1"></i><span id="shopifyOrdersDeltaText">8.2%</span></span>
                                             @endif
                                         </div>
-                                        <div class="text-white-50 small mt-1 text-truncate" style="font-size:0.7rem;">Filtered bookings</div>
+                                        <div class="text-white-50 small mt-1 text-truncate shopify-metric-subtext" id="shopifyOrdersSubtext" style="font-size:0.7rem;">
+                                            <span id="shopifyOrdersSubtextBase">Today's bookings</span> · <span class="text-white-50 fw-semibold" id="shopifyGuestsWrap"><span id="shopifyGuestsVal">{{ number_format($todayGuests ?? 0) }}</span> guests</span>
+                                        </div>
                                     </div>
                                 </div>
 
                                 {{-- 3. Sessions Card --}}
                                 <div class="col">
                                     <div class="shopify-metric-card p-2 p-md-3 rounded-3 cursor-pointer" data-metric="sessions" onclick="switchShopifyMetric('sessions')">
-                                        <div class="shopify-metric-title">
-                                            <span>Sessions</span>
+                                        <div class="shopify-metric-title d-flex align-items-center justify-content-between">
+                                            <span>Sessions <span class="shopify-today-tag badge ms-1" style="background:rgba(139,92,246,0.22);color:#c084fc;font-size:0.65rem;padding:2px 6px;border-radius:4px;border:1px solid rgba(139,92,246,0.4);font-weight:600;">Today</span></span>
                                             <i class="fas fa-eye text-white-50" style="font-size:0.75rem;"></i>
                                         </div>
                                         <div class="d-flex align-items-baseline justify-content-between flex-wrap gap-1 mt-1" style="min-width:0;">
@@ -1566,7 +1569,7 @@ body.modal-open .admin-mobile-menu-toggle {
                                             <span class="shopify-delta-badge down" id="shopifySessionsDelta"><i class="fas fa-arrow-down me-1"></i><span id="shopifySessionsDeltaText">12.4%</span></span>
                                             @endif
                                         </div>
-                                        <div class="text-white-50 small mt-1 text-truncate" style="font-size:0.7rem;">Tracked visitor traffic</div>
+                                        <div class="text-white-50 small mt-1 text-truncate shopify-metric-subtext" id="shopifySessionsSubtext" style="font-size:0.7rem;">Today's visitor traffic</div>
                                     </div>
                                 </div>
 
@@ -1574,8 +1577,8 @@ body.modal-open .admin-mobile-menu-toggle {
                                 @if(\App\Models\Setting::showConversionRateCard())
                                 <div class="col">
                                     <div class="shopify-metric-card p-2 p-md-3 rounded-3 cursor-pointer" data-metric="conversion" onclick="switchShopifyMetric('conversion')">
-                                        <div class="shopify-metric-title">
-                                            <span>Conversion rate</span>
+                                        <div class="shopify-metric-title d-flex align-items-center justify-content-between">
+                                            <span>Conversion rate <span class="shopify-today-tag badge ms-1" style="background:rgba(139,92,246,0.22);color:#c084fc;font-size:0.65rem;padding:2px 6px;border-radius:4px;border:1px solid rgba(139,92,246,0.4);font-weight:600;">Today</span></span>
                                             <i class="fas fa-percentage text-white-50" style="font-size:0.75rem;"></i>
                                         </div>
                                         <div class="d-flex align-items-baseline justify-content-between flex-wrap gap-1 mt-1" style="min-width:0;">
@@ -1589,7 +1592,7 @@ body.modal-open .admin-mobile-menu-toggle {
                                             <span class="shopify-delta-badge up" id="shopifyConversionDelta"><i class="fas fa-arrow-up me-1"></i><span id="shopifyConversionDeltaText">3.6%</span></span>
                                             @endif
                                         </div>
-                                        <div class="text-white-50 small mt-1 text-truncate" style="font-size:0.7rem;">Visitors to bookings ratio</div>
+                                        <div class="text-white-50 small mt-1 text-truncate shopify-metric-subtext" id="shopifyConversionSubtext" style="font-size:0.7rem;">Today's visitors to bookings ratio</div>
                                     </div>
                                 </div>
                                 @endif
@@ -3686,10 +3689,24 @@ body.modal-open .admin-mobile-menu-toggle {
                         cardSales = todayStats.sales;
                         cardOrders = todayStats.orders;
                         cardGuests = todayStats.guests;
+
+                        // Show "Today" badges and today-specific subtexts on initial load
+                        $('.shopify-today-tag').removeClass('d-none');
+                        $('#shopifySalesSubtext').text("Today's gross revenue");
+                        $('#shopifyOrdersSubtextBase').text("Today's bookings");
+                        $('#shopifySessionsSubtext').text("Today's visitor traffic");
+                        $('#shopifyConversionSubtext').text("Today's visitors to bookings ratio");
                     } else {
                         cardSales = totalSales;
                         cardOrders = totalOrders;
                         cardGuests = totalGuests;
+
+                        // Hide "Today" badges when filtered so users aren't confused
+                        $('.shopify-today-tag').addClass('d-none');
+                        $('#shopifySalesSubtext').text("Gross filtered revenue");
+                        $('#shopifyOrdersSubtextBase').text("Filtered bookings");
+                        $('#shopifySessionsSubtext').text("Tracked visitor traffic");
+                        $('#shopifyConversionSubtext').text("Visitors to bookings ratio");
                     }
 
                     // Dynamically estimate visitor sessions
@@ -3705,6 +3722,7 @@ body.modal-open .admin-mobile-menu-toggle {
                     $('#shopifySalesVal').text('$' + cardSales.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 }));
                     $('#shopifyOrdersVal').text(cardOrders.toLocaleString());
                     $('#shopifyConversionVal').text(conversionRate.toFixed(2) + '%');
+                    $('#shopifyGuestsVal').text(cardGuests.toLocaleString());
 
                     // Calculate period-over-period deltas (% comparisons) by comparing recent period vs prior period
                     let salesDelta = 0;
