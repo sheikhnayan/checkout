@@ -4070,6 +4070,9 @@ body.modal-open .admin-mobile-menu-toggle {
                     if (picker) {
                         picker.setStartDate(moment());
                         picker.setEndDate(moment());
+                        if (picker.isShowing) {
+                            picker.hide();
+                        }
                     }
                     updatePolarisUiAndFilterTable();
                 };
@@ -4544,6 +4547,7 @@ body.modal-open .admin-mobile-menu-toggle {
                     linkedCalendars: false,
                     alwaysShowCalendars: true,
                     opens: 'left',
+                    drops: 'down',
                     showDropdowns: true,
                     locale: { cancelLabel: 'Clear', applyLabel: 'Apply', format: 'MM/DD/YYYY' },
                     ranges: {
@@ -4620,6 +4624,63 @@ body.modal-open .admin-mobile-menu-toggle {
                     $txnDateRange.val(initialStartDate.format('MM/DD/YYYY') + ' - ' + initialEndDate.format('MM/DD/YYYY'));
                 }
 
+                // Reposition DateRangePicker to stay anchored to the date input in fixed viewport coordinates
+                function repositionTxnDatePicker() {
+                    var picker = $('#txnDateRange').data('daterangepicker');
+                    if (!picker || !picker.isShowing) return;
+
+                    var $container = picker.container;
+                    if (!$container || !$container.length) return;
+
+                    // On mobile (<= 768px), CSS centers the modal dialog via .daterangepicker { position: fixed !important; top: 50% !important; ... }
+                    if (window.innerWidth < 768) {
+                        return;
+                    }
+
+                    var $anchor = $('#txnDateRangeWrap:visible');
+                    if (!$anchor.length) {
+                        $anchor = $('#txnDateRange:visible');
+                    }
+                    if (!$anchor.length) return;
+
+                    var rect = $anchor[0].getBoundingClientRect();
+                    var pickerWidth = $container.outerWidth() || 560;
+                    var pickerHeight = $container.outerHeight() || 340;
+
+                    var top = rect.bottom + 6;
+                    var left = rect.left;
+
+                    // Ensure horizontal containment within viewport
+                    if (left + pickerWidth > window.innerWidth - 16) {
+                        left = Math.max(16, window.innerWidth - pickerWidth - 16);
+                    }
+                    if (left < 16) {
+                        left = 16;
+                    }
+
+                    // Check if it fits below; if not, attempt above or clamp to bottom
+                    if (top + pickerHeight > window.innerHeight - 16) {
+                        var topAbove = rect.top - pickerHeight - 6;
+                        if (topAbove >= 16) {
+                            top = topAbove;
+                        } else {
+                            top = Math.max(16, window.innerHeight - pickerHeight - 16);
+                        }
+                    }
+                    // Hard floor clamp: NEVER allow top to be negative or offscreen
+                    top = Math.max(16, top);
+
+                    $container.css({
+                        'position': 'fixed',
+                        'top': top + 'px',
+                        'left': left + 'px',
+                        'right': 'auto',
+                        'margin': '0',
+                        'transform': 'none',
+                        'z-index': '999999'
+                    });
+                }
+
                 $txnDateRange.off('apply.daterangepicker.txnDateRange').on('apply.daterangepicker.txnDateRange', function(ev, picker) {
                     const val = picker.startDate.format('MM/DD/YYYY') + ' - ' + picker.endDate.format('MM/DD/YYYY');
                     $('#txnDateRange, #mobileTxnDateRange').val(val);
@@ -4628,10 +4689,28 @@ body.modal-open .admin-mobile-menu-toggle {
                         picker.setEndDate(picker.endDate);
                     }
                     updatePolarisUiAndFilterTable();
+                    picker.hide();
+                    var pillBtn = document.getElementById('pillDateRangeBtn');
+                    if (pillBtn && typeof bootstrap !== 'undefined' && bootstrap.Dropdown) {
+                        var bsDropdown = bootstrap.Dropdown.getInstance(pillBtn);
+                        if (bsDropdown) {
+                            bsDropdown.hide();
+                        }
+                    }
                 });
 
-                $txnDateRange.off('cancel.daterangepicker.txnDateRange').on('cancel.daterangepicker.txnDateRange', function() {
+                $txnDateRange.off('cancel.daterangepicker.txnDateRange').on('cancel.daterangepicker.txnDateRange', function(ev, picker) {
                     $('#txnDateRange, #mobileTxnDateRange').val('');
+                    if (picker) {
+                        picker.hide();
+                    }
+                    var pillBtn = document.getElementById('pillDateRangeBtn');
+                    if (pillBtn && typeof bootstrap !== 'undefined' && bootstrap.Dropdown) {
+                        var bsDropdown = bootstrap.Dropdown.getInstance(pillBtn);
+                        if (bsDropdown) {
+                            bsDropdown.hide();
+                        }
+                    }
                     reloadWithServerFilters();
                 });
 
@@ -4640,12 +4719,45 @@ body.modal-open .admin-mobile-menu-toggle {
                     const picker = $(this).data('daterangepicker');
                     if (picker) {
                         picker.show();
+                        repositionTxnDatePicker();
                     }
                 });
 
-                // Prevent click / touch events inside DateRangePicker from prematurely closing parent Bootstrap dropdowns
-                $(document).on('click mousedown touchstart touchend', '.daterangepicker, .daterangepicker *', function(e) {
-                    e.stopPropagation();
+                $txnDateRange.off('show.daterangepicker.reposition showCalendar.daterangepicker.reposition')
+                    .on('show.daterangepicker.reposition showCalendar.daterangepicker.reposition', function() {
+                        repositionTxnDatePicker();
+                    });
+
+                // Reposition on calendar interaction (month navigation, custom range selection, year/month selects)
+                $(document).off('.txnDatePickerEvents')
+                    .on('click.txnDatePickerEvents change.txnDatePickerEvents', '.daterangepicker, .daterangepicker *', function() {
+                        setTimeout(repositionTxnDatePicker, 0);
+                    });
+
+                // Reposition on viewport scroll and resize while picker is active
+                $(window).off('scroll.txnDatePicker resize.txnDatePicker')
+                    .on('scroll.txnDatePicker resize.txnDatePicker', function() {
+                        repositionTxnDatePicker();
+                    });
+
+                // Capture-phase event isolation: prevent clicks inside DateRangePicker from bubbling to Bootstrap document dismiss handlers
+                ['click', 'mousedown', 'pointerdown', 'touchstart'].forEach(function(evtName) {
+                    document.addEventListener(evtName, function(e) {
+                        if (e.target && e.target.closest && e.target.closest('.daterangepicker')) {
+                            e.stopPropagation();
+                        }
+                    }, true);
+                });
+
+                // Dismiss DateRangePicker cleanly on outside click (when clicking outside both picker and popover)
+                $(document).on('click.txnDateOutside mousedown.txnDateOutside pointerdown.txnDateOutside', function(e) {
+                    var picker = $('#txnDateRange').data('daterangepicker');
+                    if (picker && picker.isShowing) {
+                        if ($(e.target).closest('.daterangepicker, .polaris-popover-menu, #pillDateRangeBtn').length > 0) {
+                            return;
+                        }
+                        picker.hide();
+                    }
                 });
 
                 // Body Teleport for Polaris Filter Dropdowns (escapes all overflow & stacking contexts)
@@ -4686,7 +4798,23 @@ body.modal-open .admin-mobile-menu-toggle {
                     });
                 });
 
-                $(document).on('hide.bs.dropdown hidden.bs.dropdown', '#polarisFilterContainer .dropdown', function () {
+                $(document).on('hide.bs.dropdown', '#polarisFilterContainer .dropdown', function (e) {
+                    var $dropdown = $(this);
+                    var picker = $('#txnDateRange').data('daterangepicker');
+                    // Prevent Bootstrap from closing the Date dropdown if user is actively interacting with DateRangePicker
+                    if (picker && picker.isShowing) {
+                        var hasDate = $dropdown.find('#txnDateRange').length > 0 ||
+                            $('body > .polaris-popover-menu').filter(function() {
+                                return $(this).data('orig-parent') && $(this).data('orig-parent')[0] === $dropdown[0];
+                            }).find('#txnDateRange').length > 0;
+                        if (hasDate) {
+                            e.preventDefault();
+                            return false;
+                        }
+                    }
+                });
+
+                $(document).on('hidden.bs.dropdown', '#polarisFilterContainer .dropdown', function () {
                     var $dropdown = $(this);
                     var $menu = $('body > .polaris-popover-menu').filter(function() {
                         return $(this).data('orig-parent') && $(this).data('orig-parent')[0] === $dropdown[0];
@@ -4703,6 +4831,12 @@ body.modal-open .admin-mobile-menu-toggle {
                             'display': ''
                         });
                         $dropdown.append($menu);
+                    }
+
+                    // If Date dropdown was closed, ensure picker is hidden
+                    var picker = $('#txnDateRange').data('daterangepicker');
+                    if (picker && picker.isShowing) {
+                        picker.hide();
                     }
                 });
 
