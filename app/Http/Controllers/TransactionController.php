@@ -1416,22 +1416,12 @@ class TransactionController extends Controller
     {
         app(CommissionLifecycleRunner::class)->runSafely();
 
-        $canArchiveTransactions = auth()->check()
-            && auth()->user()->isAdmin()
-            && strtolower(trim((string) (auth()->user()->email ?? ''))) === 'admin@admin.com';
-        $isArchivedView = $request->boolean('archived') && $canArchiveTransactions;
-
         $data = $this->getAccessibleTransactionList($request);
         $accessibleWebsites = $this->getAccessibleWebsitesForUser(auth()->user());
-        $referralRows = $this->getFilterReferralNames();
 
         return view('admin.transaction.index', [
             'data' => $data,
-            'isInitialShell' => false,
-            'canArchiveTransactions' => $canArchiveTransactions,
-            'isArchivedView' => $isArchivedView,
             'accessibleWebsites' => $accessibleWebsites,
-            'referralRows' => $referralRows,
             'dashboardTitle' => 'Transactions Dashboard',
             'dashboardSubtitle' => "Here's what's happening with your transaction performance.",
         ]);
@@ -1441,25 +1431,14 @@ class TransactionController extends Controller
     {
         app(CommissionLifecycleRunner::class)->runSafely();
 
-        $canArchiveTransactions = auth()->check()
-            && auth()->user()->isAdmin()
-            && strtolower(trim((string) (auth()->user()->email ?? ''))) === 'admin@admin.com';
-        $isArchivedView = $request->boolean('archived') && $canArchiveTransactions;
-
         $data = $this->getAccessibleTransactionList($request, function ($query) {
             $query->whereNotNull('affiliate_id');
         });
-
         $accessibleWebsites = $this->getAccessibleWebsitesForUser(auth()->user());
-        $referralRows = $this->getFilterReferralNames();
 
         return view('admin.transaction.index', [
             'data' => $data,
-            'isInitialShell' => false,
-            'canArchiveTransactions' => $canArchiveTransactions,
-            'isArchivedView' => $isArchivedView,
             'accessibleWebsites' => $accessibleWebsites,
-            'referralRows' => $referralRows,
             'dashboardTitle' => 'affiliate Transactions',
             'dashboardSubtitle' => 'Only affiliate-referred transactions are listed here.',
             'isPayoutPage' => true,
@@ -1470,52 +1449,18 @@ class TransactionController extends Controller
     {
         app(CommissionLifecycleRunner::class)->runSafely();
 
-        $canArchiveTransactions = auth()->check()
-            && auth()->user()->isAdmin()
-            && strtolower(trim((string) (auth()->user()->email ?? ''))) === 'admin@admin.com';
-        $isArchivedView = $request->boolean('archived') && $canArchiveTransactions;
-
         $data = $this->getAccessibleTransactionList($request, function ($query) {
             $query->whereNotNull('entertainer_id');
         });
-
         $accessibleWebsites = $this->getAccessibleWebsitesForUser(auth()->user());
-        $referralRows = $this->getFilterReferralNames();
 
         return view('admin.transaction.index', [
             'data' => $data,
-            'isInitialShell' => false,
-            'canArchiveTransactions' => $canArchiveTransactions,
-            'isArchivedView' => $isArchivedView,
             'accessibleWebsites' => $accessibleWebsites,
-            'referralRows' => $referralRows,
             'dashboardTitle' => 'Entertainer Transactions',
             'dashboardSubtitle' => 'Only entertainer-referred transactions are listed here.',
             'isPayoutPage' => true,
         ]);
-    }
-
-    private function getFilterReferralNames()
-    {
-        try {
-            $affs = \App\Models\Affiliate::with(['user', 'parent.user'])->get()->map(function ($aff) {
-                if ($aff->isSubAffiliate()) {
-                    $parent = $aff->parent;
-                    $parentName = $parent ? ($parent->display_name ?: optional($parent->user)->name) : 'Main Promoter';
-                    $subName = $aff->display_name ?: optional($aff->user)->name ?: ('Sub Promoter #' . $aff->id);
-                    return $subName . ' (Main: ' . $parentName . ')';
-                }
-                return $aff->display_name ?: optional($aff->user)->name ?: ('affiliate #' . $aff->id);
-            });
-
-            $ents = \App\Models\Entertainer::with('user')->get()->map(function ($ent) {
-                return $ent->display_name ?: optional($ent->user)->name ?: ('Entertainer #' . $ent->id);
-            });
-
-            return $affs->concat($ents)->filter()->unique()->values();
-        } catch (\Throwable $e) {
-            return collect();
-        }
     }
 
     private function getAccessibleWebsitesForUser($user)

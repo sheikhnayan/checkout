@@ -7,15 +7,6 @@
     });
     $allAddons = \App\Models\Addon::all(['id', 'name'])->keyBy('id');
     $allPromoCodes = \App\Models\PromoCode::all(['id', 'name'])->keyBy('id');
-
-    $formatDatePst = function ($dateVal, $format = 'M d, Y h:i A \P\D\T') {
-        if (!$dateVal) return '';
-        try {
-            return \Carbon\Carbon::parse($dateVal)->timezone('America/Los_Angeles')->format($format);
-        } catch (\Throwable $e) {
-            return (string) $dateVal;
-        }
-    };
 @endphp
                         @forelse($data as $item)
                         @php
@@ -41,7 +32,7 @@
                                 $venueName   = $item->website->name ?? ($item->event->name ?? 'N/A');
 
                                 $cartItems = is_array($item->cart_items ?? null) ? $item->cart_items : json_decode($item->cart_items ?? '[]', true);
-                                $packageDetails = collect($cartItems)->map(function ($ci) use ($packagesById) {
+                                $packageDetails = collect($cartItems)->map(function ($ci) {
                                     if (!is_array($ci)) {
                                         return null;
                                     }
