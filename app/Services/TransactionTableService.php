@@ -281,7 +281,12 @@ class TransactionTableService
         }
 
         // 7. Global Search (Search box)
-        $searchVal = trim((string) ($request->input('search.value') ?: $request->input('search', '')));
+        $searchRaw = $request->input('search');
+        if (is_array($searchRaw)) {
+            $searchVal = trim((string) ($searchRaw['value'] ?? ''));
+        } else {
+            $searchVal = trim((string) ($request->input('search.value') ?: $searchRaw));
+        }
         if ($searchVal !== '') {
             $cleanNumeric = preg_replace('/[^0-9]/', '', $searchVal);
             $query->where(function ($sq) use ($searchVal, $cleanNumeric) {
@@ -326,8 +331,14 @@ class TransactionTableService
         $recordsFiltered = (clone $filteredQuery)->count();
 
         // Sorting
-        $orderColIndex = (int) $request->input('order.0.column', 2);
-        $orderDir = strtolower($request->input('order.0.dir', 'desc')) === 'asc' ? 'asc' : 'desc';
+        $order = $request->input('order');
+        if (is_array($order) && isset($order[0])) {
+            $orderColIndex = (int) ($order[0]['column'] ?? 2);
+            $orderDir = strtolower((string) ($order[0]['dir'] ?? 'desc')) === 'asc' ? 'asc' : 'desc';
+        } else {
+            $orderColIndex = (int) $request->input('order.0.column', 2);
+            $orderDir = strtolower((string) $request->input('order.0.dir', 'desc')) === 'asc' ? 'asc' : 'desc';
+        }
 
         $sortColMap = [
             1 => 'id',
@@ -408,6 +419,10 @@ class TransactionTableService
      */
     public function calculateKpisAndCharts($baseQuery, $filteredQuery, Request $request): array
     {
+        $searchRaw = $request->input('search');
+        $searchVal = is_array($searchRaw) ? ($searchRaw['value'] ?? '') : ($request->input('search.value') ?: $searchRaw);
+        $searchVal = trim((string) $searchVal);
+
         $hasActiveFilter = (
             !empty($request->input('venues')) ||
             !empty($request->input('statuses')) ||
@@ -415,7 +430,7 @@ class TransactionTableService
             !empty($request->input('affiliates')) ||
             !empty($request->input('date_range')) ||
             !empty($request->input('reservation')) ||
-            !empty($request->input('search.value'))
+            !empty($searchVal)
         );
 
         // Fetch only 6 lightweight columns for calculations across filtered records
