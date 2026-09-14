@@ -2794,6 +2794,10 @@ body.modal-open .admin-mobile-menu-toggle {
                         updateShopifyAnalyticsFromFilteredTable();
                     });
 
+                    if (typeof initColumnToggleDropdown === 'function') {
+                        initColumnToggleDropdown();
+                    }
+
                     // Immediate initial render of analytics & charts
                     setTimeout(function() {
                         updateShopifyAnalyticsFromFilteredTable();
@@ -2803,12 +2807,14 @@ body.modal-open .admin-mobile-menu-toggle {
 
                 function loadTransactionsAsync() {
                     let currentUrl = new URL(window.location.href);
+                    currentUrl.hash = '';
                     currentUrl.searchParams.set('load_data', '1');
 
                     $.ajax({
                         url: currentUrl.toString(),
                         type: 'GET',
                         headers: { 'X-Requested-With': 'XMLHttpRequest' },
+                        timeout: 60000,
                         success: function(response) {
                             if (response && response.html) {
                                 $('#txnDataTable tbody').html(response.html);
@@ -2816,6 +2822,10 @@ body.modal-open .admin-mobile-menu-toggle {
                                 $('#chartSkeletonOverlay').fadeOut(250, function() { $(this).remove(); });
 
                                 initTxnDataTable();
+
+                                if (typeof initColumnToggleDropdown === 'function') {
+                                    initColumnToggleDropdown();
+                                }
 
                                 if (typeof updatePolarisUiAndFilterTable === 'function') {
                                     updatePolarisUiAndFilterTable();
