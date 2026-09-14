@@ -1296,9 +1296,9 @@ body.modal-open .admin-mobile-menu-toggle {
             $todayStart   = $now->copy()->startOfDay();
             $todayEnd     = $now->copy()->endOfDay();
             $todayData    = $reportableData->filter(fn($t) => $t->created_at->timezone($tz)->between($todayStart, $todayEnd));
-            $todayRevenue = (float) $todayData->sum('total');
-            $todayTxns    = (int) $todayData->count();
-            $todayGuests  = (int) $todayData->sum($guestCountForTransaction);
+            $todayRevenue = isset($initialKpis['todaySales']) ? (float)$initialKpis['todaySales'] : (float) $todayData->sum('total');
+            $todayTxns    = isset($initialKpis['todayOrders']) ? (int)$initialKpis['todayOrders'] : (int) $todayData->count();
+            $todayGuests  = isset($initialKpis['todayGuests']) ? (int)$initialKpis['todayGuests'] : (int) $todayData->sum($guestCountForTransaction);
             $todaySessions = $todayTxns > 0 ? max($todayTxns * 18, (int) round($todayTxns * 22.4)) : 0;
             $todayConv    = $todaySessions > 0 ? (($todayTxns / $todaySessions) * 100) : 0;
 
@@ -2074,6 +2074,13 @@ body.modal-open .admin-mobile-menu-toggle {
                         </tr>
                     </thead>
                     <tbody>
+                        @php
+                            $allPackages = \App\Models\Package::get(['id', 'name', 'description', 'package_type', 'transportation']);
+                            $allPackagesById = $allPackages->keyBy('id');
+                            $allPackagesByName = $allPackages->keyBy(fn($p) => strtolower(trim($p->name)));
+                            $allAddonsById = \App\Models\Addon::get(['id', 'name'])->keyBy('id');
+                            $allPromosById = \App\Models\PromoCode::get(['id', 'name'])->keyBy('id');
+                        @endphp
                         @forelse($data as $item)
                         @php
                             try {
@@ -2098,7 +2105,9 @@ body.modal-open .admin-mobile-menu-toggle {
                                 $venueName   = $item->website->name ?? ($item->event->name ?? 'N/A');
 
                                 $cartItems = is_array($item->cart_items ?? null) ? $item->cart_items : json_decode($item->cart_items ?? '[]', true);
-                                $packageDetails = collect($cartItems)->map(function ($ci) {
+                                if (!is_array($cartItems)) $cartItems = [];
+
+                                $packageDetails = collect($cartItems)->map(function ($ci) use ($allPackagesById) {
                                     if (!is_array($ci)) {
                                         return null;
                                     }
@@ -2111,8 +2120,8 @@ body.modal-open .admin-mobile-menu-toggle {
                                     $quantity = max(1, (int) ($ci['quantity'] ?? $ci['guests'] ?? 1));
                                     $packageType = strtolower(trim((string) ($ci['package_type'] ?? $ci['type'] ?? $ci['packageType'] ?? '')));
                                     if ($packageType === '' && !empty($ci['package_id'])) {
-                                        $package = \App\Models\Package::find((int) $ci['package_id']);
-                                        $packageType = $package ? strtolower(trim((string) ($package->package_type ?? ''))) : '';
+                                        $pkg = $allPackagesById->get((int) $ci['package_id']);
+                                        $packageType = $pkg ? strtolower(trim((string) ($pkg->package_type ?? ''))) : '';
                                     }
 
                                     if ($packageType === 'ticket') {
@@ -2126,61 +2135,18 @@ body.modal-open .admin-mobile-menu-toggle {
                                     ? ($packageDetails->count() > 1 ? $packageDetails->implode(', ') : $packageDetails->first())
                                     : $packageName;
 
-                                $packageIds = collect($cartItems)
-                                    ->map(fn ($ci) => (int) ($ci['package_id'] ?? 0))
-                                    ->filter(fn ($id) => $id > 0)
-                                    ->unique()
-                                    ->values();
-
-                                $packageRows = $packageIds->isNotEmpty()
-                                    ? \App\Models\Package::whereIn('id', $packageIds)->get(['id', 'name', 'description'])
-                                    : collect();
-
-                                $packageNames = collect($cartItems)
-                                    ->map(fn ($ci) => trim((string) ($ci['package_name'] ?? $ci['packageName'] ?? $ci['pkgName'] ?? '')))
-                                    ->filter(fn ($name) => $name !== '')
-                                    ->unique()
-                                    ->values();
-
-                                $packageRowsByName = $packageNames->isNotEmpty()
-                                    ? \App\Models\Package::whereIn('name', $packageNames)->get(['id', 'name', 'description'])
-                                    : collect();
-
-                                $packageDescriptionsById = $packageRows
-                                    ->mapWithKeys(fn ($pkg) => [(string) $pkg->id => (string) ($pkg->description ?? '')])
-                                    ->all();
-
-                                $packageDescriptionsByName = $packageRows
-                                    ->mapWithKeys(function ($pkg) {
-                                        $key = strtolower(trim((string) ($pkg->name ?? '')));
-                                        return $key !== '' ? [$key => (string) ($pkg->description ?? '')] : [];
-                                    })
-                                    ->all();
-
-                                foreach ($packageRowsByName as $pkgByName) {
-                                    $nameKey = strtolower(trim((string) ($pkgByName->name ?? '')));
-                                    if ($nameKey === '') {
-                                        continue;
-                                    }
-
-                                    if (!isset($packageDescriptionsByName[$nameKey]) || trim((string) $packageDescriptionsByName[$nameKey]) === '') {
-                                        $packageDescriptionsByName[$nameKey] = (string) ($pkgByName->description ?? '');
-                                    }
-
-                                    $idKey = (string) ($pkgByName->id ?? '');
-                                    if ($idKey !== '' && (!isset($packageDescriptionsById[$idKey]) || trim((string) $packageDescriptionsById[$idKey]) === '')) {
-                                        $packageDescriptionsById[$idKey] = (string) ($pkgByName->description ?? '');
-                                    }
-                                }
-
+                                $packageDescriptionsById = [];
+                                $packageDescriptionsByName = [];
                                 foreach ($cartItems as $ci) {
-                                    if (!is_array($ci)) {
-                                        continue;
-                                    }
+                                    if (!is_array($ci)) continue;
                                     $cid = (int) ($ci['package_id'] ?? 0);
                                     $cname = strtolower(trim((string) ($ci['package_name'] ?? $ci['packageName'] ?? $ci['pkgName'] ?? '')));
-                                    if ($cid > 0 && $cname !== '' && isset($packageDescriptionsById[(string) $cid]) && $packageDescriptionsById[(string) $cid] !== '') {
-                                        $packageDescriptionsByName[$cname] = $packageDescriptionsById[(string) $cid];
+                                    if ($cid > 0 && $allPackagesById->has($cid)) {
+                                        $desc = (string) ($allPackagesById->get($cid)->description ?? '');
+                                        $packageDescriptionsById[(string)$cid] = $desc;
+                                        if ($cname !== '') $packageDescriptionsByName[$cname] = $desc;
+                                    } elseif ($cname !== '' && $allPackagesByName->has($cname)) {
+                                        $packageDescriptionsByName[$cname] = (string) ($allPackagesByName->get($cname)->description ?? '');
                                     }
                                 }
 
@@ -2190,13 +2156,13 @@ body.modal-open .admin-mobile-menu-toggle {
                                 ];
 
                                 $addons = collect($cartItems)->flatMap(fn($ci) => $ci['addons'] ?? [])->pluck('name')->filter()->implode(', ');
-                                if ($addons === '') {
+                                if ($addons === '' && !empty($item->addons)) {
                                     foreach (explode(',', (string)$item->addons) as $av) {
-                                        $ao = \App\Models\Addon::find(trim($av));
+                                        $ao = $allAddonsById->get(trim($av));
                                         if ($ao) $addons .= ($addons !== '' ? ', ' : '') . $ao->name;
                                     }
                                 }
-                                $promo_obj = \App\Models\PromoCode::where('id', $item->promo_code)->first();
+                                $promo_obj = !empty($item->promo_code) ? $allPromosById->get($item->promo_code) : null;
                                 $promo_code_name = $promo_obj ? $promo_obj->name : null;
 
                                 // Payout lifecycle
@@ -3242,6 +3208,7 @@ body.modal-open .admin-mobile-menu-toggle {
 
             // ── Dynamic Chart Updater for Filtered Views ─────────────────────
             window.updateChartsFromFilteredRows = function() {
+                if (typeof USE_SERVER_SIDE !== 'undefined' && USE_SERVER_SIDE) return;
                 const activeTable = window.table || (typeof table !== 'undefined' ? table : null);
                 if (!activeTable) return;
 
@@ -3387,7 +3354,9 @@ body.modal-open .admin-mobile-menu-toggle {
                     nonOrderableTargets.push(actionColumnIndex);
                 }
 
-                let table = $('#txnDataTable').DataTable({
+                const USE_SERVER_SIDE = true;
+
+                let dtConfig = {
                     pageLength: 25,
                     deferRender: true,
                     searching: true,
@@ -3412,19 +3381,123 @@ body.modal-open .admin-mobile-menu-toggle {
                         }
                     },
                     columnDefs: [
-                        { orderable: false, targets: nonOrderableTargets }
+                        { orderable: false, targets: nonOrderableTargets },
+                        { className: 'd-none', targets: [17, 18, 19, 20] }
                     ]
-                });
+                };
+
+                if (USE_SERVER_SIDE) {
+                    dtConfig.serverSide = true;
+                    dtConfig.processing = true;
+                    dtConfig.deferLoading = [{{ isset($recordsFiltered) ? $recordsFiltered : 0 }}, {{ isset($recordsTotal) ? $recordsTotal : 0 }}];
+                    dtConfig.columns = [
+                        { data: 0, orderable: false },
+                        { data: 1, className: 'txn-order-id' },
+                        { data: 2, className: 'txn-sale-date' },
+                        { data: 3, className: 'txn-confirmation-num' },
+                        { data: 4, className: 'txn-pkg-name' },
+                        { data: 5, className: 'txn-host-name' },
+                        { data: 6 },
+                        { data: 7 },
+                        { data: 8, className: 'txn-amount' },
+                        { data: 9 },
+                        { data: 10 },
+                        { data: 11, className: 'txn-amount' },
+                        { data: 12 },
+                        { data: 13 },
+                        { data: 14 },
+                        { data: 15, className: 'txn-commission' },
+                        { data: 16, orderable: false },
+                        { data: 17, className: 'd-none' },
+                        { data: 18, className: 'd-none' },
+                        { data: 19, className: 'd-none' },
+                        { data: 20, className: 'd-none' }
+                    ];
+                    dtConfig.ajax = {
+                        url: window.location.href,
+                        type: 'GET',
+                        data: function(d) {
+                            d.venues = $('.polaris-filter-cb[data-category="venue"]:checked').map(function() { return $(this).val(); }).get();
+                            d.statuses = $('.polaris-filter-cb[data-category="status"]:checked').map(function() { return $(this).val(); }).get();
+                            d.types = $('.polaris-filter-cb[data-category="type"]:checked').map(function() { return $(this).val(); }).get();
+                            d.affiliates = $('.polaris-filter-cb[data-category="affiliate"]:checked').map(function() { return $(this).val(); }).get();
+                            d.date_range = $('#txnDateRange').val() || $('#mobileTxnDateRange').val();
+                            d.date_target = $('#dateTargetSelect').val() || $('#mobileDateTargetSelect').val();
+                            d.reservation = (typeof currentReservationFilter !== 'undefined') ? currentReservationFilter : '';
+                            d.isPayoutPage = {{ $isPayoutPage ? 1 : 0 }};
+                            d.archived = {{ $isArchivedView ? 1 : 0 }};
+                        }
+                    };
+                }
+
+                let table = $('#txnDataTable').DataTable(dtConfig);
                 window.table = table;
 
-                table.on('draw', function() {
-                    updateShopifyAnalyticsFromFilteredTable();
-                });
+                if (USE_SERVER_SIDE) {
+                    table.on('xhr.dt', function(e, settings, json) {
+                        if (!json) return;
+                        if (json.kpis) {
+                            const k = json.kpis;
+                            const isFilterActive = k.isFilterActive;
 
-                // Immediate initial render on page load
-                setTimeout(function() {
-                    updateShopifyAnalyticsFromFilteredTable();
-                }, 150);
+                            let cardSales = isFilterActive ? k.totalSales : k.todaySales;
+                            let cardOrders = isFilterActive ? k.totalOrders : k.todayOrders;
+                            let cardGuests = isFilterActive ? k.totalGuests : k.todayGuests;
+
+                            if (isFilterActive) {
+                                $('.shopify-today-tag').addClass('d-none');
+                                $('#shopifySalesSubtext').text("Gross filtered revenue");
+                                $('#shopifyOrdersSubtextBase').text("Filtered bookings");
+                                $('#shopifySessionsSubtext').text("Tracked visitor traffic");
+                                $('#shopifyConversionSubtext').text("Visitors to bookings ratio");
+                            } else {
+                                $('.shopify-today-tag').removeClass('d-none');
+                                $('#shopifySalesSubtext').text("Today's gross revenue");
+                                $('#shopifyOrdersSubtextBase').text("Today's bookings");
+                                $('#shopifySessionsSubtext').text("Today's visitor traffic");
+                                $('#shopifyConversionSubtext').text("Today's visitors to bookings ratio");
+                            }
+
+                            const sessionsCount = cardOrders > 0 ? Math.max(cardOrders * 18, Math.round(cardOrders * 22.4)) : 0;
+                            const conversionRate = sessionsCount > 0 ? ((cardOrders / sessionsCount) * 100) : 0;
+
+                            $('#shopifySalesVal').text('$' + cardSales.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 }));
+                            $('#shopifyOrdersVal').text(cardOrders.toLocaleString());
+                            $('#shopifyGuestsVal').text(cardGuests.toLocaleString());
+                            $('#shopifySessionsVal').text(sessionsCount.toLocaleString());
+                            $('#shopifyConversionVal').text(conversionRate.toFixed(2) + '%');
+                        }
+
+                        if (json.amountTotal) {
+                            $('#amount-total').text(json.amountTotal);
+                        }
+
+                        if (json.chartData && json.chartData.dailyMap) {
+                            drawShopifyChartDataset(json.chartData.dailyMap, currentShopifyMetric, json.chartData.allDailyMap || json.chartData.dailyMap);
+                            drawClassicPerformanceChart(json.chartData.dailyMap, json.chartData.allDailyMap || json.chartData.dailyMap);
+                            drawOrdersGuestsChart(json.chartData.dailyMap, json.chartData.allDailyMap || json.chartData.dailyMap);
+                        }
+                    });
+
+                    // Initial charts render from server payload if available
+                    const initialChartData = @json($initialChartData ?? null);
+                    if (initialChartData && initialChartData.dailyMap) {
+                        drawShopifyChartDataset(initialChartData.dailyMap, currentShopifyMetric, initialChartData.allDailyMap || initialChartData.dailyMap);
+                        drawClassicPerformanceChart(initialChartData.dailyMap, initialChartData.allDailyMap || initialChartData.dailyMap);
+                        drawOrdersGuestsChart(initialChartData.dailyMap, initialChartData.allDailyMap || initialChartData.dailyMap);
+                    } else {
+                        setTimeout(function() {
+                            updateShopifyAnalyticsFromFilteredTable();
+                        }, 150);
+                    }
+                } else {
+                    table.on('draw', function() {
+                        updateShopifyAnalyticsFromFilteredTable();
+                    });
+                    setTimeout(function() {
+                        updateShopifyAnalyticsFromFilteredTable();
+                    }, 150);
+                }
 
                 // Mobile Analytics Collapse Toggle Handler
                 $('#mobileAnalyticsCollapse').on('show.bs.collapse', function () {
@@ -4646,6 +4719,7 @@ body.modal-open .admin-mobile-menu-toggle {
                     return true;
                 });
 
+                let txnSearchDebounceTimer = null;
                 $('#txnSearch, #mobileTxnSearch').on('keyup input', function() {
                     const val = this.value;
                     $('#txnSearch, #mobileTxnSearch').not(this).val(val);
@@ -4655,7 +4729,10 @@ body.modal-open .admin-mobile-menu-toggle {
                         $('#mobileSearchClearBtn').addClass('d-none');
                     }
                     if (!table) return;
-                    table.search(val).draw();
+                    clearTimeout(txnSearchDebounceTimer);
+                    txnSearchDebounceTimer = setTimeout(function() {
+                        table.search(val).draw();
+                    }, 350);
                 });
 
                 $('#mobileSearchClearBtn').on('click', function() {
@@ -5703,6 +5780,7 @@ body.modal-open .admin-mobile-menu-toggle {
                 // ── Running total ────────────────────────────────────────────
                 function updateTotal() {
                     if (!table) return;
+                    if (typeof USE_SERVER_SIDE !== 'undefined' && USE_SERVER_SIDE) return;
                     let total = 0;
                     table.rows({ search: 'applied' }).every(function(index) {
                         const row = this.node();
@@ -5809,6 +5887,7 @@ body.modal-open .admin-mobile-menu-toggle {
 
                 function updateDashboardCardsFromFilteredRows() {
                     if (!table) return;
+                    if (typeof USE_SERVER_SIDE !== 'undefined' && USE_SERVER_SIDE) return;
 
                     const now = moment();
                     const weekStart = now.clone().startOf('week');
