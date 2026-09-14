@@ -3417,24 +3417,31 @@ body.modal-open .admin-mobile-menu-toggle {
                 };
 
                 if (USE_SERVER_SIDE) {
+                    function renderDtCell(val, type, row) {
+                        if (val && typeof val === 'object') {
+                            return (type === 'sort' || type === 'type') ? (val['@data-order'] ?? val.display) : (val.display ?? '');
+                        }
+                        return val != null ? val : '';
+                    }
+
                     dtConfig.serverSide = true;
                     dtConfig.processing = true;
                     dtConfig.deferLoading = [{{ isset($recordsFiltered) ? $recordsFiltered : 0 }}, {{ isset($recordsTotal) ? $recordsTotal : 0 }}];
                     dtConfig.columns = [
                         { data: 0, orderable: false },
-                        { data: 1, className: 'txn-order-id' },
-                        { data: 2, className: 'txn-sale-date' },
+                        { data: 1, className: 'txn-order-id', render: renderDtCell },
+                        { data: 2, className: 'txn-sale-date', render: renderDtCell },
                         { data: 3, className: 'txn-confirmation-num' },
                         { data: 4, className: 'txn-pkg-name' },
                         { data: 5, className: 'txn-host-name' },
                         { data: 6 },
                         { data: 7 },
-                        { data: 8, className: 'txn-amount' },
+                        { data: 8, className: 'txn-amount', render: renderDtCell },
                         { data: 9 },
                         { data: 10 },
                         { data: 11, className: 'txn-amount' },
-                        { data: 12 },
-                        { data: 13 },
+                        { data: 12, render: renderDtCell },
+                        { data: 13, render: renderDtCell },
                         { data: 14 },
                         { data: 15, className: 'txn-commission' },
                         { data: 16, orderable: false },

@@ -831,6 +831,7 @@ class TransactionTableService
                     }
                 } catch (\Throwable $e) {}
             }
+            $reservationSortOrder = $reservationDatePacific ? $reservationDatePacific->timestamp : 0;
 
             $reservationStatusValue = 'Upcoming';
             $reservationStatusClass = 'badge-reservation-upcoming';
@@ -1020,19 +1021,34 @@ class TransactionTableService
                     'data-row-error' => '',
                 ],
                 0 => $col0,
-                1 => $col1,
-                2 => $col2,
+                1 => [
+                    'display' => $col1,
+                    '@data-order' => (int)($item->id ?? 0),
+                ],
+                2 => [
+                    'display' => $col2,
+                    '@data-order' => $purchaseSortOrder,
+                ],
                 3 => $col3,
                 4 => $col4,
                 5 => $col5,
                 6 => $col6,
                 7 => $col7,
-                8 => $col8,
+                8 => [
+                    'display' => $col8,
+                    '@data-order' => (float)($item->total ?? 0),
+                ],
                 9 => $col9,
                 10 => $col10,
                 11 => $col11,
-                12 => $col12,
-                13 => $col13,
+                12 => [
+                    'display' => $col12,
+                    '@data-order' => $reservationSortOrder,
+                ],
+                13 => [
+                    'display' => $col13,
+                    '@data-order' => $reservationSortOrder,
+                ],
                 14 => $col14,
                 15 => $col15,
                 16 => $col16,
@@ -1050,19 +1066,34 @@ class TransactionTableService
                     'data-row-error' => $e->getMessage(),
                 ],
                 0 => '<input type="checkbox" class="row-check" value="' . $item->id . '">',
-                1 => '#' . $item->id,
-                2 => optional($item->created_at)->format('M d, Y') ?? '-',
+                1 => [
+                    'display' => '#' . $item->id,
+                    '@data-order' => (int)($item->id ?? 0),
+                ],
+                2 => [
+                    'display' => optional($item->created_at)->format('M d, Y') ?? '-',
+                    '@data-order' => optional($item->created_at)->timestamp ?? 0,
+                ],
                 3 => e($item->transaction_id ?? 'N/A'),
                 4 => 'Error rendering row',
                 5 => '-',
                 6 => 'Direct',
                 7 => e($item->package_first_name ?? ''),
-                8 => '$' . number_format((float)($item->total ?? 0), 2),
+                8 => [
+                    'display' => '$' . number_format((float)($item->total ?? 0), 2),
+                    '@data-order' => (float)($item->total ?? 0),
+                ],
                 9 => 'Paid',
                 10 => '-',
                 11 => '-',
-                12 => 'Completed',
-                13 => '-',
+                12 => [
+                    'display' => 'Completed',
+                    '@data-order' => 0,
+                ],
+                13 => [
+                    'display' => '-',
+                    '@data-order' => 0,
+                ],
                 14 => 'Not Redeemed',
                 15 => '$0.00',
                 16 => '',
