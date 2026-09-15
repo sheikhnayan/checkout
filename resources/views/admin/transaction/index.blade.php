@@ -2440,7 +2440,7 @@
                             {{-- Dynamic Trend Line Chart --}}
                             <div class="shopify-chart-wrap pt-2 pt-md-3 border-top border-secondary border-opacity-25">
                                 <div class="d-flex align-items-center justify-content-between flex-wrap gap-2 mb-2 mb-md-3 shopify-chart-header">
-                                    <div class="fw-bold text-white" id="shopifyChartTitle" style="font-size: 0.95rem; letter-spacing: -0.01em; padding-left:1rem;">Total sales over time</div>
+                                    <div class="fw-bold text-white" id="shopifyChartTitle" style="font-size: 0.95rem; letter-spacing: -0.01em;">Total sales over time</div>
                                     <div class="d-flex align-items-center gap-2 gap-md-3 small text-white-50 shopify-chart-legend">
                                         <span class="d-inline-flex align-items-center"><i class="fas fa-circle text-primary me-1" style="font-size:0.6rem;"></i> <span id="shopifyCurrentPeriodLabel">Month to Date</span></span>
                                         <span class="d-inline-flex align-items-center"><i class="fas fa-circle text-info opacity-50 me-1" style="font-size:0.6rem;"></i> <span id="shopifyPrevPeriodLabel">Previous Period</span></span>
