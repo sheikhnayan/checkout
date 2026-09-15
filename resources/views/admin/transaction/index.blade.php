@@ -1274,16 +1274,25 @@ body.modal-open .admin-mobile-menu-toggle {
         justify-content: center !important;
         display: flex !important;
         align-items: center !important;
+        gap: 8px !important;
         font-size: 0.78rem !important;
-        padding: 6px 8px !important;
+        padding: 6px 10px !important;
         white-space: nowrap !important;
         box-sizing: border-box !important;
         border-radius: 8px !important;
     }
 
+    .txn-action-buttons-wrap .btn i,
+    .txn-action-buttons-wrap .txn-export-btn i,
+    .txn-action-buttons-wrap .dropdown-toggle i {
+        margin-right: 6px !important;
+        flex-shrink: 0 !important;
+        display: inline-block !important;
+    }
+
     .txn-action-buttons-wrap .dropdown-toggle::after {
         display: inline-block !important;
-        margin-left: 4px !important;
+        margin-left: 6px !important;
     }
 
     /* Polaris Filter Bar Mobile Touch Scroll & Fixed Viewport Dropdowns */
@@ -2071,8 +2080,8 @@ body.modal-open .admin-mobile-menu-toggle {
                     @if($canArchiveTransactions)
                     {{-- 1. Selection Count Dropdown Pill --}}
                     <div class="dropdown">
-                        <button class="txn-export-btn btn dropdown-toggle w-100 d-inline-flex align-items-center justify-content-center gap-1.5" data-bs-toggle="dropdown" type="button" style="font-size:0.8rem; padding: 6px 12px; white-space:nowrap;">
-                            <input type="checkbox" id="selectionToolbarCb" class="form-check-input mt-0 me-1" style="cursor:pointer;" onclick="event.stopPropagation();">
+                        <button class="txn-export-btn btn dropdown-toggle w-100 d-inline-flex align-items-center justify-content-center gap-2" data-bs-toggle="dropdown" type="button" style="font-size:0.8rem; padding: 6px 12px; white-space:nowrap;">
+                            <input type="checkbox" id="selectionToolbarCb" class="form-check-input mt-0 me-2" style="cursor:pointer;" onclick="event.stopPropagation();">
                             <span id="selectionCount" style="font-size:0.8rem; color:#fff; font-weight:600;">0 selected</span>
                         </button>
                         <ul class="dropdown-menu shadow-lg" style="background:#1e293b;border:1px solid rgba(255,255,255,0.15)">
@@ -2083,20 +2092,20 @@ body.modal-open .admin-mobile-menu-toggle {
 
                     {{-- 2. Archive / Unarchive Selected Button --}}
                     @if($isArchivedView)
-                    <button type="button" id="bulkUnarchiveBtn" class="txn-export-btn btn w-100 d-inline-flex align-items-center justify-content-center gap-1.5" style="border-color: rgba(16, 185, 129, 0.4); color: #34d399; font-size: 0.8rem; padding: 6px 12px; white-space:nowrap;">
-                        <i class="fas fa-box-open me-1.5" style="color:#10b981;"></i> Unarchive Selected
+                    <button type="button" id="bulkUnarchiveBtn" class="txn-export-btn btn w-100 d-inline-flex align-items-center justify-content-center gap-2" style="border-color: rgba(16, 185, 129, 0.4); color: #34d399; font-size: 0.8rem; padding: 6px 12px; white-space:nowrap;">
+                        <i class="fas fa-box-open me-2" style="color:#10b981;"></i> Unarchive Selected
                     </button>
                     @else
-                    <button type="button" id="bulkArchiveBtn" class="txn-export-btn btn w-100 d-inline-flex align-items-center justify-content-center gap-1.5" style="border-color: rgba(245, 158, 11, 0.4); color: #fbbf24; font-size: 0.8rem; padding: 6px 12px; white-space:nowrap;">
-                        <i class="fas fa-box-archive me-1.5" style="color:#f59e0b;"></i> Archive Selected
+                    <button type="button" id="bulkArchiveBtn" class="txn-export-btn btn w-100 d-inline-flex align-items-center justify-content-center gap-2" style="border-color: rgba(245, 158, 11, 0.4); color: #fbbf24; font-size: 0.8rem; padding: 6px 12px; white-space:nowrap;">
+                        <i class="fas fa-box-archive me-2" style="color:#f59e0b;"></i> Archive Selected
                     </button>
                     @endif
                     @endif
 
                     {{-- 3. Export Table --}}
                     <div class="dropdown">
-                        <button class="txn-export-btn btn dropdown-toggle w-100 d-inline-flex align-items-center justify-content-center gap-1.5" data-bs-toggle="dropdown" type="button" style="font-size:0.8rem; padding:6px 12px; white-space:nowrap;">
-                            <i class="fas fa-file-export me-1.5" style="color:#06b6d4;"></i> Export <span class="d-none d-md-inline">Table</span>
+                        <button class="txn-export-btn btn dropdown-toggle w-100 d-inline-flex align-items-center justify-content-center gap-2" data-bs-toggle="dropdown" type="button" style="font-size:0.8rem; padding:6px 12px; white-space:nowrap;">
+                            <i class="fas fa-file-export me-2" style="color:#06b6d4;"></i> Export <span class="d-none d-md-inline">Table</span>
                         </button>
                         <ul class="dropdown-menu dropdown-menu-end shadow-lg" style="background:#1e293b;border:1px solid rgba(255,255,255,0.15)">
                             <li><a class="dropdown-item" style="color:rgba(255,255,255,0.85);font-size:0.82rem" id="expCsv"   href="#"><i class="fas fa-file-csv text-emerald me-2" style="color:#10b981;"></i>Export CSV</a></li>
@@ -2108,8 +2117,8 @@ body.modal-open .admin-mobile-menu-toggle {
 
                     {{-- 4. Columns Visibility Dropdown --}}
                     <div class="dropdown ms-md-auto">
-                        <button class="txn-export-btn btn dropdown-toggle w-100 d-inline-flex align-items-center justify-content-center gap-1.5" data-bs-toggle="dropdown" data-bs-auto-close="outside" type="button" style="font-size:0.8rem; padding:6px 12px; white-space:nowrap;">
-                            <i class="fas fa-columns me-1.5" style="color:#c084fc;"></i> Columns
+                        <button class="txn-export-btn btn dropdown-toggle w-100 d-inline-flex align-items-center justify-content-center gap-2" data-bs-toggle="dropdown" data-bs-auto-close="outside" type="button" style="font-size:0.8rem; padding:6px 12px; white-space:nowrap;">
+                            <i class="fas fa-columns me-2" style="color:#c084fc;"></i> Columns
                         </button>
                         <div class="dropdown-menu dropdown-menu-end polaris-popover-menu shadow-lg" style="min-width: 210px;">
                             <div class="polaris-popover-header">
@@ -2122,13 +2131,13 @@ body.modal-open .admin-mobile-menu-toggle {
                     </div>
 
                     @if($canArchiveTransactions)
-                    {{-- Select All Pages (Desktop helper) --}}
-                    <button type="button" id="selectAllPagesBtn" class="txn-export-btn btn d-none d-md-inline-flex align-items-center gap-1.5" style="font-size:0.8rem; padding:6px 12px; white-space:nowrap;">
+                    {{-- 5. Select All Pages --}}
+                    <button type="button" id="selectAllPagesBtn" class="txn-export-btn btn w-100 w-md-auto d-inline-flex align-items-center justify-content-center gap-2" style="font-size:0.8rem; padding:6px 12px; white-space:nowrap;">
                         <i class="fas fa-check-double me-2" style="color:#818cf8;"></i> Select All Pages
                     </button>
 
-                    {{-- Clear Selection (Desktop helper) --}}
-                    <button type="button" id="clearSelectionBtn" class="txn-export-btn btn d-none d-md-inline-flex align-items-center gap-1.5" style="font-size:0.8rem; padding:6px 12px; white-space:nowrap;">
+                    {{-- 6. Clear Selection --}}
+                    <button type="button" id="clearSelectionBtn" class="txn-export-btn btn w-100 w-md-auto d-inline-flex align-items-center justify-content-center gap-2" style="font-size:0.8rem; padding:6px 12px; white-space:nowrap;">
                         <i class="fas fa-times-circle me-2" style="color:#f43f5e;"></i> Clear Selection
                     </button>
                     @endif
