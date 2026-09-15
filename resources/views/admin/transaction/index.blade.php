@@ -671,16 +671,83 @@
     padding: 14px;
     margin-bottom: 14px;
 }
+.mobile-filter-group-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    cursor: pointer;
+    user-select: none;
+    padding: 2px 0;
+}
 .mobile-filter-group-title {
     font-size: 0.8rem;
     font-weight: 700;
     text-transform: uppercase;
     letter-spacing: 0.06em;
     color: #94a3b8;
-    margin-bottom: 10px;
+    margin-bottom: 0;
     display: flex;
     align-items: center;
     gap: 6px;
+}
+.mobile-filter-chevron {
+    transition: transform 0.25s cubic-bezier(0.4, 0, 0.2, 1);
+    font-size: 0.72rem;
+    color: #94a3b8;
+}
+.mobile-filter-chevron.rotated {
+    transform: rotate(180deg);
+}
+.mobile-filter-group-body {
+    transition: all 0.2s ease;
+}
+.mobile-filter-group-body.collapsed {
+    display: none;
+}
+.mobile-filter-search-wrap {
+    position: relative;
+    margin-bottom: 8px;
+}
+.mobile-filter-search {
+    background: rgba(15, 23, 42, 0.75) !important;
+    border: 1px solid rgba(255, 255, 255, 0.15) !important;
+    color: #ffffff !important;
+    border-radius: 8px !important;
+    font-size: 0.78rem !important;
+    padding: 6px 10px 6px 28px !important;
+}
+.mobile-filter-search:focus {
+    border-color: #8b5cf6 !important;
+    box-shadow: 0 0 0 2px rgba(139, 92, 246, 0.25) !important;
+    outline: none !important;
+}
+.mobile-filter-search-icon {
+    position: absolute;
+    left: 9px;
+    top: 50%;
+    transform: translateY(-50%);
+    font-size: 0.72rem;
+    color: rgba(255, 255, 255, 0.4) !important;
+    pointer-events: none;
+}
+.mobile-filter-scroll-list {
+    max-height: 180px !important;
+    overflow-y: auto !important;
+    -webkit-overflow-scrolling: touch;
+    padding-right: 4px !important;
+    scrollbar-width: thin !important;
+    scrollbar-color: rgba(139, 92, 246, 0.6) rgba(255, 255, 255, 0.06) !important;
+}
+.mobile-filter-scroll-list::-webkit-scrollbar {
+    width: 6px !important;
+}
+.mobile-filter-scroll-list::-webkit-scrollbar-track {
+    background: rgba(255, 255, 255, 0.06) !important;
+    border-radius: 4px !important;
+}
+.mobile-filter-scroll-list::-webkit-scrollbar-thumb {
+    background: rgba(139, 92, 246, 0.6) !important;
+    border-radius: 4px !important;
 }
 .mobile-preset-btn {
     background: rgba(255, 255, 255, 0.06);
@@ -3056,178 +3123,247 @@ body.modal-open .admin-mobile-menu-toggle {
                         </div>
                         <div class="modal-body">
                             {{-- 1. Date Range & Target --}}
-                            <div class="mobile-filter-group-card">
-                                <div class="mobile-filter-group-title">
-                                    <i class="fas fa-calendar-alt text-warning"></i> Date Filter
-                                </div>
-                                <div class="mb-3">
-                                    <label class="form-label text-white-50 small mb-1">Target Date Mode:</label>
-                                    <select id="mobileDateTargetSelect" class="form-select form-select-sm bg-dark text-white border-secondary">
-                                        <option value="either" selected>Either (Sale or Usage Date)</option>
-                                        <option value="sale">Sale Date (Transaction Date)</option>
-                                        <option value="reservation">Reservation Date (Usage Date)</option>
-                                    </select>
-                                </div>
-                                <div class="mb-3">
-                                    <label class="form-label text-white-50 small mb-1">Quick Date Presets:</label>
-                                    <div class="d-flex flex-wrap gap-2">
-                                        <button type="button" class="mobile-preset-btn" onclick="applyMobileDatePreset('today', this)">Today</button>
-                                        <button type="button" class="mobile-preset-btn" onclick="applyMobileDatePreset('yesterday', this)">Yesterday</button>
-                                        <button type="button" class="mobile-preset-btn" onclick="applyMobileDatePreset('7days', this)">Last 7 Days</button>
-                                        <button type="button" class="mobile-preset-btn" onclick="applyMobileDatePreset('monthToDate', this)">Month to Date</button>
-                                        <button type="button" class="mobile-preset-btn" onclick="applyMobileDatePreset('thisMonth', this)">This Month</button>
-                                        <button type="button" class="mobile-preset-btn" onclick="applyMobileDatePreset('allTime', this)">All Time</button>
+                            <div class="mobile-filter-group-card" id="mobileGroupCardDate">
+                                <div class="mobile-filter-group-header" onclick="toggleMobileFilterCard(this)">
+                                    <div class="mobile-filter-group-title">
+                                        <i class="fas fa-calendar-alt text-warning"></i>
+                                        <span>Date Filter</span>
+                                        <span class="badge bg-primary rounded-pill ms-1 {{ !empty($initialDateRange) ? '' : 'd-none' }}" id="mobileDrawerCountDate">{{ !empty($initialDateRange) ? '1' : '0' }}</span>
                                     </div>
+                                    <i class="fas fa-chevron-down mobile-filter-chevron rotated"></i>
                                 </div>
-                                <div>
-                                    <label class="form-label text-white-50 small mb-1">Custom Date Range:</label>
-                                    <div class="txn-date-range-wrap w-100" style="background:rgba(255,255,255,0.08);border-color:rgba(255,255,255,0.15);">
-                                        <i class="fas fa-calendar-alt me-2" style="color:rgba(255,255,255,0.4);font-size:0.85rem"></i>
-                                        <input type="text" id="mobileTxnDateRange" class="txn-date-input w-100" readonly placeholder="All time" value="{{ $initialDateRange }}">
+                                <div class="mobile-filter-group-body mt-3">
+                                    <div class="mb-3">
+                                        <label class="form-label text-white-50 small mb-1">Target Date Mode:</label>
+                                        <select id="mobileDateTargetSelect" class="form-select form-select-sm bg-dark text-white border-secondary">
+                                            <option value="either" selected>Either (Sale or Usage Date)</option>
+                                            <option value="sale">Sale Date (Transaction Date)</option>
+                                            <option value="reservation">Reservation Date (Usage Date)</option>
+                                        </select>
+                                    </div>
+                                    <div class="mb-3">
+                                        <label class="form-label text-white-50 small mb-1">Quick Date Presets:</label>
+                                        <div class="d-flex flex-wrap gap-2">
+                                            <button type="button" class="mobile-preset-btn" onclick="applyMobileDatePreset('today', this)">Today</button>
+                                            <button type="button" class="mobile-preset-btn" onclick="applyMobileDatePreset('yesterday', this)">Yesterday</button>
+                                            <button type="button" class="mobile-preset-btn" onclick="applyMobileDatePreset('7days', this)">Last 7 Days</button>
+                                            <button type="button" class="mobile-preset-btn" onclick="applyMobileDatePreset('monthToDate', this)">Month to Date</button>
+                                            <button type="button" class="mobile-preset-btn" onclick="applyMobileDatePreset('thisMonth', this)">This Month</button>
+                                            <button type="button" class="mobile-preset-btn" onclick="applyMobileDatePreset('allTime', this)">All Time</button>
+                                        </div>
+                                    </div>
+                                    <div>
+                                        <label class="form-label text-white-50 small mb-1">Custom Date Range:</label>
+                                        <div class="txn-date-range-wrap w-100" style="background:rgba(255,255,255,0.08);border-color:rgba(255,255,255,0.15);">
+                                            <i class="fas fa-calendar-alt me-2" style="color:rgba(255,255,255,0.4);font-size:0.85rem"></i>
+                                            <input type="text" id="mobileTxnDateRange" class="txn-date-input w-100" readonly placeholder="All time" value="{{ $initialDateRange }}">
+                                        </div>
                                     </div>
                                 </div>
                             </div>
 
                             @if($accessibleSitesList->count() > 1)
                             {{-- 2. Venue Filter --}}
-                            <div class="mobile-filter-group-card">
-                                <div class="mobile-filter-group-title justify-content-between">
-                                    <span><i class="fas fa-store text-info"></i> Venue</span>
-                                    <div>
-                                        <a href="javascript:void(0)" class="polaris-popover-action me-2" onclick="polarisToggleSelectAll('venue', true)">Select All</a>
-                                        <a href="javascript:void(0)" class="polaris-popover-action" onclick="polarisToggleSelectAll('venue', false)">Clear</a>
+                            <div class="mobile-filter-group-card" id="mobileGroupCardVenue">
+                                <div class="mobile-filter-group-header" onclick="toggleMobileFilterCard(this)">
+                                    <div class="mobile-filter-group-title">
+                                        <i class="fas fa-store text-info"></i>
+                                        <span>Venue</span>
+                                        <span class="badge bg-primary rounded-pill ms-1 {{ $filterWebsite ? '' : 'd-none' }}" id="mobileDrawerCountVenue">{{ $filterWebsite ? '1' : '0' }}</span>
+                                    </div>
+                                    <div class="d-flex align-items-center gap-2">
+                                        <span class="mobile-filter-actions" onclick="event.stopPropagation()">
+                                            <a href="javascript:void(0)" class="polaris-popover-action me-2" onclick="polarisToggleSelectAll('venue', true)">Select All</a>
+                                            <a href="javascript:void(0)" class="polaris-popover-action" onclick="polarisToggleSelectAll('venue', false)">Clear</a>
+                                        </span>
+                                        <i class="fas fa-chevron-down mobile-filter-chevron {{ $filterWebsite ? 'rotated' : '' }}"></i>
                                     </div>
                                 </div>
-                                <div class="d-flex flex-column gap-2">
-                                    @foreach($accessibleSitesList as $site)
-                                    <label class="polaris-checkbox-label">
-                                        <input type="checkbox" class="polaris-filter-cb" data-category="venue" value="{{ $site->name }}" {{ $filterWebsite === $site->name ? 'checked' : '' }}>
-                                        <span>{{ $site->name }}</span>
-                                    </label>
-                                    @endforeach
+                                <div class="mobile-filter-group-body {{ $filterWebsite ? '' : 'collapsed' }} mt-2.5">
+                                    <div class="mobile-filter-search-wrap">
+                                        <i class="fas fa-search mobile-filter-search-icon"></i>
+                                        <input type="text" class="form-control form-control-sm mobile-filter-search" placeholder="Search {{ $accessibleSitesList->count() }} venues..." oninput="filterMobileCheckboxes(this, '#mobileVenueList')">
+                                    </div>
+                                    <div class="d-flex flex-column gap-1.5 mobile-filter-scroll-list" id="mobileVenueList">
+                                        @foreach($accessibleSitesList as $site)
+                                        <label class="polaris-checkbox-label">
+                                            <input type="checkbox" class="polaris-filter-cb" data-category="venue" value="{{ $site->name }}" {{ $filterWebsite === $site->name ? 'checked' : '' }}>
+                                            <span>{{ $site->name }}</span>
+                                        </label>
+                                        @endforeach
+                                        <div class="text-white-50 small py-2 text-center no-match-msg d-none">No venues found</div>
+                                    </div>
                                 </div>
                             </div>
                             @endif
 
                             {{-- 3. Reservation Status --}}
-                            <div class="mobile-filter-group-card">
-                                <div class="mobile-filter-group-title justify-content-between">
-                                    <span><i class="fas fa-tasks text-success"></i> Reservation Status</span>
-                                    <div>
-                                        <a href="javascript:void(0)" class="polaris-popover-action me-2" onclick="polarisToggleSelectAll('reservation', true)">Select All</a>
-                                        <a href="javascript:void(0)" class="polaris-popover-action" onclick="polarisToggleSelectAll('reservation', false)">Clear</a>
+                            <div class="mobile-filter-group-card" id="mobileGroupCardReservation">
+                                <div class="mobile-filter-group-header" onclick="toggleMobileFilterCard(this)">
+                                    <div class="mobile-filter-group-title">
+                                        <i class="fas fa-tasks text-success"></i>
+                                        <span>Reservation Status</span>
+                                        <span class="badge bg-primary rounded-pill ms-1 {{ $filterReservation ? '' : 'd-none' }}" id="mobileDrawerCountReservation">{{ $filterReservation ? '1' : '0' }}</span>
+                                    </div>
+                                    <div class="d-flex align-items-center gap-2">
+                                        <span class="mobile-filter-actions" onclick="event.stopPropagation()">
+                                            <a href="javascript:void(0)" class="polaris-popover-action me-2" onclick="polarisToggleSelectAll('reservation', true)">Select All</a>
+                                            <a href="javascript:void(0)" class="polaris-popover-action" onclick="polarisToggleSelectAll('reservation', false)">Clear</a>
+                                        </span>
+                                        <i class="fas fa-chevron-down mobile-filter-chevron {{ $filterReservation ? 'rotated' : '' }}"></i>
                                     </div>
                                 </div>
-                                <div class="d-flex flex-column gap-2">
-                                    <label class="polaris-checkbox-label">
-                                        <input type="checkbox" class="polaris-filter-cb" data-category="reservation" value="upcoming" {{ $filterReservation === 'upcoming' ? 'checked' : '' }}>
-                                        <span>Upcoming</span>
-                                    </label>
-                                    <label class="polaris-checkbox-label">
-                                        <input type="checkbox" class="polaris-filter-cb" data-category="reservation" value="today" {{ $filterReservation === 'today' ? 'checked' : '' }}>
-                                        <span>Today</span>
-                                    </label>
-                                    <label class="polaris-checkbox-label">
-                                        <input type="checkbox" class="polaris-filter-cb" data-category="reservation" value="past" {{ $filterReservation === 'past' ? 'checked' : '' }}>
-                                        <span>Past</span>
-                                    </label>
-                                    <label class="polaris-checkbox-label">
-                                        <input type="checkbox" class="polaris-filter-cb" data-category="reservation" value="checked_in" {{ $filterReservation === 'checked_in' ? 'checked' : '' }}>
-                                        <span>Checked In</span>
-                                    </label>
-                                    <label class="polaris-checkbox-label">
-                                        <input type="checkbox" class="polaris-filter-cb" data-category="reservation" value="not_checked_in" {{ $filterReservation === 'not_checked_in' ? 'checked' : '' }}>
-                                        <span>Not Checked In</span>
-                                    </label>
-                                    <label class="polaris-checkbox-label">
-                                        <input type="checkbox" class="polaris-filter-cb" data-category="reservation" value="no_show" {{ $filterReservation === 'no_show' ? 'checked' : '' }}>
-                                        <span>No Show</span>
-                                    </label>
+                                <div class="mobile-filter-group-body {{ $filterReservation ? '' : 'collapsed' }} mt-2.5">
+                                    <div class="d-flex flex-column gap-1.5 mobile-filter-scroll-list" id="mobileReservationList">
+                                        <label class="polaris-checkbox-label">
+                                            <input type="checkbox" class="polaris-filter-cb" data-category="reservation" value="upcoming" {{ $filterReservation === 'upcoming' ? 'checked' : '' }}>
+                                            <span>Upcoming</span>
+                                        </label>
+                                        <label class="polaris-checkbox-label">
+                                            <input type="checkbox" class="polaris-filter-cb" data-category="reservation" value="today" {{ $filterReservation === 'today' ? 'checked' : '' }}>
+                                            <span>Today</span>
+                                        </label>
+                                        <label class="polaris-checkbox-label">
+                                            <input type="checkbox" class="polaris-filter-cb" data-category="reservation" value="past" {{ $filterReservation === 'past' ? 'checked' : '' }}>
+                                            <span>Past</span>
+                                        </label>
+                                        <label class="polaris-checkbox-label">
+                                            <input type="checkbox" class="polaris-filter-cb" data-category="reservation" value="checked_in" {{ $filterReservation === 'checked_in' ? 'checked' : '' }}>
+                                            <span>Checked In</span>
+                                        </label>
+                                        <label class="polaris-checkbox-label">
+                                            <input type="checkbox" class="polaris-filter-cb" data-category="reservation" value="not_checked_in" {{ $filterReservation === 'not_checked_in' ? 'checked' : '' }}>
+                                            <span>Not Checked In</span>
+                                        </label>
+                                        <label class="polaris-checkbox-label">
+                                            <input type="checkbox" class="polaris-filter-cb" data-category="reservation" value="no_show" {{ $filterReservation === 'no_show' ? 'checked' : '' }}>
+                                            <span>No Show</span>
+                                        </label>
+                                    </div>
                                 </div>
                             </div>
 
-                            {{-- 4. Sales Channel --}}
-                            <div class="mobile-filter-group-card">
-                                <div class="mobile-filter-group-title justify-content-between">
-                                    <span><i class="fas fa-user-tag style=color:#a78bfa;"></i> Sales Channel / Promoter</span>
-                                    <div>
-                                        <a href="javascript:void(0)" class="polaris-popover-action me-2" onclick="polarisToggleSelectAll('affiliate', true)">Select All</a>
-                                        <a href="javascript:void(0)" class="polaris-popover-action" onclick="polarisToggleSelectAll('affiliate', false)">Clear</a>
+                            {{-- 4. Sales Channel / Promoter --}}
+                            <div class="mobile-filter-group-card" id="mobileGroupCardAffiliate">
+                                <div class="mobile-filter-group-header" onclick="toggleMobileFilterCard(this)">
+                                    <div class="mobile-filter-group-title">
+                                        <i class="fas fa-user-tag" style="color:#a78bfa;"></i>
+                                        <span>Promoter / Channel</span>
+                                        <span class="badge bg-primary rounded-pill ms-1 {{ $filterAffiliate ? '' : 'd-none' }}" id="mobileDrawerCountAffiliate">{{ $filterAffiliate ? '1' : '0' }}</span>
+                                    </div>
+                                    <div class="d-flex align-items-center gap-2">
+                                        <span class="mobile-filter-actions" onclick="event.stopPropagation()">
+                                            <a href="javascript:void(0)" class="polaris-popover-action me-2" onclick="polarisToggleSelectAll('affiliate', true)">Select All</a>
+                                            <a href="javascript:void(0)" class="polaris-popover-action" onclick="polarisToggleSelectAll('affiliate', false)">Clear</a>
+                                        </span>
+                                        <i class="fas fa-chevron-down mobile-filter-chevron {{ $filterAffiliate ? 'rotated' : '' }}"></i>
                                     </div>
                                 </div>
-                                <div class="d-flex flex-column gap-2">
-                                    <label class="polaris-checkbox-label">
-                                        <input type="checkbox" class="polaris-filter-cb" data-category="affiliate" value="Direct" {{ $filterAffiliate === 'Direct' ? 'checked' : '' }}>
-                                        <span>Direct (No promoter)</span>
-                                    </label>
-                                    @foreach($referralRows as $rn)
-                                    <label class="polaris-checkbox-label">
-                                        <input type="checkbox" class="polaris-filter-cb" data-category="affiliate" value="{{ $rn }}" {{ $filterAffiliate === $rn ? 'checked' : '' }}>
-                                        <span>{{ $rn }}</span>
-                                    </label>
-                                    @endforeach
+                                <div class="mobile-filter-group-body {{ $filterAffiliate ? '' : 'collapsed' }} mt-2.5">
+                                    <div class="mobile-filter-search-wrap">
+                                        <i class="fas fa-search mobile-filter-search-icon"></i>
+                                        <input type="text" class="form-control form-control-sm mobile-filter-search" placeholder="Search promoters..." oninput="filterMobileCheckboxes(this, '#mobileAffiliateList')">
+                                    </div>
+                                    <div class="d-flex flex-column gap-1.5 mobile-filter-scroll-list" id="mobileAffiliateList">
+                                        <label class="polaris-checkbox-label">
+                                            <input type="checkbox" class="polaris-filter-cb" data-category="affiliate" value="Direct" {{ $filterAffiliate === 'Direct' ? 'checked' : '' }}>
+                                            <span>Direct (No promoter)</span>
+                                        </label>
+                                        @foreach($referralRows as $rn)
+                                        <label class="polaris-checkbox-label">
+                                            <input type="checkbox" class="polaris-filter-cb" data-category="affiliate" value="{{ $rn }}" {{ $filterAffiliate === $rn ? 'checked' : '' }}>
+                                            <span>{{ $rn }}</span>
+                                        </label>
+                                        @endforeach
+                                        <div class="text-white-50 small py-2 text-center no-match-msg d-none">No promoters found</div>
+                                    </div>
                                 </div>
                             </div>
 
                             {{-- 5. Payment Status --}}
-                            <div class="mobile-filter-group-card">
-                                <div class="mobile-filter-group-title justify-content-between">
-                                    <span><i class="fas fa-credit-card text-danger"></i> Payment Status</span>
-                                    <div>
-                                        <a href="javascript:void(0)" class="polaris-popover-action me-2" onclick="polarisToggleSelectAll('status', true)">Select All</a>
-                                        <a href="javascript:void(0)" class="polaris-popover-action" onclick="polarisToggleSelectAll('status', false)">Clear</a>
+                            <div class="mobile-filter-group-card" id="mobileGroupCardStatus">
+                                <div class="mobile-filter-group-header" onclick="toggleMobileFilterCard(this)">
+                                    <div class="mobile-filter-group-title">
+                                        <i class="fas fa-credit-card text-danger"></i>
+                                        <span>Payment Status</span>
+                                        <span class="badge bg-primary rounded-pill ms-1 {{ $filterStatus ? '' : 'd-none' }}" id="mobileDrawerCountStatus">{{ $filterStatus ? '1' : '0' }}</span>
+                                    </div>
+                                    <div class="d-flex align-items-center gap-2">
+                                        <span class="mobile-filter-actions" onclick="event.stopPropagation()">
+                                            <a href="javascript:void(0)" class="polaris-popover-action me-2" onclick="polarisToggleSelectAll('status', true)">Select All</a>
+                                            <a href="javascript:void(0)" class="polaris-popover-action" onclick="polarisToggleSelectAll('status', false)">Clear</a>
+                                        </span>
+                                        <i class="fas fa-chevron-down mobile-filter-chevron {{ $filterStatus ? 'rotated' : '' }}"></i>
                                     </div>
                                 </div>
-                                <div class="d-flex flex-column gap-2">
-                                    <label class="polaris-checkbox-label">
-                                        <input type="checkbox" class="polaris-filter-cb" data-category="status" value="Completed" {{ $filterStatus === 'Completed' ? 'checked' : '' }}>
-                                        <span><i class="fas fa-circle text-success me-1" style="font-size:0.6rem;"></i> Completed</span>
-                                    </label>
-                                    <label class="polaris-checkbox-label">
-                                        <input type="checkbox" class="polaris-filter-cb" data-category="status" value="Canceled" {{ $filterStatus === 'Canceled' ? 'checked' : '' }}>
-                                        <span><i class="fas fa-circle text-danger me-1" style="font-size:0.6rem;"></i> Canceled</span>
-                                    </label>
-                                    <label class="polaris-checkbox-label">
-                                        <input type="checkbox" class="polaris-filter-cb" data-category="status" value="Refunded" {{ $filterStatus === 'Refunded' ? 'checked' : '' }}>
-                                        <span><i class="fas fa-circle text-warning me-1" style="font-size:0.6rem;"></i> Refunded</span>
-                                    </label>
+                                <div class="mobile-filter-group-body {{ $filterStatus ? '' : 'collapsed' }} mt-2.5">
+                                    <div class="d-flex flex-column gap-1.5 mobile-filter-scroll-list" id="mobileStatusList">
+                                        <label class="polaris-checkbox-label">
+                                            <input type="checkbox" class="polaris-filter-cb" data-category="status" value="Completed" {{ $filterStatus === 'Completed' ? 'checked' : '' }}>
+                                            <span><i class="fas fa-circle text-success me-1" style="font-size:0.6rem;"></i> Completed</span>
+                                        </label>
+                                        <label class="polaris-checkbox-label">
+                                            <input type="checkbox" class="polaris-filter-cb" data-category="status" value="Canceled" {{ $filterStatus === 'Canceled' ? 'checked' : '' }}>
+                                            <span><i class="fas fa-circle text-danger me-1" style="font-size:0.6rem;"></i> Canceled</span>
+                                        </label>
+                                        <label class="polaris-checkbox-label">
+                                            <input type="checkbox" class="polaris-filter-cb" data-category="status" value="Refunded" {{ $filterStatus === 'Refunded' ? 'checked' : '' }}>
+                                            <span><i class="fas fa-circle text-warning me-1" style="font-size:0.6rem;"></i> Refunded</span>
+                                        </label>
+                                    </div>
                                 </div>
                             </div>
 
                             {{-- 6. Host Name --}}
-                            <div class="mobile-filter-group-card">
-                                <div class="mobile-filter-group-title justify-content-between">
-                                    <span><i class="fas fa-user-circle text-primary"></i> Host Name Filter</span>
-                                    <div>
-                                        <a href="javascript:void(0)" class="polaris-popover-action me-2" onclick="polarisToggleSelectAll('host', true)">Select All</a>
-                                        <a href="javascript:void(0)" class="polaris-popover-action" onclick="polarisToggleSelectAll('host', false)">Clear</a>
+                            <div class="mobile-filter-group-card" id="mobileGroupCardHost">
+                                <div class="mobile-filter-group-header" onclick="toggleMobileFilterCard(this)">
+                                    <div class="mobile-filter-group-title">
+                                        <i class="fas fa-user-circle text-primary"></i>
+                                        <span>Host Name</span>
+                                        <span class="badge bg-primary rounded-pill ms-1 d-none" id="mobileDrawerCountHost">0</span>
+                                    </div>
+                                    <div class="d-flex align-items-center gap-2">
+                                        <span class="mobile-filter-actions" onclick="event.stopPropagation()">
+                                            <a href="javascript:void(0)" class="polaris-popover-action me-2" onclick="polarisToggleSelectAll('host', true)">Select All</a>
+                                            <a href="javascript:void(0)" class="polaris-popover-action" onclick="polarisToggleSelectAll('host', false)">Clear</a>
+                                        </span>
+                                        <i class="fas fa-chevron-down mobile-filter-chevron"></i>
                                     </div>
                                 </div>
-                                <div class="d-flex flex-column gap-2">
-                                    <label class="polaris-checkbox-label">
-                                        <input type="checkbox" class="polaris-filter-cb" data-category="host" value="has_host">
-                                        <span><i class="fas fa-check text-success me-1"></i> Has Host Name</span>
-                                    </label>
-                                    <label class="polaris-checkbox-label">
-                                        <input type="checkbox" class="polaris-filter-cb" data-category="host" value="no_host">
-                                        <span><i class="fas fa-times text-muted me-1"></i> No Host Name</span>
-                                    </label>
+                                <div class="mobile-filter-group-body collapsed mt-2.5">
+                                    <div class="d-flex flex-column gap-1.5 mobile-filter-scroll-list" id="mobileHostList">
+                                        <label class="polaris-checkbox-label">
+                                            <input type="checkbox" class="polaris-filter-cb" data-category="host" value="has_host">
+                                            <span><i class="fas fa-check text-success me-1"></i> Has Host Name</span>
+                                        </label>
+                                        <label class="polaris-checkbox-label">
+                                            <input type="checkbox" class="polaris-filter-cb" data-category="host" value="no_host">
+                                            <span><i class="fas fa-times text-muted me-1"></i> No Host Name</span>
+                                        </label>
+                                    </div>
                                 </div>
                             </div>
 
                             @if($canArchiveTransactions)
                             {{-- 7. Archive Mode (Last Option) --}}
-                            <div class="mobile-filter-group-card">
-                                <div class="mobile-filter-group-title">
-                                    <i class="fas fa-box-archive text-warning"></i> Archive Mode
+                            <div class="mobile-filter-group-card" id="mobileGroupCardArchive">
+                                <div class="mobile-filter-group-header" onclick="toggleMobileFilterCard(this)">
+                                    <div class="mobile-filter-group-title">
+                                        <i class="fas fa-box-archive text-warning"></i>
+                                        <span>Archive Mode</span>
+                                        <span class="badge bg-warning text-dark rounded-pill ms-1 {{ $isArchivedView ? '' : 'd-none' }}" id="mobileDrawerCountArchive">1</span>
+                                    </div>
+                                    <i class="fas fa-chevron-down mobile-filter-chevron {{ $isArchivedView ? 'rotated' : '' }}"></i>
                                 </div>
-                                <div class="d-flex gap-2">
-                                    <a href="{{ route('admin.transaction.index') }}" class="btn btn-sm flex-fill d-flex align-items-center justify-content-center gap-1.5 py-2 {{ !$isArchivedView ? 'btn-primary text-white fw-bold' : 'btn-outline-secondary text-white-50' }}" style="border-radius:8px; text-decoration:none; font-size:0.8rem;">
-                                        <i class="fas fa-list me-1"></i> Active (Standard)
-                                    </a>
-                                    <a href="{{ route('admin.transaction.index', array_merge(request()->except('page'), ['archived' => 1])) }}" class="btn btn-sm flex-fill d-flex align-items-center justify-content-center gap-1.5 py-2 {{ $isArchivedView ? 'btn-warning text-dark fw-bold' : 'btn-outline-secondary text-white-50' }}" style="border-radius:8px; text-decoration:none; font-size:0.8rem;">
-                                        <i class="fas fa-box-archive me-1"></i> View Archived
-                                    </a>
+                                <div class="mobile-filter-group-body {{ $isArchivedView ? '' : 'collapsed' }} mt-2.5">
+                                    <div class="d-flex gap-2">
+                                        <a href="{{ route('admin.transaction.index') }}" class="btn btn-sm flex-fill d-flex align-items-center justify-content-center gap-1.5 py-2 {{ !$isArchivedView ? 'btn-primary text-white fw-bold' : 'btn-outline-secondary text-white-50' }}" style="border-radius:8px; text-decoration:none; font-size:0.8rem;">
+                                            <i class="fas fa-list me-1"></i> Active (Standard)
+                                        </a>
+                                        <a href="{{ route('admin.transaction.index', array_merge(request()->except('page'), ['archived' => 1])) }}" class="btn btn-sm flex-fill d-flex align-items-center justify-content-center gap-1.5 py-2 {{ $isArchivedView ? 'btn-warning text-dark fw-bold' : 'btn-outline-secondary text-white-50' }}" style="border-radius:8px; text-decoration:none; font-size:0.8rem;">
+                                            <i class="fas fa-box-archive me-1"></i> View Archived
+                                        </a>
+                                    </div>
                                 </div>
                             </div>
                             @endif
@@ -4577,10 +4713,12 @@ body.modal-open .admin-mobile-menu-toggle {
 
                         const pillBtn = $('#pill' + cat.charAt(0).toUpperCase() + cat.slice(1) + 'Btn');
                         const countBadge = $('#count' + cat.charAt(0).toUpperCase() + cat.slice(1));
+                        const mobileCatBadge = $('#mobileDrawerCount' + cat.charAt(0).toUpperCase() + cat.slice(1));
 
                         if (count > 0) {
                             pillBtn.addClass('active');
                             countBadge.text(count).removeClass('d-none');
+                            if (mobileCatBadge.length) mobileCatBadge.text(count).removeClass('d-none');
                             totalActiveFilters += count;
 
                             const labels = [];
@@ -4615,6 +4753,7 @@ body.modal-open .admin-mobile-menu-toggle {
                         } else {
                             pillBtn.removeClass('active');
                             countBadge.text('0').addClass('d-none');
+                            if (mobileCatBadge.length) mobileCatBadge.text('0').addClass('d-none');
                         }
                     });
 
@@ -4624,6 +4763,7 @@ body.modal-open .admin-mobile-menu-toggle {
                         totalActiveFilters += 1;
                         $('#pillDateRangeBtn').addClass('active');
                         $('#countDateRange').text('1').removeClass('d-none');
+                        $('#mobileDrawerCountDate').text('1').removeClass('d-none');
 
                         const targetLabelMap = {
                             either: 'Sale/Usage',
@@ -4658,6 +4798,7 @@ body.modal-open .admin-mobile-menu-toggle {
                     } else {
                         $('#pillDateRangeBtn').removeClass('active');
                         $('#countDateRange').text('0').addClass('d-none');
+                        $('#mobileDrawerCountDate').text('0').addClass('d-none');
                     }
 
                     if (totalActiveFilters === 0 && activePopoverBody.length) {
@@ -4682,6 +4823,53 @@ body.modal-open .admin-mobile-menu-toggle {
                     table.draw();
                 }
 
+                window.toggleMobileFilterCard = function(headerEl) {
+                    const $card = $(headerEl).closest('.mobile-filter-group-card');
+                    const $body = $card.find('.mobile-filter-group-body');
+                    const $chevron = $card.find('.mobile-filter-chevron');
+                    if ($body.hasClass('collapsed')) {
+                        $body.removeClass('collapsed').hide().slideDown(180);
+                        $chevron.addClass('rotated');
+                    } else {
+                        $body.slideUp(180, function() {
+                            $(this).addClass('collapsed');
+                        });
+                        $chevron.removeClass('rotated');
+                    }
+                };
+
+                window.filterMobileCheckboxes = function(inputEl, listSelector) {
+                    const q = $(inputEl).val().toLowerCase().trim();
+                    const $list = $(listSelector);
+                    let matches = 0;
+                    $list.find('.polaris-checkbox-label').each(function() {
+                        const text = $(this).text().toLowerCase();
+                        if (!q || text.indexOf(q) > -1) {
+                            $(this).removeClass('d-none');
+                            matches++;
+                        } else {
+                            $(this).addClass('d-none');
+                        }
+                    });
+                    const $noMatch = $list.find('.no-match-msg');
+                    if (matches === 0) {
+                        $noMatch.removeClass('d-none');
+                    } else {
+                        $noMatch.addClass('d-none');
+                    }
+                };
+
+                $('#mobileFilterModal').on('show.bs.modal', function() {
+                    ['venue', 'reservation', 'affiliate', 'status', 'host'].forEach(function(cat) {
+                        const hasActive = $('.polaris-filter-cb[data-category="' + cat + '"]:checked').length > 0;
+                        const $card = $('#mobileGroupCard' + cat.charAt(0).toUpperCase() + cat.slice(1));
+                        if ($card.length && hasActive) {
+                            $card.find('.mobile-filter-group-body').removeClass('collapsed').show();
+                            $card.find('.mobile-filter-chevron').addClass('rotated');
+                        }
+                    });
+                });
+
                 window.removeSingleFilter = function(cat, val) {
                     $('.polaris-filter-cb[data-category="' + cat + '"]').filter(function() {
                         return $(this).val() === val;
@@ -4696,6 +4884,9 @@ body.modal-open .admin-mobile-menu-toggle {
 
                 window.clearAllPolarisFilters = function() {
                     $('.polaris-filter-cb').prop('checked', false);
+                    $('.mobile-filter-search').val('');
+                    $('.mobile-filter-scroll-list .polaris-checkbox-label').removeClass('d-none');
+                    $('.no-match-msg').addClass('d-none');
                     $('#txnSearch, #mobileTxnSearch').val('');
                     $('#mobileSearchClearBtn').addClass('d-none');
                     $('#txnDateRange, #mobileTxnDateRange').val('');
