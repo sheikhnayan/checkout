@@ -2267,15 +2267,15 @@
                 }
 
                 #mobileAnalyticsCollapse .card-body {
-                    padding: 8px 6px 4px 6px !important;
+                    padding: 8px 8px 4px 8px !important;
                 }
 
                 .shopify-chart-wrap,
                 #tab-shopify-conversion,
                 #tab-classic-performance,
                 #tab-orders-guests {
-                    padding-left: 0 !important;
-                    padding-right: 0 !important;
+                    padding-left: 2px !important;
+                    padding-right: 2px !important;
                     margin-left: 0 !important;
                     margin-right: 0 !important;
                     padding-bottom: 0 !important;
@@ -5135,8 +5135,8 @@
                     maintainAspectRatio: false,
                     layout: {
                         padding: {
-                            left: (typeof window !== 'undefined' && window.innerWidth < 768) ? -4 : 0,
-                            right: (typeof window !== 'undefined' && window.innerWidth < 768) ? 2 : 0,
+                            left: (typeof window !== 'undefined' && window.innerWidth < 768) ? 8 : 0,
+                            right: (typeof window !== 'undefined' && window.innerWidth < 768) ? 4 : 0,
                             top: 4,
                             bottom: 0
                         }
@@ -5181,7 +5181,7 @@
                                 font: {
                                     size: (typeof window !== 'undefined' && window.innerWidth < 768) ? 9 : 11
                                 },
-                                padding: (typeof window !== 'undefined' && window.innerWidth < 768) ? 1 : 2,
+                                padding: 4,
                                 callback: function(val) {
                                     if (metric === 'sales') return '$' + val;
                                     if (metric === 'conversion') return val + '%';
@@ -5268,8 +5268,8 @@
                     maintainAspectRatio: false,
                     layout: {
                         padding: {
-                            left: (typeof window !== 'undefined' && window.innerWidth < 576) ? -4 : 0,
-                            right: (typeof window !== 'undefined' && window.innerWidth < 576) ? -4 : 0,
+                            left: (typeof window !== 'undefined' && window.innerWidth < 768) ? 8 : 0,
+                            right: (typeof window !== 'undefined' && window.innerWidth < 768) ? 8 : 0,
                             top: 4,
                             bottom: 0
                         }
@@ -5293,10 +5293,10 @@
                             ticks: {
                                 color: '#94a3b8',
                                 font: {
-                                    size: (typeof window !== 'undefined' && window.innerWidth < 576) ? 9 : 10
+                                    size: (typeof window !== 'undefined' && window.innerWidth < 768) ? 9 : 10
                                 },
                                 padding: 2,
-                                maxTicksLimit: (typeof window !== 'undefined' && window.innerWidth < 576) ? 6 : 10,
+                                maxTicksLimit: (typeof window !== 'undefined' && window.innerWidth < 768) ? 6 : 10,
                                 autoSkip: true,
                                 maxRotation: 0,
                                 minRotation: 0
@@ -5312,9 +5312,9 @@
                             ticks: {
                                 color: '#7c3aed',
                                 font: {
-                                    size: (typeof window !== 'undefined' && window.innerWidth < 576) ? 9 : 11
+                                    size: (typeof window !== 'undefined' && window.innerWidth < 768) ? 9 : 11
                                 },
-                                padding: 2,
+                                padding: 4,
                                 callback: v => '$' + v
                             }
                         },
@@ -5328,9 +5328,9 @@
                             ticks: {
                                 color: '#38bdf8',
                                 font: {
-                                    size: (typeof window !== 'undefined' && window.innerWidth < 576) ? 9 : 11
+                                    size: (typeof window !== 'undefined' && window.innerWidth < 768) ? 9 : 11
                                 },
-                                padding: 2
+                                padding: 4
                             }
                         }
                     }
@@ -5393,8 +5393,8 @@
                     maintainAspectRatio: false,
                     layout: {
                         padding: {
-                            left: (typeof window !== 'undefined' && window.innerWidth < 576) ? -4 : 0,
-                            right: 0,
+                            left: (typeof window !== 'undefined' && window.innerWidth < 768) ? 8 : 0,
+                            right: (typeof window !== 'undefined' && window.innerWidth < 768) ? 4 : 0,
                             top: 4,
                             bottom: 0
                         }
@@ -5418,10 +5418,10 @@
                             ticks: {
                                 color: '#94a3b8',
                                 font: {
-                                    size: (typeof window !== 'undefined' && window.innerWidth < 576) ? 9 : 10
+                                    size: (typeof window !== 'undefined' && window.innerWidth < 768) ? 9 : 10
                                 },
                                 padding: 2,
-                                maxTicksLimit: (typeof window !== 'undefined' && window.innerWidth < 576) ? 5 : 8,
+                                maxTicksLimit: (typeof window !== 'undefined' && window.innerWidth < 768) ? 5 : 8,
                                 autoSkip: true,
                                 maxRotation: 0,
                                 minRotation: 0
@@ -5434,9 +5434,9 @@
                             ticks: {
                                 color: '#94a3b8',
                                 font: {
-                                    size: (typeof window !== 'undefined' && window.innerWidth < 576) ? 9 : 11
+                                    size: (typeof window !== 'undefined' && window.innerWidth < 768) ? 9 : 11
                                 },
-                                padding: 2
+                                padding: 4
                             }
                         }
                     }
