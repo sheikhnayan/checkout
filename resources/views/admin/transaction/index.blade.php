@@ -1614,7 +1614,7 @@ body.modal-open .admin-mobile-menu-toggle {
                 if (!empty($row->entertainer_id) && !empty($row->entertainer))
                     return $row->entertainer->display_name ?: optional($row->entertainer->user)->name ?: ('Entertainer #' . $row->entertainer_id);
                 return null;
-            })->filter()->unique()->values();
+            })->filter()->unique()->sort(fn($a, $b) => strnatcasecmp(trim($a), trim($b)))->values();
 
             $filterWebsite   = (string) request('website', '');
             $filterType      = (string) request('type', '');
@@ -1941,9 +1941,10 @@ body.modal-open .admin-mobile-menu-toggle {
 
             {{-- ── ROW 1: SEARCH & FILTERS BAR ───────────────────────── --}}
             @php
-                $accessibleSitesList = isset($accessibleWebsites) && $accessibleWebsites->count() > 0 
+                $accessibleSitesList = (isset($accessibleWebsites) && $accessibleWebsites->count() > 0 
                     ? $accessibleWebsites 
-                    : (auth()->user()->isAdmin() ? \App\Models\Website::where('is_archieved', 0)->get() : collect());
+                    : (auth()->user()->isAdmin() ? \App\Models\Website::where('is_archieved', 0)->get() : collect())
+                )->sortBy(fn($s) => strtolower(trim($s->name ?? '')), SORT_NATURAL)->values();
             @endphp
             {{-- ── MOBILE SEARCH & FILTER TOOLBAR (< 768px) ───────────────── --}}
             <div class="d-block d-md-none mb-3">
