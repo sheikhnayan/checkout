@@ -2433,7 +2433,7 @@
                     </div>
 
                     {{-- Tab Panes Container --}}
-                    <div class="tab-content" id="analyticsDashboardTabContent" style="padding: 0rem !important;">
+                    <div class="tab-content" id="analyticsDashboardTabContent">
 
                         {{-- TAB 1: SHOPIFY CONVERSION & TRAFFIC HUB --}}
                         <div class="tab-pane fade show active" id="tab-shopify-conversion" role="tabpanel">
