@@ -1207,27 +1207,6 @@ body.modal-open .admin-mobile-menu-toggle {
     border-radius: 6px !important;
 }
 
-.txn-action-buttons-wrap {
-    display: flex;
-    align-items: center;
-    gap: 8px;
-    width: 100%;
-    flex-wrap: nowrap;
-}
-.txn-action-buttons-wrap .ms-md-auto {
-    margin-left: auto !important;
-}
-.txn-action-buttons-wrap .btn,
-.txn-action-buttons-wrap .txn-export-btn {
-    display: inline-flex;
-    align-items: center;
-    gap: 5px;
-}
-.txn-action-buttons-wrap .btn i,
-.txn-action-buttons-wrap .txn-export-btn i {
-    margin: 0 !important;
-}
-
 @media (max-width: 768px) {
     .txn-table-card {
         padding: 14px 12px !important;
@@ -1259,23 +1238,27 @@ body.modal-open .admin-mobile-menu-toggle {
         width: 100% !important;
     }
 
-    .txn-action-buttons-wrap {
+    .txn-toolbar-container {
         display: grid !important;
         grid-template-columns: repeat(2, minmax(0, 1fr)) !important;
         gap: 8px !important;
-        width: 100% !important;
+        padding: 10px 8px !important;
     }
 
-    .txn-action-buttons-wrap .dropdown {
+    .txn-toolbar-row,
+    .txn-toolbar-row > div,
+    .txn-left-actions {
+        display: contents !important;
+    }
+
+    .txn-btn-item {
         width: 100% !important;
-        display: block !important;
         margin: 0 !important;
-        padding: 0 !important;
+        display: block !important;
     }
 
-    .txn-action-buttons-wrap .btn,
-    .txn-action-buttons-wrap .txn-export-btn,
-    .txn-action-buttons-wrap .dropdown-toggle {
+    .txn-btn-item .btn,
+    .txn-btn-item.btn {
         width: 100% !important;
         height: 38px !important;
         line-height: 20px !important;
@@ -1286,25 +1269,32 @@ body.modal-open .admin-mobile-menu-toggle {
         align-items: center !important;
         gap: 5px !important;
         font-size: 0.78rem !important;
-        padding: 6px 10px !important;
+        padding: 6px 8px !important;
         white-space: nowrap !important;
         box-sizing: border-box !important;
         border-radius: 8px !important;
     }
 
-    .txn-action-buttons-wrap .btn i,
-    .txn-action-buttons-wrap .txn-export-btn i,
-    .txn-action-buttons-wrap .dropdown-toggle i,
-    .txn-action-buttons-wrap .btn .form-check-input {
-        margin: 0 !important;
+    .txn-btn-item .btn i,
+    .txn-btn-item.btn i,
+    .txn-btn-item.dropdown .dropdown-toggle i,
+    .txn-btn-item .btn .form-check-input {
+        margin: 0 4px 0 0 !important;
         flex-shrink: 0 !important;
         display: inline-block !important;
     }
 
-    .txn-action-buttons-wrap .dropdown-toggle::after {
+    .txn-btn-item.dropdown .dropdown-toggle::after {
         display: inline-block !important;
         margin-left: 4px !important;
     }
+
+    .txn-btn-select-pill { order: 1; }
+    .txn-btn-archive     { order: 2; }
+    .txn-btn-export      { order: 3; }
+    .txn-columns-item    { order: 4 !important; margin-left: 0 !important; }
+    .txn-btn-selectall   { order: 5; }
+    .txn-btn-clear       { order: 6; }
 
     /* Polaris Filter Bar Mobile Touch Scroll & Fixed Viewport Dropdowns */
     .polaris-filter-bar {
@@ -2103,69 +2093,71 @@ body.modal-open .admin-mobile-menu-toggle {
 
 
             {{-- ── ROW 2: BULK SELECTION & ACTIONS TOOLBAR ────────────── --}}
-            <div class="mb-3 py-2 px-2.5 px-md-3 rounded-3" style="background: rgba(15, 23, 42, 0.5); border: 1px solid rgba(255, 255, 255, 0.08); backdrop-filter: blur(8px);">
-                <div class="txn-action-buttons-wrap">
-                    @if($canArchiveTransactions)
-                    {{-- 1. Selection Count Dropdown Pill --}}
-                    <div class="dropdown flex-shrink-0">
-                        <button class="txn-export-btn btn dropdown-toggle w-100 w-md-auto d-inline-flex align-items-center justify-content-center" data-bs-toggle="dropdown" type="button" style="font-size:0.8rem; padding: 6px 12px; white-space:nowrap;">
-                            <input type="checkbox" id="selectionToolbarCb" class="form-check-input" style="cursor:pointer;" onclick="event.stopPropagation();">
-                            <span id="selectionCount" style="font-size:0.8rem; color:#fff; font-weight:600;">0 selected</span>
-                        </button>
-                        <ul class="dropdown-menu shadow-lg" style="background:#1e293b;border:1px solid rgba(255,255,255,0.15)">
-                            <li><a class="dropdown-item text-white-50 small" href="javascript:void(0)" onclick="$('#selectAllPagesBtn').click()"><i class="fas fa-check-double text-purple me-2" style="color:#c084fc;"></i>Select All Pages</a></li>
-                            <li><a class="dropdown-item text-white-50 small" href="javascript:void(0)" onclick="$('#clearSelectionBtn').click()"><i class="fas fa-times-circle text-danger me-2" style="color:#f43f5e;"></i>Clear Selection</a></li>
-                        </ul>
-                    </div>
-
-                    {{-- 2. Archive / Unarchive Selected Button --}}
-                    @if($isArchivedView)
-                    <button type="button" id="bulkUnarchiveBtn" class="txn-export-btn btn w-100 w-md-auto flex-shrink-0 d-inline-flex align-items-center justify-content-center" style="border-color: rgba(16, 185, 129, 0.4); color: #34d399; font-size: 0.8rem; padding: 6px 12px; white-space:nowrap;">
-                        <i class="fas fa-box-open me-1.5" style="color:#10b981;"></i> Unarchive Selected
-                    </button>
-                    @else
-                    <button type="button" id="bulkArchiveBtn" class="txn-export-btn btn w-100 w-md-auto flex-shrink-0 d-inline-flex align-items-center justify-content-center" style="border-color: rgba(245, 158, 11, 0.4); color: #fbbf24; font-size: 0.8rem; padding: 6px 12px; white-space:nowrap;">
-                        <i class="fas fa-box-archive me-1.5" style="color:#f59e0b;"></i> Archive Selected
-                    </button>
-                    @endif
-                    @endif
-
-                    {{-- 3. Export Table --}}
-                    <div class="dropdown flex-shrink-0">
-                        <button class="txn-export-btn btn dropdown-toggle w-100 w-md-auto d-inline-flex align-items-center justify-content-center" data-bs-toggle="dropdown" type="button" style="font-size:0.8rem; padding:6px 12px; white-space:nowrap;">
-                            <i class="fas fa-file-export me-1.5" style="color:#06b6d4;"></i> Export <span class="d-none d-md-inline">Table</span>
-                        </button>
-                        <ul class="dropdown-menu dropdown-menu-end shadow-lg" style="background:#1e293b;border:1px solid rgba(255,255,255,0.15)">
-                            <li><a class="dropdown-item" style="color:rgba(255,255,255,0.85);font-size:0.82rem" id="expCsv"   href="#"><i class="fas fa-file-csv text-emerald me-2" style="color:#10b981;"></i>Export CSV</a></li>
-                            <li><a class="dropdown-item" style="color:rgba(255,255,255,0.85);font-size:0.82rem" id="expExcel" href="#"><i class="fas fa-file-excel text-success me-2" style="color:#22c55e;"></i>Export Excel</a></li>
-                            <li><a class="dropdown-item" style="color:rgba(255,255,255,0.85);font-size:0.82rem" id="expPdf"   href="#"><i class="fas fa-file-pdf text-danger me-2" style="color:#ef4444;"></i>Export PDF</a></li>
-                            <li><a class="dropdown-item" style="color:rgba(255,255,255,0.85);font-size:0.82rem" id="expPrint" href="#"><i class="fas fa-print text-purple me-2" style="color:#a855f7;"></i>Print</a></li>
-                        </ul>
-                    </div>
-
-                    @if($canArchiveTransactions)
-                    {{-- 4. Select All Pages --}}
-                    <button type="button" id="selectAllPagesBtn" class="txn-export-btn btn w-100 w-md-auto flex-shrink-0 d-inline-flex align-items-center justify-content-center" style="font-size:0.8rem; padding:6px 12px; white-space:nowrap;">
-                        <i class="fas fa-check-double me-1.5" style="color:#818cf8;"></i> Select All Pages
-                    </button>
-
-                    {{-- 5. Clear Selection --}}
-                    <button type="button" id="clearSelectionBtn" class="txn-export-btn btn w-100 w-md-auto flex-shrink-0 d-inline-flex align-items-center justify-content-center" style="font-size:0.8rem; padding:6px 12px; white-space:nowrap;">
-                        <i class="fas fa-times-circle me-1.5" style="color:#f43f5e;"></i> Clear Selection
-                    </button>
-                    @endif
-
-                    {{-- 6. Columns Visibility Dropdown (Aligned to far right on Desktop via ms-md-auto) --}}
-                    <div class="dropdown ms-md-auto flex-shrink-0">
-                        <button class="txn-export-btn btn dropdown-toggle w-100 w-md-auto d-inline-flex align-items-center justify-content-center" data-bs-toggle="dropdown" data-bs-auto-close="outside" type="button" style="font-size:0.8rem; padding:6px 12px; white-space:nowrap;">
-                            <i class="fas fa-columns me-1.5" style="color:#c084fc;"></i> Columns
-                        </button>
-                        <div class="dropdown-menu dropdown-menu-end polaris-popover-menu shadow-lg" style="min-width: 210px;">
-                            <div class="polaris-popover-header">
-                                <span class="polaris-popover-title">Toggle Columns</span>
+            <div class="mb-3 py-2 px-3 rounded-3 txn-toolbar-container" style="background: rgba(15, 23, 42, 0.5); border: 1px solid rgba(255, 255, 255, 0.08); backdrop-filter: blur(8px);">
+                <div class="d-flex align-items-center justify-content-between flex-nowrap gap-2 overflow-x-auto txn-toolbar-row" style="-webkit-overflow-scrolling: touch; scrollbar-width: none;">
+                    <div class="d-flex align-items-center justify-content-between gap-2 flex-nowrap w-100">
+                        <div class="d-flex align-items-center gap-2 flex-nowrap txn-left-actions">
+                            @if($canArchiveTransactions)
+                            {{-- Selection Count Dropdown Pill --}}
+                            <div class="dropdown flex-shrink-0 txn-btn-item txn-btn-select-pill">
+                                <button class="txn-export-btn btn dropdown-toggle d-inline-flex align-items-center gap-1.5" data-bs-toggle="dropdown" type="button" style="font-size:0.8rem; padding: 6px 12px; white-space:nowrap;">
+                                    <input type="checkbox" id="selectionToolbarCb" class="form-check-input mt-0 me-1" style="cursor:pointer;" onclick="event.stopPropagation();">
+                                    <span id="selectionCount" style="font-size:0.8rem; color:#fff; font-weight:600;">0 selected</span>
+                                </button>
+                                <ul class="dropdown-menu shadow-lg" style="background:#1e293b;border:1px solid rgba(255,255,255,0.15)">
+                                    <li><a class="dropdown-item text-white-50 small" href="javascript:void(0)" onclick="$('#selectAllPagesBtn').click()"><i class="fas fa-check-double text-purple me-2" style="color:#c084fc;"></i>Select All Pages</a></li>
+                                    <li><a class="dropdown-item text-white-50 small" href="javascript:void(0)" onclick="$('#clearSelectionBtn').click()"><i class="fas fa-times-circle text-danger me-2" style="color:#f43f5e;"></i>Clear Selection</a></li>
+                                </ul>
                             </div>
-                            <div class="polaris-popover-body" id="colToggleContainer">
-                                <!-- Dynamically filled column toggle checkboxes -->
+
+                            {{-- Archive / Unarchive Selected Button --}}
+                            @if($isArchivedView)
+                            <button type="button" id="bulkUnarchiveBtn" class="txn-export-btn btn flex-shrink-0 d-inline-flex align-items-center gap-1.5 txn-btn-item txn-btn-archive" style="border-color: rgba(16, 185, 129, 0.4); color: #34d399; font-size: 0.8rem; padding: 6px 12px; white-space:nowrap;">
+                                <i class="fas fa-box-open me-2" style="color:#10b981;"></i> Unarchive Selected
+                            </button>
+                            @else
+                            <button type="button" id="bulkArchiveBtn" class="txn-export-btn btn flex-shrink-0 d-inline-flex align-items-center gap-1.5 txn-btn-item txn-btn-archive" style="border-color: rgba(245, 158, 11, 0.4); color: #fbbf24; font-size: 0.8rem; padding: 6px 12px; white-space:nowrap;">
+                                <i class="fas fa-box-archive me-2" style="color:#f59e0b;"></i> Archive Selected
+                            </button>
+                            @endif
+
+                            {{-- Export Table --}}
+                            <div class="dropdown flex-shrink-0 txn-btn-item txn-btn-export">
+                                <button class="txn-export-btn btn dropdown-toggle d-inline-flex align-items-center gap-1.5" data-bs-toggle="dropdown" type="button" style="font-size:0.8rem; padding:6px 12px; white-space:nowrap;">
+                                    <i class="fas fa-file-export me-2" style="color:#06b6d4;"></i> Export Table
+                                </button>
+                                <ul class="dropdown-menu dropdown-menu-end shadow-lg" style="background:#1e293b;border:1px solid rgba(255,255,255,0.15)">
+                                    <li><a class="dropdown-item" style="color:rgba(255,255,255,0.85);font-size:0.82rem" id="expCsv" href="#"><i class="fas fa-file-csv text-emerald me-2" style="color:#10b981;"></i>Export CSV</a></li>
+                                    <li><a class="dropdown-item" style="color:rgba(255,255,255,0.85);font-size:0.82rem" id="expExcel" href="#"><i class="fas fa-file-excel text-success me-2" style="color:#22c55e;"></i>Export Excel</a></li>
+                                    <li><a class="dropdown-item" style="color:rgba(255,255,255,0.85);font-size:0.82rem" id="expPdf" href="#"><i class="fas fa-file-pdf text-danger me-2" style="color:#ef4444;"></i>Export PDF</a></li>
+                                    <li><a class="dropdown-item" style="color:rgba(255,255,255,0.85);font-size:0.82rem" id="expPrint" href="#"><i class="fas fa-print text-purple me-2" style="color:#a855f7;"></i>Print</a></li>
+                                </ul>
+                            </div>
+
+                            {{-- Select All Pages --}}
+                            <button type="button" id="selectAllPagesBtn" class="txn-export-btn btn flex-shrink-0 d-inline-flex align-items-center gap-1.5 txn-btn-item txn-btn-selectall" style="font-size:0.8rem; padding:6px 12px; white-space:nowrap;">
+                                <i class="fas fa-check-double me-2" style="color:#818cf8;"></i> Select All Pages
+                            </button>
+
+                            {{-- Clear Selection --}}
+                            <button type="button" id="clearSelectionBtn" class="txn-export-btn btn flex-shrink-0 d-inline-flex align-items-center gap-1.5 txn-btn-item txn-btn-clear" style="font-size:0.8rem; padding:6px 12px; white-space:nowrap;">
+                                <i class="fas fa-times-circle me-2" style="color:#f43f5e;"></i> Clear Selection
+                            </button>
+                            @endif
+                        </div>
+
+                        {{-- Columns Visibility Dropdown (Far Right) --}}
+                        <div class="dropdown flex-shrink-0 ms-md-auto txn-btn-item txn-columns-item">
+                            <button class="txn-export-btn btn dropdown-toggle d-inline-flex align-items-center gap-1.5" data-bs-toggle="dropdown" data-bs-auto-close="outside" type="button" style="font-size:0.8rem; padding:6px 12px; white-space:nowrap;">
+                                <i class="fas fa-columns me-2" style="color:#c084fc;"></i> Columns
+                            </button>
+                            <div class="dropdown-menu dropdown-menu-end polaris-popover-menu shadow-lg" style="min-width: 210px;">
+                                <div class="polaris-popover-header">
+                                    <span class="polaris-popover-title">Toggle Columns</span>
+                                </div>
+                                <div class="polaris-popover-body" id="colToggleContainer">
+                                    <!-- Dynamically filled column toggle checkboxes -->
+                                </div>
                             </div>
                         </div>
                     </div>
