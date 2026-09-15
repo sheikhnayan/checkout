@@ -1605,91 +1605,91 @@ body.modal-open .admin-mobile-menu-toggle {
                         </div>
                     </div>
 
+                    {{-- Metric Selector Cards Row (Visible across all tabs on Desktop and Mobile) --}}
+                    <div class="row {{ \App\Models\Setting::showConversionRateCard() ? 'row-cols-2 row-cols-xl-4' : 'row-cols-1 row-cols-md-3' }} g-2 g-md-3 mb-3 mb-md-4" id="shopifyMetricCardsRow">
+                        {{-- 1. Total Sales Card --}}
+                        <div class="col d-flex">
+                            <div class="shopify-metric-card w-100 p-2 p-md-3 rounded-3 cursor-pointer active" data-metric="sales" onclick="switchShopifyMetric('sales')">
+                                <div class="shopify-metric-title d-flex align-items-center justify-content-between">
+                                    <span class="shopify-metric-title-left"><span>Total sales</span> <span class="shopify-today-tag badge ms-1" style="background:rgba(139,92,246,0.22);color:#c084fc;font-size:0.65rem;padding:2px 6px;border-radius:4px;border:1px solid rgba(139,92,246,0.4);font-weight:600;">Today</span></span>
+                                    <i class="fas fa-chart-line text-white-50" style="font-size:0.75rem;"></i>
+                                </div>
+                                <div class="shopify-metric-value-row d-flex align-items-baseline justify-content-between flex-wrap gap-1 mt-1" style="min-width:0;">
+                                    <span class="shopify-metric-val" id="shopifySalesVal">${{ number_format($todayRevenue ?? 0, 2) }}</span>
+                                    @if(\App\Models\Setting::showMetricTrends())
+                                    <span class="shopify-delta-badge up" id="shopifySalesDelta"><i class="fas fa-arrow-up me-1"></i><span id="shopifySalesDeltaText">14.5%</span></span>
+                                    @endif
+                                </div>
+                                <div class="text-white-50 small mt-1 shopify-metric-subtext" id="shopifySalesSubtext" style="font-size:0.7rem;">Today's gross revenue</div>
+                            </div>
+                        </div>
+
+                        {{-- 2. Orders Card --}}
+                        <div class="col d-flex">
+                            <div class="shopify-metric-card w-100 p-2 p-md-3 rounded-3 cursor-pointer" data-metric="orders" onclick="switchShopifyMetric('orders')">
+                                <div class="shopify-metric-title d-flex align-items-center justify-content-between">
+                                    <span class="shopify-metric-title-left"><span>Orders / Bookings</span> <span class="shopify-today-tag badge ms-1" style="background:rgba(139,92,246,0.22);color:#c084fc;font-size:0.65rem;padding:2px 6px;border-radius:4px;border:1px solid rgba(139,92,246,0.4);font-weight:600;">Today</span></span>
+                                    <i class="fas fa-shopping-bag text-white-50" style="font-size:0.75rem;"></i>
+                                </div>
+                                <div class="shopify-metric-value-row d-flex align-items-baseline justify-content-between flex-wrap gap-1 mt-1" style="min-width:0;">
+                                    <span class="shopify-metric-val" id="shopifyOrdersVal">{{ number_format($todayTxns ?? 0) }}</span>
+                                    @if(\App\Models\Setting::showMetricTrends())
+                                    <span class="shopify-delta-badge up" id="shopifyOrdersDelta"><i class="fas fa-arrow-up me-1"></i><span id="shopifyOrdersDeltaText">8.2%</span></span>
+                                    @endif
+                                </div>
+                                <div class="text-white-50 small mt-1 shopify-metric-subtext" id="shopifyOrdersSubtext" style="font-size:0.7rem;">
+                                    <span id="shopifyOrdersSubtextBase">Today's bookings</span> · <span class="text-white-50 fw-semibold" id="shopifyGuestsWrap"><span id="shopifyGuestsVal">{{ number_format($todayGuests ?? 0) }}</span> guests</span>
+                                </div>
+                            </div>
+                        </div>
+
+                        {{-- 3. Sessions Card --}}
+                        <div class="col d-flex">
+                            <div class="shopify-metric-card w-100 p-2 p-md-3 rounded-3 cursor-pointer" data-metric="sessions" onclick="switchShopifyMetric('sessions')">
+                                <div class="shopify-metric-title d-flex align-items-center justify-content-between">
+                                    <span class="shopify-metric-title-left"><span>Sessions</span> <span class="shopify-today-tag badge ms-1" style="background:rgba(139,92,246,0.22);color:#c084fc;font-size:0.65rem;padding:2px 6px;border-radius:4px;border:1px solid rgba(139,92,246,0.4);font-weight:600;">Today</span></span>
+                                    <i class="fas fa-eye text-white-50" style="font-size:0.75rem;"></i>
+                                </div>
+                                <div class="shopify-metric-value-row d-flex align-items-baseline justify-content-between flex-wrap gap-1 mt-1" style="min-width:0;">
+                                    <span class="shopify-metric-val" id="shopifySessionsVal">{{ number_format($todaySessions ?? 0) }}</span>
+                                    @if(\App\Models\Setting::showMetricTrends())
+                                    <span class="shopify-delta-badge down" id="shopifySessionsDelta"><i class="fas fa-arrow-down me-1"></i><span id="shopifySessionsDeltaText">12.4%</span></span>
+                                    @endif
+                                </div>
+                                <div class="text-white-50 small mt-1 shopify-metric-subtext" id="shopifySessionsSubtext" style="font-size:0.7rem;">Today's visitor traffic</div>
+                            </div>
+                        </div>
+
+                        {{-- 4. Conversion Rate Card --}}
+                        @if(\App\Models\Setting::showConversionRateCard())
+                        <div class="col d-flex">
+                            <div class="shopify-metric-card w-100 p-2 p-md-3 rounded-3 cursor-pointer" data-metric="conversion" onclick="switchShopifyMetric('conversion')">
+                                <div class="shopify-metric-title d-flex align-items-center justify-content-between">
+                                    <span class="shopify-metric-title-left"><span>Conversion rate</span> <span class="shopify-today-tag badge ms-1" style="background:rgba(139,92,246,0.22);color:#c084fc;font-size:0.65rem;padding:2px 6px;border-radius:4px;border:1px solid rgba(139,92,246,0.4);font-weight:600;">Today</span></span>
+                                    <i class="fas fa-percentage text-white-50" style="font-size:0.75rem;"></i>
+                                </div>
+                                <div class="shopify-metric-value-row d-flex align-items-baseline justify-content-between flex-wrap gap-1 mt-1" style="min-width:0;">
+                                    @php
+                                        $initSessions = $todaySessions ?? 0;
+                                        $initTxns = $todayTxns ?? 0;
+                                        $initConv = $todayConv ?? 0;
+                                    @endphp
+                                    <span class="shopify-metric-val" id="shopifyConversionVal">{{ number_format($initConv, 2) }}%</span>
+                                    @if(\App\Models\Setting::showMetricTrends())
+                                    <span class="shopify-delta-badge up" id="shopifyConversionDelta"><i class="fas fa-arrow-up me-1"></i><span id="shopifyConversionDeltaText">3.6%</span></span>
+                                    @endif
+                                </div>
+                                <div class="text-white-50 small mt-1 shopify-metric-subtext" id="shopifyConversionSubtext" style="font-size:0.7rem;">Today's visitors to bookings ratio</div>
+                            </div>
+                        </div>
+                        @endif
+                    </div>
+
                     {{-- Tab Panes Container --}}
                     <div class="tab-content" id="analyticsDashboardTabContent">
 
                         {{-- TAB 1: SHOPIFY CONVERSION & TRAFFIC HUB --}}
                         <div class="tab-pane fade show active" id="tab-shopify-conversion" role="tabpanel">
-                            {{-- Metric Selector Cards Row (Shopify Style) --}}
-                            <div class="row {{ \App\Models\Setting::showConversionRateCard() ? 'row-cols-2 row-cols-xl-4' : 'row-cols-1 row-cols-md-3' }} g-2 g-md-3 mb-3 mb-md-4" id="shopifyMetricCardsRow">
-                                {{-- 1. Total Sales Card --}}
-                                <div class="col d-flex">
-                                    <div class="shopify-metric-card w-100 p-2 p-md-3 rounded-3 cursor-pointer active" data-metric="sales" onclick="switchShopifyMetric('sales')">
-                                        <div class="shopify-metric-title d-flex align-items-center justify-content-between">
-                                            <span class="shopify-metric-title-left"><span>Total sales</span> <span class="shopify-today-tag badge ms-1" style="background:rgba(139,92,246,0.22);color:#c084fc;font-size:0.65rem;padding:2px 6px;border-radius:4px;border:1px solid rgba(139,92,246,0.4);font-weight:600;">Today</span></span>
-                                            <i class="fas fa-chart-line text-white-50" style="font-size:0.75rem;"></i>
-                                        </div>
-                                        <div class="shopify-metric-value-row d-flex align-items-baseline justify-content-between flex-wrap gap-1 mt-1" style="min-width:0;">
-                                            <span class="shopify-metric-val" id="shopifySalesVal">${{ number_format($todayRevenue ?? 0, 2) }}</span>
-                                            @if(\App\Models\Setting::showMetricTrends())
-                                            <span class="shopify-delta-badge up" id="shopifySalesDelta"><i class="fas fa-arrow-up me-1"></i><span id="shopifySalesDeltaText">14.5%</span></span>
-                                            @endif
-                                        </div>
-                                        <div class="text-white-50 small mt-1 shopify-metric-subtext" id="shopifySalesSubtext" style="font-size:0.7rem;">Today's gross revenue</div>
-                                    </div>
-                                </div>
-
-                                {{-- 2. Orders Card --}}
-                                <div class="col d-flex">
-                                    <div class="shopify-metric-card w-100 p-2 p-md-3 rounded-3 cursor-pointer" data-metric="orders" onclick="switchShopifyMetric('orders')">
-                                        <div class="shopify-metric-title d-flex align-items-center justify-content-between">
-                                            <span class="shopify-metric-title-left"><span>Orders / Bookings</span> <span class="shopify-today-tag badge ms-1" style="background:rgba(139,92,246,0.22);color:#c084fc;font-size:0.65rem;padding:2px 6px;border-radius:4px;border:1px solid rgba(139,92,246,0.4);font-weight:600;">Today</span></span>
-                                            <i class="fas fa-shopping-bag text-white-50" style="font-size:0.75rem;"></i>
-                                        </div>
-                                        <div class="shopify-metric-value-row d-flex align-items-baseline justify-content-between flex-wrap gap-1 mt-1" style="min-width:0;">
-                                            <span class="shopify-metric-val" id="shopifyOrdersVal">{{ number_format($todayTxns ?? 0) }}</span>
-                                            @if(\App\Models\Setting::showMetricTrends())
-                                            <span class="shopify-delta-badge up" id="shopifyOrdersDelta"><i class="fas fa-arrow-up me-1"></i><span id="shopifyOrdersDeltaText">8.2%</span></span>
-                                            @endif
-                                        </div>
-                                        <div class="text-white-50 small mt-1 shopify-metric-subtext" id="shopifyOrdersSubtext" style="font-size:0.7rem;">
-                                            <span id="shopifyOrdersSubtextBase">Today's bookings</span> · <span class="text-white-50 fw-semibold" id="shopifyGuestsWrap"><span id="shopifyGuestsVal">{{ number_format($todayGuests ?? 0) }}</span> guests</span>
-                                        </div>
-                                    </div>
-                                </div>
-
-                                {{-- 3. Sessions Card --}}
-                                <div class="col d-flex">
-                                    <div class="shopify-metric-card w-100 p-2 p-md-3 rounded-3 cursor-pointer" data-metric="sessions" onclick="switchShopifyMetric('sessions')">
-                                        <div class="shopify-metric-title d-flex align-items-center justify-content-between">
-                                            <span class="shopify-metric-title-left"><span>Sessions</span> <span class="shopify-today-tag badge ms-1" style="background:rgba(139,92,246,0.22);color:#c084fc;font-size:0.65rem;padding:2px 6px;border-radius:4px;border:1px solid rgba(139,92,246,0.4);font-weight:600;">Today</span></span>
-                                            <i class="fas fa-eye text-white-50" style="font-size:0.75rem;"></i>
-                                        </div>
-                                        <div class="shopify-metric-value-row d-flex align-items-baseline justify-content-between flex-wrap gap-1 mt-1" style="min-width:0;">
-                                            <span class="shopify-metric-val" id="shopifySessionsVal">{{ number_format($todaySessions ?? 0) }}</span>
-                                            @if(\App\Models\Setting::showMetricTrends())
-                                            <span class="shopify-delta-badge down" id="shopifySessionsDelta"><i class="fas fa-arrow-down me-1"></i><span id="shopifySessionsDeltaText">12.4%</span></span>
-                                            @endif
-                                        </div>
-                                        <div class="text-white-50 small mt-1 shopify-metric-subtext" id="shopifySessionsSubtext" style="font-size:0.7rem;">Today's visitor traffic</div>
-                                    </div>
-                                </div>
-
-                                {{-- 4. Conversion Rate Card --}}
-                                @if(\App\Models\Setting::showConversionRateCard())
-                                <div class="col d-flex">
-                                    <div class="shopify-metric-card w-100 p-2 p-md-3 rounded-3 cursor-pointer" data-metric="conversion" onclick="switchShopifyMetric('conversion')">
-                                        <div class="shopify-metric-title d-flex align-items-center justify-content-between">
-                                            <span class="shopify-metric-title-left"><span>Conversion rate</span> <span class="shopify-today-tag badge ms-1" style="background:rgba(139,92,246,0.22);color:#c084fc;font-size:0.65rem;padding:2px 6px;border-radius:4px;border:1px solid rgba(139,92,246,0.4);font-weight:600;">Today</span></span>
-                                            <i class="fas fa-percentage text-white-50" style="font-size:0.75rem;"></i>
-                                        </div>
-                                        <div class="shopify-metric-value-row d-flex align-items-baseline justify-content-between flex-wrap gap-1 mt-1" style="min-width:0;">
-                                            @php
-                                                $initSessions = $todaySessions ?? 0;
-                                                $initTxns = $todayTxns ?? 0;
-                                                $initConv = $todayConv ?? 0;
-                                            @endphp
-                                            <span class="shopify-metric-val" id="shopifyConversionVal">{{ number_format($initConv, 2) }}%</span>
-                                            @if(\App\Models\Setting::showMetricTrends())
-                                            <span class="shopify-delta-badge up" id="shopifyConversionDelta"><i class="fas fa-arrow-up me-1"></i><span id="shopifyConversionDeltaText">3.6%</span></span>
-                                            @endif
-                                        </div>
-                                        <div class="text-white-50 small mt-1 shopify-metric-subtext" id="shopifyConversionSubtext" style="font-size:0.7rem;">Today's visitors to bookings ratio</div>
-                                    </div>
-                                </div>
-                                @endif
-                            </div>
-
                             {{-- Dynamic Trend Line Chart --}}
                             <div class="shopify-chart-wrap pt-3 border-top border-secondary border-opacity-25">
                                 <div class="d-flex align-items-center justify-content-between flex-wrap gap-2 mb-3">
@@ -1707,29 +1707,33 @@ body.modal-open .admin-mobile-menu-toggle {
 
                         {{-- TAB 2: CLASSIC REVENUE & PERFORMANCE GRAPH --}}
                         <div class="tab-pane fade" id="tab-classic-performance" role="tabpanel">
-                            <div class="d-flex align-items-center justify-content-between mb-3">
-                                <div class="fw-bold text-white" style="font-size:0.9rem;">PERFORMANCE OVER TIME (Revenue & Orders)</div>
-                                <div class="d-flex flex-wrap gap-3 small text-white-50">
-                                    <span><i class="fas fa-circle me-1" style="color:#7c3aed"></i> Revenue ($)</span>
-                                    <span><i class="fas fa-circle me-1" style="color:#38bdf8"></i> Orders</span>
+                            <div class="pt-3 border-top border-secondary border-opacity-25">
+                                <div class="d-flex align-items-center justify-content-between mb-3">
+                                    <div class="fw-bold text-white" style="font-size:0.9rem;">PERFORMANCE OVER TIME (Revenue & Orders)</div>
+                                    <div class="d-flex flex-wrap gap-3 small text-white-50">
+                                        <span><i class="fas fa-circle me-1" style="color:#7c3aed"></i> Revenue ($)</span>
+                                        <span><i class="fas fa-circle me-1" style="color:#38bdf8"></i> Orders</span>
+                                    </div>
                                 </div>
-                            </div>
-                            <div style="height: 240px; position: relative;">
-                                <canvas id="classicPerformanceChart"></canvas>
+                                <div style="height: 240px; position: relative;">
+                                    <canvas id="classicPerformanceChart"></canvas>
+                                </div>
                             </div>
                         </div>
 
                         {{-- TAB 3: ORDERS & GUEST VOLUME BREAKDOWN --}}
                         <div class="tab-pane fade" id="tab-orders-guests" role="tabpanel">
-                            <div class="d-flex align-items-center justify-content-between mb-3">
-                                <div class="fw-bold text-white" style="font-size:0.9rem;">ORDERS & GUEST VOLUME TIMELINE</div>
-                                <div class="d-flex flex-wrap gap-3 small text-white-50">
-                                    <span><i class="fas fa-circle me-1" style="color:#38bdf8"></i> Booked Orders</span>
-                                    <span><i class="fas fa-circle me-1" style="color:#a855f7"></i> Guest Attendees</span>
+                            <div class="pt-3 border-top border-secondary border-opacity-25">
+                                <div class="d-flex align-items-center justify-content-between mb-3">
+                                    <div class="fw-bold text-white" style="font-size:0.9rem;">ORDERS & GUEST VOLUME TIMELINE</div>
+                                    <div class="d-flex flex-wrap gap-3 small text-white-50">
+                                        <span><i class="fas fa-circle me-1" style="color:#38bdf8"></i> Booked Orders</span>
+                                        <span><i class="fas fa-circle me-1" style="color:#a855f7"></i> Guest Attendees</span>
+                                    </div>
                                 </div>
-                            </div>
-                            <div style="height: 240px; position: relative;">
-                                <canvas id="ordersGuestsChart"></canvas>
+                                <div style="height: 240px; position: relative;">
+                                    <canvas id="ordersGuestsChart"></canvas>
+                                </div>
                             </div>
                         </div>
 
@@ -3589,6 +3593,12 @@ body.modal-open .admin-mobile-menu-toggle {
                     currentShopifyMetric = metric;
                     $('.shopify-metric-card').removeClass('active');
                     $('.shopify-metric-card[data-metric="' + metric + '"]').addClass('active');
+
+                    // If user was viewing Tab 2 or Tab 3 and clicked a metric card, switch to Tab 1 to show the trend line
+                    const tab1Btn = document.getElementById('tab-shopify-conversion-tab');
+                    if (tab1Btn && !tab1Btn.classList.contains('active')) {
+                        $(tab1Btn).tab('show');
+                    }
 
                     const titleMap = {
                         sessions: 'Sessions over time',
