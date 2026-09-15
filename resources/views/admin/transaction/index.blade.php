@@ -5136,8 +5136,8 @@
                     maintainAspectRatio: false,
                     layout: {
                         padding: {
-                            left: (typeof window !== 'undefined' && window.innerWidth < 768) ? 10 : 0,
-                            right: (typeof window !== 'undefined' && window.innerWidth < 768) ? 8 : 0,
+                            left: (typeof window !== 'undefined' && window.innerWidth < 768) ? 12 : 0,
+                            right: (typeof window !== 'undefined' && window.innerWidth < 768) ? 12 : 0,
                             top: 4,
                             bottom: 0
                         }
@@ -5269,8 +5269,8 @@
                     maintainAspectRatio: false,
                     layout: {
                         padding: {
-                            left: (typeof window !== 'undefined' && window.innerWidth < 768) ? 10 : 4,
-                            right: (typeof window !== 'undefined' && window.innerWidth < 768) ? 14 : 6,
+                            left: (typeof window !== 'undefined' && window.innerWidth < 768) ? 12 : 4,
+                            right: (typeof window !== 'undefined' && window.innerWidth < 768) ? 22 : 8,
                             top: 4,
                             bottom: 0
                         }
@@ -5394,8 +5394,8 @@
                     maintainAspectRatio: false,
                     layout: {
                         padding: {
-                            left: (typeof window !== 'undefined' && window.innerWidth < 768) ? 10 : 0,
-                            right: (typeof window !== 'undefined' && window.innerWidth < 768) ? 8 : 0,
+                            left: (typeof window !== 'undefined' && window.innerWidth < 768) ? 12 : 0,
+                            right: (typeof window !== 'undefined' && window.innerWidth < 768) ? 12 : 0,
                             top: 4,
                             bottom: 0
                         }
@@ -8656,11 +8656,9 @@
             };
         }
         var packageDescriptionsById = packageDescriptionsPayload.byId && typeof packageDescriptionsPayload.byId === 'object' ?
-            packageDescriptionsPayload.byId :
-            {};
+            packageDescriptionsPayload.byId : {};
         var packageDescriptionsByName = packageDescriptionsPayload.byName && typeof packageDescriptionsPayload.byName === 'object' ?
-            packageDescriptionsPayload.byName :
-            {};
+            packageDescriptionsPayload.byName : {};
         var extractDescription = function(source) {
             if (!source || typeof source !== 'object') {
                 return '';
