@@ -1602,15 +1602,15 @@ body.modal-open .admin-mobile-menu-toggle {
         <style>
             @media (max-width: 767.98px) {
                 #mobileAnalyticsCollapse .card-body {
-                    padding: 8px 4px 4px 4px !important;
+                    padding: 8px 6px 4px 6px !important;
                 }
                 .shopify-chart-wrap,
                 #tab-shopify-conversion,
                 #tab-classic-performance,
                 #tab-orders-guests {
                     padding-top: 6px !important;
-                    padding-left: 0 !important;
-                    padding-right: 0 !important;
+                    padding-left: 2px !important;
+                    padding-right: 2px !important;
                     margin-left: 0 !important;
                     margin-right: 0 !important;
                 }
@@ -4260,8 +4260,8 @@ body.modal-open .admin-mobile-menu-toggle {
                             maintainAspectRatio: false,
                             layout: {
                                 padding: {
-                                    left: (typeof window !== 'undefined' && window.innerWidth < 576) ? -4 : 0,
-                                    right: 0,
+                                    left: (typeof window !== 'undefined' && window.innerWidth < 768) ? 8 : 0,
+                                    right: (typeof window !== 'undefined' && window.innerWidth < 768) ? 4 : 0,
                                     top: 4,
                                     bottom: 0
                                 }
@@ -4295,7 +4295,7 @@ body.modal-open .admin-mobile-menu-toggle {
                                     ticks: {
                                         color: '#94a3b8',
                                         font: { size: (typeof window !== 'undefined' && window.innerWidth < 576) ? 9 : 11 },
-                                        padding: 2,
+                                        padding: 4,
                                         callback: function(val) {
                                             if (metric === 'sales') return '$' + val;
                                             if (metric === 'conversion') return val + '%';
@@ -4380,8 +4380,8 @@ body.modal-open .admin-mobile-menu-toggle {
                             maintainAspectRatio: false,
                             layout: {
                                 padding: {
-                                    left: (typeof window !== 'undefined' && window.innerWidth < 576) ? -4 : 0,
-                                    right: (typeof window !== 'undefined' && window.innerWidth < 576) ? -4 : 0,
+                                    left: (typeof window !== 'undefined' && window.innerWidth < 768) ? 8 : 0,
+                                    right: (typeof window !== 'undefined' && window.innerWidth < 768) ? 16 : 0,
                                     top: 4,
                                     bottom: 0
                                 }
@@ -4411,9 +4411,9 @@ body.modal-open .admin-mobile-menu-toggle {
                                     type: 'linear', display: true, position: 'left',
                                     grid: { color: 'rgba(255, 255, 255, 0.05)' },
                                     ticks: {
-                                        color: '#7c3aed',
+                                        color: '#94a3b8',
                                         font: { size: (typeof window !== 'undefined' && window.innerWidth < 576) ? 9 : 11 },
-                                        padding: 2,
+                                        padding: 4,
                                         callback: v => '$' + v
                                     }
                                 },
@@ -4484,8 +4484,8 @@ body.modal-open .admin-mobile-menu-toggle {
                             maintainAspectRatio: false,
                             layout: {
                                 padding: {
-                                    left: (typeof window !== 'undefined' && window.innerWidth < 576) ? -4 : 0,
-                                    right: 0,
+                                    left: (typeof window !== 'undefined' && window.innerWidth < 768) ? 8 : 0,
+                                    right: (typeof window !== 'undefined' && window.innerWidth < 768) ? 4 : 0,
                                     top: 4,
                                     bottom: 0
                                 }
@@ -4516,7 +4516,7 @@ body.modal-open .admin-mobile-menu-toggle {
                                     ticks: {
                                         color: '#94a3b8',
                                         font: { size: (typeof window !== 'undefined' && window.innerWidth < 576) ? 9 : 11 },
-                                        padding: 2
+                                        padding: 4
                                     }
                                 }
                             }
