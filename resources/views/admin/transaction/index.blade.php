@@ -3891,53 +3891,58 @@ body.modal-open .admin-mobile-menu-toggle {
                     $('#shopifyConversionVal').text(conversionRate.toFixed(2) + '%');
                     $('#shopifyGuestsVal').text(cardGuests.toLocaleString());
 
-                    // Calculate period-over-period deltas (% comparisons) by comparing recent period vs prior period
+                    // Calculate period-over-period deltas (% comparisons) against the previous period
                     let salesDelta = 0;
                     let ordersDelta = 0;
                     let sessionsDelta = 0;
                     let convDelta = 0;
 
                     const chartWindowForDeltas = resolveChartDateWindow(dailyMap, allDailyMap);
-                    const sortedDates = chartWindowForDeltas.dates;
-                    const dateMapForDeltas = chartWindowForDeltas.targetMap;
-                    if (sortedDates.length >= 2) {
-                        const halfIndex = Math.floor(sortedDates.length / 2);
-                        const prevDates = sortedDates.slice(0, halfIndex);
-                        const currDates = sortedDates.slice(halfIndex);
+                    const prevTotals = chartWindowForDeltas.prevTotals || { sales: 0, orders: 0, sessions: 0, conversion: 0 };
 
-                        let prevSales = 0, currSales = 0;
-                        let prevOrders = 0, currOrders = 0;
-                        let prevSessions = 0, currSessions = 0;
+                    if (isFilterActive) {
+                        // Compare the current filtered totals against the actual previous period totals
+                        if (prevTotals.sales > 0) {
+                            salesDelta = ((cardSales - prevTotals.sales) / prevTotals.sales) * 100;
+                        } else if (cardSales > 0) {
+                            salesDelta = 100;
+                        }
 
-                        prevDates.forEach(d => {
-                            let item = dateMapForDeltas[d] || {};
-                            let orders = item.sales ? (item.orders || 0) : 0;
-                            prevSales += item.sales || 0;
-                            prevOrders += orders;
-                            let dayNum = moment(d).day();
-                            let dayDate = moment(d).date();
-                            let mult = 14 + ((dayNum * 4 + dayDate * 3) % 12);
-                            prevSessions += orders > 0 ? Math.max(Math.round(orders * mult), 15) : 0;
-                        });
+                        if (prevTotals.orders > 0) {
+                            ordersDelta = ((cardOrders - prevTotals.orders) / prevTotals.orders) * 100;
+                        } else if (cardOrders > 0) {
+                            ordersDelta = 100;
+                        }
 
-                        currDates.forEach(d => {
-                            let item = dateMapForDeltas[d] || {};
-                            let orders = item.sales ? (item.orders || 0) : 0;
-                            currSales += item.sales || 0;
-                            currOrders += orders;
-                            let dayNum = moment(d).day();
-                            let dayDate = moment(d).date();
-                            let mult = 14 + ((dayNum * 4 + dayDate * 3) % 12);
-                            currSessions += orders > 0 ? Math.max(Math.round(orders * mult), 15) : 0;
-                        });
+                        if (prevTotals.sessions > 0) {
+                            sessionsDelta = ((sessionsCount - prevTotals.sessions) / prevTotals.sessions) * 100;
+                        } else if (sessionsCount > 0) {
+                            sessionsDelta = 100;
+                        }
 
-                        const prevConv = prevSessions > 0 ? (prevOrders / prevSessions) * 100 : 0;
-                        const currConv = currSessions > 0 ? (currOrders / currSessions) * 100 : 0;
-
-                        if (prevSales > 0) salesDelta = ((currSales - prevSales) / prevSales) * 100;
-                        if (prevOrders > 0) ordersDelta = ((currOrders - prevOrders) / prevOrders) * 100;
-                        if (prevSessions > 0) sessionsDelta = ((currSessions - prevSessions) / prevSessions) * 100;
-                        if (prevConv > 0) convDelta = ((currConv - prevConv) / prevConv) * 100;
+                        if (prevTotals.conversion > 0) {
+                            convDelta = ((conversionRate - prevTotals.conversion) / prevTotals.conversion) * 100;
+                        }
+                    } else {
+                        // On default (Today / Unfiltered): compare Today vs Yesterday
+                        const yesterdayPst = (typeof getPstMoment === 'function')
+                            ? getPstMoment().subtract(1, 'day').format('YYYY-MM-DD')
+                            : moment().subtract(1, 'day').format('YYYY-MM-DD');
+                        const yestStats = allDailyMap[yesterdayPst] || { sales: 0, orders: 0, guests: 0 };
+                        if (yestStats.sales > 0) {
+                            salesDelta = ((cardSales - yestStats.sales) / yestStats.sales) * 100;
+                        } else if (cardSales > 0) {
+                            salesDelta = 100;
+                        }
+                        if (yestStats.orders > 0) {
+                            ordersDelta = ((cardOrders - yestStats.orders) / yestStats.orders) * 100;
+                        } else if (cardOrders > 0) {
+                            ordersDelta = 100;
+                        }
+                        let yestSessions = yestStats.orders > 0 ? Math.max(Math.round(yestStats.orders * 22.4), 15) : 0;
+                        if (yestSessions > 0) {
+                            sessionsDelta = ((sessionsCount - yestSessions) / yestSessions) * 100;
+                        }
                     }
 
                     updateDeltaBadge('#shopifySessionsDelta', '#shopifySessionsDeltaText', sessionsDelta);
@@ -3980,6 +3985,8 @@ body.modal-open .admin-mobile-menu-toggle {
 
                     let dates = [];
                     const targetMap = {};
+                    let prevDates = [];
+                    let prevLabel = 'Previous Period';
 
                     if (hasExplicitDateRange) {
                         const parts = dateRangeVal.split(' - ');
@@ -3991,6 +3998,20 @@ body.modal-open .admin-mobile-menu-toggle {
                                 eMom = todayMom.clone();
                             }
                             if (sMom.isSameOrBefore(eMom, 'day')) {
+                                const numDays = eMom.diff(sMom, 'days') + 1;
+                                let prevStartMom, prevEndMom;
+
+                                // If filtered within a single calendar month (e.g. Sept 1 - Sept 14):
+                                // Standard Month-over-Month comparison (Aug 1 - Aug 14)
+                                if (sMom.month() === eMom.month() && sMom.year() === eMom.year()) {
+                                    prevStartMom = sMom.clone().subtract(1, 'month');
+                                    prevEndMom = eMom.clone().subtract(1, 'month');
+                                } else {
+                                    // Otherwise, immediately preceding period of equal duration
+                                    prevEndMom = sMom.clone().subtract(1, 'days');
+                                    prevStartMom = sMom.clone().subtract(numDays, 'days');
+                                }
+
                                 const curr = sMom.clone();
                                 while (curr.isSameOrBefore(eMom, 'day')) {
                                     const dKey = curr.format('YYYY-MM-DD');
@@ -3998,18 +4019,27 @@ body.modal-open .admin-mobile-menu-toggle {
                                     targetMap[dKey] = (dailyMap && dailyMap[dKey]) ? dailyMap[dKey] : (allDailyMap[dKey] || { sales: 0, orders: 0, guests: 0 });
                                     curr.add(1, 'day');
                                 }
+
+                                const pCurr = prevStartMom.clone();
+                                while (pCurr.isSameOrBefore(prevEndMom, 'day')) {
+                                    prevDates.push(pCurr.format('YYYY-MM-DD'));
+                                    pCurr.add(1, 'day');
+                                }
+
+                                prevLabel = 'Previous Period (' + prevStartMom.format('MMM D') + ' - ' + prevEndMom.format('MMM D') + ')';
                             }
                         }
                     }
 
                     // When NO explicit date range filter is selected (initial / default state)
                     // OR when a single day is selected (dates.length <= 1, e.g. "Today"):
-                    // Do NOT collapse to a single lonely dot! Show the past 10 days leading up to that day (11 continuous days total).
+                    // Show past 10 days leading up to today
                     if (dates.length <= 1) {
                         const anchorMom = (dates.length === 1 && hasExplicitDateRange)
                             ? moment(dates[0], 'YYYY-MM-DD')
                             : todayMom;
                         dates = [];
+                        prevDates = [];
                         const startMom = anchorMom.clone().subtract(10, 'days');
                         const curr = startMom.clone();
                         while (curr.isSameOrBefore(anchorMom, 'day')) {
@@ -4018,9 +4048,47 @@ body.modal-open .admin-mobile-menu-toggle {
                             targetMap[dKey] = (dailyMap && dailyMap[dKey]) ? dailyMap[dKey] : (allDailyMap[dKey] || { sales: 0, orders: 0, guests: 0 });
                             curr.add(1, 'day');
                         }
+
+                        const prevEndMom = startMom.clone().subtract(1, 'day');
+                        const prevStartMom = prevEndMom.clone().subtract(10, 'days');
+                        const pCurr = prevStartMom.clone();
+                        while (pCurr.isSameOrBefore(prevEndMom, 'day')) {
+                            prevDates.push(pCurr.format('YYYY-MM-DD'));
+                            pCurr.add(1, 'day');
+                        }
+
+                        prevLabel = 'Previous Period (' + prevStartMom.format('MMM D') + ' - ' + prevEndMom.format('MMM D') + ')';
                     }
 
-                    return { dates: dates, targetMap: targetMap, hasExplicitDateRange: hasExplicitDateRange };
+                    // Calculate real historical totals for the previous period from allDailyMap
+                    let prevSales = 0, prevOrders = 0, prevGuests = 0, prevSessions = 0;
+                    prevDates.forEach(function(dKey) {
+                        const item = allDailyMap[dKey] || { sales: 0, orders: 0, guests: 0 };
+                        const ord = item.sales ? (item.orders || 0) : 0;
+                        prevSales += (item.sales || 0);
+                        prevOrders += ord;
+                        prevGuests += (item.guests || 0);
+                        let dayNum = moment(dKey).day();
+                        let dayDate = moment(dKey).date();
+                        let mult = 14 + ((dayNum * 4 + dayDate * 3) % 12);
+                        prevSessions += ord > 0 ? Math.max(Math.round(ord * mult), 15) : 0;
+                    });
+                    const prevConv = prevSessions > 0 ? ((prevOrders / prevSessions) * 100) : 0;
+
+                    return {
+                        dates: dates,
+                        targetMap: targetMap,
+                        hasExplicitDateRange: hasExplicitDateRange,
+                        prevDates: prevDates,
+                        prevLabel: prevLabel,
+                        prevTotals: {
+                            sales: prevSales,
+                            orders: prevOrders,
+                            guests: prevGuests,
+                            sessions: prevSessions,
+                            conversion: prevConv
+                        }
+                    };
                 }
 
                 function drawShopifyChartDataset(dailyMap, metric, allDailyMap) {
@@ -4030,13 +4098,18 @@ body.modal-open .admin-mobile-menu-toggle {
                     const chartWindow = resolveChartDateWindow(dailyMap, allDailyMap);
                     const dates = chartWindow.dates;
                     const targetMap = chartWindow.targetMap;
+                    const prevDates = chartWindow.prevDates || [];
+
+                    if (chartWindow.prevLabel) {
+                        $('#shopifyPrevPeriodLabel').text(chartWindow.prevLabel);
+                    }
 
                     let labels = [];
                     let currentData = [];
                     let prevData = [];
 
                     if (dates.length > 0) {
-                        dates.forEach(function(d) {
+                        dates.forEach(function(d, idx) {
                             labels.push(moment(d).format('MMM D'));
                             const item = targetMap[d] || { sales: 0, orders: 0 };
                             let dayNum = moment(d).day();
@@ -4052,7 +4125,23 @@ body.modal-open .admin-mobile-menu-toggle {
                             else if (metric === 'conversion') val = dailyConv;
 
                             currentData.push(parseFloat(val.toFixed(2)));
-                            prevData.push(parseFloat((val * 0.85).toFixed(2)));
+
+                            // Lookup real data from the corresponding date in the previous period
+                            const prevD = prevDates[idx];
+                            const prevItem = (prevD && allDailyMap && allDailyMap[prevD]) ? allDailyMap[prevD] : { sales: 0, orders: 0 };
+                            let pDayNum = prevD ? moment(prevD).day() : 0;
+                            let pDayDate = prevD ? moment(prevD).date() : 1;
+                            let pMult = 14 + ((pDayNum * 4 + pDayDate * 3) % 12);
+                            let pSessions = prevItem.orders > 0 ? Math.max(Math.round(prevItem.orders * pMult), 15) : 0;
+                            let pConv = pSessions > 0 ? (prevItem.orders / pSessions) * 100 : 0;
+
+                            let prevVal = 0;
+                            if (metric === 'sales') prevVal = prevItem.sales;
+                            else if (metric === 'orders') prevVal = prevItem.orders;
+                            else if (metric === 'sessions') prevVal = pSessions;
+                            else if (metric === 'conversion') prevVal = pConv;
+
+                            prevData.push(parseFloat((prevVal || 0).toFixed(2)));
                         });
                     } else {
                         labels = ['Aug 25', 'Aug 26', 'Aug 27', 'Aug 28', 'Aug 29', 'Aug 30', 'Aug 31', 'Sep 1', 'Sep 2', 'Sep 3'];

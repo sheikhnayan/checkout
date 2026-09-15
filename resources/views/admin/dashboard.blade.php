@@ -384,7 +384,7 @@
                             <small class="text-muted">Revenue breakdown by venue</small>
                         </div>
                     </div>
-                    <div class="p-3 d-flex flex-column align-items-center justify-content-center" style="min-height: 280px;">
+                    <div class="p-3 pb-4 d-flex flex-column align-items-center justify-content-center" style="min-height: 280px;">
                         <div id="clubDonutChart" style="width: 100%;"></div>
                     </div>
                 </div>
@@ -679,13 +679,24 @@ document.addEventListener("DOMContentLoaded", function () {
             labels: clubLabels,
             chart: {
                 type: 'donut',
-                height: 280,
+                height: 250,
                 background: 'transparent'
+            },
+            plotOptions: {
+                pie: {
+                    donut: {
+                        size: '65%'
+                    },
+                    offsetY: -6
+                }
             },
             theme: { mode: 'dark' },
             colors: ['#ffcc00', '#10b981', '#6366f1', '#06b6d4', '#f43f5e'],
             legend: {
                 position: 'bottom',
+                horizontalAlign: 'center',
+                fontSize: '11.5px',
+                itemMargin: { horizontal: 6, vertical: 2 },
                 labels: { colors: '#cbd5e1' }
             },
             stroke: { show: false },
