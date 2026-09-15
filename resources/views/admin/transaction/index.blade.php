@@ -4166,13 +4166,9 @@
     const allChartData = @json($chartDays);
     const chart14Data = @json($chart14);
     const chart7Data = @json($chart7);
-    const donutLabels = @json($topPackages - > pluck('name'));
-    const donutData = @json($topPackages - > pluck('revenue'));
-    const donutTotal = '$' + Number({
-        {
-            $topPackagesTotal
-        }
-    }).toLocaleString(undefined, {
+    const donutLabels = @json(isset($topPackages) && $topPackages ? $topPackages->pluck('name') : []);
+    const donutData = @json(isset($topPackages) && $topPackages ? $topPackages->pluck('revenue') : []);
+    const donutTotal = '$' + Number({{ $topPackagesTotal ?? 0 }}).toLocaleString(undefined, {
         minimumFractionDigits: 0,
         maximumFractionDigits: 0
     });
