@@ -897,12 +897,19 @@
         overflow: visible !important;
     }
     .shopify-chart-wrap {
-        padding-top: 10px !important;
+        padding-top: 6px !important;
+    }
+    .shopify-chart-canvas-wrap {
+        height: 215px !important;
+        min-height: 215px !important;
+        margin-bottom: 0 !important;
     }
     #shopifyTrendChart,
     #classicPerformanceChart,
     #ordersGuestsChart {
-        max-height: 175px !important;
+        height: 100% !important;
+        max-height: 100% !important;
+        width: 100% !important;
     }
 }
 #viewTransactionModal .modal-header { background: #0f172a; border-bottom: 1px solid #1e293b; }
@@ -1595,16 +1602,52 @@ body.modal-open .admin-mobile-menu-toggle {
         <style>
             @media (max-width: 767.98px) {
                 #mobileAnalyticsCollapse .card-body {
-                    padding: 10px 4px !important;
+                    padding: 8px 4px 4px 4px !important;
                 }
                 .shopify-chart-wrap,
                 #tab-shopify-conversion,
                 #tab-classic-performance,
                 #tab-orders-guests {
+                    padding-top: 6px !important;
                     padding-left: 0 !important;
                     padding-right: 0 !important;
                     margin-left: 0 !important;
                     margin-right: 0 !important;
+                }
+                .shopify-chart-header {
+                    margin-bottom: 6px !important;
+                    padding-left: 2px !important;
+                    padding-right: 2px !important;
+                    gap: 4px 8px !important;
+                }
+                .shopify-chart-title {
+                    font-size: 0.88rem !important;
+                }
+                .shopify-chart-legend {
+                    font-size: 0.70rem !important;
+                    gap: 4px 10px !important;
+                }
+                .shopify-chart-legend span,
+                #shopifyCurrentPeriodLabel,
+                #shopifyPrevPeriodLabel {
+                    font-size: 0.70rem !important;
+                    line-height: 1.25 !important;
+                    white-space: nowrap !important;
+                }
+                .shopify-chart-legend i {
+                    font-size: 0.52rem !important;
+                }
+                .shopify-chart-canvas-wrap {
+                    height: 215px !important;
+                    min-height: 215px !important;
+                    margin-bottom: 0 !important;
+                }
+                #shopifyTrendChart,
+                #classicPerformanceChart,
+                #ordersGuestsChart {
+                    height: 100% !important;
+                    max-height: 100% !important;
+                    width: 100% !important;
                 }
             }
         </style>
@@ -1735,14 +1778,14 @@ body.modal-open .admin-mobile-menu-toggle {
                         <div class="tab-pane fade show active" id="tab-shopify-conversion" role="tabpanel">
                             {{-- Dynamic Trend Line Chart --}}
                             <div class="shopify-chart-wrap pt-3 border-top border-secondary border-opacity-25">
-                                <div class="d-flex align-items-center justify-content-between flex-wrap gap-2 mb-3">
-                                    <div class="fw-bold text-white" id="shopifyChartTitle" style="font-size: 0.95rem; letter-spacing: -0.01em;">Total sales over time</div>
-                                    <div class="d-flex align-items-center gap-3 small text-white-50">
-                                        <span><i class="fas fa-circle text-primary me-1"></i> <span id="shopifyCurrentPeriodLabel">Month to Date</span></span>
-                                        <span><i class="fas fa-circle text-info opacity-50 me-1"></i> <span id="shopifyPrevPeriodLabel">Previous Period</span></span>
+                                <div class="d-flex align-items-center justify-content-between flex-wrap gap-2 mb-3 shopify-chart-header">
+                                    <div class="fw-bold text-white shopify-chart-title" id="shopifyChartTitle" style="font-size: 0.95rem; letter-spacing: -0.01em;">Total sales over time</div>
+                                    <div class="d-flex align-items-center gap-2 small text-white-50 shopify-chart-legend">
+                                        <span class="d-inline-flex align-items-center text-nowrap"><i class="fas fa-circle text-primary me-1" style="font-size: 0.55rem;"></i> <span id="shopifyCurrentPeriodLabel">Month to Date</span></span>
+                                        <span class="d-inline-flex align-items-center text-nowrap"><i class="fas fa-circle text-info opacity-75 me-1" style="font-size: 0.55rem;"></i> <span id="shopifyPrevPeriodLabel">Previous Period</span></span>
                                     </div>
                                 </div>
-                                <div style="height: 220px; position: relative;">
+                                <div class="shopify-chart-canvas-wrap" style="height: 220px; position: relative;">
                                     <canvas id="shopifyTrendChart"></canvas>
                                 </div>
                             </div>
@@ -1750,15 +1793,15 @@ body.modal-open .admin-mobile-menu-toggle {
 
                         {{-- TAB 2: CLASSIC REVENUE & PERFORMANCE GRAPH --}}
                         <div class="tab-pane fade" id="tab-classic-performance" role="tabpanel">
-                            <div class="pt-3 border-top border-secondary border-opacity-25">
-                                <div class="d-flex align-items-center justify-content-between mb-3">
-                                    <div class="fw-bold text-white" style="font-size:0.9rem;">PERFORMANCE OVER TIME (Revenue & Orders)</div>
-                                    <div class="d-flex flex-wrap gap-3 small text-white-50">
-                                        <span><i class="fas fa-circle me-1" style="color:#7c3aed"></i> Revenue ($)</span>
-                                        <span><i class="fas fa-circle me-1" style="color:#38bdf8"></i> Orders</span>
+                            <div class="pt-3 border-top border-secondary border-opacity-25 shopify-chart-wrap">
+                                <div class="d-flex align-items-center justify-content-between flex-wrap gap-2 mb-3 shopify-chart-header">
+                                    <div class="fw-bold text-white shopify-chart-title" style="font-size:0.9rem;">PERFORMANCE OVER TIME (Revenue & Orders)</div>
+                                    <div class="d-flex align-items-center flex-wrap gap-2 small text-white-50 shopify-chart-legend">
+                                        <span class="d-inline-flex align-items-center text-nowrap"><i class="fas fa-circle me-1" style="color:#7c3aed; font-size: 0.55rem;"></i> Revenue ($)</span>
+                                        <span class="d-inline-flex align-items-center text-nowrap"><i class="fas fa-circle me-1" style="color:#38bdf8; font-size: 0.55rem;"></i> Orders</span>
                                     </div>
                                 </div>
-                                <div style="height: 240px; position: relative;">
+                                <div class="shopify-chart-canvas-wrap" style="height: 240px; position: relative;">
                                     <canvas id="classicPerformanceChart"></canvas>
                                 </div>
                             </div>
@@ -1766,15 +1809,15 @@ body.modal-open .admin-mobile-menu-toggle {
 
                         {{-- TAB 3: ORDERS & GUEST VOLUME BREAKDOWN --}}
                         <div class="tab-pane fade" id="tab-orders-guests" role="tabpanel">
-                            <div class="pt-3 border-top border-secondary border-opacity-25">
-                                <div class="d-flex align-items-center justify-content-between mb-3">
-                                    <div class="fw-bold text-white" style="font-size:0.9rem;">ORDERS & GUEST VOLUME TIMELINE</div>
-                                    <div class="d-flex flex-wrap gap-3 small text-white-50">
-                                        <span><i class="fas fa-circle me-1" style="color:#38bdf8"></i> Booked Orders</span>
-                                        <span><i class="fas fa-circle me-1" style="color:#a855f7"></i> Guest Attendees</span>
+                            <div class="pt-3 border-top border-secondary border-opacity-25 shopify-chart-wrap">
+                                <div class="d-flex align-items-center justify-content-between flex-wrap gap-2 mb-3 shopify-chart-header">
+                                    <div class="fw-bold text-white shopify-chart-title" style="font-size:0.9rem;">ORDERS & GUEST VOLUME TIMELINE</div>
+                                    <div class="d-flex align-items-center flex-wrap gap-2 small text-white-50 shopify-chart-legend">
+                                        <span class="d-inline-flex align-items-center text-nowrap"><i class="fas fa-circle me-1" style="color:#38bdf8; font-size: 0.55rem;"></i> Booked Orders</span>
+                                        <span class="d-inline-flex align-items-center text-nowrap"><i class="fas fa-circle me-1" style="color:#a855f7; font-size: 0.55rem;"></i> Guest Attendees</span>
                                     </div>
                                 </div>
-                                <div style="height: 240px; position: relative;">
+                                <div class="shopify-chart-canvas-wrap" style="height: 240px; position: relative;">
                                     <canvas id="ordersGuestsChart"></canvas>
                                 </div>
                             </div>
