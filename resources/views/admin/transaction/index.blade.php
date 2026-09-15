@@ -1617,7 +1617,7 @@ body.modal-open .admin-mobile-menu-toggle {
                 #tab-classic-performance,
                 #tab-orders-guests {
                     padding-left: 2px !important;
-                    padding-right: 2px !important;
+                    padding-right: 4px !important;
                     margin-left: 0 !important;
                     margin-right: 0 !important;
                     padding-bottom: 0 !important;
@@ -4259,8 +4259,8 @@ body.modal-open .admin-mobile-menu-toggle {
                             maintainAspectRatio: false,
                             layout: {
                                 padding: {
-                                    left: (typeof window !== 'undefined' && window.innerWidth < 768) ? 10 : 0,
-                                    right: (typeof window !== 'undefined' && window.innerWidth < 768) ? 8 : 0,
+                                    left: (typeof window !== 'undefined' && window.innerWidth < 768) ? 12 : 4,
+                                    right: (typeof window !== 'undefined' && window.innerWidth < 768) ? 12 : 4,
                                     top: 4,
                                     bottom: 0
                                 }
@@ -4379,8 +4379,8 @@ body.modal-open .admin-mobile-menu-toggle {
                             maintainAspectRatio: false,
                             layout: {
                                 padding: {
-                                    left: (typeof window !== 'undefined' && window.innerWidth < 768) ? 10 : 0,
-                                    right: (typeof window !== 'undefined' && window.innerWidth < 768) ? 10 : 0,
+                                    left: (typeof window !== 'undefined' && window.innerWidth < 768) ? 12 : 4,
+                                    right: (typeof window !== 'undefined' && window.innerWidth < 768) ? 14 : 6,
                                     top: 4,
                                     bottom: 0
                                 }
@@ -4410,7 +4410,7 @@ body.modal-open .admin-mobile-menu-toggle {
                                     type: 'linear', display: true, position: 'left',
                                     grid: { color: 'rgba(255, 255, 255, 0.05)' },
                                     ticks: {
-                                        color: '#7c3aed',
+                                        color: '#94a3b8',
                                         font: { size: (typeof window !== 'undefined' && window.innerWidth < 768) ? 9 : 11 },
                                         padding: 4,
                                         callback: v => '$' + v
@@ -4483,8 +4483,8 @@ body.modal-open .admin-mobile-menu-toggle {
                             maintainAspectRatio: false,
                             layout: {
                                 padding: {
-                                    left: (typeof window !== 'undefined' && window.innerWidth < 768) ? 10 : 0,
-                                    right: (typeof window !== 'undefined' && window.innerWidth < 768) ? 8 : 0,
+                                    left: (typeof window !== 'undefined' && window.innerWidth < 768) ? 12 : 4,
+                                    right: (typeof window !== 'undefined' && window.innerWidth < 768) ? 12 : 4,
                                     top: 4,
                                     bottom: 0
                                 }
