@@ -354,14 +354,20 @@
     right: 4px;
 }
 .polaris-popover-menu {
+    background-color: #1e293b !important;
     background: #1e293b !important;
+    opacity: 1 !important;
     border: 1px solid rgba(255, 255, 255, 0.15) !important;
     border-radius: 12px !important;
     padding: 12px !important;
     min-width: 230px !important;
     max-width: 320px !important;
-    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.5) !important;
+    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.7) !important;
     z-index: 99999 !important;
+}
+.txn-toolbar-container {
+    position: relative !important;
+    z-index: 50 !important;
 }
 .polaris-popover-menu,
 .polaris-popover-menu label,
@@ -2151,7 +2157,7 @@ body.modal-open .admin-mobile-menu-toggle {
                             <button class="txn-export-btn btn dropdown-toggle d-inline-flex align-items-center gap-1.5" data-bs-toggle="dropdown" data-bs-auto-close="outside" type="button" style="font-size:0.8rem; padding:6px 12px; white-space:nowrap;">
                                 <i class="fas fa-columns me-2" style="color:#c084fc;"></i> Columns
                             </button>
-                            <div class="dropdown-menu dropdown-menu-end polaris-popover-menu shadow-lg" style="min-width: 210px;">
+                            <div class="dropdown-menu dropdown-menu-end polaris-popover-menu shadow-lg" style="min-width: 210px; background-color: #1e293b !important; background: #1e293b !important; border: 1px solid rgba(255,255,255,0.15) !important; opacity: 1 !important; z-index: 99999 !important;">
                                 <div class="polaris-popover-header">
                                     <span class="polaris-popover-title">Toggle Columns</span>
                                 </div>
@@ -5208,8 +5214,8 @@ body.modal-open .admin-mobile-menu-toggle {
                     picker.hide();
                 });
 
-                // Body Teleport for Polaris Filter Dropdowns (escapes all overflow & stacking contexts)
-                $(document).on('show.bs.dropdown', '#polarisFilterContainer .dropdown', function () {
+                // Body Teleport for Polaris Filter Dropdowns & Toolbar Dropdowns (escapes all overflow, backdrop-filter & stacking contexts)
+                $(document).on('show.bs.dropdown', '#polarisFilterContainer .dropdown, .txn-toolbar-container .dropdown', function () {
                     var $dropdown = $(this);
                     var $btn = $dropdown.find('.dropdown-toggle');
                     var $menu = $dropdown.find('.dropdown-menu');
@@ -5220,12 +5226,15 @@ body.modal-open .admin-mobile-menu-toggle {
                     $('body').append($menu);
 
                     var rect = $btn[0].getBoundingClientRect();
-                    var menuWidth = $menu.outerWidth() || 260;
+                    var menuWidth = $menu.outerWidth() || 240;
                     if (window.innerWidth < 768) {
                         menuWidth = Math.min(menuWidth, window.innerWidth - 32);
                     }
 
                     var left = rect.left;
+                    if ($menu.hasClass('dropdown-menu-end') && window.innerWidth >= 768) {
+                        left = rect.right - menuWidth;
+                    }
                     if (left + menuWidth > window.innerWidth - 16) {
                         left = Math.max(16, window.innerWidth - menuWidth - 16);
                     }
@@ -5242,17 +5251,20 @@ body.modal-open .admin-mobile-menu-toggle {
                         'margin': '0',
                         'transform': 'none',
                         'z-index': '99999',
-                        'display': 'block'
+                        'display': 'block',
+                        'background-color': '#1e293b',
+                        'background': '#1e293b',
+                        'opacity': '1'
                     });
                 });
 
-                $(document).on('hide.bs.dropdown', '#polarisFilterContainer .dropdown', function (e) {
+                $(document).on('hide.bs.dropdown', '#polarisFilterContainer .dropdown, .txn-toolbar-container .dropdown', function (e) {
                     var $dropdown = $(this);
                     var picker = $('#txnDateRange').data('daterangepicker');
                     // Prevent Bootstrap from closing the Date dropdown if user is actively interacting with DateRangePicker
                     if (picker && picker.isShowing) {
                         var hasDate = $dropdown.find('#txnDateRange').length > 0 ||
-                            $('body > .polaris-popover-menu').filter(function() {
+                            $('body > .polaris-popover-menu, body > .dropdown-menu').filter(function() {
                                 return $(this).data('orig-parent') && $(this).data('orig-parent')[0] === $dropdown[0];
                             }).find('#txnDateRange').length > 0;
                         if (hasDate) {
@@ -5262,9 +5274,9 @@ body.modal-open .admin-mobile-menu-toggle {
                     }
                 });
 
-                $(document).on('hidden.bs.dropdown', '#polarisFilterContainer .dropdown', function () {
+                $(document).on('hidden.bs.dropdown', '#polarisFilterContainer .dropdown, .txn-toolbar-container .dropdown', function () {
                     var $dropdown = $(this);
-                    var $menu = $('body > .polaris-popover-menu').filter(function() {
+                    var $menu = $('body > .polaris-popover-menu, body > .dropdown-menu').filter(function() {
                         return $(this).data('orig-parent') && $(this).data('orig-parent')[0] === $dropdown[0];
                     });
 
