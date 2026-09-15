@@ -1208,9 +1208,23 @@ body.modal-open .admin-mobile-menu-toggle {
 }
 
 @media (max-width: 768px) {
-    .txn-table-card .d-flex.justify-content-between {
+    .txn-table-card {
+        padding: 14px 12px !important;
+    }
+    .txn-table-card .d-flex.justify-content-between:not(.txn-table-header-wrap) {
         flex-direction: column !important;
         align-items: stretch !important;
+    }
+    .txn-table-header-wrap {
+        margin-bottom: 10px !important;
+    }
+    .txn-table-header-wrap h2 {
+        font-size: 1.25rem !important;
+        margin-bottom: 2px !important;
+    }
+    .txn-table-header-wrap p {
+        font-size: 0.76rem !important;
+        line-height: 1.3 !important;
     }
 
     .txn-table-actions-group {
@@ -1745,13 +1759,13 @@ body.modal-open .admin-mobile-menu-toggle {
         {{-- ── TRANSACTIONS TABLE ──────────────────────────────────── --}}
         {{-- ── TRANSACTIONS TABLE ──────────────────────────────────── --}}
         <div class="txn-table-card mb-5">
-            {{-- Header Row with Title, Subtitle, and Top-Right View Archived Action --}}
-            <div class="d-flex align-items-center justify-content-between flex-wrap gap-3 mb-4">
+            {{-- Header Row with Title, Subtitle, and Top-Right View Archived Action (Desktop) --}}
+            <div class="d-flex align-items-center justify-content-between flex-wrap gap-2 mb-2 mb-md-4 txn-table-header-wrap">
                 <div>
                     <h2 class="fw-bold text-white mb-1" style="font-size: 1.5rem; letter-spacing: -0.02em;">Recent Transactions</h2>
                     <p class="text-white-50 mb-0" style="font-size: 0.85rem;">View and manage all recent reservations and transactions</p>
                 </div>
-                <div>
+                <div class="d-none d-md-block">
                     @if($canArchiveTransactions)
                         @if($isArchivedView)
                         <a href="{{ route('admin.transaction.index') }}" class="txn-export-btn btn d-inline-flex align-items-center gap-2" style="text-decoration:none;">
@@ -1799,12 +1813,24 @@ body.modal-open .admin-mobile-menu-toggle {
                         <button type="button" id="mobileSearchClearBtn" class="btn btn-sm text-white-50 position-absolute end-0 top-50 translate-middle-y me-1 d-none" style="border:none;background:none;"><i class="fas fa-times-circle"></i></button>
                     </div>
 
-                    {{-- 2. Responsive Filter Button --}}
-                    <div>
-                        <button type="button" class="mobile-filter-trigger-btn w-100 d-inline-flex align-items-center justify-content-center gap-1.5 px-2" data-bs-toggle="modal" data-bs-target="#mobileFilterModal" style="height:42px; font-size: 0.78rem; font-weight: 600; white-space: nowrap;">
+                    {{-- 2. Filter & Refine Button + View Archived (Near other filters on Mobile) --}}
+                    <div class="d-flex align-items-center gap-2">
+                        <button type="button" class="mobile-filter-trigger-btn flex-grow-1 d-inline-flex align-items-center justify-content-center gap-1.5 px-2" data-bs-toggle="modal" data-bs-target="#mobileFilterModal" style="height:42px; font-size: 0.78rem; font-weight: 600; white-space: nowrap;">
                             <i class="fas fa-filter text-purple" style="color:#c084fc;"></i> Filter & Refine
                             <span class="mobile-active-badge" id="mobileActiveFiltersBadge">0</span>
                         </button>
+
+                        @if($canArchiveTransactions)
+                            @if($isArchivedView)
+                            <a href="{{ route('admin.transaction.index') }}" class="btn d-inline-flex align-items-center justify-content-center gap-1.5 px-2.5 flex-shrink-0" style="height:42px; font-size: 0.78rem; font-weight: 600; white-space: nowrap; text-decoration:none; border-radius:10px; background:rgba(16, 185, 129, 0.18); border:1px solid rgba(16, 185, 129, 0.4); color:#34d399;" title="Back to active transactions">
+                                <i class="fas fa-list me-1"></i> Active View
+                            </a>
+                            @else
+                            <a href="{{ route('admin.transaction.index', array_merge(request()->except('page'), ['archived' => 1])) }}" class="btn d-inline-flex align-items-center justify-content-center gap-1.5 px-2.5 flex-shrink-0" style="height:42px; font-size: 0.78rem; font-weight: 600; white-space: nowrap; text-decoration:none; border-radius:10px; background:rgba(245, 158, 11, 0.14); border:1px solid rgba(245, 158, 11, 0.35); color:#fbbf24;" title="View archived transactions">
+                                <i class="fas fa-box-archive me-1"></i> View Archived
+                            </a>
+                            @endif
+                        @endif
                     </div>
 
                     {{-- 3. Mobile Active Filter Chips Bar --}}
@@ -3112,6 +3138,23 @@ body.modal-open .admin-mobile-menu-toggle {
                                     </label>
                                 </div>
                             </div>
+
+                            @if($canArchiveTransactions)
+                            {{-- 7. Archive Mode (Last Option) --}}
+                            <div class="mobile-filter-group-card">
+                                <div class="mobile-filter-group-title">
+                                    <i class="fas fa-box-archive text-warning"></i> Archive Mode
+                                </div>
+                                <div class="d-flex gap-2">
+                                    <a href="{{ route('admin.transaction.index') }}" class="btn btn-sm flex-fill d-flex align-items-center justify-content-center gap-1.5 py-2 {{ !$isArchivedView ? 'btn-primary text-white fw-bold' : 'btn-outline-secondary text-white-50' }}" style="border-radius:8px; text-decoration:none; font-size:0.8rem;">
+                                        <i class="fas fa-list me-1"></i> Active (Standard)
+                                    </a>
+                                    <a href="{{ route('admin.transaction.index', array_merge(request()->except('page'), ['archived' => 1])) }}" class="btn btn-sm flex-fill d-flex align-items-center justify-content-center gap-1.5 py-2 {{ $isArchivedView ? 'btn-warning text-dark fw-bold' : 'btn-outline-secondary text-white-50' }}" style="border-radius:8px; text-decoration:none; font-size:0.8rem;">
+                                        <i class="fas fa-box-archive me-1"></i> View Archived
+                                    </a>
+                                </div>
+                            </div>
+                            @endif
 
                         </div>
                         <div class="mobile-filter-sticky-footer">
