@@ -2456,7 +2456,7 @@
                         <div class="tab-pane fade" id="tab-classic-performance" role="tabpanel">
                             <div class="shopify-chart-wrap pt-2 pt-md-3 border-top border-secondary border-opacity-25">
                                 <div class="d-flex align-items-center justify-content-between flex-wrap gap-2 mb-2 mb-md-3 shopify-chart-header">
-                                    <div class="fw-bold text-white" style="font-size:0.9rem; padding-left:1rem;">PERFORMANCE OVER TIME (Revenue & Orders)</div>
+                                    <div class="fw-bold text-white" style="font-size:0.9rem;">PERFORMANCE OVER TIME (Revenue & Orders)</div>
                                     <div class="d-flex flex-wrap gap-2 gap-md-3 small text-white-50 shopify-chart-legend">
                                         <span class="d-inline-flex align-items-center"><i class="fas fa-circle me-1" style="color:#7c3aed; font-size:0.6rem;"></i> Revenue ($)</span>
                                         <span class="d-inline-flex align-items-center"><i class="fas fa-circle me-1" style="color:#38bdf8; font-size:0.6rem;"></i> Orders</span>
