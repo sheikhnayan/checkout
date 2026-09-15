@@ -268,7 +268,7 @@
                         @endif
                     </div>
                     <p class="text-muted fs-8 mb-0 mt-2">
-                        Monthly: <strong class="text-white">${{ number_format($monthlyRevenue ?? 0, 2) }}</strong>
+                        Month to Date: <strong class="text-white">${{ number_format($monthlyRevenue ?? 0, 2) }}</strong>
                     </p>
                 </div>
             </div>
