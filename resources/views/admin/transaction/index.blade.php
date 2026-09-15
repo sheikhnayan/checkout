@@ -1424,6 +1424,23 @@ body.modal-open .admin-mobile-menu-toggle {
             $todaySessions = $todayTxns > 0 ? max($todayTxns * 18, (int) round($todayTxns * 22.4)) : 0;
             $todayConv    = $todaySessions > 0 ? (($todayTxns / $todaySessions) * 100) : 0;
 
+            // Month to Date (MTD) metrics for initial dashboard view
+            $monthStart    = $now->copy()->startOfMonth();
+            $mtdData       = $reportableData->filter(fn($t) => $t->created_at->timezone($tz)->between($monthStart, $now));
+            $mtdRevenue    = (float) $mtdData->sum('total');
+            $mtdTxns       = (int) $mtdData->count();
+            $mtdGuests     = (int) $mtdData->sum($guestCountForTransaction);
+            $mtdSessions   = $mtdTxns > 0 ? max($mtdTxns * 18, (int) round($mtdTxns * 22.4)) : 0;
+            $mtdConv       = $mtdSessions > 0 ? (($mtdTxns / $mtdSessions) * 100) : 0;
+
+            $prevMonthStart = $monthStart->copy()->subMonth();
+            $prevMonthEnd   = $now->copy()->subMonth();
+            $prevMtdData    = $reportableData->filter(fn($t) => $t->created_at->timezone($tz)->between($prevMonthStart, $prevMonthEnd));
+            $prevMtdRevenue = (float) $prevMtdData->sum('total');
+            $prevMtdTxns    = (int) $prevMtdData->count();
+            $mtdSalesDelta  = $prevMtdRevenue > 0 ? (($mtdRevenue - $prevMtdRevenue) / $prevMtdRevenue) * 100 : ($mtdRevenue > 0 ? 100 : 0);
+            $mtdOrdersDelta = $prevMtdTxns > 0 ? (($mtdTxns - $prevMtdTxns) / $prevMtdTxns) * 100 : ($mtdTxns > 0 ? 100 : 0);
+
             $totalTxns         = $reportableData->count();
             $redeemedTxns      = $reportableData->filter(function ($t) {
                 $status = (string) ($t->checked_in_status ?? $t->checked_in ?? '0');
@@ -1641,16 +1658,16 @@ body.modal-open .admin-mobile-menu-toggle {
                         <div class="col d-flex">
                             <div class="shopify-metric-card w-100 p-2 p-md-3 rounded-3 cursor-pointer active" data-metric="sales" onclick="switchShopifyMetric('sales')">
                                 <div class="shopify-metric-title d-flex align-items-center justify-content-between">
-                                    <span class="shopify-metric-title-left"><span>Total sales</span> <span class="shopify-today-tag badge ms-1" style="background:rgba(139,92,246,0.22);color:#c084fc;font-size:0.65rem;padding:2px 6px;border-radius:4px;border:1px solid rgba(139,92,246,0.4);font-weight:600;">Today</span></span>
+                                    <span class="shopify-metric-title-left"><span>Total sales</span> <span class="shopify-today-tag badge ms-1" style="background:rgba(139,92,246,0.22);color:#c084fc;font-size:0.65rem;padding:2px 6px;border-radius:4px;border:1px solid rgba(139,92,246,0.4);font-weight:600;">Month to Date</span></span>
                                     <i class="fas fa-chart-line text-white-50" style="font-size:0.75rem;"></i>
                                 </div>
                                 <div class="shopify-metric-value-row d-flex align-items-baseline justify-content-between flex-wrap gap-1 mt-1" style="min-width:0;">
-                                    <span class="shopify-metric-val" id="shopifySalesVal">${{ number_format($todayRevenue ?? 0, 2) }}</span>
+                                    <span class="shopify-metric-val" id="shopifySalesVal">${{ number_format($mtdRevenue ?? $todayRevenue ?? 0, 2) }}</span>
                                     @if(\App\Models\Setting::showMetricTrends())
-                                    <span class="shopify-delta-badge up" id="shopifySalesDelta"><i class="fas fa-arrow-up me-1"></i><span id="shopifySalesDeltaText">14.5%</span></span>
+                                    <span class="shopify-delta-badge {{ ($mtdSalesDelta ?? 0) >= 0 ? 'up' : 'down' }}" id="shopifySalesDelta"><i class="fas {{ ($mtdSalesDelta ?? 0) >= 0 ? 'fa-arrow-up' : 'fa-arrow-down' }} me-1"></i><span id="shopifySalesDeltaText">{{ (($mtdSalesDelta ?? 0) >= 0 ? '+' : '-') . number_format(abs($mtdSalesDelta ?? 0), 1) }}%</span></span>
                                     @endif
                                 </div>
-                                <div class="text-white-50 small mt-1 shopify-metric-subtext" id="shopifySalesSubtext" style="font-size:0.7rem;">Today's gross revenue</div>
+                                <div class="text-white-50 small mt-1 shopify-metric-subtext" id="shopifySalesSubtext" style="font-size:0.7rem;">Month to date gross revenue</div>
                             </div>
                         </div>
 
@@ -1658,17 +1675,17 @@ body.modal-open .admin-mobile-menu-toggle {
                         <div class="col d-flex">
                             <div class="shopify-metric-card w-100 p-2 p-md-3 rounded-3 cursor-pointer" data-metric="orders" onclick="switchShopifyMetric('orders')">
                                 <div class="shopify-metric-title d-flex align-items-center justify-content-between">
-                                    <span class="shopify-metric-title-left"><span>Orders / Bookings</span> <span class="shopify-today-tag badge ms-1" style="background:rgba(139,92,246,0.22);color:#c084fc;font-size:0.65rem;padding:2px 6px;border-radius:4px;border:1px solid rgba(139,92,246,0.4);font-weight:600;">Today</span></span>
+                                    <span class="shopify-metric-title-left"><span>Orders / Bookings</span> <span class="shopify-today-tag badge ms-1" style="background:rgba(139,92,246,0.22);color:#c084fc;font-size:0.65rem;padding:2px 6px;border-radius:4px;border:1px solid rgba(139,92,246,0.4);font-weight:600;">Month to Date</span></span>
                                     <i class="fas fa-shopping-bag text-white-50" style="font-size:0.75rem;"></i>
                                 </div>
                                 <div class="shopify-metric-value-row d-flex align-items-baseline justify-content-between flex-wrap gap-1 mt-1" style="min-width:0;">
-                                    <span class="shopify-metric-val" id="shopifyOrdersVal">{{ number_format($todayTxns ?? 0) }}</span>
+                                    <span class="shopify-metric-val" id="shopifyOrdersVal">{{ number_format($mtdTxns ?? $todayTxns ?? 0) }}</span>
                                     @if(\App\Models\Setting::showMetricTrends())
-                                    <span class="shopify-delta-badge up" id="shopifyOrdersDelta"><i class="fas fa-arrow-up me-1"></i><span id="shopifyOrdersDeltaText">8.2%</span></span>
+                                    <span class="shopify-delta-badge {{ ($mtdOrdersDelta ?? 0) >= 0 ? 'up' : 'down' }}" id="shopifyOrdersDelta"><i class="fas {{ ($mtdOrdersDelta ?? 0) >= 0 ? 'fa-arrow-up' : 'fa-arrow-down' }} me-1"></i><span id="shopifyOrdersDeltaText">{{ (($mtdOrdersDelta ?? 0) >= 0 ? '+' : '-') . number_format(abs($mtdOrdersDelta ?? 0), 1) }}%</span></span>
                                     @endif
                                 </div>
                                 <div class="text-white-50 small mt-1 shopify-metric-subtext" id="shopifyOrdersSubtext" style="font-size:0.7rem;">
-                                    <span id="shopifyOrdersSubtextBase">Today's bookings</span> · <span class="text-white-50 fw-semibold" id="shopifyGuestsWrap"><span id="shopifyGuestsVal">{{ number_format($todayGuests ?? 0) }}</span> guests</span>
+                                    <span id="shopifyOrdersSubtextBase">Month to date bookings</span> · <span class="text-white-50 fw-semibold" id="shopifyGuestsWrap"><span id="shopifyGuestsVal">{{ number_format($mtdGuests ?? $todayGuests ?? 0) }}</span> guests</span>
                                 </div>
                             </div>
                         </div>
@@ -1677,16 +1694,16 @@ body.modal-open .admin-mobile-menu-toggle {
                         <div class="col d-flex">
                             <div class="shopify-metric-card w-100 p-2 p-md-3 rounded-3 cursor-pointer" data-metric="sessions" onclick="switchShopifyMetric('sessions')">
                                 <div class="shopify-metric-title d-flex align-items-center justify-content-between">
-                                    <span class="shopify-metric-title-left"><span>Sessions</span> <span class="shopify-today-tag badge ms-1" style="background:rgba(139,92,246,0.22);color:#c084fc;font-size:0.65rem;padding:2px 6px;border-radius:4px;border:1px solid rgba(139,92,246,0.4);font-weight:600;">Today</span></span>
+                                    <span class="shopify-metric-title-left"><span>Sessions</span> <span class="shopify-today-tag badge ms-1" style="background:rgba(139,92,246,0.22);color:#c084fc;font-size:0.65rem;padding:2px 6px;border-radius:4px;border:1px solid rgba(139,92,246,0.4);font-weight:600;">Month to Date</span></span>
                                     <i class="fas fa-eye text-white-50" style="font-size:0.75rem;"></i>
                                 </div>
                                 <div class="shopify-metric-value-row d-flex align-items-baseline justify-content-between flex-wrap gap-1 mt-1" style="min-width:0;">
-                                    <span class="shopify-metric-val" id="shopifySessionsVal">{{ number_format($todaySessions ?? 0) }}</span>
+                                    <span class="shopify-metric-val" id="shopifySessionsVal">{{ number_format($mtdSessions ?? $todaySessions ?? 0) }}</span>
                                     @if(\App\Models\Setting::showMetricTrends())
-                                    <span class="shopify-delta-badge down" id="shopifySessionsDelta"><i class="fas fa-arrow-down me-1"></i><span id="shopifySessionsDeltaText">12.4%</span></span>
+                                    <span class="shopify-delta-badge {{ ($mtdOrdersDelta ?? 0) >= 0 ? 'up' : 'down' }}" id="shopifySessionsDelta"><i class="fas {{ ($mtdOrdersDelta ?? 0) >= 0 ? 'fa-arrow-up' : 'fa-arrow-down' }} me-1"></i><span id="shopifySessionsDeltaText">{{ (($mtdOrdersDelta ?? 0) >= 0 ? '+' : '-') . number_format(abs($mtdOrdersDelta ?? 0), 1) }}%</span></span>
                                     @endif
                                 </div>
-                                <div class="text-white-50 small mt-1 shopify-metric-subtext" id="shopifySessionsSubtext" style="font-size:0.7rem;">Today's visitor traffic</div>
+                                <div class="text-white-50 small mt-1 shopify-metric-subtext" id="shopifySessionsSubtext" style="font-size:0.7rem;">Month to date visitor traffic</div>
                             </div>
                         </div>
 
@@ -1695,21 +1712,21 @@ body.modal-open .admin-mobile-menu-toggle {
                         <div class="col d-flex">
                             <div class="shopify-metric-card w-100 p-2 p-md-3 rounded-3 cursor-pointer" data-metric="conversion" onclick="switchShopifyMetric('conversion')">
                                 <div class="shopify-metric-title d-flex align-items-center justify-content-between">
-                                    <span class="shopify-metric-title-left"><span>Conversion rate</span> <span class="shopify-today-tag badge ms-1" style="background:rgba(139,92,246,0.22);color:#c084fc;font-size:0.65rem;padding:2px 6px;border-radius:4px;border:1px solid rgba(139,92,246,0.4);font-weight:600;">Today</span></span>
+                                    <span class="shopify-metric-title-left"><span>Conversion rate</span> <span class="shopify-today-tag badge ms-1" style="background:rgba(139,92,246,0.22);color:#c084fc;font-size:0.65rem;padding:2px 6px;border-radius:4px;border:1px solid rgba(139,92,246,0.4);font-weight:600;">Month to Date</span></span>
                                     <i class="fas fa-percentage text-white-50" style="font-size:0.75rem;"></i>
                                 </div>
                                 <div class="shopify-metric-value-row d-flex align-items-baseline justify-content-between flex-wrap gap-1 mt-1" style="min-width:0;">
                                     @php
-                                        $initSessions = $todaySessions ?? 0;
-                                        $initTxns = $todayTxns ?? 0;
-                                        $initConv = $todayConv ?? 0;
+                                        $initSessions = $mtdSessions ?? $todaySessions ?? 0;
+                                        $initTxns = $mtdTxns ?? $todayTxns ?? 0;
+                                        $initConv = $mtdConv ?? $todayConv ?? 0;
                                     @endphp
                                     <span class="shopify-metric-val" id="shopifyConversionVal">{{ number_format($initConv, 2) }}%</span>
                                     @if(\App\Models\Setting::showMetricTrends())
-                                    <span class="shopify-delta-badge up" id="shopifyConversionDelta"><i class="fas fa-arrow-up me-1"></i><span id="shopifyConversionDeltaText">3.6%</span></span>
+                                    <span class="shopify-delta-badge up" id="shopifyConversionDelta"><i class="fas fa-arrow-up me-1"></i><span id="shopifyConversionDeltaText">+0.0%</span></span>
                                     @endif
                                 </div>
-                                <div class="text-white-50 small mt-1 shopify-metric-subtext" id="shopifyConversionSubtext" style="font-size:0.7rem;">Today's visitors to bookings ratio</div>
+                                <div class="text-white-50 small mt-1 shopify-metric-subtext" id="shopifyConversionSubtext" style="font-size:0.7rem;">Month to date conversion ratio</div>
                             </div>
                         </div>
                         @endif
@@ -1725,7 +1742,7 @@ body.modal-open .admin-mobile-menu-toggle {
                                 <div class="d-flex align-items-center justify-content-between flex-wrap gap-2 mb-3">
                                     <div class="fw-bold text-white" id="shopifyChartTitle" style="font-size: 0.95rem; letter-spacing: -0.01em;">Total sales over time</div>
                                     <div class="d-flex align-items-center gap-3 small text-white-50">
-                                        <span><i class="fas fa-circle text-primary me-1"></i> <span id="shopifyCurrentPeriodLabel">Current Selection</span></span>
+                                        <span><i class="fas fa-circle text-primary me-1"></i> <span id="shopifyCurrentPeriodLabel">Month to Date</span></span>
                                         <span><i class="fas fa-circle text-info opacity-50 me-1"></i> <span id="shopifyPrevPeriodLabel">Previous Period</span></span>
                                     </div>
                                 </div>
@@ -3010,11 +3027,12 @@ body.modal-open .admin-mobile-menu-toggle {
                                 <div class="mb-3">
                                     <label class="form-label text-white-50 small mb-1">Quick Date Presets:</label>
                                     <div class="d-flex flex-wrap gap-2">
-                                        <button type="button" class="mobile-preset-btn" onclick="applyMobileDatePreset('today')">Today</button>
-                                        <button type="button" class="mobile-preset-btn" onclick="applyMobileDatePreset('yesterday')">Yesterday</button>
-                                        <button type="button" class="mobile-preset-btn" onclick="applyMobileDatePreset('7days')">Last 7 Days</button>
-                                        <button type="button" class="mobile-preset-btn" onclick="applyMobileDatePreset('thisMonth')">This Month</button>
-                                        <button type="button" class="mobile-preset-btn" onclick="applyMobileDatePreset('allTime')">All Time</button>
+                                        <button type="button" class="mobile-preset-btn" onclick="applyMobileDatePreset('today', this)">Today</button>
+                                        <button type="button" class="mobile-preset-btn" onclick="applyMobileDatePreset('yesterday', this)">Yesterday</button>
+                                        <button type="button" class="mobile-preset-btn" onclick="applyMobileDatePreset('7days', this)">Last 7 Days</button>
+                                        <button type="button" class="mobile-preset-btn" onclick="applyMobileDatePreset('monthToDate', this)">Month to Date</button>
+                                        <button type="button" class="mobile-preset-btn" onclick="applyMobileDatePreset('thisMonth', this)">This Month</button>
+                                        <button type="button" class="mobile-preset-btn" onclick="applyMobileDatePreset('allTime', this)">All Time</button>
                                     </div>
                                 </div>
                                 <div>
@@ -3846,34 +3864,54 @@ body.modal-open .admin-mobile-menu-toggle {
                         });
                     }
 
-                    // Card Values: On initial load (no filter), show TODAY ONLY. When filtered, show filtered totals.
+                    // Card Values: On initial load (no filter), show Month to Date matching the graph. When filtered, show filtered totals.
+                    const chartWindow = resolveChartDateWindow(dailyMap, allDailyMap);
+                    const dates = chartWindow.dates;
+                    const targetMap = chartWindow.targetMap;
+                    const prevTotals = chartWindow.prevTotals || { sales: 0, orders: 0, sessions: 0, conversion: 0 };
+
                     let cardSales = 0;
                     let cardOrders = 0;
                     let cardGuests = 0;
 
-                    if (!isFilterActive) {
-                        const todayStats = dailyMap[todayPst] || allDailyMap[todayPst] || { sales: 0, orders: 0, guests: 0 };
-                        cardSales = todayStats.sales;
-                        cardOrders = todayStats.orders;
-                        cardGuests = todayStats.guests;
-
-                        // Show "Today" badges and today-specific subtexts on initial load
-                        $('.shopify-today-tag').removeClass('d-none');
-                        $('#shopifySalesSubtext').text("Today's gross revenue");
-                        $('#shopifyOrdersSubtextBase').text("Today's bookings");
-                        $('#shopifySessionsSubtext').text("Today's visitor traffic");
-                        $('#shopifyConversionSubtext').text("Today's visitors to bookings ratio");
-                    } else {
+                    if (chartWindow.hasExplicitDateRange) {
+                        // When an explicit date range is active in filter:
                         cardSales = totalSales;
                         cardOrders = totalOrders;
                         cardGuests = totalGuests;
 
-                        // Hide "Today" badges when filtered so users aren't confused
-                        $('.shopify-today-tag').addClass('d-none');
-                        $('#shopifySalesSubtext').text("Gross filtered revenue");
-                        $('#shopifyOrdersSubtextBase').text("Filtered bookings");
-                        $('#shopifySessionsSubtext').text("Tracked visitor traffic");
-                        $('#shopifyConversionSubtext').text("Visitors to bookings ratio");
+                        const dateRangeVal = String($('#txnDateRange').val() || $('#mobileTxnDateRange').val() || '').trim();
+                        const parts = dateRangeVal.split(' - ');
+                        const isSingleDay = parts.length === 2 && parts[0] === parts[1];
+
+                        if (isSingleDay) {
+                            $('.shopify-today-tag').text('Day View').removeClass('d-none');
+                            $('#shopifySalesSubtext').text("Daily gross revenue");
+                            $('#shopifyOrdersSubtextBase').text("Daily bookings");
+                            $('#shopifySessionsSubtext').text("Daily visitor traffic");
+                            $('#shopifyConversionSubtext').text("Visitors to bookings ratio");
+                        } else {
+                            $('.shopify-today-tag').addClass('d-none');
+                            $('#shopifySalesSubtext').text("Filtered gross revenue");
+                            $('#shopifyOrdersSubtextBase').text("Filtered bookings");
+                            $('#shopifySessionsSubtext').text("Tracked visitor traffic");
+                            $('#shopifyConversionSubtext').text("Visitors to bookings ratio");
+                        }
+                    } else {
+                        // Default initial state (or non-date filters active):
+                        // Show MONTH TO DATE so the KPI cards match the graph exactly!
+                        dates.forEach(function(dKey) {
+                            const item = targetMap[dKey] || { sales: 0, orders: 0, guests: 0 };
+                            cardSales += (item.sales || 0);
+                            cardOrders += (item.orders || 0);
+                            cardGuests += (item.guests || 0);
+                        });
+
+                        $('.shopify-today-tag').text('Month to Date').removeClass('d-none');
+                        $('#shopifySalesSubtext').text("Month to date gross revenue");
+                        $('#shopifyOrdersSubtextBase').text("Month to date bookings");
+                        $('#shopifySessionsSubtext').text("Month to date visitor traffic");
+                        $('#shopifyConversionSubtext').text("Month to date conversion ratio");
                     }
 
                     // Dynamically estimate visitor sessions
@@ -3897,52 +3935,26 @@ body.modal-open .admin-mobile-menu-toggle {
                     let sessionsDelta = 0;
                     let convDelta = 0;
 
-                    const chartWindowForDeltas = resolveChartDateWindow(dailyMap, allDailyMap);
-                    const prevTotals = chartWindowForDeltas.prevTotals || { sales: 0, orders: 0, sessions: 0, conversion: 0 };
+                    if (prevTotals.sales > 0) {
+                        salesDelta = ((cardSales - prevTotals.sales) / prevTotals.sales) * 100;
+                    } else if (cardSales > 0) {
+                        salesDelta = 100;
+                    }
 
-                    if (isFilterActive) {
-                        // Compare the current filtered totals against the actual previous period totals
-                        if (prevTotals.sales > 0) {
-                            salesDelta = ((cardSales - prevTotals.sales) / prevTotals.sales) * 100;
-                        } else if (cardSales > 0) {
-                            salesDelta = 100;
-                        }
+                    if (prevTotals.orders > 0) {
+                        ordersDelta = ((cardOrders - prevTotals.orders) / prevTotals.orders) * 100;
+                    } else if (cardOrders > 0) {
+                        ordersDelta = 100;
+                    }
 
-                        if (prevTotals.orders > 0) {
-                            ordersDelta = ((cardOrders - prevTotals.orders) / prevTotals.orders) * 100;
-                        } else if (cardOrders > 0) {
-                            ordersDelta = 100;
-                        }
+                    if (prevTotals.sessions > 0) {
+                        sessionsDelta = ((sessionsCount - prevTotals.sessions) / prevTotals.sessions) * 100;
+                    } else if (sessionsCount > 0) {
+                        sessionsDelta = 100;
+                    }
 
-                        if (prevTotals.sessions > 0) {
-                            sessionsDelta = ((sessionsCount - prevTotals.sessions) / prevTotals.sessions) * 100;
-                        } else if (sessionsCount > 0) {
-                            sessionsDelta = 100;
-                        }
-
-                        if (prevTotals.conversion > 0) {
-                            convDelta = ((conversionRate - prevTotals.conversion) / prevTotals.conversion) * 100;
-                        }
-                    } else {
-                        // On default (Today / Unfiltered): compare Today vs Yesterday
-                        const yesterdayPst = (typeof getPstMoment === 'function')
-                            ? getPstMoment().subtract(1, 'day').format('YYYY-MM-DD')
-                            : moment().subtract(1, 'day').format('YYYY-MM-DD');
-                        const yestStats = allDailyMap[yesterdayPst] || { sales: 0, orders: 0, guests: 0 };
-                        if (yestStats.sales > 0) {
-                            salesDelta = ((cardSales - yestStats.sales) / yestStats.sales) * 100;
-                        } else if (cardSales > 0) {
-                            salesDelta = 100;
-                        }
-                        if (yestStats.orders > 0) {
-                            ordersDelta = ((cardOrders - yestStats.orders) / yestStats.orders) * 100;
-                        } else if (cardOrders > 0) {
-                            ordersDelta = 100;
-                        }
-                        let yestSessions = yestStats.orders > 0 ? Math.max(Math.round(yestStats.orders * 22.4), 15) : 0;
-                        if (yestSessions > 0) {
-                            sessionsDelta = ((sessionsCount - yestSessions) / yestSessions) * 100;
-                        }
+                    if (prevTotals.conversion > 0) {
+                        convDelta = ((conversionRate - prevTotals.conversion) / prevTotals.conversion) * 100;
                     }
 
                     updateDeltaBadge('#shopifySessionsDelta', '#shopifySessionsDeltaText', sessionsDelta);
@@ -3980,12 +3992,13 @@ body.modal-open .admin-mobile-menu-toggle {
                     allDailyMap = allDailyMap || dailyMap;
                     const todayMom = (typeof getPstMoment === 'function') ? getPstMoment().startOf('day') : moment().startOf('day');
                     const dateRangeVal = String($('#txnDateRange').val() || $('#mobileTxnDateRange').val() || '').trim();
-                    const hasExplicitDateRange = dateRangeVal && dateRangeVal.includes(' - ');
+                    const hasExplicitDateRange = Boolean(dateRangeVal && dateRangeVal.includes(' - '));
                     const currentTarget = String($('#dateTargetSelect').val() || $('#mobileDateTargetSelect').val() || 'either').toLowerCase();
 
                     let dates = [];
                     const targetMap = {};
                     let prevDates = [];
+                    let currentLabel = 'Month to Date';
                     let prevLabel = 'Previous Period';
 
                     if (hasExplicitDateRange) {
@@ -4001,15 +4014,25 @@ body.modal-open .admin-mobile-menu-toggle {
                                 const numDays = eMom.diff(sMom, 'days') + 1;
                                 let prevStartMom, prevEndMom;
 
-                                // If filtered within a single calendar month (e.g. Sept 1 - Sept 14):
-                                // Standard Month-over-Month comparison (Aug 1 - Aug 14)
-                                if (sMom.month() === eMom.month() && sMom.year() === eMom.year()) {
+                                if (sMom.isSame(eMom, 'day')) {
+                                    // Single day (e.g. "Today" or single date)
+                                    prevStartMom = sMom.clone().subtract(1, 'day');
+                                    prevEndMom = prevStartMom.clone();
+                                    currentLabel = 'Current Period (' + sMom.format('MMM D') + ')';
+                                    prevLabel = 'Previous Period (' + prevStartMom.format('MMM D') + ')';
+                                } else if (sMom.month() === eMom.month() && sMom.year() === eMom.year()) {
+                                    // Filtered within a single calendar month (e.g. Sept 1 - Sept 14):
+                                    // Standard Month-over-Month comparison (Aug 1 - Aug 14)
                                     prevStartMom = sMom.clone().subtract(1, 'month');
                                     prevEndMom = eMom.clone().subtract(1, 'month');
+                                    currentLabel = 'Current Period (' + sMom.format('MMM D') + ' - ' + eMom.format('MMM D') + ')';
+                                    prevLabel = 'Previous Period (' + prevStartMom.format('MMM D') + ' - ' + prevEndMom.format('MMM D') + ')';
                                 } else {
                                     // Otherwise, immediately preceding period of equal duration
                                     prevEndMom = sMom.clone().subtract(1, 'days');
                                     prevStartMom = sMom.clone().subtract(numDays, 'days');
+                                    currentLabel = 'Current Period (' + sMom.format('MMM D') + ' - ' + eMom.format('MMM D') + ')';
+                                    prevLabel = 'Previous Period (' + prevStartMom.format('MMM D') + ' - ' + prevEndMom.format('MMM D') + ')';
                                 }
 
                                 const curr = sMom.clone();
@@ -4025,38 +4048,34 @@ body.modal-open .admin-mobile-menu-toggle {
                                     prevDates.push(pCurr.format('YYYY-MM-DD'));
                                     pCurr.add(1, 'day');
                                 }
-
-                                prevLabel = 'Previous Period (' + prevStartMom.format('MMM D') + ' - ' + prevEndMom.format('MMM D') + ')';
                             }
                         }
                     }
 
-                    // When NO explicit date range filter is selected (initial / default state)
-                    // OR when a single day is selected (dates.length <= 1, e.g. "Today"):
-                    // Show past 10 days leading up to today
-                    if (dates.length <= 1) {
-                        const anchorMom = (dates.length === 1 && hasExplicitDateRange)
-                            ? moment(dates[0], 'YYYY-MM-DD')
-                            : todayMom;
-                        dates = [];
-                        prevDates = [];
-                        const startMom = anchorMom.clone().subtract(10, 'days');
-                        const curr = startMom.clone();
-                        while (curr.isSameOrBefore(anchorMom, 'day')) {
+                    // When NO explicit date range filter is selected (initial / default state):
+                    // Default to MONTH TO DATE (from 1st of current month up to today)
+                    if (dates.length === 0) {
+                        const mtdStartMom = todayMom.clone().startOf('month');
+                        const mtdEndMom = todayMom.clone();
+
+                        const prevStartMom = mtdStartMom.clone().subtract(1, 'month');
+                        const prevEndMom = mtdEndMom.clone().subtract(1, 'month');
+
+                        const curr = mtdStartMom.clone();
+                        while (curr.isSameOrBefore(mtdEndMom, 'day')) {
                             const dKey = curr.format('YYYY-MM-DD');
                             dates.push(dKey);
                             targetMap[dKey] = (dailyMap && dailyMap[dKey]) ? dailyMap[dKey] : (allDailyMap[dKey] || { sales: 0, orders: 0, guests: 0 });
                             curr.add(1, 'day');
                         }
 
-                        const prevEndMom = startMom.clone().subtract(1, 'day');
-                        const prevStartMom = prevEndMom.clone().subtract(10, 'days');
                         const pCurr = prevStartMom.clone();
                         while (pCurr.isSameOrBefore(prevEndMom, 'day')) {
                             prevDates.push(pCurr.format('YYYY-MM-DD'));
                             pCurr.add(1, 'day');
                         }
 
+                        currentLabel = 'Month to Date (' + mtdStartMom.format('MMM D') + ' - ' + mtdEndMom.format('MMM D') + ')';
                         prevLabel = 'Previous Period (' + prevStartMom.format('MMM D') + ' - ' + prevEndMom.format('MMM D') + ')';
                     }
 
@@ -4079,6 +4098,7 @@ body.modal-open .admin-mobile-menu-toggle {
                         dates: dates,
                         targetMap: targetMap,
                         hasExplicitDateRange: hasExplicitDateRange,
+                        currentLabel: currentLabel,
                         prevDates: prevDates,
                         prevLabel: prevLabel,
                         prevTotals: {
@@ -4100,6 +4120,9 @@ body.modal-open .admin-mobile-menu-toggle {
                     const targetMap = chartWindow.targetMap;
                     const prevDates = chartWindow.prevDates || [];
 
+                    if (chartWindow.currentLabel) {
+                        $('#shopifyCurrentPeriodLabel').text(chartWindow.currentLabel);
+                    }
                     if (chartWindow.prevLabel) {
                         $('#shopifyPrevPeriodLabel').text(chartWindow.prevLabel);
                     }
@@ -4167,7 +4190,7 @@ body.modal-open .admin-mobile-menu-toggle {
                             labels: labels,
                             datasets: [
                                 {
-                                    label: 'Current Selection',
+                                    label: chartWindow.currentLabel || 'Current Period',
                                     data: currentData,
                                     borderColor: '#8b5cf6',
                                     backgroundColor: gradientCurrent,
@@ -4180,7 +4203,7 @@ body.modal-open .admin-mobile-menu-toggle {
                                     pointHitRadius: 12
                                 },
                                 {
-                                    label: 'Previous Period',
+                                    label: chartWindow.prevLabel || 'Previous Period',
                                     data: prevData,
                                     borderColor: 'rgba(56, 189, 248, 0.5)',
                                     borderWidth: 2,
@@ -4961,6 +4984,7 @@ body.modal-open .admin-mobile-menu-toggle {
                         'Yesterday': [pstNow.clone().subtract(1, 'days'), pstNow.clone().subtract(1, 'days')],
                         'Last 7 Days': [pstNow.clone().subtract(6, 'days'), pstNow.clone()],
                         'Last 30 Days': [pstNow.clone().subtract(29, 'days'), pstNow.clone()],
+                        'Month to Date': [pstNow.clone().startOf('month'), pstNow.clone()],
                         'This Month': [pstNow.clone().startOf('month'), pstNow.clone().endOf('month')],
                         'Last Month': [pstNow.clone().subtract(1, 'month').startOf('month'), pstNow.clone().subtract(1, 'month').endOf('month')]
                     }
@@ -5066,6 +5090,8 @@ body.modal-open .admin-mobile-menu-toggle {
                         start = now.clone().subtract(1, 'days'); end = now.clone().subtract(1, 'days');
                     } else if (preset === '7days') {
                         start = now.clone().subtract(6, 'days'); end = now.clone();
+                    } else if (preset === 'monthToDate') {
+                        start = now.clone().startOf('month'); end = now.clone();
                     } else if (preset === 'thisMonth') {
                         start = now.clone().startOf('month'); end = now.clone().endOf('month');
                     } else if (preset === 'lastMonth') {
