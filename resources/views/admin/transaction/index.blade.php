@@ -44,6 +44,9 @@
 <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 
 <style>
+#analyticsDashboardTabContent{
+    padding: 0 !important;
+}
 /* ─── Transaction Dashboard ──────────────────────────────────────────── */
 .txn-date-range-wrap {
     display: flex; align-items: center;
