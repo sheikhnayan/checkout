@@ -190,7 +190,7 @@ class FrontendController extends Controller
 
         // Session analytics must never interrupt checkout rendering.
         try {
-            $this->sessionAnalytics->trackCheckoutPageView($request, $data);
+            $this->sessionAnalytics->trackCheckoutPageView($request, $data, $affiliateReferral?->id);
         } catch (\Throwable $exception) {
             report($exception);
         }

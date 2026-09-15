@@ -1494,7 +1494,11 @@ body.modal-open .admin-mobile-menu-toggle {
             $todayRevenue = (float) $todayData->sum('total');
             $todayTxns    = (int) $todayData->count();
             $todayGuests  = (int) $todayData->sum($guestCountForTransaction);
-            $todaySessions = $todayTxns > 0 ? max($todayTxns * 18, (int) round($todayTxns * 22.4)) : 0;
+            $realTodaySessions   = (int) ($realSessionsData['todaySessions'] ?? 0);
+            $realMtdSessions     = (int) ($realSessionsData['mtdSessions'] ?? 0);
+            $realPrevMtdSessions = (int) ($realSessionsData['prevMtdSessions'] ?? 0);
+
+            $todaySessions = $realTodaySessions;
             $todayConv    = $todaySessions > 0 ? (($todayTxns / $todaySessions) * 100) : 0;
 
             // Month to Date (MTD) metrics for initial dashboard view
@@ -1503,7 +1507,7 @@ body.modal-open .admin-mobile-menu-toggle {
             $mtdRevenue    = (float) $mtdData->sum('total');
             $mtdTxns       = (int) $mtdData->count();
             $mtdGuests     = (int) $mtdData->sum($guestCountForTransaction);
-            $mtdSessions   = $mtdTxns > 0 ? max($mtdTxns * 18, (int) round($mtdTxns * 22.4)) : 0;
+            $mtdSessions   = $realMtdSessions;
             $mtdConv       = $mtdSessions > 0 ? (($mtdTxns / $mtdSessions) * 100) : 0;
 
             $prevMonthStart = $monthStart->copy()->subMonth();
@@ -1513,6 +1517,9 @@ body.modal-open .admin-mobile-menu-toggle {
             $prevMtdTxns    = (int) $prevMtdData->count();
             $mtdSalesDelta  = $prevMtdRevenue > 0 ? (($mtdRevenue - $prevMtdRevenue) / $prevMtdRevenue) * 100 : ($mtdRevenue > 0 ? 100 : 0);
             $mtdOrdersDelta = $prevMtdTxns > 0 ? (($mtdTxns - $prevMtdTxns) / $prevMtdTxns) * 100 : ($mtdTxns > 0 ? 100 : 0);
+            $mtdSessionsDelta = $realPrevMtdSessions > 0 ? (($mtdSessions - $realPrevMtdSessions) / $realPrevMtdSessions) * 100 : ($mtdSessions > 0 ? 100 : 0);
+            $prevMtdConv    = $realPrevMtdSessions > 0 ? (($prevMtdTxns / $realPrevMtdSessions) * 100) : 0;
+            $mtdConvDelta   = $prevMtdConv > 0 ? (($mtdConv - $prevMtdConv) / $prevMtdConv) * 100 : ($mtdConv > 0 ? 100 : 0);
 
             $totalTxns         = $reportableData->count();
             $redeemedTxns      = $reportableData->filter(function ($t) {
@@ -1809,7 +1816,7 @@ body.modal-open .admin-mobile-menu-toggle {
                                 <div class="shopify-metric-value-row d-flex align-items-baseline justify-content-between flex-wrap gap-1 mt-1" style="min-width:0;">
                                     <span class="shopify-metric-val" id="shopifySessionsVal">{{ number_format($mtdSessions ?? $todaySessions ?? 0) }}</span>
                                     @if(\App\Models\Setting::showMetricTrends())
-                                    <span class="shopify-delta-badge {{ ($mtdOrdersDelta ?? 0) >= 0 ? 'up' : 'down' }}" id="shopifySessionsDelta"><i class="fas {{ ($mtdOrdersDelta ?? 0) >= 0 ? 'fa-arrow-up' : 'fa-arrow-down' }} me-1"></i><span id="shopifySessionsDeltaText">{{ (($mtdOrdersDelta ?? 0) >= 0 ? '+' : '-') . number_format(abs($mtdOrdersDelta ?? 0), 1) }}%</span></span>
+                                    <span class="shopify-delta-badge {{ ($mtdSessionsDelta ?? 0) >= 0 ? 'up' : 'down' }}" id="shopifySessionsDelta"><i class="fas {{ ($mtdSessionsDelta ?? 0) >= 0 ? 'fa-arrow-up' : 'fa-arrow-down' }} me-1"></i><span id="shopifySessionsDeltaText">{{ (($mtdSessionsDelta ?? 0) >= 0 ? '+' : '-') . number_format(abs($mtdSessionsDelta ?? 0), 1) }}%</span></span>
                                     @endif
                                 </div>
                                 <div class="text-white-50 small mt-1 shopify-metric-subtext" id="shopifySessionsSubtext" style="font-size:0.7rem;">Month to date visitor traffic</div>
@@ -1832,7 +1839,7 @@ body.modal-open .admin-mobile-menu-toggle {
                                     @endphp
                                     <span class="shopify-metric-val" id="shopifyConversionVal">{{ number_format($initConv, 2) }}%</span>
                                     @if(\App\Models\Setting::showMetricTrends())
-                                    <span class="shopify-delta-badge up" id="shopifyConversionDelta"><i class="fas fa-arrow-up me-1"></i><span id="shopifyConversionDeltaText">+0.0%</span></span>
+                                    <span class="shopify-delta-badge {{ ($mtdConvDelta ?? 0) >= 0 ? 'up' : 'down' }}" id="shopifyConversionDelta"><i class="fas {{ ($mtdConvDelta ?? 0) >= 0 ? 'fa-arrow-up' : 'fa-arrow-down' }} me-1"></i><span id="shopifyConversionDeltaText">{{ (($mtdConvDelta ?? 0) >= 0 ? '+' : '-') . number_format(abs($mtdConvDelta ?? 0), 1) }}%</span></span>
                                     @endif
                                 </div>
                                 <div class="text-white-50 small mt-1 shopify-metric-subtext" id="shopifyConversionSubtext" style="font-size:0.7rem;">Month to date conversion ratio</div>
@@ -3686,6 +3693,50 @@ body.modal-open .admin-mobile-menu-toggle {
             </script>
 
             <script>
+            window.realSessionsList = @json($realSessionsData['sessionsList'] ?? []);
+
+            function getFilteredSessionsMap() {
+                const map = {};
+                if (!window.realSessionsList || !window.realSessionsList.length) {
+                    return map;
+                }
+
+                const activeVenues = $('.polaris-filter-cb[data-category="venue"]:checked').map(function() { return $(this).val().toLowerCase(); }).get();
+                const activeAffiliates = $('.polaris-filter-cb[data-category="affiliate"]:checked').map(function() { return $(this).val().toLowerCase(); }).get();
+
+                window.realSessionsList.forEach(function(item) {
+                    // Venue filter
+                    if (activeVenues.length > 0) {
+                        const rowVenue = String(item.venue || '').toLowerCase();
+                        if (!activeVenues.some(function(v) { return rowVenue === v || rowVenue.includes(v); })) {
+                            return;
+                        }
+                    }
+
+                    // Promoter / Sales Channel filter
+                    if (activeAffiliates.length > 0) {
+                        const promoterName = String(item.promoter || 'Direct').trim();
+                        const matches = activeAffiliates.some(function(a) {
+                            if (String(a).toLowerCase() === 'direct') {
+                                return promoterName.toLowerCase() === 'direct';
+                            }
+                            return promoterName.toLowerCase().includes(String(a).toLowerCase());
+                        });
+                        if (!matches) {
+                            return;
+                        }
+                    }
+
+                    const dKey = item.date;
+                    if (!map[dKey]) {
+                        map[dKey] = 0;
+                    }
+                    map[dKey] += (parseInt(item.count, 10) || 0);
+                });
+
+                return map;
+            }
+
             $(document).ready(function() {
 
                 // Stat Card Number Count-Up Animation
@@ -4095,11 +4146,12 @@ body.modal-open .admin-mobile-menu-toggle {
                         $('#shopifyConversionSubtext').text("Month to date conversion ratio");
                     }
 
-                    // Dynamically estimate visitor sessions
+                    // Calculate real visitor sessions based on filtered clubs & promoters
+                    const filteredSessionsMap = getFilteredSessionsMap();
                     let sessionsCount = 0;
-                    if (cardOrders > 0) {
-                        sessionsCount = Math.max(cardOrders * 18, Math.round(cardOrders * 22.4));
-                    }
+                    dates.forEach(function(dKey) {
+                        sessionsCount += (filteredSessionsMap[dKey] || 0);
+                    });
 
                     const conversionRate = sessionsCount > 0 ? ((cardOrders / sessionsCount) * 100) : 0;
 
@@ -4260,7 +4312,8 @@ body.modal-open .admin-mobile-menu-toggle {
                         prevLabel = 'Previous Period (' + prevStartMom.format('MMM D') + ' - ' + prevEndMom.format('MMM D') + ')';
                     }
 
-                    // Calculate real historical totals for the previous period from allDailyMap
+                    // Calculate real historical totals for the previous period from allDailyMap and real sessions
+                    const filteredSessionsMapForWindow = getFilteredSessionsMap();
                     let prevSales = 0, prevOrders = 0, prevGuests = 0, prevSessions = 0;
                     prevDates.forEach(function(dKey) {
                         const item = allDailyMap[dKey] || { sales: 0, orders: 0, guests: 0 };
@@ -4268,10 +4321,7 @@ body.modal-open .admin-mobile-menu-toggle {
                         prevSales += (item.sales || 0);
                         prevOrders += ord;
                         prevGuests += (item.guests || 0);
-                        let dayNum = moment(dKey).day();
-                        let dayDate = moment(dKey).date();
-                        let mult = 14 + ((dayNum * 4 + dayDate * 3) % 12);
-                        prevSessions += ord > 0 ? Math.max(Math.round(ord * mult), 15) : 0;
+                        prevSessions += (filteredSessionsMapForWindow[dKey] || 0);
                     });
                     const prevConv = prevSessions > 0 ? ((prevOrders / prevSessions) * 100) : 0;
 
@@ -4311,16 +4361,14 @@ body.modal-open .admin-mobile-menu-toggle {
                     let labels = [];
                     let currentData = [];
                     let prevData = [];
+                    const filteredSessionsMapForChart = getFilteredSessionsMap();
 
                     if (dates.length > 0) {
                         dates.forEach(function(d, idx) {
                             labels.push(moment(d).format('MMM D'));
                             const item = targetMap[d] || { sales: 0, orders: 0 };
-                            let dayNum = moment(d).day();
-                            let dayDate = moment(d).date();
-                            let sessionMultiplier = 14 + ((dayNum * 4 + dayDate * 3) % 12);
-                            let dailySessions = item.orders > 0 ? Math.max(Math.round(item.orders * sessionMultiplier), 15) : 0;
-                            let dailyConv = dailySessions > 0 ? (item.orders / dailySessions) * 100 : 0;
+                            let dailySessions = filteredSessionsMapForChart[d] || 0;
+                            let dailyConv = dailySessions > 0 ? ((item.orders / dailySessions) * 100) : 0;
 
                             let val = 0;
                             if (metric === 'sales') val = item.sales;
@@ -4333,11 +4381,8 @@ body.modal-open .admin-mobile-menu-toggle {
                             // Lookup real data from the corresponding date in the previous period
                             const prevD = prevDates[idx];
                             const prevItem = (prevD && allDailyMap && allDailyMap[prevD]) ? allDailyMap[prevD] : { sales: 0, orders: 0 };
-                            let pDayNum = prevD ? moment(prevD).day() : 0;
-                            let pDayDate = prevD ? moment(prevD).date() : 1;
-                            let pMult = 14 + ((pDayNum * 4 + pDayDate * 3) % 12);
-                            let pSessions = prevItem.orders > 0 ? Math.max(Math.round(prevItem.orders * pMult), 15) : 0;
-                            let pConv = pSessions > 0 ? (prevItem.orders / pSessions) * 100 : 0;
+                            let pSessions = prevD ? (filteredSessionsMapForChart[prevD] || 0) : 0;
+                            let pConv = pSessions > 0 ? ((prevItem.orders / pSessions) * 100) : 0;
 
                             let prevVal = 0;
                             if (metric === 'sales') prevVal = prevItem.sales;

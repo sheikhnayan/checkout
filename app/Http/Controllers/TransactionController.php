@@ -1418,10 +1418,12 @@ class TransactionController extends Controller
 
         $data = $this->getAccessibleTransactionList($request);
         $accessibleWebsites = $this->getAccessibleWebsitesForUser(auth()->user());
+        $realSessionsData = $this->getRealSessionsAnalyticsForDashboard($accessibleWebsites);
 
         return view('admin.transaction.index', [
             'data' => $data,
             'accessibleWebsites' => $accessibleWebsites,
+            'realSessionsData' => $realSessionsData,
             'dashboardTitle' => 'Transactions Dashboard',
             'dashboardSubtitle' => "Here's what's happening with your transaction performance.",
         ]);
@@ -1435,10 +1437,12 @@ class TransactionController extends Controller
             $query->whereNotNull('affiliate_id');
         });
         $accessibleWebsites = $this->getAccessibleWebsitesForUser(auth()->user());
+        $realSessionsData = $this->getRealSessionsAnalyticsForDashboard($accessibleWebsites);
 
         return view('admin.transaction.index', [
             'data' => $data,
             'accessibleWebsites' => $accessibleWebsites,
+            'realSessionsData' => $realSessionsData,
             'dashboardTitle' => 'affiliate Transactions',
             'dashboardSubtitle' => 'Only affiliate-referred transactions are listed here.',
             'isPayoutPage' => true,
@@ -1453,14 +1457,150 @@ class TransactionController extends Controller
             $query->whereNotNull('entertainer_id');
         });
         $accessibleWebsites = $this->getAccessibleWebsitesForUser(auth()->user());
+        $realSessionsData = $this->getRealSessionsAnalyticsForDashboard($accessibleWebsites);
 
         return view('admin.transaction.index', [
             'data' => $data,
             'accessibleWebsites' => $accessibleWebsites,
+            'realSessionsData' => $realSessionsData,
             'dashboardTitle' => 'Entertainer Transactions',
             'dashboardSubtitle' => 'Only entertainer-referred transactions are listed here.',
             'isPayoutPage' => true,
         ]);
+    }
+
+    private function getRealSessionsAnalyticsForDashboard($accessibleWebsites): array
+    {
+        if (!Schema::hasTable('website_visitor_sessions')) {
+            return [
+                'sessionsList' => [],
+                'mtdSessions' => 0,
+                'todaySessions' => 0,
+                'prevMtdSessions' => 0,
+            ];
+        }
+
+        $websiteIds = $accessibleWebsites->pluck('id')->filter()->values()->all();
+        if (empty($websiteIds) && !auth()->user()->isAdmin()) {
+            return [
+                'sessionsList' => [],
+                'mtdSessions' => 0,
+                'todaySessions' => 0,
+                'prevMtdSessions' => 0,
+            ];
+        }
+
+        $hasAffCol = Schema::hasColumn('website_visitor_sessions', 'affiliate_id');
+        $hasEntCol = Schema::hasColumn('website_visitor_sessions', 'entertainer_id');
+
+        // Build mapping of website ID to name
+        $websiteMap = Website::whereIn('id', $websiteIds)->pluck('name', 'id')->all();
+
+        // Build mapping of affiliate ID to display name matching referralRows format
+        $affiliateMap = [];
+        if ($hasAffCol) {
+            $affiliates = \App\Models\Affiliate::with(['user', 'parent.user'])->get();
+            foreach ($affiliates as $aff) {
+                if ($aff->isSubAffiliate()) {
+                    $parent = $aff->parent;
+                    $parentName = $parent ? ($parent->display_name ?: optional($parent->user)->name) : 'Main Promoter';
+                    $subName = $aff->display_name ?: optional($aff->user)->name ?: ('Sub Promoter #' . $aff->id);
+                    $affiliateMap[$aff->id] = $subName . ' (Main: ' . $parentName . ')';
+                } else {
+                    $affiliateMap[$aff->id] = $aff->display_name ?: optional($aff->user)->name ?: ('affiliate #' . $aff->id);
+                }
+            }
+        }
+
+        // Build entertainer mapping if present
+        $entertainerMap = [];
+        if ($hasEntCol) {
+            $entertainers = \App\Models\Entertainer::with('user')->get();
+            foreach ($entertainers as $ent) {
+                $entertainerMap[$ent->id] = $ent->display_name ?: optional($ent->user)->name ?: ('Entertainer #' . $ent->id);
+            }
+        }
+
+        // Aggregate sessions by date, website_id, and affiliate_id
+        $selects = [
+            \Illuminate\Support\Facades\DB::raw('DATE(first_seen_at) as date_key'),
+            'website_id',
+            \Illuminate\Support\Facades\DB::raw('COUNT(*) as sessions_count'),
+        ];
+        $groupBy = ['date_key', 'website_id'];
+
+        if ($hasAffCol) {
+            $selects[] = 'affiliate_id';
+            $groupBy[] = 'affiliate_id';
+        }
+        if ($hasEntCol) {
+            $selects[] = 'entertainer_id';
+            $groupBy[] = 'entertainer_id';
+        }
+
+        $query = \App\Models\WebsiteVisitorSession::query();
+        if (!empty($websiteIds)) {
+            $query->whereIn('website_id', $websiteIds);
+        }
+
+        $sixMonthsAgo = now()->subMonths(6)->startOfMonth();
+        $rawAggs = $query->where('first_seen_at', '>=', $sixMonthsAgo)
+            ->select($selects)
+            ->groupBy($groupBy)
+            ->get();
+
+        $todayStr = now()->format('Y-m-d');
+        $monthStartStr = now()->startOfMonth()->format('Y-m-d');
+        $prevMonthStartStr = now()->subMonth()->startOfMonth()->format('Y-m-d');
+        $prevMonthEndStr = now()->subMonth()->format('Y-m-d');
+
+        $mtdSessions = 0;
+        $todaySessions = 0;
+        $prevMtdSessions = 0;
+        $sessionsList = [];
+
+        foreach ($rawAggs as $row) {
+            $d = (string) $row->date_key;
+            $count = (int) $row->sessions_count;
+            $wId = (int) $row->website_id;
+            $vName = $websiteMap[$wId] ?? ('Venue #' . $wId);
+
+            $affId = $hasAffCol ? (int) ($row->affiliate_id ?? 0) : 0;
+            $entId = $hasEntCol ? (int) ($row->entertainer_id ?? 0) : 0;
+
+            $promoterName = 'Direct';
+            if ($affId > 0 && isset($affiliateMap[$affId])) {
+                $promoterName = $affiliateMap[$affId];
+            } elseif ($entId > 0 && isset($entertainerMap[$entId])) {
+                $promoterName = $entertainerMap[$entId];
+            }
+
+            $sessionsList[] = [
+                'date' => $d,
+                'venue' => $vName,
+                'venue_id' => $wId,
+                'promoter' => $promoterName,
+                'affiliate_id' => $affId > 0 ? $affId : null,
+                'count' => $count,
+            ];
+
+            if ($d === $todayStr) {
+                $todaySessions += $count;
+            }
+            if ($d >= $monthStartStr && $d <= $todayStr) {
+                $mtdSessions += $count;
+            }
+            if ($d >= $prevMonthStartStr && $d <= $prevMonthEndStr) {
+                $prevMtdSessions += $count;
+            }
+        }
+
+        return [
+            'sessionsList' => $sessionsList,
+            'mtdSessions' => $mtdSessions,
+            'todaySessions' => $todaySessions,
+            'prevMtdSessions' => $prevMtdSessions,
+        ];
     }
 
     private function getAccessibleWebsitesForUser($user)

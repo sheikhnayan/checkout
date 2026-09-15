@@ -12,7 +12,7 @@ use Illuminate\Support\Str;
 
 class WebsiteSessionAnalyticsService
 {
-    public function trackCheckoutPageView(Request $request, Website $website): void
+    public function trackCheckoutPageView(Request $request, Website $website, ?int $affiliateId = null, ?int $entertainerId = null): void
     {
         if (!Schema::hasTable('website_visitor_sessions')) {
             return;
@@ -40,6 +40,45 @@ class WebsiteSessionAnalyticsService
             return;
         }
 
+        // Auto-resolve promoter / affiliate referral if not explicitly passed
+        if ($affiliateId === null) {
+            if ($request->filled('aff')) {
+                $affSlug = trim((string) $request->query('aff'));
+                $aff = \App\Models\Affiliate::where('slug', $affSlug)
+                    ->where('status', 'approved')
+                    ->where('is_active', true)
+                    ->first();
+                if ($aff) {
+                    $affiliateId = $aff->id;
+                }
+            } elseif ($request->session()->has('affiliate_referral_id')) {
+                $affiliateId = (int) $request->session()->get('affiliate_referral_id');
+            }
+        }
+
+        // Auto-resolve entertainer referral if not explicitly passed
+        if ($entertainerId === null) {
+            if ($request->filled('ent') || $request->filled('entertainer')) {
+                $entSlug = trim((string) ($request->query('ent') ?: $request->query('entertainer')));
+                $ent = \App\Models\Entertainer::where('slug', $entSlug)
+                    ->where('status', 'approved')
+                    ->where('is_active', true)
+                    ->first();
+                if ($ent) {
+                    $entertainerId = $ent->id;
+                }
+            } elseif ($request->session()->has('entertainer_referral_id')) {
+                $entertainerId = (int) $request->session()->get('entertainer_referral_id');
+            }
+        }
+
+        $channelSource = 'direct';
+        if ($affiliateId) {
+            $channelSource = 'promoter';
+        } elseif ($entertainerId) {
+            $channelSource = 'entertainer';
+        }
+
         $now = now();
         $ip = trim((string) ($request->ip() ?? ''));
         $visitorKey = hash('sha256', strtolower($ip) . '|' . strtolower($userAgent));
@@ -54,6 +93,10 @@ class WebsiteSessionAnalyticsService
             }
         }
 
+        $hasAffiliateCol = Schema::hasColumn('website_visitor_sessions', 'affiliate_id');
+        $hasEntertainerCol = Schema::hasColumn('website_visitor_sessions', 'entertainer_id');
+        $hasChannelCol = Schema::hasColumn('website_visitor_sessions', 'channel_source');
+
         $trackData = [
             'visitor_key' => $visitorKey,
             'ip_address' => $ip !== '' ? $ip : null,
@@ -66,6 +109,16 @@ class WebsiteSessionAnalyticsService
             'utm_content' => $this->nullIfEmpty($request->query('utm_content')),
             'last_seen_at' => $now,
         ];
+
+        if ($hasAffiliateCol) {
+            $trackData['affiliate_id'] = $affiliateId;
+        }
+        if ($hasEntertainerCol) {
+            $trackData['entertainer_id'] = $entertainerId;
+        }
+        if ($hasChannelCol) {
+            $trackData['channel_source'] = $channelSource;
+        }
 
         $session = WebsiteVisitorSession::where('website_id', $website->id)
             ->where('session_id', $sessionId)
@@ -100,6 +153,20 @@ class WebsiteSessionAnalyticsService
             $session->landing_path = $path;
         }
 
+        // Attribute promoter if session previously was direct and now visited via promoter
+        if ($hasAffiliateCol && $affiliateId && empty($session->affiliate_id)) {
+            $session->affiliate_id = $affiliateId;
+            if ($hasChannelCol) {
+                $session->channel_source = 'promoter';
+            }
+        }
+        if ($hasEntertainerCol && $entertainerId && empty($session->entertainer_id)) {
+            $session->entertainer_id = $entertainerId;
+            if ($hasChannelCol && empty($session->affiliate_id)) {
+                $session->channel_source = 'entertainer';
+            }
+        }
+
         foreach (['visitor_key', 'ip_address', 'user_agent', 'referrer_host', 'utm_source', 'utm_medium', 'utm_campaign', 'utm_term', 'utm_content'] as $field) {
             if (empty($session->{$field}) && !empty($trackData[$field])) {
                 $session->{$field} = $trackData[$field];
@@ -107,6 +174,21 @@ class WebsiteSessionAnalyticsService
         }
 
         $session->save();
+    }
+
+    public function trackAffiliatePublicPageView(Request $request, \App\Models\Affiliate $affiliate, ?Website $website = null): void
+    {
+        if (!$website) {
+            $website = $affiliate->affiliateWebsites()
+                ->with('website')
+                ->where('is_active', true)
+                ->first()
+                ?->website;
+        }
+
+        if ($website) {
+            $this->trackCheckoutPageView($request, $website, $affiliate->id);
+        }
     }
 
     private function resolveAnalyticsSessionId(Request $request, int $websiteId): string

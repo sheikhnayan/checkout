@@ -132,6 +132,12 @@ class AffiliatePublicController extends Controller
             ];
         }
 
+        try {
+            app(\App\Services\WebsiteSessionAnalyticsService::class)->trackAffiliatePublicPageView(request(), $affiliate, $website);
+        } catch (\Throwable $exception) {
+            report($exception);
+        }
+
         return view('affiliate.public-page', compact('affiliate', 'packageMappings', 'packageCategories', 'clubGroups', 'data', 'setting', 'uniqueClubsForFilter', 'dateOptions'));
     }
 
