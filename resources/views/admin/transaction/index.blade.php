@@ -911,6 +911,52 @@
     overflow-wrap: break-word;
 }
 
+/* Executive Perspective Switcher (Sales vs Reservations) */
+.dashboard-perspective-switcher {
+    display: inline-flex;
+    align-items: center;
+    background: rgba(15, 23, 42, 0.85);
+    border: 1px solid rgba(255, 255, 255, 0.12);
+    border-radius: 9999px;
+    padding: 3px;
+    box-shadow: inset 0 2px 4px rgba(0, 0, 0, 0.4);
+}
+.dashboard-mode-btn {
+    border: none;
+    background: transparent;
+    color: rgba(255, 255, 255, 0.65);
+    font-size: 0.78rem;
+    font-weight: 600;
+    padding: 6px 14px;
+    border-radius: 9999px;
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    cursor: pointer;
+    transition: all 0.25s cubic-bezier(0.4, 0, 0.2, 1);
+    white-space: nowrap;
+    line-height: 1.2;
+}
+.dashboard-mode-btn:hover {
+    color: #ffffff;
+}
+.dashboard-mode-btn.active[data-mode="sales"] {
+    background: linear-gradient(135deg, #7c3aed, #5b21b6) !important;
+    color: #ffffff !important;
+    box-shadow: 0 2px 10px rgba(124, 58, 237, 0.45);
+}
+.dashboard-mode-btn.active[data-mode="reservation"] {
+    background: linear-gradient(135deg, #d97706, #b45309) !important;
+    color: #ffffff !important;
+    box-shadow: 0 2px 10px rgba(217, 119, 6, 0.45);
+}
+@media (max-width: 575.98px) {
+    .dashboard-mode-btn {
+        padding: 5px 10px;
+        font-size: 0.72rem;
+    }
+}
+
 @media (max-width: 575.98px) {
     .shopify-metric-card {
         padding: 10px 10px !important;
@@ -1778,13 +1824,37 @@ body.modal-open .admin-mobile-menu-toggle {
                         </div>
                     </div>
 
+                    {{-- Executive Perspective Switcher: Sales vs Reservations View --}}
+                    <div class="d-flex align-items-center justify-content-between flex-wrap gap-2 mb-3 pb-1">
+                        <div class="d-flex align-items-center gap-2">
+                            <span class="text-white-50 small fw-semibold text-uppercase d-flex align-items-center" style="font-size: 0.72rem; letter-spacing: 0.04em;">
+                                <i class="fas fa-sliders-h me-1.5 text-purple" style="color:#a78bfa;"></i> View Perspective:
+                            </span>
+                            <span class="badge rounded-pill" id="dashboardPerspectiveBadge" style="background:rgba(124,58,237,0.18);color:#c084fc;border:1px solid rgba(124,58,237,0.3);font-size:0.68rem;font-weight:600;">
+                                <i class="fas fa-circle me-1" style="font-size:0.45rem;"></i> Cash-In Flow
+                            </span>
+                        </div>
+                        <div class="dashboard-perspective-switcher" role="group" aria-label="Dashboard View Mode">
+                            <button type="button" class="dashboard-mode-btn active" id="btnModeSales" data-mode="sales" onclick="switchDashboardViewMode('sales')" title="View metrics based on checkout purchase date">
+                                <i class="fas fa-credit-card text-primary" style="font-size: 0.8rem;"></i>
+                                <span>Sales View</span>
+                                <span class="badge bg-black bg-opacity-40 text-white-50 ms-1 fw-normal d-none d-sm-inline" style="font-size:0.62rem;">Cash In</span>
+                            </button>
+                            <button type="button" class="dashboard-mode-btn" id="btnModeReservation" data-mode="reservation" onclick="switchDashboardViewMode('reservation')" title="View metrics based on party event/arrival date">
+                                <i class="fas fa-champagne-glasses text-warning" style="font-size: 0.8rem;"></i>
+                                <span>Reservations View</span>
+                                <span class="badge bg-black bg-opacity-40 text-warning ms-1 fw-normal d-none d-sm-inline" style="font-size:0.62rem;">Arrivals</span>
+                            </button>
+                        </div>
+                    </div>
+
                     {{-- Metric Selector Cards Row (Visible across all tabs on Desktop and Mobile) --}}
                     <div class="row {{ \App\Models\Setting::showConversionRateCard() ? 'row-cols-2 row-cols-xl-4' : 'row-cols-1 row-cols-md-3' }} g-2 g-md-3 mb-3 mb-md-4" id="shopifyMetricCardsRow">
                         {{-- 1. Total Sales Card --}}
                         <div class="col d-flex">
                             <div class="shopify-metric-card w-100 p-2 p-md-3 rounded-3 cursor-pointer active" data-metric="sales" onclick="switchShopifyMetric('sales')">
                                 <div class="shopify-metric-title d-flex align-items-center justify-content-between">
-                                    <span class="shopify-metric-title-left"><span>Total sales</span> <span class="shopify-today-tag badge ms-1" style="background:rgba(139,92,246,0.22);color:#c084fc;font-size:0.65rem;padding:2px 6px;border-radius:4px;border:1px solid rgba(139,92,246,0.4);font-weight:600;">Month to Date</span></span>
+                                    <span class="shopify-metric-title-left"><span id="shopifySalesTitle">Total sales</span> <span class="shopify-today-tag badge ms-1" style="background:rgba(139,92,246,0.22);color:#c084fc;font-size:0.65rem;padding:2px 6px;border-radius:4px;border:1px solid rgba(139,92,246,0.4);font-weight:600;">Month to Date</span></span>
                                     <i class="fas fa-chart-line text-white-50" style="font-size:0.75rem;"></i>
                                 </div>
                                 <div class="shopify-metric-value-row d-flex align-items-baseline justify-content-between flex-wrap gap-1 mt-1" style="min-width:0;">
@@ -1801,7 +1871,7 @@ body.modal-open .admin-mobile-menu-toggle {
                         <div class="col d-flex">
                             <div class="shopify-metric-card w-100 p-2 p-md-3 rounded-3 cursor-pointer" data-metric="orders" onclick="switchShopifyMetric('orders')">
                                 <div class="shopify-metric-title d-flex align-items-center justify-content-between">
-                                    <span class="shopify-metric-title-left"><span>Orders / Bookings</span> <span class="shopify-today-tag badge ms-1" style="background:rgba(139,92,246,0.22);color:#c084fc;font-size:0.65rem;padding:2px 6px;border-radius:4px;border:1px solid rgba(139,92,246,0.4);font-weight:600;">Month to Date</span></span>
+                                    <span class="shopify-metric-title-left"><span id="shopifyOrdersTitle">Orders / Bookings</span> <span class="shopify-today-tag badge ms-1" style="background:rgba(139,92,246,0.22);color:#c084fc;font-size:0.65rem;padding:2px 6px;border-radius:4px;border:1px solid rgba(139,92,246,0.4);font-weight:600;">Month to Date</span></span>
                                     <i class="fas fa-shopping-bag text-white-50" style="font-size:0.75rem;"></i>
                                 </div>
                                 <div class="shopify-metric-value-row d-flex align-items-baseline justify-content-between flex-wrap gap-1 mt-1" style="min-width:0;">
@@ -1838,7 +1908,7 @@ body.modal-open .admin-mobile-menu-toggle {
                         <div class="col d-flex">
                             <div class="shopify-metric-card w-100 p-2 p-md-3 rounded-3 cursor-pointer" data-metric="conversion" onclick="switchShopifyMetric('conversion')">
                                 <div class="shopify-metric-title d-flex align-items-center justify-content-between">
-                                    <span class="shopify-metric-title-left"><span>Conversion rate</span> <span class="shopify-today-tag badge ms-1" style="background:rgba(139,92,246,0.22);color:#c084fc;font-size:0.65rem;padding:2px 6px;border-radius:4px;border:1px solid rgba(139,92,246,0.4);font-weight:600;">Month to Date</span></span>
+                                    <span class="shopify-metric-title-left"><span id="shopifyConversionTitle">Conversion rate</span> <span class="shopify-today-tag badge ms-1" style="background:rgba(139,92,246,0.22);color:#c084fc;font-size:0.65rem;padding:2px 6px;border-radius:4px;border:1px solid rgba(139,92,246,0.4);font-weight:600;">Month to Date</span></span>
                                     <i class="fas fa-percentage text-white-50" style="font-size:0.75rem;"></i>
                                 </div>
                                 <div class="shopify-metric-value-row d-flex align-items-baseline justify-content-between flex-wrap gap-1 mt-1" style="min-width:0;">
@@ -1868,7 +1938,7 @@ body.modal-open .admin-mobile-menu-toggle {
                                 <div class="d-flex align-items-center justify-content-between flex-wrap gap-2 mb-3 shopify-chart-header">
                                     <div class="fw-bold text-white shopify-chart-title" id="shopifyChartTitle" style="font-size: 0.95rem; letter-spacing: -0.01em;">Total sales over time</div>
                                     <div class="d-flex align-items-center gap-2 small text-white-50 shopify-chart-legend">
-                                        <span class="d-inline-flex align-items-center text-nowrap"><i class="fas fa-circle text-primary me-1" style="font-size: 0.55rem;"></i> <span id="shopifyCurrentPeriodLabel">Month to Date</span></span>
+                                        <span class="d-inline-flex align-items-center text-nowrap"><i class="fas fa-circle me-1" id="shopifyCurrentPeriodDot" style="color:#8b5cf6; font-size: 0.55rem;"></i> <span id="shopifyCurrentPeriodLabel">Month to Date</span></span>
                                         <span class="d-inline-flex align-items-center text-nowrap"><i class="fas fa-circle text-info opacity-75 me-1" style="font-size: 0.55rem;"></i> <span id="shopifyPrevPeriodLabel">Previous Period</span></span>
                                     </div>
                                 </div>
@@ -3900,6 +3970,59 @@ body.modal-open .admin-mobile-menu-toggle {
                 let classicChartInstance = null;
                 let ordersGuestsChartInstance = null;
 
+                window.dashboardViewMode = 'sales';
+
+                window.switchDashboardViewMode = function(mode) {
+                    if (mode !== 'sales' && mode !== 'reservation') return;
+                    window.dashboardViewMode = mode;
+
+                    $('.dashboard-mode-btn').removeClass('active');
+                    if (mode === 'sales') {
+                        $('#btnModeSales').addClass('active');
+                        $('#dashboardPerspectiveBadge')
+                            .html('<i class="fas fa-circle me-1" style="font-size:0.45rem;"></i> Cash-In Flow')
+                            .css({
+                                'background': 'rgba(124, 58, 237, 0.18)',
+                                'color': '#c084fc',
+                                'border-color': 'rgba(124, 58, 237, 0.3)'
+                            });
+
+                        $('#shopifySalesTitle').text('Total sales');
+                        $('#shopifyOrdersTitle').text('Orders / Bookings');
+                        $('#shopifyConversionTitle').text('Conversion rate');
+                    } else {
+                        $('#btnModeReservation').addClass('active');
+                        $('#dashboardPerspectiveBadge')
+                            .html('<i class="fas fa-circle me-1" style="font-size:0.45rem;"></i> Venue Foot-Traffic & Arrivals')
+                            .css({
+                                'background': 'rgba(245, 158, 11, 0.18)',
+                                'color': '#fbbf24',
+                                'border-color': 'rgba(245, 158, 11, 0.35)'
+                            });
+
+                        $('#shopifySalesTitle').text('Reserved Revenue');
+                        $('#shopifyOrdersTitle').text('Arriving Parties');
+                        $('#shopifyConversionTitle').text('Reservation Rate');
+                    }
+
+                    const titleMapSales = {
+                        sessions: 'Sessions over time',
+                        sales: 'Total sales over time',
+                        orders: 'Orders over time',
+                        conversion: 'Conversion rate over time'
+                    };
+                    const titleMapRes = {
+                        sessions: 'Visitor sessions over time',
+                        sales: 'Reserved party value over time',
+                        orders: 'Party arrivals over time',
+                        conversion: 'Reservation conversion rate over time'
+                    };
+                    const activeMap = (mode === 'reservation') ? titleMapRes : titleMapSales;
+                    $('#shopifyChartTitle').text(activeMap[currentShopifyMetric] || 'Metric over time');
+
+                    updateShopifyAnalyticsFromFilteredTable();
+                };
+
                 $(document).on('shown.bs.tab', 'button[data-bs-toggle="pill"]', function(e) {
                     $('button[data-bs-toggle="pill"]').css('background-color', 'rgba(30, 41, 59, 0.6)');
                     $(e.target).css('background-color', '#7c3aed');
@@ -3917,19 +4040,27 @@ body.modal-open .admin-mobile-menu-toggle {
                         $(tab1Btn).tab('show');
                     }
 
-                    const titleMap = {
+                    const titleMapSales = {
                         sessions: 'Sessions over time',
                         sales: 'Total sales over time',
                         orders: 'Orders over time',
                         conversion: 'Conversion rate over time'
                     };
-                    $('#shopifyChartTitle').text(titleMap[metric] || 'Metric over time');
+                    const titleMapRes = {
+                        sessions: 'Visitor sessions over time',
+                        sales: 'Reserved party value over time',
+                        orders: 'Party arrivals over time',
+                        conversion: 'Reservation conversion rate over time'
+                    };
+                    const activeMap = (window.dashboardViewMode === 'reservation') ? titleMapRes : titleMapSales;
+                    $('#shopifyChartTitle').text(activeMap[metric] || 'Metric over time');
                     updateShopifyAnalyticsFromFilteredTable();
                 };
 
                 function updateShopifyAnalyticsFromFilteredTable() {
                     if (!table) return;
 
+                    const isResMode = (window.dashboardViewMode === 'reservation');
                     let totalSales = 0;
                     let totalOrders = 0;
                     let totalGuests = 0;
@@ -3940,7 +4071,7 @@ body.modal-open .admin-mobile-menu-toggle {
                     const filteredSet = new Set(filteredNodes ? Array.from(filteredNodes) : []);
                     const allNodes = table.rows().nodes();
 
-                    const currentTarget = String($('#dateTargetSelect').val() || $('#mobileDateTargetSelect').val() || 'either').toLowerCase();
+                    const currentTarget = isResMode ? 'reservation' : String($('#dateTargetSelect').val() || $('#mobileDateTargetSelect').val() || 'either').toLowerCase();
                     const dateRangeVal = String($('#txnDateRange').val() || $('#mobileTxnDateRange').val() || '').trim();
                     let filterStartStr = '', filterEndStr = '';
                     if (dateRangeVal && dateRangeVal.includes(' - ')) {
@@ -4128,20 +4259,34 @@ body.modal-open .admin-mobile-menu-toggle {
 
                         if (isSingleDay) {
                             $('.shopify-today-tag').text('Day View').removeClass('d-none');
-                            $('#shopifySalesSubtext').text("Daily gross revenue");
-                            $('#shopifyOrdersSubtextBase').text("Daily bookings");
-                            $('#shopifySessionsSubtext').text("Daily visitor traffic");
-                            $('#shopifyConversionSubtext').text("Visitors to bookings ratio");
+                            if (isResMode) {
+                                $('#shopifySalesSubtext').text("Daily reserved revenue");
+                                $('#shopifyOrdersSubtextBase').text("Daily arriving parties");
+                                $('#shopifySessionsSubtext').text("Daily visitor traffic");
+                                $('#shopifyConversionSubtext').text("Visitors to reservations ratio");
+                            } else {
+                                $('#shopifySalesSubtext').text("Daily gross revenue");
+                                $('#shopifyOrdersSubtextBase').text("Daily bookings");
+                                $('#shopifySessionsSubtext').text("Daily visitor traffic");
+                                $('#shopifyConversionSubtext').text("Visitors to bookings ratio");
+                            }
                         } else {
                             $('.shopify-today-tag').addClass('d-none');
-                            $('#shopifySalesSubtext').text("Filtered gross revenue");
-                            $('#shopifyOrdersSubtextBase').text("Filtered bookings");
-                            $('#shopifySessionsSubtext').text("Tracked visitor traffic");
-                            $('#shopifyConversionSubtext').text("Visitors to bookings ratio");
+                            if (isResMode) {
+                                $('#shopifySalesSubtext').text("Filtered reserved revenue");
+                                $('#shopifyOrdersSubtextBase').text("Filtered arriving parties");
+                                $('#shopifySessionsSubtext').text("Tracked visitor traffic");
+                                $('#shopifyConversionSubtext').text("Visitors to reservations ratio");
+                            } else {
+                                $('#shopifySalesSubtext').text("Filtered gross revenue");
+                                $('#shopifyOrdersSubtextBase').text("Filtered bookings");
+                                $('#shopifySessionsSubtext').text("Tracked visitor traffic");
+                                $('#shopifyConversionSubtext').text("Visitors to bookings ratio");
+                            }
                         }
                     } else {
                         // Default initial state (or non-date filters active):
-                        // Show MONTH TO DATE so the KPI cards match the graph exactly!
+                        // Show MONTH TO DATE (or This Month for Reservations) so the KPI cards match the graph exactly!
                         dates.forEach(function(dKey) {
                             const item = targetMap[dKey] || { sales: 0, orders: 0, guests: 0 };
                             cardSales += (item.sales || 0);
@@ -4149,11 +4294,19 @@ body.modal-open .admin-mobile-menu-toggle {
                             cardGuests += (item.guests || 0);
                         });
 
-                        $('.shopify-today-tag').text('Month to Date').removeClass('d-none');
-                        $('#shopifySalesSubtext').text("Month to date gross revenue");
-                        $('#shopifyOrdersSubtextBase').text("Month to date bookings");
-                        $('#shopifySessionsSubtext').text("Month to date visitor traffic");
-                        $('#shopifyConversionSubtext').text("Month to date conversion ratio");
+                        if (isResMode) {
+                            $('.shopify-today-tag').text('This Month (Arrivals)').removeClass('d-none');
+                            $('#shopifySalesSubtext').text("Value of parties booked for this month");
+                            $('#shopifyOrdersSubtextBase').text("Parties arriving this month");
+                            $('#shopifySessionsSubtext').text("This month visitor traffic");
+                            $('#shopifyConversionSubtext').text("Visitors to reserved parties ratio");
+                        } else {
+                            $('.shopify-today-tag').text('Month to Date').removeClass('d-none');
+                            $('#shopifySalesSubtext').text("Month to date gross revenue");
+                            $('#shopifyOrdersSubtextBase').text("Month to date bookings");
+                            $('#shopifySessionsSubtext').text("Month to date visitor traffic");
+                            $('#shopifyConversionSubtext').text("Month to date conversion ratio");
+                        }
                     }
 
                     // Calculate real visitor sessions based on filtered clubs & promoters
@@ -4233,10 +4386,11 @@ body.modal-open .admin-mobile-menu-toggle {
 
                 function resolveChartDateWindow(dailyMap, allDailyMap) {
                     allDailyMap = allDailyMap || dailyMap;
+                    const isResMode = (window.dashboardViewMode === 'reservation');
                     const todayMom = (typeof getPstMoment === 'function') ? getPstMoment().startOf('day') : moment().startOf('day');
                     const dateRangeVal = String($('#txnDateRange').val() || $('#mobileTxnDateRange').val() || '').trim();
                     const hasExplicitDateRange = Boolean(dateRangeVal && dateRangeVal.includes(' - '));
-                    const currentTarget = String($('#dateTargetSelect').val() || $('#mobileDateTargetSelect').val() || 'either').toLowerCase();
+                    const currentTarget = isResMode ? 'reservation' : String($('#dateTargetSelect').val() || $('#mobileDateTargetSelect').val() || 'either').toLowerCase();
 
                     let dates = [];
                     const targetMap = {};
@@ -4296,30 +4450,56 @@ body.modal-open .admin-mobile-menu-toggle {
                     }
 
                     // When NO explicit date range filter is selected (initial / default state):
-                    // Default to MONTH TO DATE (from 1st of current month up to today)
                     if (dates.length === 0) {
-                        const mtdStartMom = todayMom.clone().startOf('month');
-                        const mtdEndMom = todayMom.clone();
+                        if (isResMode) {
+                            // Full current month (1st through end of month) to capture all upcoming arrivals
+                            const mtdStartMom = todayMom.clone().startOf('month');
+                            const mtdEndMom = todayMom.clone().endOf('month');
 
-                        const prevStartMom = mtdStartMom.clone().subtract(1, 'month');
-                        const prevEndMom = mtdEndMom.clone().subtract(1, 'month');
+                            const prevStartMom = mtdStartMom.clone().subtract(1, 'month').startOf('month');
+                            const prevEndMom = prevStartMom.clone().endOf('month');
 
-                        const curr = mtdStartMom.clone();
-                        while (curr.isSameOrBefore(mtdEndMom, 'day')) {
-                            const dKey = curr.format('YYYY-MM-DD');
-                            dates.push(dKey);
-                            targetMap[dKey] = (dailyMap && dailyMap[dKey]) ? dailyMap[dKey] : (allDailyMap[dKey] || { sales: 0, orders: 0, guests: 0 });
-                            curr.add(1, 'day');
+                            const curr = mtdStartMom.clone();
+                            while (curr.isSameOrBefore(mtdEndMom, 'day')) {
+                                const dKey = curr.format('YYYY-MM-DD');
+                                dates.push(dKey);
+                                targetMap[dKey] = (dailyMap && dailyMap[dKey]) ? dailyMap[dKey] : (allDailyMap[dKey] || { sales: 0, orders: 0, guests: 0 });
+                                curr.add(1, 'day');
+                            }
+
+                            const pCurr = prevStartMom.clone();
+                            while (pCurr.isSameOrBefore(prevEndMom, 'day')) {
+                                prevDates.push(pCurr.format('YYYY-MM-DD'));
+                                pCurr.add(1, 'day');
+                            }
+
+                            currentLabel = 'This Month (' + mtdStartMom.format('MMM D') + ' - ' + mtdEndMom.format('MMM D') + ')';
+                            prevLabel = 'Previous Month (' + prevStartMom.format('MMM D') + ' - ' + prevEndMom.format('MMM D') + ')';
+                        } else {
+                            // Default to MONTH TO DATE (from 1st of current month up to today)
+                            const mtdStartMom = todayMom.clone().startOf('month');
+                            const mtdEndMom = todayMom.clone();
+
+                            const prevStartMom = mtdStartMom.clone().subtract(1, 'month');
+                            const prevEndMom = mtdEndMom.clone().subtract(1, 'month');
+
+                            const curr = mtdStartMom.clone();
+                            while (curr.isSameOrBefore(mtdEndMom, 'day')) {
+                                const dKey = curr.format('YYYY-MM-DD');
+                                dates.push(dKey);
+                                targetMap[dKey] = (dailyMap && dailyMap[dKey]) ? dailyMap[dKey] : (allDailyMap[dKey] || { sales: 0, orders: 0, guests: 0 });
+                                curr.add(1, 'day');
+                            }
+
+                            const pCurr = prevStartMom.clone();
+                            while (pCurr.isSameOrBefore(prevEndMom, 'day')) {
+                                prevDates.push(pCurr.format('YYYY-MM-DD'));
+                                pCurr.add(1, 'day');
+                            }
+
+                            currentLabel = 'Month to Date (' + mtdStartMom.format('MMM D') + ' - ' + mtdEndMom.format('MMM D') + ')';
+                            prevLabel = 'Previous Period (' + prevStartMom.format('MMM D') + ' - ' + prevEndMom.format('MMM D') + ')';
                         }
-
-                        const pCurr = prevStartMom.clone();
-                        while (pCurr.isSameOrBefore(prevEndMom, 'day')) {
-                            prevDates.push(pCurr.format('YYYY-MM-DD'));
-                            pCurr.add(1, 'day');
-                        }
-
-                        currentLabel = 'Month to Date (' + mtdStartMom.format('MMM D') + ' - ' + mtdEndMom.format('MMM D') + ')';
-                        prevLabel = 'Previous Period (' + prevStartMom.format('MMM D') + ' - ' + prevEndMom.format('MMM D') + ')';
                     }
 
                     // Calculate real historical totals for the previous period from allDailyMap and real sessions
@@ -4414,9 +4594,19 @@ body.modal-open .admin-mobile-menu-toggle {
                         shopifyChartInstance.destroy();
                     }
 
+                    const isRes = (window.dashboardViewMode === 'reservation');
+                    const chartMainColor = isRes ? '#f59e0b' : '#8b5cf6';
+                    const gradientStartColor = isRes ? 'rgba(245, 158, 11, 0.4)' : 'rgba(139, 92, 246, 0.4)';
+                    const gradientEndColor = isRes ? 'rgba(245, 158, 11, 0.0)' : 'rgba(139, 92, 246, 0.0)';
+
+                    const dotEl = document.getElementById('shopifyCurrentPeriodDot');
+                    if (dotEl) {
+                        dotEl.style.color = chartMainColor;
+                    }
+
                     const gradientCurrent = ctx.getContext('2d').createLinearGradient(0, 0, 0, 200);
-                    gradientCurrent.addColorStop(0, 'rgba(139, 92, 246, 0.4)');
-                    gradientCurrent.addColorStop(1, 'rgba(139, 92, 246, 0.0)');
+                    gradientCurrent.addColorStop(0, gradientStartColor);
+                    gradientCurrent.addColorStop(1, gradientEndColor);
 
                     const pointRadiusVal = dates.length > 20 ? 0 : 3;
 
@@ -4426,22 +4616,22 @@ body.modal-open .admin-mobile-menu-toggle {
                             labels: labels,
                             datasets: [
                                 {
-                                    label: chartWindow.currentLabel || 'Current Period',
+                                    label: chartWindow.currentLabel || (isRes ? 'This Month Arrivals' : 'Current Period'),
                                     data: currentData,
-                                    borderColor: '#8b5cf6',
+                                    borderColor: chartMainColor,
                                     backgroundColor: gradientCurrent,
                                     borderWidth: 2.5,
                                     tension: 0.35,
                                     fill: true,
-                                    pointBackgroundColor: '#8b5cf6',
+                                    pointBackgroundColor: chartMainColor,
                                     pointRadius: pointRadiusVal,
                                     pointHoverRadius: 6,
                                     pointHitRadius: 12
                                 },
                                 {
-                                    label: chartWindow.prevLabel || 'Previous Period',
+                                    label: chartWindow.prevLabel || (isRes ? 'Previous Month Arrivals' : 'Previous Period'),
                                     data: prevData,
-                                    borderColor: 'rgba(56, 189, 248, 0.5)',
+                                    borderColor: isRes ? 'rgba(245, 158, 11, 0.45)' : 'rgba(56, 189, 248, 0.5)',
                                     borderWidth: 2,
                                     borderDash: [5, 5],
                                     tension: 0.35,
@@ -4479,7 +4669,7 @@ body.modal-open .admin-mobile-menu-toggle {
                                         color: '#94a3b8',
                                         font: { size: (typeof window !== 'undefined' && window.innerWidth < 576) ? 9 : 10 },
                                         padding: 2,
-                                        maxTicksLimit: (typeof window !== 'undefined' && window.innerWidth < 576) ? 6 : 10,
+                                        maxTicksLimit: (typeof window !== 'undefined' && window.innerWidth < 576) ? 5 : 10,
                                         autoSkip: true,
                                         maxRotation: 0,
                                         minRotation: 0
@@ -4532,9 +4722,11 @@ body.modal-open .admin-mobile-menu-toggle {
                         classicChartInstance.destroy();
                     }
 
+                    const isRes = (window.dashboardViewMode === 'reservation');
+                    const revColor = isRes ? '#f59e0b' : '#7c3aed';
                     const gradientRev = ctx.getContext('2d').createLinearGradient(0, 0, 0, 200);
-                    gradientRev.addColorStop(0, 'rgba(124, 58, 237, 0.4)');
-                    gradientRev.addColorStop(1, 'rgba(124, 58, 237, 0.0)');
+                    gradientRev.addColorStop(0, isRes ? 'rgba(245, 158, 11, 0.4)' : 'rgba(124, 58, 237, 0.4)');
+                    gradientRev.addColorStop(1, isRes ? 'rgba(245, 158, 11, 0.0)' : 'rgba(124, 58, 237, 0.0)');
 
                     const pointRadiusVal = dates.length > 20 ? 0 : 3;
 
@@ -4544,20 +4736,21 @@ body.modal-open .admin-mobile-menu-toggle {
                             labels: labels,
                             datasets: [
                                 {
-                                    label: 'Revenue ($)',
+                                    label: isRes ? 'Reserved Value ($)' : 'Revenue ($)',
                                     data: revenueData,
-                                    borderColor: '#7c3aed',
+                                    borderColor: revColor,
                                     backgroundColor: gradientRev,
                                     borderWidth: 2.5,
                                     tension: 0.3,
                                     fill: true,
+                                    pointBackgroundColor: revColor,
                                     pointRadius: pointRadiusVal,
                                     pointHoverRadius: 6,
                                     pointHitRadius: 12,
                                     yAxisID: 'y'
                                 },
                                 {
-                                    label: 'Orders',
+                                    label: isRes ? 'Arriving Parties' : 'Orders',
                                     data: ordersData,
                                     borderColor: '#38bdf8',
                                     borderWidth: 2,
@@ -4655,19 +4848,20 @@ body.modal-open .admin-mobile-menu-toggle {
                         ordersGuestsChartInstance.destroy();
                     }
 
+                    const isRes = (window.dashboardViewMode === 'reservation');
                     ordersGuestsChartInstance = new Chart(ctx, {
                         type: 'bar',
                         data: {
                             labels: labels,
                             datasets: [
                                 {
-                                    label: 'Booked Orders',
+                                    label: isRes ? 'Arriving Parties' : 'Booked Orders',
                                     data: ordersData,
-                                    backgroundColor: 'rgba(56, 189, 248, 0.7)',
+                                    backgroundColor: isRes ? 'rgba(245, 158, 11, 0.75)' : 'rgba(56, 189, 248, 0.7)',
                                     borderRadius: 6
                                 },
                                 {
-                                    label: 'Guest Attendees',
+                                    label: isRes ? 'Arriving Guests' : 'Guest Attendees',
                                     data: guestsData,
                                     backgroundColor: 'rgba(168, 85, 247, 0.7)',
                                     borderRadius: 6
