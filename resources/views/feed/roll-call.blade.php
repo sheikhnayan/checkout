@@ -940,7 +940,7 @@
                                     type="button"
                                     class="roll-event-card"
                                     data-lightbox-items='@json($eventLightboxItems)'
-                                    data-lightbox-caption="{{ e($eventPost->caption ?? '') }}"
+                                    data-lightbox-caption="{{ e($eventPost->plain_caption) }}"
                                     data-lightbox-date="{{ optional($eventPost->posted_at)->format('M d, Y') }}"
                                     data-lightbox-comments="{{ $eventPost->visible_comments_count }}"
                                     data-lightbox-comment-items='@json($eventComments)'
@@ -970,8 +970,8 @@
 
                                     <div class="roll-event-body">
                                         <h3 class="roll-event-title">Event Post</h3>
-                                        @if($eventPost->caption)
-                                            <div class="roll-event-caption">{{ \Illuminate\Support\Str::limit($eventPost->caption, 110) }}</div>
+                                        @if($eventPost->plain_caption)
+                                            <div class="roll-event-caption">{{ \Illuminate\Support\Str::limit($eventPost->plain_caption, 110) }}</div>
                                         @endif
                                         <div class="roll-event-meta">
                                             <span>{{ optional($eventPost->posted_at)->format('M d, Y') }}</span>

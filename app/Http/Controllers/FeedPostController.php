@@ -232,7 +232,9 @@ class FeedPostController extends Controller
             $post->feed_model_id = $validated['author_mode'] === 'model' ? ($validated['feed_model_id'] ?? null) : null;
         }
 
-        $post->caption = $validated['caption'] ?? null;
+        $caption = $validated['caption'] ?? null;
+        $plain = trim(html_entity_decode(strip_tags($caption ?? ''), ENT_QUOTES | ENT_HTML5, 'UTF-8'));
+        $post->caption = $plain === '' ? null : $caption;
         $post->posted_at = $validated['posted_at'] ?? now();
         $post->is_active = $request->boolean('is_active', true);
         if ($entertainer) {

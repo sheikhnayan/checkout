@@ -32,7 +32,7 @@
                                 <small class="text-muted">{{ $feedPost->website->name ?? 'No website' }}</small>
                             </div>
                         </div>
-                        <p style="white-space:pre-wrap;">{{ $feedPost->caption }}</p>
+                        <div class="mb-3">{!! $feedPost->caption !!}</div>
                         <div class="row g-2">
                             @foreach((array) $feedPost->resolved_media_items as $item)
                                 @php $mediaUrl = ($item['source'] ?? 'upload') === 'upload' ? asset('uploads/' . $item['url']) : $item['url']; @endphp

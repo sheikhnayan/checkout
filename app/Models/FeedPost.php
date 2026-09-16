@@ -119,4 +119,9 @@ class FeedPost extends Model
 
         return $this->feedModel->profile_image;
     }
+
+    public function getPlainCaptionAttribute(): string
+    {
+        return trim(html_entity_decode(strip_tags($this->caption ?? ''), ENT_QUOTES | ENT_HTML5, 'UTF-8'));
+    }
 }

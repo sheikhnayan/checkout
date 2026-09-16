@@ -1032,7 +1032,7 @@
                         class="feed-card feed-post-media"
                         id="post-{{ $post->id }}"
                         data-lightbox-items='@json($lightboxItems)'
-                        data-lightbox-caption="{{ $post->caption ?? '' }}"
+                        data-lightbox-caption="{{ $post->plain_caption }}"
                         data-lightbox-date="{{ optional($post->posted_at)->format('M d, Y') }}"
                         data-lightbox-comments="{{ $post->visible_comments_count }}"
                         data-lightbox-comment-items='@json($lightboxComments)'
@@ -1153,7 +1153,7 @@
                                         class="feed-btn-secondary feed-post-share-btn"
                                         data-share-url="{{ route('club.feed', $club->slug) }}#post-{{ $post->id }}"
                                         data-share-title="{{ $post->author_name }} post"
-                                        data-share-text="{{ $post->caption ? \Illuminate\Support\Str::limit($post->caption, 110) : 'Check out this post' }}"
+                                        data-share-text="{{ $post->plain_caption ? \Illuminate\Support\Str::limit($post->plain_caption, 110) : 'Check out this post' }}"
                                         onclick="window.__feedSharePostFallback && window.__feedSharePostFallback(this);"
                                     >
                                         <i class="fas fa-share-nodes me-2"></i>Share Post

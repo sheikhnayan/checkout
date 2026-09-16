@@ -1172,7 +1172,7 @@
                         class="profile-tile"
                         id="profile-post-{{ $post->id }}"
                         data-lightbox-items='@json($lightboxItems)'
-                        data-lightbox-caption="{{ $post->caption ?? '' }}"
+                        data-lightbox-caption="{{ $post->plain_caption }}"
                         data-lightbox-date="{{ optional($post->posted_at)->format('M d, Y') }}"
                         data-lightbox-comments="{{ $post->visible_comments_count }}"
                         data-lightbox-comment-items='@json($lightboxComments)'
@@ -1211,8 +1211,8 @@
                                 <span>{{ optional($post->posted_at)->format('M d, Y') }}</span>
                                 <span>{{ $post->visible_comments_count }} comments</span>
                             </div>
-                            @if($post->caption)
-                                <div class="profile-tile-caption">{{ \Illuminate\Support\Str::limit($post->caption, 110) }}</div>
+                            @if($post->plain_caption)
+                                <div class="profile-tile-caption">{{ \Illuminate\Support\Str::limit($post->plain_caption, 110) }}</div>
                             @endif
                         </div>
                     </button>
@@ -1221,7 +1221,7 @@
                         class="profile-post-share-btn"
                         data-share-url="{{ $profileShareUrl }}#profile-post-{{ $post->id }}"
                         data-share-title="{{ $post->author_name }} post"
-                        data-share-text="{{ $post->caption ? \Illuminate\Support\Str::limit($post->caption, 110) : 'Check out this post' }}"
+                        data-share-text="{{ $post->plain_caption ? \Illuminate\Support\Str::limit($post->plain_caption, 110) : 'Check out this post' }}"
                         onclick="window.__profileSharePostFallback && window.__profileSharePostFallback(this);"
                     >
                         <i class="fas fa-share-nodes"></i>

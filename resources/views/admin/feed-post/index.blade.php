@@ -81,7 +81,7 @@
                                     </td>
                                 @endif
                                 <td>
-                                    <div class="fw-semibold">{{ \Illuminate\Support\Str::limit($post->caption ?: 'Untitled post', 70) }}</div>
+                                    <div class="fw-semibold">{{ \Illuminate\Support\Str::limit($post->plain_caption ?: 'Untitled post', 70) }}</div>
                                     <small class="text-muted">{{ optional($post->posted_at)?->timezone('America/Los_Angeles')->format('M d, Y h:i A') }} PT</small>
                                 </td>
                                 <td>{{ $post->website->name ?? 'N/A' }}</td>
