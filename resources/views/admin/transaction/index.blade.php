@@ -946,9 +946,9 @@
     box-shadow: 0 2px 10px rgba(124, 58, 237, 0.45);
 }
 .dashboard-mode-btn.active[data-mode="reservation"] {
-    background: linear-gradient(135deg, #d97706, #b45309) !important;
+    background: linear-gradient(135deg, #0284c7, #0369a1) !important;
     color: #ffffff !important;
-    box-shadow: 0 2px 10px rgba(217, 119, 6, 0.45);
+    box-shadow: 0 2px 10px rgba(2, 132, 199, 0.45);
 }
 @media (max-width: 575.98px) {
     .dashboard-mode-btn {
@@ -1824,26 +1824,14 @@ body.modal-open .admin-mobile-menu-toggle {
                         </div>
                     </div>
 
-                    {{-- Executive Perspective Switcher: Sales vs Reservations View --}}
-                    <div class="d-flex align-items-center justify-content-between flex-wrap gap-2 mb-3 pb-1">
-                        <div class="d-flex align-items-center gap-2">
-                            <span class="text-white-50 small fw-semibold text-uppercase d-flex align-items-center" style="font-size: 0.72rem; letter-spacing: 0.04em;">
-                                <i class="fas fa-sliders-h me-1.5 text-purple" style="color:#a78bfa;"></i> View Perspective:
-                            </span>
-                            <span class="badge rounded-pill" id="dashboardPerspectiveBadge" style="background:rgba(124,58,237,0.18);color:#c084fc;border:1px solid rgba(124,58,237,0.3);font-size:0.68rem;font-weight:600;">
-                                <i class="fas fa-circle me-1" style="font-size:0.45rem;"></i> Cash-In Flow
-                            </span>
-                        </div>
+                    {{-- Perspective Switcher: Sales vs Reservations View --}}
+                    <div class="d-flex align-items-center justify-content-start flex-wrap gap-2 mb-3 pb-1">
                         <div class="dashboard-perspective-switcher" role="group" aria-label="Dashboard View Mode">
                             <button type="button" class="dashboard-mode-btn active" id="btnModeSales" data-mode="sales" onclick="switchDashboardViewMode('sales')" title="View metrics based on checkout purchase date">
-                                <i class="fas fa-credit-card text-primary" style="font-size: 0.8rem;"></i>
                                 <span>Sales View</span>
-                                <span class="badge bg-black bg-opacity-40 text-white-50 ms-1 fw-normal d-none d-sm-inline" style="font-size:0.62rem;">Cash In</span>
                             </button>
                             <button type="button" class="dashboard-mode-btn" id="btnModeReservation" data-mode="reservation" onclick="switchDashboardViewMode('reservation')" title="View metrics based on party event/arrival date">
-                                <i class="fas fa-champagne-glasses text-warning" style="font-size: 0.8rem;"></i>
                                 <span>Reservations View</span>
-                                <span class="badge bg-black bg-opacity-40 text-warning ms-1 fw-normal d-none d-sm-inline" style="font-size:0.62rem;">Arrivals</span>
                             </button>
                         </div>
                     </div>
@@ -1939,7 +1927,7 @@ body.modal-open .admin-mobile-menu-toggle {
                                     <div class="fw-bold text-white shopify-chart-title" id="shopifyChartTitle" style="font-size: 0.95rem; letter-spacing: -0.01em;">Total sales over time</div>
                                     <div class="d-flex align-items-center gap-2 small text-white-50 shopify-chart-legend">
                                         <span class="d-inline-flex align-items-center text-nowrap"><i class="fas fa-circle me-1" id="shopifyCurrentPeriodDot" style="color:#8b5cf6; font-size: 0.55rem;"></i> <span id="shopifyCurrentPeriodLabel">Month to Date</span></span>
-                                        <span class="d-inline-flex align-items-center text-nowrap"><i class="fas fa-circle text-info opacity-75 me-1" style="font-size: 0.55rem;"></i> <span id="shopifyPrevPeriodLabel">Previous Period</span></span>
+                                        <span class="d-inline-flex align-items-center text-nowrap"><i class="fas fa-circle me-1" id="shopifyPrevPeriodDot" style="color:#38bdf8; font-size: 0.55rem;"></i> <span id="shopifyPrevPeriodLabel">Previous Period</span></span>
                                     </div>
                                 </div>
                                 <div class="shopify-chart-canvas-wrap" style="height: 220px; position: relative;">
@@ -3979,27 +3967,11 @@ body.modal-open .admin-mobile-menu-toggle {
                     $('.dashboard-mode-btn').removeClass('active');
                     if (mode === 'sales') {
                         $('#btnModeSales').addClass('active');
-                        $('#dashboardPerspectiveBadge')
-                            .html('<i class="fas fa-circle me-1" style="font-size:0.45rem;"></i> Cash-In Flow')
-                            .css({
-                                'background': 'rgba(124, 58, 237, 0.18)',
-                                'color': '#c084fc',
-                                'border-color': 'rgba(124, 58, 237, 0.3)'
-                            });
-
                         $('#shopifySalesTitle').text('Total sales');
                         $('#shopifyOrdersTitle').text('Orders / Bookings');
                         $('#shopifyConversionTitle').text('Conversion rate');
                     } else {
                         $('#btnModeReservation').addClass('active');
-                        $('#dashboardPerspectiveBadge')
-                            .html('<i class="fas fa-circle me-1" style="font-size:0.45rem;"></i> Venue Foot-Traffic & Arrivals')
-                            .css({
-                                'background': 'rgba(245, 158, 11, 0.18)',
-                                'color': '#fbbf24',
-                                'border-color': 'rgba(245, 158, 11, 0.35)'
-                            });
-
                         $('#shopifySalesTitle').text('Reserved Revenue');
                         $('#shopifyOrdersTitle').text('Arriving Parties');
                         $('#shopifyConversionTitle').text('Reservation Rate');
@@ -4295,7 +4267,7 @@ body.modal-open .admin-mobile-menu-toggle {
                         });
 
                         if (isResMode) {
-                            $('.shopify-today-tag').text('This Month (Arrivals)').removeClass('d-none');
+                            $('.shopify-today-tag').text('This Month').removeClass('d-none');
                             $('#shopifySalesSubtext').text("Value of parties booked for this month");
                             $('#shopifyOrdersSubtextBase').text("Parties arriving this month");
                             $('#shopifySessionsSubtext').text("This month visitor traffic");
@@ -4595,13 +4567,18 @@ body.modal-open .admin-mobile-menu-toggle {
                     }
 
                     const isRes = (window.dashboardViewMode === 'reservation');
-                    const chartMainColor = isRes ? '#f59e0b' : '#8b5cf6';
-                    const gradientStartColor = isRes ? 'rgba(245, 158, 11, 0.4)' : 'rgba(139, 92, 246, 0.4)';
-                    const gradientEndColor = isRes ? 'rgba(245, 158, 11, 0.0)' : 'rgba(139, 92, 246, 0.0)';
+                    const chartMainColor = isRes ? '#38bdf8' : '#8b5cf6';
+                    const chartPrevColor = isRes ? 'rgba(56, 189, 248, 0.5)' : 'rgba(56, 189, 248, 0.5)';
+                    const gradientStartColor = isRes ? 'rgba(56, 189, 248, 0.35)' : 'rgba(139, 92, 246, 0.4)';
+                    const gradientEndColor = isRes ? 'rgba(56, 189, 248, 0.0)' : 'rgba(139, 92, 246, 0.0)';
 
                     const dotEl = document.getElementById('shopifyCurrentPeriodDot');
                     if (dotEl) {
                         dotEl.style.color = chartMainColor;
+                    }
+                    const dotPrevEl = document.getElementById('shopifyPrevPeriodDot');
+                    if (dotPrevEl) {
+                        dotPrevEl.style.color = isRes ? '#7dd3fc' : '#38bdf8';
                     }
 
                     const gradientCurrent = ctx.getContext('2d').createLinearGradient(0, 0, 0, 200);
@@ -4616,7 +4593,7 @@ body.modal-open .admin-mobile-menu-toggle {
                             labels: labels,
                             datasets: [
                                 {
-                                    label: chartWindow.currentLabel || (isRes ? 'This Month Arrivals' : 'Current Period'),
+                                    label: chartWindow.currentLabel || (isRes ? 'This Month' : 'Current Period'),
                                     data: currentData,
                                     borderColor: chartMainColor,
                                     backgroundColor: gradientCurrent,
@@ -4629,9 +4606,9 @@ body.modal-open .admin-mobile-menu-toggle {
                                     pointHitRadius: 12
                                 },
                                 {
-                                    label: chartWindow.prevLabel || (isRes ? 'Previous Month Arrivals' : 'Previous Period'),
+                                    label: chartWindow.prevLabel || (isRes ? 'Previous Month' : 'Previous Period'),
                                     data: prevData,
-                                    borderColor: isRes ? 'rgba(245, 158, 11, 0.45)' : 'rgba(56, 189, 248, 0.5)',
+                                    borderColor: chartPrevColor,
                                     borderWidth: 2,
                                     borderDash: [5, 5],
                                     tension: 0.35,
@@ -4723,10 +4700,10 @@ body.modal-open .admin-mobile-menu-toggle {
                     }
 
                     const isRes = (window.dashboardViewMode === 'reservation');
-                    const revColor = isRes ? '#f59e0b' : '#7c3aed';
+                    const revColor = isRes ? '#0ea5e9' : '#7c3aed';
                     const gradientRev = ctx.getContext('2d').createLinearGradient(0, 0, 0, 200);
-                    gradientRev.addColorStop(0, isRes ? 'rgba(245, 158, 11, 0.4)' : 'rgba(124, 58, 237, 0.4)');
-                    gradientRev.addColorStop(1, isRes ? 'rgba(245, 158, 11, 0.0)' : 'rgba(124, 58, 237, 0.0)');
+                    gradientRev.addColorStop(0, isRes ? 'rgba(14, 165, 233, 0.35)' : 'rgba(124, 58, 237, 0.4)');
+                    gradientRev.addColorStop(1, isRes ? 'rgba(14, 165, 233, 0.0)' : 'rgba(124, 58, 237, 0.0)');
 
                     const pointRadiusVal = dates.length > 20 ? 0 : 3;
 
@@ -4752,7 +4729,7 @@ body.modal-open .admin-mobile-menu-toggle {
                                 {
                                     label: isRes ? 'Arriving Parties' : 'Orders',
                                     data: ordersData,
-                                    borderColor: '#38bdf8',
+                                    borderColor: isRes ? '#10b981' : '#38bdf8',
                                     borderWidth: 2,
                                     tension: 0.3,
                                     fill: false,
@@ -4857,13 +4834,13 @@ body.modal-open .admin-mobile-menu-toggle {
                                 {
                                     label: isRes ? 'Arriving Parties' : 'Booked Orders',
                                     data: ordersData,
-                                    backgroundColor: isRes ? 'rgba(245, 158, 11, 0.75)' : 'rgba(56, 189, 248, 0.7)',
+                                    backgroundColor: isRes ? 'rgba(14, 165, 233, 0.75)' : 'rgba(56, 189, 248, 0.7)',
                                     borderRadius: 6
                                 },
                                 {
                                     label: isRes ? 'Arriving Guests' : 'Guest Attendees',
                                     data: guestsData,
-                                    backgroundColor: 'rgba(168, 85, 247, 0.7)',
+                                    backgroundColor: isRes ? 'rgba(16, 185, 129, 0.75)' : 'rgba(168, 85, 247, 0.7)',
                                     borderRadius: 6
                                 }
                             ]
