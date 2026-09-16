@@ -638,6 +638,16 @@
     outline: none;
     box-shadow: 0 0 0 2px rgba(139, 92, 246, 0.4);
 }
+#txnNotesModal .modal-header {
+    display: flex !important;
+    align-items: center !important;
+    justify-content: space-between !important;
+    width: 100% !important;
+    padding: 1rem 1.25rem !important;
+}
+#txnNotesModal .modal-header .btn-close-custom {
+    margin-left: auto !important;
+}
 #mobileFilterModal .drawer-handle {
     width: 42px;
     height: 5px;
@@ -3095,11 +3105,11 @@ body.modal-open .admin-mobile-menu-toggle {
             <div class="modal fade" id="txnNotesModal" tabindex="-1" aria-labelledby="txnNotesModalLabel" aria-hidden="true">
                 <div class="modal-dialog">
                     <div class="modal-content" style="background:#121726;border:1px solid rgba(255,255,255,0.15);border-radius:12px;">
-                        <div class="modal-header border-bottom border-secondary border-opacity-25">
-                            <h5 class="modal-title text-white" id="txnNotesModalLabel">
+                        <div class="modal-header d-flex align-items-center justify-content-between border-bottom border-secondary border-opacity-25" style="display:flex !important;justify-content:space-between !important;align-items:center !important;width:100%;">
+                            <h5 class="modal-title text-white mb-0 d-flex align-items-center" id="txnNotesModalLabel">
                                 <i class="fas fa-sticky-note text-warning me-2"></i>Notes (<span id="txnNotesModalOrderTitle"></span>)
                             </h5>
-                            <button type="button" class="btn-close-custom" data-bs-dismiss="modal" aria-label="Close">
+                            <button type="button" class="btn-close-custom ms-auto" data-bs-dismiss="modal" aria-label="Close" style="margin-left:auto !important;">
                                 <i class="fas fa-times"></i>
                             </button>
                         </div>
@@ -6662,7 +6672,7 @@ body.modal-open .admin-mobile-menu-toggle {
                     success: function(res) {
                         $btn.prop('disabled', false).html(originalBtnText);
                         if (res.success) {
-                            $msg.fadeIn(150).delay(2000).fadeOut(200);
+                            $msg.html('<i class="fas fa-check-circle me-1"></i>' + (noteText.trim() === '' ? 'Cleared!' : 'Saved!')).fadeIn(150);
 
                             var $targetBtns = $('.view-btn[data-id="' + txnId + '"], .view-btn[data-transaction-id="' + txnId + '"], .open-notes-btn[data-id="' + txnId + '"], .open-notes-btn[data-transaction-id="' + txnId + '"]');
                             $targetBtns.data('admin_notes', res.admin_notes || '');
@@ -6699,6 +6709,19 @@ body.modal-open .admin-mobile-menu-toggle {
                                 $(this).find('.admin-note-textarea').val(res.admin_notes || '');
                                 $(this).closest('.admin-notes-card').find('.admin-note-author-info').html(authorHtml);
                             });
+
+                            setTimeout(function() {
+                                $msg.fadeOut(200);
+                                var notesModalEl = document.getElementById('txnNotesModal');
+                                if (notesModalEl && $form.closest('#txnNotesModal').length) {
+                                    var bsModal = (window.bootstrap && bootstrap.Modal) ? (bootstrap.Modal.getInstance(notesModalEl) || bootstrap.Modal.getOrCreateInstance(notesModalEl)) : null;
+                                    if (bsModal) {
+                                        bsModal.hide();
+                                    } else if (typeof $(notesModalEl).modal === 'function') {
+                                        $(notesModalEl).modal('hide');
+                                    }
+                                }
+                            }, 800);
                         }
                     },
                     error: function(xhr) {
