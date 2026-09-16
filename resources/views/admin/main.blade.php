@@ -662,8 +662,15 @@
           padding-right: 3rem;
         }
 
-        #layout-menu .menu-inner {
-          padding-bottom: 0.5rem !important;
+        html.layout-menu-expanded,
+        body.layout-menu-expanded {
+          overflow: hidden !important;
+          overscroll-behavior: none !important;
+          touch-action: none;
+        }
+
+        .layout-wrapper.layout-menu-expanded {
+          overflow: hidden !important;
         }
 
         #layout-menu {
@@ -671,10 +678,20 @@
           left: -100%;
           top: 0;
           height: 100vh;
+          height: 100dvh;
           width: 80%;
           max-width: 320px;
           transition: left 0.3s ease;
           z-index: 1099;
+          overscroll-behavior: contain !important;
+          -webkit-overflow-scrolling: touch;
+        }
+
+        #layout-menu .menu-inner {
+          padding-bottom: 0.5rem !important;
+          overscroll-behavior: contain !important;
+          -webkit-overflow-scrolling: touch;
+          touch-action: pan-y;
         }
 
         .layout-wrapper.layout-menu-expanded #layout-menu {
@@ -691,6 +708,8 @@
           z-index: 1098;
           display: none;
           cursor: pointer;
+          overscroll-behavior: none;
+          touch-action: none;
         }
 
         .layout-wrapper.layout-menu-expanded .layout-overlay {
@@ -1777,6 +1796,8 @@
         function bindMobileMenuToggle() {
           const wrapper = document.querySelector('.layout-wrapper');
           const overlay = document.querySelector('.layout-overlay');
+          const layoutMenu = document.querySelector('#layout-menu');
+          const menuInner = layoutMenu ? layoutMenu.querySelector('.menu-inner') : null;
           const primaryToggle = document.querySelector('.admin-mobile-menu-toggle');
           const legacyToggle = document.querySelector('#layout-menu .layout-menu-toggle.menu-link');
           const toggles = [primaryToggle, legacyToggle].filter(Boolean);
@@ -1785,11 +1806,54 @@
             return;
           }
 
+          let scrollLocked = false;
+
+          function lockBodyScroll() {
+            if (scrollLocked) return;
+            const scrollY = window.pageYOffset || document.documentElement.scrollTop || 0;
+            document.body.dataset.adminScrollY = String(scrollY);
+            document.documentElement.classList.add('layout-menu-expanded');
+            document.body.classList.add('layout-menu-expanded');
+            document.body.style.position = 'fixed';
+            document.body.style.top = `-${scrollY}px`;
+            document.body.style.left = '0';
+            document.body.style.right = '0';
+            document.body.style.width = '100%';
+            document.body.style.overflow = 'hidden';
+            scrollLocked = true;
+          }
+
+          function unlockBodyScroll() {
+            if (!scrollLocked) {
+              document.documentElement.classList.remove('layout-menu-expanded');
+              document.body.classList.remove('layout-menu-expanded');
+              return;
+            }
+            const scrollY = parseInt(document.body.dataset.adminScrollY || '0', 10);
+            document.documentElement.classList.remove('layout-menu-expanded');
+            document.body.classList.remove('layout-menu-expanded');
+            document.body.style.position = '';
+            document.body.style.top = '';
+            document.body.style.left = '';
+            document.body.style.right = '';
+            document.body.style.width = '';
+            document.body.style.overflow = '';
+            delete document.body.dataset.adminScrollY;
+            scrollLocked = false;
+            window.scrollTo(0, scrollY);
+          }
+
           function syncState() {
             const expanded = wrapper.classList.contains('layout-menu-expanded');
             if (primaryToggle) {
               primaryToggle.setAttribute('aria-expanded', expanded ? 'true' : 'false');
               primaryToggle.setAttribute('aria-label', expanded ? 'Close sidebar' : 'Open sidebar');
+            }
+
+            if (expanded && window.innerWidth < 1200) {
+              lockBodyScroll();
+            } else {
+              unlockBodyScroll();
             }
           }
 
@@ -1818,7 +1882,37 @@
                 wrapper.classList.remove('layout-menu-expanded');
                 syncState();
               });
+
+              overlay.addEventListener('touchmove', function (e) {
+                e.preventDefault();
+              }, { passive: false });
             }
+          }
+
+          if (menuInner && menuInner.dataset.mobileScrollBound !== '1') {
+            menuInner.dataset.mobileScrollBound = '1';
+            menuInner.addEventListener('touchstart', function () {
+              if (window.innerWidth >= 1200) return;
+              const top = menuInner.scrollTop;
+              const totalScroll = menuInner.scrollHeight;
+              const currentScroll = top + menuInner.offsetHeight;
+
+              if (top === 0) {
+                menuInner.scrollTop = 1;
+              } else if (currentScroll >= totalScroll) {
+                menuInner.scrollTop = top - 1;
+              }
+            }, { passive: true });
+          }
+
+          if (layoutMenu && layoutMenu.dataset.mobileTouchBound !== '1') {
+            layoutMenu.dataset.mobileTouchBound = '1';
+            layoutMenu.addEventListener('touchmove', function (e) {
+              if (window.innerWidth >= 1200) return;
+              if (!e.target.closest('.menu-inner')) {
+                e.preventDefault();
+              }
+            }, { passive: false });
           }
 
           window.addEventListener('resize', function () {
