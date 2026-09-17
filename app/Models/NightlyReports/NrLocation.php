@@ -13,6 +13,7 @@ class NrLocation extends Model
     protected $fillable = [
         'website_id',
         'name',
+        'legal_name',
         'short_name',
         'type',
         'address',
@@ -24,6 +25,7 @@ class NrLocation extends Model
         'dispatcher_phone',
         'gm_name',
         'gm_email',
+        'club_inbox_email',
         'nightly_goal',
         'nightly_goals',
         'break_even',

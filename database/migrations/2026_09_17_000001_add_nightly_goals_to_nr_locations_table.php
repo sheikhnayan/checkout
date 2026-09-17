@@ -12,6 +12,12 @@ return new class extends Migration
     public function up(): void
     {
         Schema::table('nr_locations', function (Blueprint $table) {
+            if (!Schema::hasColumn('nr_locations', 'legal_name')) {
+                $table->string('legal_name', 200)->nullable()->after('name');
+            }
+            if (!Schema::hasColumn('nr_locations', 'club_inbox_email')) {
+                $table->string('club_inbox_email', 150)->nullable()->after('gm_email');
+            }
             if (!Schema::hasColumn('nr_locations', 'nightly_goals')) {
                 $table->json('nightly_goals')->nullable()->after('nightly_goal');
             }
@@ -26,6 +32,12 @@ return new class extends Migration
         Schema::table('nr_locations', function (Blueprint $table) {
             if (Schema::hasColumn('nr_locations', 'nightly_goals')) {
                 $table->dropColumn('nightly_goals');
+            }
+            if (Schema::hasColumn('nr_locations', 'club_inbox_email')) {
+                $table->dropColumn('club_inbox_email');
+            }
+            if (Schema::hasColumn('nr_locations', 'legal_name')) {
+                $table->dropColumn('legal_name');
             }
         });
     }

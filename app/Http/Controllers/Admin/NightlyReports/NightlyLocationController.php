@@ -24,6 +24,7 @@ class NightlyLocationController extends BaseNightlyReportsController
     {
         $validated = $request->validate([
             'name' => 'required|string|max:200',
+            'legal_name' => 'nullable|string|max:200',
             'short_name' => 'nullable|string|max:100',
             'type' => 'required|string',
             'website_id' => 'nullable|exists:websites,id',
@@ -33,6 +34,7 @@ class NightlyLocationController extends BaseNightlyReportsController
             'phone' => 'nullable|string|max:50',
             'gm_name' => 'nullable|string|max:100',
             'gm_email' => 'nullable|email|max:150',
+            'club_inbox_email' => 'nullable|email|max:150',
             'nightly_goal' => 'nullable|numeric|min:0',
             'nightly_goals' => 'nullable|array',
             'nightly_goals.*' => 'nullable|numeric|min:0',
@@ -70,6 +72,7 @@ class NightlyLocationController extends BaseNightlyReportsController
 
         $validated = $request->validate([
             'name' => 'required|string|max:200',
+            'legal_name' => 'nullable|string|max:200',
             'short_name' => 'nullable|string|max:100',
             'type' => 'required|string',
             'website_id' => 'nullable|exists:websites,id',
@@ -79,6 +82,7 @@ class NightlyLocationController extends BaseNightlyReportsController
             'phone' => 'nullable|string|max:50',
             'gm_name' => 'nullable|string|max:100',
             'gm_email' => 'nullable|email|max:150',
+            'club_inbox_email' => 'nullable|email|max:150',
             'nightly_goal' => 'nullable|numeric|min:0',
             'nightly_goals' => 'nullable|array',
             'nightly_goals.*' => 'nullable|numeric|min:0',

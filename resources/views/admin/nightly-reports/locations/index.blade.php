@@ -1,12 +1,216 @@
 @extends('admin.nightly-reports.layout')
 
 @section('content')
+<style>
+  /* ── PORTAL MODAL LUXURY THEME (MATCHES ACTUAL PORTAL) ── */
+  .modal-portal .modal-content {
+    background: #0d1726 !important;
+    border: 1px solid #1e2f47 !important;
+    border-radius: 18px !important;
+    box-shadow: 0 25px 60px -15px rgba(0, 0, 0, 0.85) !important;
+    color: #f1f5f9;
+  }
+  .modal-portal .modal-header {
+    border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+    padding: 22px 26px 14px 26px;
+  }
+  .modal-portal .modal-title {
+    font-family: 'Playfair Display', Georgia, serif;
+    color: #d9a05b;
+    font-size: 1.45rem;
+    font-weight: 600;
+    letter-spacing: 0.01em;
+  }
+  .modal-portal .btn-close-portal {
+    background: transparent;
+    border: none;
+    color: #64748b;
+    font-size: 1.4rem;
+    line-height: 1;
+    padding: 4px 8px;
+    cursor: pointer;
+    transition: color 0.15s ease;
+  }
+  .modal-portal .btn-close-portal:hover {
+    color: #f1f5f9;
+  }
+  .modal-portal .modal-body {
+    padding: 20px 26px 24px 26px;
+  }
+  .modal-portal .modal-footer {
+    border-top: 1px solid rgba(255, 255, 255, 0.05);
+    padding: 14px 26px 22px 26px;
+    display: flex;
+    justify-content: flex-end;
+    align-items: center;
+    gap: 12px;
+  }
+
+  /* Portal Field Group & Inputs */
+  .portal-field-group {
+    margin-bottom: 16px;
+  }
+  .portal-label {
+    display: block;
+    font-size: 0.72rem;
+    font-weight: 700;
+    letter-spacing: 0.07em;
+    text-transform: uppercase;
+    color: #8da2be;
+    margin-bottom: 7px;
+  }
+  .portal-input, .portal-select {
+    background-color: #121e2f !important;
+    border: 1px solid #1f314a !important;
+    color: #f1f5f9 !important;
+    border-radius: 10px !important;
+    padding: 11px 15px !important;
+    font-size: 0.92rem !important;
+    width: 100% !important;
+    box-sizing: border-box;
+    transition: border-color 0.2s ease, box-shadow 0.2s ease, background-color 0.2s ease;
+  }
+  .portal-input::placeholder {
+    color: #43546b !important;
+  }
+  .portal-input:focus, .portal-select:focus {
+    border-color: #d9a05b !important;
+    box-shadow: 0 0 0 2px rgba(217, 160, 91, 0.25) !important;
+    background-color: #152438 !important;
+    outline: none !important;
+  }
+
+  /* ── MODERN DAY-WISE GOALS SECTION (SPACIOUS & NOT CLUSTERED) ── */
+  .goals-section-container {
+    background: linear-gradient(180deg, rgba(16, 27, 43, 0.7) 0%, rgba(11, 19, 31, 0.9) 100%);
+    border: 1px solid #1c2e47;
+    border-radius: 14px;
+    padding: 18px 18px;
+    margin-top: 22px;
+    margin-bottom: 4px;
+  }
+  .goals-section-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin-bottom: 14px;
+  }
+  .goal-card-item {
+    background: #0f1a2a;
+    border: 1px solid #1c2d44;
+    border-radius: 10px;
+    padding: 8px 12px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 10px;
+    transition: all 0.2s ease;
+  }
+  .goal-card-item:hover, .goal-card-item:focus-within {
+    border-color: #d9a05b;
+    background: #142236;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.35);
+  }
+  .goal-day-info {
+    display: flex;
+    align-items: center;
+    gap: 9px;
+  }
+  .goal-day-pill {
+    font-size: 0.68rem;
+    font-weight: 700;
+    letter-spacing: 0.05em;
+    padding: 3px 7px;
+    border-radius: 6px;
+    background: #19273c;
+    color: #94a3b8;
+  }
+  .goal-day-pill.peak {
+    background: rgba(217, 160, 91, 0.18);
+    color: #e8b878;
+    border: 1px solid rgba(217, 160, 91, 0.35);
+  }
+  .goal-day-name {
+    font-size: 0.84rem;
+    font-weight: 600;
+    color: #e2e8f0;
+  }
+  .goal-input-box {
+    display: flex;
+    align-items: center;
+    background: #121e2f;
+    border: 1px solid #20334d;
+    border-radius: 8px;
+    padding: 0 10px;
+    width: 125px;
+    transition: border-color 0.2s ease;
+  }
+  .goal-card-item:focus-within .goal-input-box {
+    border-color: #d9a05b;
+  }
+  .goal-dollar {
+    color: #d9a05b;
+    font-weight: 600;
+    font-size: 0.85rem;
+    margin-right: 4px;
+    user-select: none;
+  }
+  .goal-amount-input {
+    background: transparent !important;
+    border: none !important;
+    color: #f8fafc !important;
+    font-size: 0.88rem !important;
+    font-weight: 600 !important;
+    width: 100% !important;
+    padding: 7px 0 !important;
+    outline: none !important;
+    text-align: right !important;
+  }
+  .goal-amount-input:focus {
+    box-shadow: none !important;
+    outline: none !important;
+  }
+
+  /* Portal Modal Action Buttons */
+  .btn-portal-cancel {
+    background: transparent;
+    border: 1px solid #2b3e58;
+    color: #cbd5e1;
+    border-radius: 9999px;
+    padding: 9px 24px;
+    font-size: 0.88rem;
+    font-weight: 500;
+    transition: all 0.2s ease;
+  }
+  .btn-portal-cancel:hover {
+    background: #16253b;
+    color: #fff;
+    border-color: #405777;
+  }
+  .btn-portal-submit {
+    background: #d9a05b;
+    border: none;
+    color: #0b1320;
+    border-radius: 9999px;
+    padding: 9px 28px;
+    font-size: 0.88rem;
+    font-weight: 600;
+    transition: all 0.2s ease;
+    box-shadow: 0 2px 10px rgba(217, 160, 91, 0.25);
+  }
+  .btn-portal-submit:hover {
+    background: #e6b16e;
+    color: #000;
+    box-shadow: 0 4px 18px rgba(217, 160, 91, 0.45);
+  }
+</style>
+
 <div class="container-fluid p-0">
   <div class="card mb-4">
     <div class="card-body d-flex flex-wrap align-items-center justify-content-between gap-3">
       <div>
         <h4 class="text-white mb-1 fw-bold"><i class="fas fa-map-marker-alt text-warning me-2"></i> Locations & Venues Directory</h4>
-        <p class="text-muted small mb-0">Manage corporate venues, nightly sales targets, break-even targets, and GM contact routing.</p>
+        <p class="text-muted small mb-0">Manage corporate venues, legal entities, day-wise sales targets, and notification inboxes.</p>
       </div>
       <button class="btn btn-sm btn-gold" data-bs-toggle="modal" data-bs-target="#addLocationModal">
         <i class="fas fa-plus me-1"></i> Add Location
@@ -19,13 +223,11 @@
       <table class="table table-hover align-middle mb-0">
         <thead>
           <tr>
-            <th>Location / Club</th>
+            <th>Club / DBA Name</th>
             <th>Type</th>
-            <th>City / State</th>
-            <th>Nightly Goal</th>
-            <th>Break-Even</th>
-            <th>Historical Best</th>
-            <th>GM Contact</th>
+            <th>Club Inbox</th>
+            <th>GM Email</th>
+            <th>Nightly Goals</th>
             <th>Status</th>
             <th class="text-end">Actions</th>
           </tr>
@@ -35,12 +237,20 @@
           <tr>
             <td>
               <div class="fw-bold text-white">{{ $loc->name }}</div>
+              @if(!empty($loc->legal_name))
+                <div class="small text-muted" style="font-size: 0.76rem;"><i class="fas fa-building me-1 opacity-50"></i>{{ $loc->legal_name }}</div>
+              @endif
               @if($loc->website)
-                <div class="small text-warning"><i class="fas fa-link me-1"></i> Mapped: {{ $loc->website->name }}</div>
+                <div class="small text-warning" style="font-size: 0.72rem;"><i class="fas fa-link me-1"></i> Mapped: {{ $loc->website->name }}</div>
               @endif
             </td>
             <td><span class="badge bg-secondary">{{ $loc->type }}</span></td>
-            <td><small class="text-white">{{ $loc->city }}, {{ $loc->state }}</small></td>
+            <td>
+              <div class="small text-white">{{ $loc->club_inbox_email ?? '—' }}</div>
+            </td>
+            <td>
+              <div class="small text-muted">{{ $loc->gm_email ?? '—' }}</div>
+            </td>
             <td>
               <span class="text-warning fw-semibold">${{ number_format($loc->nightly_goal ?? 0, 0) }}</span>
               @if(!empty($loc->nightly_goals) && is_array($loc->nightly_goals))
@@ -50,12 +260,6 @@
                   </span>
                 </div>
               @endif
-            </td>
-            <td><span class="text-info fw-semibold">${{ number_format($loc->break_even, 0) }}</span></td>
-            <td><span class="text-success fw-semibold">${{ number_format($loc->historical_best, 0) }}</span></td>
-            <td>
-              <div class="small text-white">{{ $loc->gm_name ?? '—' }}</div>
-              <div class="small text-muted">{{ $loc->gm_email ?? '—' }}</div>
             </td>
             <td>
               @if($loc->active)
@@ -77,109 +281,105 @@
             </td>
           </tr>
 
-          <!-- Edit Modal -->
-          <div class="modal fade" id="editModal{{ $loc->id }}" tabindex="-1">
-            <div class="modal-dialog modal-lg">
-              <div class="modal-content" style="background: var(--nr-surface-2); border-color: var(--nr-border);">
+          <!-- Edit Location Modal (Matches Actual Portal Layout) -->
+          <div class="modal fade modal-portal" id="editModal{{ $loc->id }}" tabindex="-1" aria-hidden="true">
+            <div class="modal-dialog modal-dialog-centered" style="max-width: 580px;">
+              <div class="modal-content">
                 <form method="POST" action="{{ route('admin.nightly-reports.locations.update', $loc->id) }}">
                   @csrf
                   @method('PUT')
-                  <div class="modal-header" style="border-bottom: 1px solid var(--nr-border);">
-                    <h5 class="modal-title text-white fw-bold">Edit Location: {{ $loc->name }}</h5>
-                    <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
+                  <div class="modal-header d-flex align-items-center justify-content-between">
+                    <h5 class="modal-title">Edit Location</h5>
+                    <button type="button" class="btn-close-portal" data-bs-dismiss="modal" aria-label="Close">&times;</button>
                   </div>
                   <div class="modal-body">
-                    <div class="row g-3">
-                      <div class="col-md-8">
-                        <label class="form-label text-white small fw-bold">Location Name</label>
-                        <input type="text" name="name" class="form-control" value="{{ $loc->name }}" required />
-                      </div>
-                      <div class="col-md-4">
-                        <label class="form-label text-white small fw-bold">Venue Type</label>
-                        <select name="type" class="form-select" required>
-                          <option value="Adult with Liquor" {{ $loc->type === 'Adult with Liquor' ? 'selected' : '' }}>Adult with Liquor</option>
-                          <option value="Adult Alcohol Free" {{ $loc->type === 'Adult Alcohol Free' ? 'selected' : '' }}>Adult Alcohol Free</option>
-                          <option value="Bar/Night Club" {{ $loc->type === 'Bar/Night Club' ? 'selected' : '' }}>Bar/Night Club</option>
-                          <option value="Boutique" {{ $loc->type === 'Boutique' ? 'selected' : '' }}>Boutique</option>
-                        </select>
-                      </div>
-                      <div class="col-md-6">
-                        <label class="form-label text-white small fw-bold">Map to CartVIP Website (Optional)</label>
-                        <select name="website_id" class="form-select">
-                          <option value="">-- Standalone Location --</option>
-                          @foreach($websites as $web)
-                            <option value="{{ $web->id }}" {{ (string)$loc->website_id === (string)$web->id ? 'selected' : '' }}>
-                              {{ $web->name }} ({{ $web->domain ?? $web->slug }})
-                            </option>
-                          @endforeach
-                        </select>
-                      </div>
-                      <div class="col-md-3">
-                        <label class="form-label text-white small fw-bold">City</label>
-                        <input type="text" name="city" class="form-control" value="{{ $loc->city }}" />
-                      </div>
-                      <div class="col-md-3">
-                        <label class="form-label text-white small fw-bold">State</label>
-                        <input type="text" name="state" class="form-control" value="{{ $loc->state }}" />
-                      </div>
-                      <div class="col-md-4">
-                        <label class="form-label text-white small fw-bold">Baseline Nightly Goal ($)</label>
-                        <input type="number" step="0.01" name="nightly_goal" class="form-control" value="{{ $loc->nightly_goal }}" />
-                      </div>
-                      <div class="col-md-4">
-                        <label class="form-label text-white small fw-bold">Monthly Break-Even ($)</label>
-                        <input type="number" step="0.01" name="break_even" class="form-control" value="{{ $loc->break_even }}" />
-                      </div>
-                      <div class="col-md-4">
-                        <label class="form-label text-white small fw-bold">Historical Best Sales ($)</label>
-                        <input type="number" step="0.01" name="historical_best" class="form-control" value="{{ $loc->historical_best }}" />
-                      </div>
+                    <div class="portal-field-group">
+                      <label class="portal-label">LEGAL LLC NAME</label>
+                      <input type="text" name="legal_name" class="portal-input" value="{{ $loc->legal_name }}" placeholder="Acme Enterprises, LLC" />
+                    </div>
 
-                      <!-- 7-Day Nightly Goals -->
-                      <div class="col-12 mt-3">
-                        <div class="p-3 rounded" style="background: rgba(0, 0, 0, 0.25); border: 1px solid var(--nr-border);">
-                          <label class="form-label text-warning small fw-bold mb-2 d-flex align-items-center justify-content-between">
-                            <span><i class="fas fa-calendar-week me-2"></i>Nightly Sales Goals by Day of Week ($)</span>
-                            <span class="text-muted fw-normal" style="font-size: 0.75rem;">Overrides baseline goal for specific days</span>
-                          </label>
-                          <div class="row g-2">
-                            @php
-                              $dayList = [
-                                'monday' => 'Mon',
-                                'tuesday' => 'Tue',
-                                'wednesday' => 'Wed',
-                                'thursday' => 'Thu',
-                                'friday' => 'Fri',
-                                'saturday' => 'Sat',
-                                'sunday' => 'Sun',
-                              ];
-                            @endphp
-                            @foreach($dayList as $dKey => $dLabel)
-                              <div class="col-6 col-md">
-                                <label class="form-label text-white-50 small mb-1" style="font-size: 0.75rem;">{{ $dLabel }}</label>
-                                <input type="number" step="0.01" min="0" name="nightly_goals[{{ $dKey }}]" class="form-control form-control-sm" value="{{ $loc->nightly_goals[$dKey] ?? '' }}" placeholder="0.00" />
-                              </div>
-                            @endforeach
-                          </div>
-                          <div class="text-muted small mt-2" style="font-size: 0.75rem;">
-                            <i class="fas fa-info-circle me-1"></i> In the nightly report submission form, choosing this venue and date will auto-populate the goal for that day.
-                          </div>
+                    <div class="portal-field-group">
+                      <label class="portal-label">CLUB / DBA NAME</label>
+                      <input type="text" name="name" class="portal-input" value="{{ $loc->name }}" placeholder="Club XYZ" required />
+                    </div>
+
+                    <div class="portal-field-group">
+                      <label class="portal-label">LOCATION TYPE</label>
+                      <select name="type" class="portal-select" required>
+                        <option value="Adult with Liquor" {{ $loc->type === 'Adult with Liquor' ? 'selected' : '' }}>Adult with Liquor</option>
+                        <option value="Adult Juice Bar" {{ $loc->type === 'Adult Juice Bar' ? 'selected' : '' }}>Adult Juice Bar</option>
+                        <option value="Adult Alcohol Free" {{ $loc->type === 'Adult Alcohol Free' ? 'selected' : '' }}>Adult Alcohol Free</option>
+                        <option value="Bar/Night Club" {{ $loc->type === 'Bar/Night Club' ? 'selected' : '' }}>Bar/Night Club</option>
+                        <option value="Boutique" {{ $loc->type === 'Boutique' ? 'selected' : '' }}>Boutique</option>
+                      </select>
+                    </div>
+
+                    <div class="portal-field-group">
+                      <label class="portal-label">GM EMAIL (OPTIONAL)</label>
+                      <input type="email" name="gm_email" class="portal-input" value="{{ $loc->gm_email }}" placeholder="gm@venue.com" />
+                    </div>
+
+                    <div class="portal-field-group">
+                      <label class="portal-label">CLUB INBOX EMAIL</label>
+                      <input type="email" name="club_inbox_email" class="portal-input" value="{{ $loc->club_inbox_email }}" placeholder="club@venue.com" />
+                    </div>
+
+                    <!-- Modern Day-Wise Nightly Goals Grid -->
+                    <div class="goals-section-container">
+                      <div class="goals-section-header">
+                        <div>
+                          <span class="portal-label text-warning mb-0" style="letter-spacing: 0.08em;">NIGHTLY REVENUE GOALS</span>
+                          <div class="text-muted small" style="font-size: 0.72rem;">Set target for each day of the week (auto-populates report)</div>
                         </div>
                       </div>
 
-                      <div class="col-md-6">
-                        <label class="form-label text-white small fw-bold">General Manager Name</label>
-                        <input type="text" name="gm_name" class="form-control" value="{{ $loc->gm_name }}" />
-                      </div>
-                      <div class="col-md-6">
-                        <label class="form-label text-white small fw-bold">GM Email Address</label>
-                        <input type="email" name="gm_email" class="form-control" value="{{ $loc->gm_email }}" />
+                      <div class="row g-2">
+                        @php
+                          $dayItems = [
+                            'monday' => ['name' => 'Monday', 'tag' => 'MON', 'peak' => false],
+                            'tuesday' => ['name' => 'Tuesday', 'tag' => 'TUE', 'peak' => false],
+                            'wednesday' => ['name' => 'Wednesday', 'tag' => 'WED', 'peak' => false],
+                            'thursday' => ['name' => 'Thursday', 'tag' => 'THU', 'peak' => false],
+                            'friday' => ['name' => 'Friday', 'tag' => 'FRI', 'peak' => true],
+                            'saturday' => ['name' => 'Saturday', 'tag' => 'SAT', 'peak' => true],
+                            'sunday' => ['name' => 'Sunday', 'tag' => 'SUN', 'peak' => false],
+                          ];
+                        @endphp
+
+                        @foreach($dayItems as $dKey => $info)
+                          <div class="col-12 col-sm-6">
+                            <div class="goal-card-item">
+                              <div class="goal-day-info">
+                                <span class="goal-day-pill {{ $info['peak'] ? 'peak' : '' }}">{{ $info['tag'] }}</span>
+                                <span class="goal-day-name">{{ $info['name'] }}</span>
+                              </div>
+                              <div class="goal-input-box">
+                                <span class="goal-dollar">$</span>
+                                <input type="number" step="0.01" min="0" name="nightly_goals[{{ $dKey }}]" class="goal-amount-input" value="{{ $loc->nightly_goals[$dKey] ?? '' }}" placeholder="0.00" />
+                              </div>
+                            </div>
+                          </div>
+                        @endforeach
+
+                        <!-- Baseline Fallback Target -->
+                        <div class="col-12 col-sm-6">
+                          <div class="goal-card-item" style="border-style: dashed; border-color: rgba(217, 160, 91, 0.35);">
+                            <div class="goal-day-info">
+                              <span class="goal-day-pill" style="background: rgba(255, 255, 255, 0.06); color: #cbd5e1;">BASE</span>
+                              <span class="goal-day-name text-muted">Baseline Goal</span>
+                            </div>
+                            <div class="goal-input-box">
+                              <span class="goal-dollar">$</span>
+                              <input type="number" step="0.01" min="0" name="nightly_goal" class="goal-amount-input" value="{{ $loc->nightly_goal }}" placeholder="0.00" />
+                            </div>
+                          </div>
+                        </div>
                       </div>
                     </div>
                   </div>
-                  <div class="modal-footer" style="border-top: 1px solid var(--nr-border);">
-                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
-                    <button type="submit" class="btn btn-gold">Save Changes</button>
+                  <div class="modal-footer">
+                    <button type="button" class="btn btn-portal-cancel" data-bs-dismiss="modal">Cancel</button>
+                    <button type="submit" class="btn btn-portal-submit">Save Changes</button>
                   </div>
                 </form>
               </div>
@@ -191,94 +391,104 @@
     </div>
   </div>
 
-  <!-- Add Location Modal -->
-  <div class="modal fade" id="addLocationModal" tabindex="-1">
-    <div class="modal-dialog modal-lg">
-      <div class="modal-content" style="background: var(--nr-surface-2); border-color: var(--nr-border);">
+  <!-- Add Location Modal (Exact Match to Actual Nightly Reports Portal) -->
+  <div class="modal fade modal-portal" id="addLocationModal" tabindex="-1" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered" style="max-width: 580px;">
+      <div class="modal-content">
         <form method="POST" action="{{ route('admin.nightly-reports.locations.store') }}">
           @csrf
-          <div class="modal-header" style="border-bottom: 1px solid var(--nr-border);">
-            <h5 class="modal-title text-white fw-bold">Add New Location</h5>
-            <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
+          <div class="modal-header d-flex align-items-center justify-content-between">
+            <h5 class="modal-title">New Location</h5>
+            <button type="button" class="btn-close-portal" data-bs-dismiss="modal" aria-label="Close">&times;</button>
           </div>
           <div class="modal-body">
-            <div class="row g-3">
-              <div class="col-md-8">
-                <label class="form-label text-white small fw-bold">Location Name</label>
-                <input type="text" name="name" class="form-control" required placeholder="e.g. Larry Flynt's Hustler Club Miami" />
-              </div>
-              <div class="col-md-4">
-                <label class="form-label text-white small fw-bold">Venue Type</label>
-                <select name="type" class="form-select" required>
-                  <option value="Adult with Liquor">Adult with Liquor</option>
-                  <option value="Adult Alcohol Free">Adult Alcohol Free</option>
-                  <option value="Bar/Night Club">Bar/Night Club</option>
-                  <option value="Boutique">Boutique</option>
-                </select>
-              </div>
-              <div class="col-md-6">
-                <label class="form-label text-white small fw-bold">Map to CartVIP Website (Optional)</label>
-                <select name="website_id" class="form-select">
-                  <option value="">-- Standalone Location --</option>
-                  @foreach($websites as $web)
-                    <option value="{{ $web->id }}">{{ $web->name }}</option>
-                  @endforeach
-                </select>
-              </div>
-              <div class="col-md-3">
-                <label class="form-label text-white small fw-bold">City</label>
-                <input type="text" name="city" class="form-control" />
-              </div>
-              <div class="col-md-3">
-                <label class="form-label text-white small fw-bold">State</label>
-                <input type="text" name="state" class="form-control" />
-              </div>
-              <div class="col-md-4">
-                <label class="form-label text-white small fw-bold">Baseline Nightly Goal ($)</label>
-                <input type="number" step="0.01" name="nightly_goal" class="form-control" placeholder="15000" />
-              </div>
-              <div class="col-md-4">
-                <label class="form-label text-white small fw-bold">Monthly Break-Even ($)</label>
-                <input type="number" step="0.01" name="break_even" class="form-control" placeholder="250000" />
-              </div>
-              <div class="col-md-4">
-                <label class="form-label text-white small fw-bold">Historical Best Sales ($)</label>
-                <input type="number" step="0.01" name="historical_best" class="form-control" placeholder="45000" />
+            <div class="portal-field-group">
+              <label class="portal-label">LEGAL LLC NAME</label>
+              <input type="text" name="legal_name" class="portal-input" placeholder="Acme Enterprises, LLC" />
+            </div>
+
+            <div class="portal-field-group">
+              <label class="portal-label">CLUB / DBA NAME</label>
+              <input type="text" name="name" class="portal-input" placeholder="Club XYZ" required />
+            </div>
+
+            <div class="portal-field-group">
+              <label class="portal-label">LOCATION TYPE</label>
+              <select name="type" class="portal-select" required>
+                <option value="Adult with Liquor">Adult with Liquor</option>
+                <option value="Adult Juice Bar">Adult Juice Bar</option>
+                <option value="Adult Alcohol Free">Adult Alcohol Free</option>
+                <option value="Bar/Night Club">Bar/Night Club</option>
+                <option value="Boutique">Boutique</option>
+              </select>
+            </div>
+
+            <div class="portal-field-group">
+              <label class="portal-label">GM EMAIL (OPTIONAL)</label>
+              <input type="email" name="gm_email" class="portal-input" placeholder="gm@venue.com" />
+            </div>
+
+            <div class="portal-field-group">
+              <label class="portal-label">CLUB INBOX EMAIL</label>
+              <input type="email" name="club_inbox_email" class="portal-input" placeholder="club@venue.com" />
+            </div>
+
+            <!-- Modern Day-Wise Nightly Goals Grid -->
+            <div class="goals-section-container">
+              <div class="goals-section-header">
+                <div>
+                  <span class="portal-label text-warning mb-0" style="letter-spacing: 0.08em;">NIGHTLY REVENUE GOALS</span>
+                  <div class="text-muted small" style="font-size: 0.72rem;">Set target for each day of the week (auto-populates report)</div>
+                </div>
               </div>
 
-              <!-- 7-Day Nightly Goals -->
-              <div class="col-12 mt-3">
-                <div class="p-3 rounded" style="background: rgba(0, 0, 0, 0.25); border: 1px solid var(--nr-border);">
-                  <label class="form-label text-warning small fw-bold mb-2 d-flex align-items-center justify-content-between">
-                    <span><i class="fas fa-calendar-week me-2"></i>Nightly Sales Goals by Day of Week ($)</span>
-                    <span class="text-muted fw-normal" style="font-size: 0.75rem;">Overrides baseline goal for specific days</span>
-                  </label>
-                  <div class="row g-2">
-                    @foreach(['monday' => 'Mon', 'tuesday' => 'Tue', 'wednesday' => 'Wed', 'thursday' => 'Thu', 'friday' => 'Fri', 'saturday' => 'Sat', 'sunday' => 'Sun'] as $dKey => $dLabel)
-                      <div class="col-6 col-md">
-                        <label class="form-label text-white-50 small mb-1" style="font-size: 0.75rem;">{{ $dLabel }}</label>
-                        <input type="number" step="0.01" min="0" name="nightly_goals[{{ $dKey }}]" class="form-control form-control-sm" placeholder="0.00" />
+              <div class="row g-2">
+                @php
+                  $dayItems = [
+                    'monday' => ['name' => 'Monday', 'tag' => 'MON', 'peak' => false],
+                    'tuesday' => ['name' => 'Tuesday', 'tag' => 'TUE', 'peak' => false],
+                    'wednesday' => ['name' => 'Wednesday', 'tag' => 'WED', 'peak' => false],
+                    'thursday' => ['name' => 'Thursday', 'tag' => 'THU', 'peak' => false],
+                    'friday' => ['name' => 'Friday', 'tag' => 'FRI', 'peak' => true],
+                    'saturday' => ['name' => 'Saturday', 'tag' => 'SAT', 'peak' => true],
+                    'sunday' => ['name' => 'Sunday', 'tag' => 'SUN', 'peak' => false],
+                  ];
+                @endphp
+
+                @foreach($dayItems as $dKey => $info)
+                  <div class="col-12 col-sm-6">
+                    <div class="goal-card-item">
+                      <div class="goal-day-info">
+                        <span class="goal-day-pill {{ $info['peak'] ? 'peak' : '' }}">{{ $info['tag'] }}</span>
+                        <span class="goal-day-name">{{ $info['name'] }}</span>
                       </div>
-                    @endforeach
+                      <div class="goal-input-box">
+                        <span class="goal-dollar">$</span>
+                        <input type="number" step="0.01" min="0" name="nightly_goals[{{ $dKey }}]" class="goal-amount-input" placeholder="0.00" />
+                      </div>
+                    </div>
                   </div>
-                  <div class="text-muted small mt-2" style="font-size: 0.75rem;">
-                    <i class="fas fa-info-circle me-1"></i> In the nightly report submission form, choosing this venue and date will auto-populate the goal for that day.
+                @endforeach
+
+                <!-- Baseline Fallback Target -->
+                <div class="col-12 col-sm-6">
+                  <div class="goal-card-item" style="border-style: dashed; border-color: rgba(217, 160, 91, 0.35);">
+                    <div class="goal-day-info">
+                      <span class="goal-day-pill" style="background: rgba(255, 255, 255, 0.06); color: #cbd5e1;">BASE</span>
+                      <span class="goal-day-name text-muted">Baseline Goal</span>
+                    </div>
+                    <div class="goal-input-box">
+                      <span class="goal-dollar">$</span>
+                      <input type="number" step="0.01" min="0" name="nightly_goal" class="goal-amount-input" placeholder="0.00" />
+                    </div>
                   </div>
                 </div>
               </div>
-              <div class="col-md-6">
-                <label class="form-label text-white small fw-bold">General Manager Name</label>
-                <input type="text" name="gm_name" class="form-control" />
-              </div>
-              <div class="col-md-6">
-                <label class="form-label text-white small fw-bold">GM Email Address</label>
-                <input type="email" name="gm_email" class="form-control" />
-              </div>
             </div>
           </div>
-          <div class="modal-footer" style="border-top: 1px solid var(--nr-border);">
-            <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
-            <button type="submit" class="btn btn-gold">Create Location</button>
+          <div class="modal-footer">
+            <button type="button" class="btn btn-portal-cancel" data-bs-dismiss="modal">Cancel</button>
+            <button type="submit" class="btn btn-portal-submit">Create Location</button>
           </div>
         </form>
       </div>
