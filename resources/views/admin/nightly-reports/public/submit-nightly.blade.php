@@ -351,8 +351,6 @@
   <a href="{{ route('admin.nightly-reports.dashboard') }}" class="nr-brand-logo">Reports</a>
   <div class="nr-topbar-nav">
     <a href="{{ route('admin.nightly-reports.dashboard') }}" class="btn-return-admin">Return to Admin</a>
-    <a href="{{ route('ambassador.dashboard') }}" class="nr-nav-link">Ambassador portal</a>
-    <a href="{{ route('admin.nightly-reports.model-releases.index') }}" class="nr-nav-link">Model Release Intake</a>
     <form action="{{ route('ambassador.logout') }}" method="POST" class="d-inline m-0">
       @csrf
       <button type="submit" class="nr-nav-link bg-transparent border-0 p-0" style="cursor: pointer;">
@@ -646,8 +644,7 @@
 <script src="{{ asset('user/assets/vendor/libs/jquery/jquery.js') }}"></script>
 <script>
   $(function() {
-    // ── 1. NUMERIC ONLY INPUT VALIDATION (NO TEXT, NO EXPONENT, NO SYMBOLS) ──
-    // Allow digits, backspace, delete, tab, arrows, and at most one decimal point for float fields
+    // ── 1. NUMERIC ONLY INPUT VALIDATION (NO TEXT, NO EXPONENTS, MAX 2 DECIMALS) ──
     $('input[type="number"]').on('keydown', function(e) {
       // Allow navigation and action keys: backspace, delete, tab, escape, enter
       if ([46, 8, 9, 27, 13].indexOf(e.keyCode) !== -1 ||
@@ -659,29 +656,70 @@
       }
 
       var isDecimalField = $(this).hasClass('num-field');
+      var val = $(this).val() || '';
+
       // Decimal point (.) key: 190 (main) or 110 (numpad)
-      if (isDecimalField && (e.keyCode === 190 || e.keyCode === 110)) {
-        if ($(this).val().indexOf('.') !== -1) {
-          e.preventDefault(); // Already has dot
+      if (e.keyCode === 190 || e.keyCode === 110) {
+        if (!isDecimalField || val.indexOf('.') !== -1) {
+          e.preventDefault(); // Block if integer field or dot already present
         }
         return;
       }
 
-      // Ensure that it is a number and stop the keypress
-      if ((e.shiftKey || (e.keyCode < 48 || e.keyCode > 57)) && (e.keyCode < 96 || e.keyCode > 105)) {
+      // Check if pressed key is a digit (0-9)
+      var isDigit = (!e.shiftKey && (e.keyCode >= 48 && e.keyCode <= 57)) || (e.keyCode >= 96 && e.keyCode <= 105);
+      if (!isDigit) {
         e.preventDefault();
+        return;
+      }
+
+      // Prevent typing more than two decimal places after the decimal point
+      if (isDecimalField && val.indexOf('.') !== -1) {
+        var dotIndex = val.indexOf('.');
+        var selStart = this.selectionStart;
+        var selEnd = this.selectionEnd;
+        // If cursor is after the dot and no text selection will be overwritten
+        if (selStart !== null && selStart > dotIndex && selStart === selEnd) {
+          var decimals = val.substring(dotIndex + 1);
+          if (decimals.length >= 2) {
+            e.preventDefault();
+            return;
+          }
+        }
       }
     });
 
-    // Strip any illegal non-numeric characters on paste or input
+    // Strip any illegal non-numeric characters and enforce max 2 decimals on input/paste
     $('input[type="number"]').on('input paste', function() {
       var $this = $(this);
       setTimeout(function() {
         var val = $this.val();
+        if (!val) return;
+
         if ($this.hasClass('num-int-field')) {
-          $this.val(val.replace(/[^0-9]/g, ''));
+          // Integer fields only allow whole digits
+          var cleanInt = val.replace(/[^0-9]/g, '');
+          if ($this.val() !== cleanInt) {
+            $this.val(cleanInt);
+          }
+        } else if ($this.hasClass('num-field')) {
+          // Decimal fields allow digits and at most 2 digits after the decimal point
+          var cleaned = val.replace(/[^0-9.]/g, '');
+          var parts = cleaned.split('.');
+          if (parts.length > 2) {
+            cleaned = parts[0] + '.' + parts.slice(1).join('');
+          }
+          if (cleaned.indexOf('.') !== -1) {
+            var splitParts = cleaned.split('.');
+            if (splitParts[1].length > 2) {
+              cleaned = splitParts[0] + '.' + splitParts[1].substring(0, 2);
+            }
+          }
+          if ($this.val() !== cleaned) {
+            $this.val(cleaned);
+          }
         }
-      }, 10);
+      }, 5);
     });
 
     // ── 2. AUTO-CALCULATION OF METRICS ──
