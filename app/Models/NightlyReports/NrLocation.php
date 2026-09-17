@@ -43,6 +43,27 @@ class NrLocation extends Model
         'operating_days' => 'array',
     ];
 
+    public function getNightlyGoalsAttribute()
+    {
+        if (array_key_exists('nightly_goals', $this->attributes) && !empty($this->attributes['nightly_goals'])) {
+            $val = $this->attributes['nightly_goals'];
+            return is_string($val) ? json_decode($val, true) : $val;
+        }
+        if (array_key_exists('operating_days', $this->attributes) && !empty($this->attributes['operating_days'])) {
+            $val = $this->attributes['operating_days'];
+            return is_string($val) ? json_decode($val, true) : $val;
+        }
+        return [];
+    }
+
+    public function getLegalNameAttribute()
+    {
+        if (array_key_exists('legal_name', $this->attributes) && !empty($this->attributes['legal_name'])) {
+            return $this->attributes['legal_name'];
+        }
+        return $this->attributes['short_name'] ?? null;
+    }
+
     /**
      * Get the nightly goal for a given date or day of week.
      * Falls back to base nightly_goal if daily goal is not set.

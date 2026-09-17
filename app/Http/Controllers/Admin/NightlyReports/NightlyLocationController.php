@@ -52,7 +52,24 @@ class NightlyLocationController extends BaseNightlyReportsController
             $validated['nightly_goals'] = !empty($cleanGoals) ? $cleanGoals : null;
         }
 
-        $loc = NrLocation::create($validated);
+        // Dynamically save only columns that exist in the database table to prevent 1054 Unknown column errors
+        $tableColumns = \Illuminate\Support\Facades\Schema::getColumnListing('nr_locations');
+        $saveData = [];
+        foreach ($validated as $k => $v) {
+            if (in_array($k, $tableColumns)) {
+                $saveData[$k] = $v;
+            }
+        }
+        // Fallback for legal_name if column not migrated yet
+        if (!in_array('legal_name', $tableColumns) && in_array('short_name', $tableColumns) && !empty($validated['legal_name'])) {
+            $saveData['short_name'] = $validated['legal_name'];
+        }
+        // Fallback for nightly_goals if column not migrated yet
+        if (!in_array('nightly_goals', $tableColumns) && in_array('operating_days', $tableColumns) && !empty($validated['nightly_goals'])) {
+            $saveData['operating_days'] = $validated['nightly_goals'];
+        }
+
+        $loc = NrLocation::create($saveData);
 
         NrBenchmark::updateOrCreate(
             ['location_id' => $loc->id],
@@ -101,7 +118,24 @@ class NightlyLocationController extends BaseNightlyReportsController
             $validated['nightly_goals'] = !empty($cleanGoals) ? $cleanGoals : null;
         }
 
-        $loc->update($validated);
+        // Dynamically save only columns that exist in the database table to prevent 1054 Unknown column errors
+        $tableColumns = \Illuminate\Support\Facades\Schema::getColumnListing('nr_locations');
+        $saveData = [];
+        foreach ($validated as $k => $v) {
+            if (in_array($k, $tableColumns)) {
+                $saveData[$k] = $v;
+            }
+        }
+        // Fallback for legal_name if column not migrated yet
+        if (!in_array('legal_name', $tableColumns) && in_array('short_name', $tableColumns) && array_key_exists('legal_name', $validated)) {
+            $saveData['short_name'] = $validated['legal_name'];
+        }
+        // Fallback for nightly_goals if column not migrated yet
+        if (!in_array('nightly_goals', $tableColumns) && in_array('operating_days', $tableColumns) && array_key_exists('nightly_goals', $validated)) {
+            $saveData['operating_days'] = $validated['nightly_goals'];
+        }
+
+        $loc->update($saveData);
 
         NrBenchmark::updateOrCreate(
             ['location_id' => $loc->id],
