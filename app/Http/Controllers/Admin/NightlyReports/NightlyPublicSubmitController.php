@@ -24,10 +24,11 @@ class NightlyPublicSubmitController extends Controller
     {
         $locations = NrLocation::where('active', true)->where('type', '!=', 'Boutique')->orderBy('name')->get();
         $selectedLocationId = $request->input('location');
-        $defaultDate = Carbon::now()->hour < 6 ? Carbon::yesterday()->toDateString() : Carbon::today()->toDateString();
+        $defaultDate = Carbon::yesterday()->toDateString();
+        $yesterdayFormatted = Carbon::yesterday()->format('D, M j, Y');
         $configs = NrFormConfig::where('report_type', 'nightly')->get()->keyBy('field_key');
 
-        return view('admin.nightly-reports.public.submit-nightly', compact('locations', 'selectedLocationId', 'defaultDate', 'configs'));
+        return view('admin.nightly-reports.public.submit-nightly', compact('locations', 'selectedLocationId', 'defaultDate', 'yesterdayFormatted', 'configs'));
     }
 
     public function storeNightly(Request $request)
@@ -53,7 +54,10 @@ class NightlyPublicSubmitController extends Controller
             'paid_guests' => 'nullable|integer|min:0',
             'free_discount_guests' => 'nullable|integer|min:0',
             'passes_redeemed' => 'nullable|integer|min:0',
+            'guest_average' => 'nullable|numeric|min:0',
+            'dance_average' => 'nullable|numeric|min:0',
             'ipes' => 'nullable|integer|min:0',
+            'total_payouts' => 'nullable|numeric|min:0',
             'taxi_payout' => 'nullable|numeric|min:0',
             'atm_payout' => 'nullable|numeric|min:0',
             'other_payouts' => 'nullable|numeric|min:0',
@@ -73,9 +77,13 @@ class NightlyPublicSubmitController extends Controller
             'shift_comments' => 'nullable|string',
         ]);
 
-        $validated['total_payouts'] = ($validated['taxi_payout'] ?? 0) + ($validated['atm_payout'] ?? 0) + ($validated['other_payouts'] ?? 0);
-        $validated['guest_average'] = $validated['total_guests'] > 0 ? ($validated['net_sales'] / $validated['total_guests']) : 0;
-        if (!empty($validated['ipes']) && $validated['ipes'] > 0 && !empty($validated['dance_dollars_sold'])) {
+        if (empty($validated['total_payouts'])) {
+            $validated['total_payouts'] = ($validated['taxi_payout'] ?? 0) + ($validated['atm_payout'] ?? 0) + ($validated['other_payouts'] ?? 0);
+        }
+        if (empty($validated['guest_average']) && $validated['total_guests'] > 0) {
+            $validated['guest_average'] = $validated['net_sales'] / $validated['total_guests'];
+        }
+        if (empty($validated['dance_average']) && !empty($validated['ipes']) && $validated['ipes'] > 0 && !empty($validated['dance_dollars_sold'])) {
             $validated['dance_average'] = $validated['dance_dollars_sold'] / $validated['ipes'];
         }
 
