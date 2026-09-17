@@ -321,7 +321,7 @@ class CustomFormController extends Controller
         $fieldKeys = [];
 
         foreach ($fieldsSchema as $f) {
-            if (($f['type'] ?? '') === 'heading' || ($f['type'] ?? '') === 'paragraph' || ($f['type'] ?? '') === 'captcha') {
+            if (($f['type'] ?? '') === 'heading' || ($f['type'] ?? '') === 'paragraph' || ($f['type'] ?? '') === 'captcha' || ($f['type'] ?? '') === 'image') {
                 continue;
             }
             $key = $f['name'] ?? $f['id'] ?? null;
@@ -359,6 +359,25 @@ class CustomFormController extends Controller
         return response(implode("\n", $lines))
             ->header('Content-Type', 'text/csv')
             ->header('Content-Disposition', 'attachment; filename="' . $filename . '"');
+    }
+
+    public function uploadImage(Request $request)
+    {
+        $request->validate([
+            'image' => 'required|image|mimes:jpeg,png,jpg,gif,svg,webp|max:5120',
+        ]);
+
+        if ($request->hasFile('image')) {
+            $path = $request->file('image')->store('form_images', 'public');
+            $url = asset('storage/' . $path);
+            return response()->json([
+                'success' => true,
+                'url' => $url,
+                'path' => $path,
+            ]);
+        }
+
+        return response()->json(['success' => false, 'message' => 'No image uploaded'], 400);
     }
 
     // Public Form Methods
@@ -453,7 +472,7 @@ class CustomFormController extends Controller
 
         foreach ($fieldsSchema as $f) {
             $type = $f['type'] ?? 'text';
-            if ($type === 'heading' || $type === 'paragraph' || $type === 'captcha') {
+            if ($type === 'heading' || $type === 'paragraph' || $type === 'captcha' || $type === 'image') {
                 continue;
             }
 
@@ -653,8 +672,8 @@ class CustomFormController extends Controller
                         $key = $f['name'] ?? $f['id'] ?? null;
                         $type = strtolower($f['type'] ?? '');
 
-                        // Skip heading and captcha fields
-                        if (!$key || $type === 'heading' || $type === 'captcha' || str_contains(strtolower($key), 'captcha')) {
+                        // Skip heading, captcha, and image fields
+                        if (!$key || $type === 'heading' || $type === 'captcha' || $type === 'image' || str_contains(strtolower($key), 'captcha')) {
                             continue;
                         }
 

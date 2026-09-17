@@ -477,6 +477,30 @@
                                 <h4 class="doc-section-heading">{{ $label }}</h4>
                                 @if($helpText)
                                     <div class="text-muted small mb-2">{{ $helpText }}</div>
+                            @elseif($type === 'image')
+                                @php
+                                    $align = $field['image_align'] ?? 'center';
+                                    $justify = 'center';
+                                    $textAlign = 'center';
+                                    if ($align === 'left') {
+                                        $justify = 'flex-start';
+                                        $textAlign = 'left';
+                                    } elseif ($align === 'right') {
+                                        $justify = 'flex-end';
+                                        $textAlign = 'right';
+                                    }
+                                    $imageUrl = $field['image_url'] ?? '';
+                                    $imageAlt = $field['image_alt'] ?? $label ?? 'Form Image';
+                                @endphp
+                                @if($imageUrl)
+                                    <div class="doc-image-field w-100 d-flex" style="justify-content: {{ $justify }}; text-align: {{ $textAlign }};">
+                                        <div style="max-width: 100%;">
+                                            <img src="{{ $imageUrl }}" alt="{{ $imageAlt }}" class="img-fluid rounded shadow-sm" style="max-width: 100%; height: auto; object-fit: contain; border: 1px solid #e2e8f0;">
+                                            @if($helpText)
+                                                <div class="form-text text-muted small mt-1.5" style="text-align: {{ $textAlign }};">{{ $helpText }}</div>
+                                            @endif
+                                        </div>
+                                    </div>
                                 @endif
 
                             @elseif($type === 'checkbox')

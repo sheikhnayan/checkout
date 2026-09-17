@@ -310,6 +310,19 @@
     border-radius: 12px;
 }
 
+/* Image Display Cards */
+.field-card-image {
+    background: linear-gradient(135deg, rgba(234, 179, 8, 0.08) 0%, rgba(15, 23, 42, 0.6) 100%) !important;
+    border: 1px solid rgba(234, 179, 8, 0.35) !important;
+    border-left: 5px solid #eab308 !important;
+    border-radius: 12px;
+}
+.image-align-prop-btn.active {
+    background-color: #7c3aed !important;
+    border-color: #7c3aed !important;
+    color: #ffffff !important;
+}
+
 /* Quick Action Toolbar on Field Cards */
 .field-quick-bar {
     display: flex;
@@ -764,6 +777,11 @@
                                         <i class="bx bx-list-check fs-5 text-warning"></i> Multi-Select Search
                                     </div>
                                 </div>
+                                <div class="col-6">
+                                    <div class="builder-palette-item text-white" draggable="true" data-type="image">
+                                        <i class="bx bx-image fs-5 text-warning"></i> Image
+                                    </div>
+                                </div>
                             </div>
 
                             <!-- Form Meta Info Section -->
@@ -870,12 +888,56 @@
                                         </div>
                                     </div>
 
+                                    <div id="imagePropertiesGroup" style="display: none;" class="p-3 mb-3 rounded-3" style="background: rgba(15,23,42,0.6); border: 1px solid rgba(124,58,237,0.25);">
+                                        <div class="fw-semibold text-warning micro-text text-uppercase mb-3" style="letter-spacing:0.05em">
+                                            <i class="bx bx-image me-1"></i> Image Settings
+                                        </div>
+
+                                        <div class="mb-3">
+                                            <label class="form-label text-white small fw-semibold">Image Source URL</label>
+                                            <input type="text" id="propImageUrl" class="txn-search-input" placeholder="https://example.com/image.png or /storage/...">
+                                            <div class="text-muted micro-text mt-1">Direct link or uploaded image path.</div>
+                                        </div>
+
+                                        <div class="mb-3">
+                                            <label class="form-label text-white small fw-semibold">Upload Image File</label>
+                                            <div class="d-flex align-items-center gap-2">
+                                                <input type="file" id="propImageUploadFile" class="form-control form-control-sm bg-dark text-white border-secondary small" accept="image/*">
+                                                <button type="button" class="btn btn-sm btn-primary d-none" id="btnUploadImageSpinner" disabled>
+                                                    <span class="spinner-border spinner-border-sm" role="status" aria-hidden="true"></span>
+                                                </button>
+                                            </div>
+                                            <div class="text-muted micro-text mt-1">Select an image to auto-upload to media storage.</div>
+                                        </div>
+
+                                        <div class="mb-3">
+                                            <label class="form-label text-white small fw-semibold">Position / Alignment</label>
+                                            <div class="btn-group w-100" role="group" id="propImageAlignGroup">
+                                                <button type="button" class="btn btn-outline-secondary btn-sm image-align-prop-btn" data-align="left">
+                                                    <i class="bx bx-align-left me-1"></i> Left
+                                                </button>
+                                                <button type="button" class="btn btn-outline-secondary btn-sm image-align-prop-btn active" data-align="center">
+                                                    <i class="bx bx-align-middle me-1"></i> Center
+                                                </button>
+                                                <button type="button" class="btn btn-outline-secondary btn-sm image-align-prop-btn" data-align="right">
+                                                    <i class="bx bx-align-right me-1"></i> Right
+                                                </button>
+                                            </div>
+                                            <input type="hidden" id="propImageAlign" value="center">
+                                        </div>
+
+                                        <div class="mb-3">
+                                            <label class="form-label text-white small fw-semibold">Alt Text (Accessibility)</label>
+                                            <input type="text" id="propImageAlt" class="txn-search-input" placeholder="e.g. Venue Logo">
+                                        </div>
+                                    </div>
+
                                     <div class="mb-3">
                                         <label class="form-label text-white small fw-semibold">Description</label>
                                         <textarea id="propHelpText" class="txn-search-input" rows="3" placeholder="Field help text or instructions..."></textarea>
                                     </div>
 
-                                    <div class="d-flex align-items-center justify-content-between p-3 rounded-3 mt-3" style="background: rgba(255,255,255,0.04); border: 1px solid rgba(255,255,255,0.08);">
+                                    <div class="d-flex align-items-center justify-content-between p-3 rounded-3 mt-3" id="requiredGroup" style="background: rgba(255,255,255,0.04); border: 1px solid rgba(255,255,255,0.08);">
                                         <label class="form-label text-white mb-0 fw-semibold small">Required Field</label>
                                         <label class="toggle-switch" for="propRequired">
                                             <input type="checkbox" id="propRequired" class="toggle-switch-input">
@@ -1511,6 +1573,7 @@ document.addEventListener('DOMContentLoaded', function() {
         if (type === 'captcha') defaultLabel = 'Captcha (To prevent spam)';
         if (type === 'time') defaultLabel = 'Time Field';
         if (type === 'multiselect_search') defaultLabel = 'Searchable Multi-Select';
+        if (type === 'image') defaultLabel = 'Image';
 
         const newField = {
             id: id,
@@ -1523,6 +1586,9 @@ document.addEventListener('DOMContentLoaded', function() {
             allowed_extensions: type === 'file' ? 'pdf, doc, docx, png, jpg' : '',
             max_file_size: type === 'file' ? 5 : null,
             max_file_uploads: type === 'file' ? 1 : null,
+            image_url: '',
+            image_align: 'center',
+            image_alt: '',
             width_class: 'col-12',
             required: false,
             options: type === 'multiselect_search' ? ['Option 1', 'Option 2', 'Option 3', 'Option 4'] : ['Option 1', 'Option 2', 'Option 3']
@@ -1573,7 +1639,8 @@ document.addEventListener('DOMContentLoaded', function() {
 
             const card = document.createElement('div');
             const isHeading = f.type === 'heading';
-            card.className = 'field-card' + (isHeading ? ' field-card-heading' : '') + (selectedFieldIndex === idx ? ' selected' : '');
+            const isImage = f.type === 'image';
+            card.className = 'field-card' + (isHeading ? ' field-card-heading' : '') + (isImage ? ' field-card-image' : '') + (selectedFieldIndex === idx ? ' selected' : '');
             card.setAttribute('draggable', 'true');
 
             let inputPreview = '';
@@ -1669,6 +1736,35 @@ document.addEventListener('DOMContentLoaded', function() {
                 `;
             } else if (f.type === 'heading') {
                 inputPreview = `<div class="text-white fw-bold border-bottom border-secondary border-opacity-25 pb-2 d-flex align-items-center gap-2" style="font-size: 1.05rem; letter-spacing: -0.01em;"><i class="bx bx-heading text-primary fs-5"></i> ${f.label}</div>`;
+            } else if (f.type === 'image') {
+                const align = f.image_align || 'center';
+                let justify = 'center';
+                let textAlign = 'center';
+                if (align === 'left') {
+                    justify = 'flex-start';
+                    textAlign = 'left';
+                } else if (align === 'right') {
+                    justify = 'flex-end';
+                    textAlign = 'right';
+                }
+
+                if (f.image_url) {
+                    inputPreview = `
+                        <div class="image-field-canvas-preview d-flex w-100 py-1" style="justify-content: ${justify}; text-align: ${textAlign};">
+                            <div style="max-width: 100%;">
+                                <img src="${f.image_url}" alt="${f.image_alt || f.label || 'Image'}" class="rounded shadow-sm" style="max-width: 100%; max-height: 240px; object-fit: contain; border: 1px solid rgba(255,255,255,0.15);">
+                            </div>
+                        </div>
+                    `;
+                } else {
+                    inputPreview = `
+                        <div class="image-field-canvas-placeholder p-3 rounded-3 text-center" style="background: rgba(15, 23, 42, 0.6); border: 2px dashed rgba(124, 58, 237, 0.4);">
+                            <i class="bx bx-image text-warning fs-1 d-block mb-1"></i>
+                            <div class="text-white fw-semibold small">Image Display Field</div>
+                            <div class="text-muted micro-text mt-0.5">Click to set image URL, upload image, or adjust alignment (${align})</div>
+                        </div>
+                    `;
+                }
             } else if (f.type === 'multiselect_search') {
                 const choices = f.options || ['Option 1', 'Option 2', 'Option 3', 'Option 4'];
                 inputPreview = `
@@ -1720,19 +1816,27 @@ document.addEventListener('DOMContentLoaded', function() {
                 </div>
                 <div class="d-flex align-items-center mb-1 flex-wrap gap-1">
                     <i class="bx bx-move field-drag-handle" title="Drag to relocate field"></i>
-                    ${!isHeading && f.type !== 'checkbox' ? `<label class="form-label text-white mb-0 fw-semibold small me-1">${f.label} ${f.required ? '<span class="text-danger">*</span>' : ''}</label>` : ''}
+                    ${!isHeading && !isImage && f.type !== 'checkbox' ? `<label class="form-label text-white mb-0 fw-semibold small me-1">${f.label} ${f.required ? '<span class="text-danger">*</span>' : ''}</label>` : ''}
+                    ${isImage ? `<div class="d-flex align-items-center gap-1.5"><i class="bx bx-image text-warning fs-5"></i> <span class="fw-semibold text-white small">${f.label || 'Image'}</span> <span class="badge bg-secondary micro-text ms-1 text-uppercase">${f.image_align || 'center'}</span></div>` : ''}
                     ${logicBadge}
                 </div>
                 ${inputPreview}
-                ${f.help_text ? `<div class="text-muted micro-text mt-1.5"><i class="bx bx-info-circle me-1 text-primary"></i>${f.help_text}</div>` : ''}
+                ${f.help_text ? `<div class="text-muted micro-text mt-1.5" style="text-align: ${isImage ? (f.image_align || 'center') : 'left'}"><i class="bx bx-info-circle me-1 text-primary"></i>${f.help_text}</div>` : ''}
 
                 <div class="field-quick-bar">
-                    <span class="micro-text text-muted me-1"><i class="bx bx-slider"></i> Quick:</span>
+                    <span class="micro-text text-muted me-1"><i class="bx bx-slider"></i> Width:</span>
                     <button type="button" class="btn-quick-pill ${widthVal === 'col-12' ? 'active' : ''}" onclick="event.stopPropagation(); setQuickWidth(${idx}, 'col-12')" title="Full Width (100%)">100%</button>
                     <button type="button" class="btn-quick-pill ${widthVal === 'col-md-6' ? 'active' : ''}" onclick="event.stopPropagation(); setQuickWidth(${idx}, 'col-md-6')" title="Half Width (50%)">50%</button>
                     <button type="button" class="btn-quick-pill ${widthVal === 'col-md-4' ? 'active' : ''}" onclick="event.stopPropagation(); setQuickWidth(${idx}, 'col-md-4')" title="One Third (33%)">33%</button>
                     
-                    ${!isHeading ? `
+                    ${isImage ? `
+                        <span class="micro-text text-muted ms-2 me-1"><i class="bx bx-align-middle"></i> Position:</span>
+                        <button type="button" class="btn-quick-pill ${(f.image_align || 'center') === 'left' ? 'active' : ''}" onclick="event.stopPropagation(); setQuickImageAlign(${idx}, 'left')" title="Align Left">Left</button>
+                        <button type="button" class="btn-quick-pill ${(f.image_align || 'center') === 'center' ? 'active' : ''}" onclick="event.stopPropagation(); setQuickImageAlign(${idx}, 'center')" title="Align Center">Center</button>
+                        <button type="button" class="btn-quick-pill ${(f.image_align || 'center') === 'right' ? 'active' : ''}" onclick="event.stopPropagation(); setQuickImageAlign(${idx}, 'right')" title="Align Right">Right</button>
+                    ` : ''}
+
+                    ${!isHeading && !isImage ? `
                         <button type="button" class="btn-quick-pill ms-auto ${f.required ? 'active' : ''}" onclick="event.stopPropagation(); toggleQuickRequired(${idx})" title="Toggle Required Field">
                             <i class="bx ${f.required ? 'bx-check-circle text-danger' : 'bx-circle'} me-1"></i> ${f.required ? 'Required' : 'Optional'}
                         </button>
@@ -1887,8 +1991,26 @@ document.addEventListener('DOMContentLoaded', function() {
             fileUploadPropertiesGroup.style.display = 'none';
         }
 
+        const imagePropertiesGroup = document.getElementById('imagePropertiesGroup');
+        if (f.type === 'image') {
+            if (imagePropertiesGroup) imagePropertiesGroup.style.display = 'block';
+            document.getElementById('propImageUrl').value = f.image_url || '';
+            document.getElementById('propImageAlt').value = f.image_alt || '';
+            document.getElementById('propImageAlign').value = f.image_align || 'center';
+            document.querySelectorAll('.image-align-prop-btn').forEach(btn => {
+                btn.classList.toggle('active', btn.getAttribute('data-align') === (f.image_align || 'center'));
+            });
+        } else {
+            if (imagePropertiesGroup) imagePropertiesGroup.style.display = 'none';
+        }
+
+        const requiredGroup = document.getElementById('requiredGroup');
+        if (requiredGroup) {
+            requiredGroup.style.display = (f.type === 'image' || f.type === 'heading') ? 'none' : 'flex';
+        }
+
         const placeholderGroup = document.getElementById('placeholderGroup');
-        if (['checkbox', 'heading', 'file', 'captcha'].includes(f.type)) {
+        if (['checkbox', 'heading', 'file', 'captcha', 'image'].includes(f.type)) {
             placeholderGroup.style.display = 'none';
         } else {
             placeholderGroup.style.display = 'block';
@@ -1936,7 +2058,7 @@ document.addEventListener('DOMContentLoaded', function() {
 
         rulesList.innerHTML = '';
 
-        const otherFields = fields.filter((otherF, oIdx) => oIdx !== selectedFieldIndex && otherF.type !== 'heading' && otherF.type !== 'captcha');
+        const otherFields = fields.filter((otherF, oIdx) => oIdx !== selectedFieldIndex && otherF.type !== 'heading' && otherF.type !== 'captcha' && otherF.type !== 'image');
 
         if (otherFields.length === 0) {
             rulesList.innerHTML = `
@@ -2096,7 +2218,7 @@ document.addEventListener('DOMContentLoaded', function() {
             if (!fields[selectedFieldIndex].conditional_logic) {
                 fields[selectedFieldIndex].conditional_logic = { enabled: true, action: 'show', logic_gate: 'all', rules: [] };
             }
-            const otherFields = fields.filter((otherF, oIdx) => oIdx !== selectedFieldIndex && otherF.type !== 'heading' && otherF.type !== 'captcha');
+            const otherFields = fields.filter((otherF, oIdx) => oIdx !== selectedFieldIndex && otherF.type !== 'heading' && otherF.type !== 'captcha' && otherF.type !== 'image');
             const defaultTarget = otherFields.length > 0 ? (otherFields[0].name || otherFields[0].id) : '';
 
             fields[selectedFieldIndex].conditional_logic.rules.push({
@@ -2252,6 +2374,88 @@ document.addEventListener('DOMContentLoaded', function() {
             renderCanvas();
         }
     });
+
+    // Image Inspector Listeners
+    document.getElementById('propImageUrl')?.addEventListener('input', (e) => {
+        if (selectedFieldIndex !== null && fields[selectedFieldIndex]) {
+            fields[selectedFieldIndex].image_url = e.target.value;
+            renderCanvas();
+        }
+    });
+
+    document.getElementById('propImageAlt')?.addEventListener('input', (e) => {
+        if (selectedFieldIndex !== null && fields[selectedFieldIndex]) {
+            fields[selectedFieldIndex].image_alt = e.target.value;
+            renderCanvas();
+        }
+    });
+
+    document.querySelectorAll('.image-align-prop-btn').forEach(btn => {
+        btn.addEventListener('click', () => {
+            const align = btn.getAttribute('data-align');
+            const hiddenInp = document.getElementById('propImageAlign');
+            if (hiddenInp) hiddenInp.value = align;
+            document.querySelectorAll('.image-align-prop-btn').forEach(b => b.classList.remove('active'));
+            btn.classList.add('active');
+            if (selectedFieldIndex !== null && fields[selectedFieldIndex]) {
+                fields[selectedFieldIndex].image_align = align;
+                renderCanvas();
+            }
+        });
+    });
+
+    const propImageUploadFile = document.getElementById('propImageUploadFile');
+    const btnUploadImageSpinner = document.getElementById('btnUploadImageSpinner');
+    propImageUploadFile?.addEventListener('change', async (e) => {
+        const file = e.target.files && e.target.files[0];
+        if (!file || selectedFieldIndex === null || !fields[selectedFieldIndex]) return;
+
+        // Immediate local preview via FileReader
+        const reader = new FileReader();
+        reader.onload = (re) => {
+            fields[selectedFieldIndex].image_url = re.target.result;
+            const urlInput = document.getElementById('propImageUrl');
+            if (urlInput) urlInput.value = re.target.result;
+            renderCanvas();
+        };
+        reader.readAsDataURL(file);
+
+        // Upload to server media storage
+        const formData = new FormData();
+        formData.append('image', file);
+        if (btnUploadImageSpinner) btnUploadImageSpinner.classList.remove('d-none');
+
+        try {
+            const uploadUrl = "{{ route(request()->routeIs('admin.nightly-reports.*') ? 'admin.nightly-reports.forms.upload-image' : 'admin.forms.upload-image') }}";
+            const res = await fetch(uploadUrl, {
+                method: 'POST',
+                headers: {
+                    'X-CSRF-TOKEN': '{{ csrf_token() }}',
+                    'Accept': 'application/json'
+                },
+                body: formData
+            });
+            const data = await res.json();
+            if (data.success && data.url) {
+                fields[selectedFieldIndex].image_url = data.url;
+                const urlInput = document.getElementById('propImageUrl');
+                if (urlInput) urlInput.value = data.url;
+                renderCanvas();
+            }
+        } catch (err) {
+            console.warn('Image upload error:', err);
+        } finally {
+            if (btnUploadImageSpinner) btnUploadImageSpinner.classList.add('d-none');
+        }
+    });
+
+    window.setQuickImageAlign = function(idx, align) {
+        if (fields[idx]) {
+            fields[idx].image_align = align;
+            renderCanvas();
+            if (selectedFieldIndex === idx) updateInspector();
+        }
+    };
 
     // Interactive Country Selector Checkboxes with Names & Flag Emojis
     const countriesData = [

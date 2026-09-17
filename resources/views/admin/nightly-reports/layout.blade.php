@@ -845,7 +845,8 @@
         </a>
       </li>
 
-      <!-- Group 3: Security & Compliance -->
+      <!-- Group 3: Security & Compliance (Hidden for now) -->
+      @if(false)
       <li class="nr-menu-header">Risk & Security</li>
       <li class="nr-menu-item {{ request()->routeIs('admin.nightly-reports.incidents*') ? 'active' : '' }}">
         <a href="{{ route('admin.nightly-reports.incidents.index') }}" class="nr-menu-link">
@@ -853,6 +854,7 @@
           <span>Incident Reports</span>
         </a>
       </li>
+      @endif
 
       <!-- Operations & Forms -->
       <li class="nr-menu-header">Operations & Forms</li>

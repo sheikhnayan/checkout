@@ -494,6 +494,7 @@ Route::group(['prefix'=> 'admins', 'as' => 'admin.', 'middleware' => ['admin.or.
         Route::delete('/{form}', [CustomFormController::class, 'destroy'])->name('destroy');
         Route::get('/{form}/submissions', [CustomFormController::class, 'submissions'])->name('submissions');
         Route::get('/{form}/submissions/export', [CustomFormController::class, 'exportSubmissions'])->name('submissions.export');
+        Route::post('/upload-image', [CustomFormController::class, 'uploadImage'])->name('upload-image');
     });
 
     // Help Center Portal & Collaborator System
@@ -650,6 +651,7 @@ Route::group(['prefix'=> 'admins', 'as' => 'admin.', 'middleware' => ['admin.or.
             Route::delete('/{form}', [\App\Http\Controllers\Admin\CustomFormController::class, 'destroy'])->name('destroy');
             Route::get('/{form}/submissions', [\App\Http\Controllers\Admin\CustomFormController::class, 'submissions'])->name('submissions');
             Route::get('/{form}/submissions/export', [\App\Http\Controllers\Admin\CustomFormController::class, 'exportSubmissions'])->name('submissions.export');
+            Route::post('/upload-image', [\App\Http\Controllers\Admin\CustomFormController::class, 'uploadImage'])->name('upload-image');
         });
 
         // Form Portal (Help Center System)

@@ -11,7 +11,7 @@
             foreach (($form->fields_schema ?: []) as $f) {
                 $key = $f['name'] ?? $f['id'] ?? null;
                 $type = $f['type'] ?? '';
-                if ($key && $type !== 'captcha' && $type !== 'heading' && $type !== 'paragraph') {
+                if ($key && $type !== 'captcha' && $type !== 'heading' && $type !== 'paragraph' && $type !== 'image') {
                     $fieldMap[$key] = $f['label'] ?? $key;
                 }
             }

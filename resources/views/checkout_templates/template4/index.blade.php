@@ -6139,7 +6139,7 @@ body.embed-checkout-mode #cv-cart-toast .cv-toast-close {
                                                             <div class="form-row">
                                                                 <div class="form-group" style="width: 100%;">
                                                                     <label for="Pick-up-time">Pick-up Time</label>
-                                                                    <small style="display:block;margin-top:4px;margin-bottom:8px;font-size:12px;line-height:1.4;color:#ffdc66;">Reservations must be made at least 15 minutes in advance. Reservation times are available in 5-minute intervals.</small>
+                                                                    <small style="display:block;margin-top:4px;margin-bottom:8px;font-size:12px;line-height:1.4;color:#4b5563;font-weight:600;">Reservations must be made at least 15 minutes in advance. Reservation times are available in 5-minute intervals.</small>
                                                                     <div class="pickup-time-wrap">
                                                                         <i class="fas fa-clock pickup-time-icon"></i>
                                                                         <input name="transportation_pickup_time" type="text" readonly required
@@ -6147,6 +6147,7 @@ body.embed-checkout-mode #cv-cart-toast .cv-toast-close {
                                                                             class="form-control"
                                                                             placeholder="Select pick-up time" />
                                                                     </div>
+                                                                    <div id="pickup-hours-badge" class="schedule-hours-badge" style="display: none; margin-top: 12px;"></div>
                                                                 </div>
                                                             </div>
                                                             <div class="form-row" style="margin-top: 14px;">
@@ -6157,7 +6158,6 @@ body.embed-checkout-mode #cv-cart-toast .cv-toast-close {
                                                                 </div>
 
                                                             </div>
-                                                            <div id="pickup-hours-badge" class="schedule-hours-badge" style="display: none; margin-top: 12px;"></div>
     
                                                             <div class="form-row" style="display:none !important;" aria-hidden="true">
                                                                 <div class="form-group" style="width: 100%;">
@@ -6199,7 +6199,7 @@ body.embed-checkout-mode #cv-cart-toast .cv-toast-close {
                                                                             placeholder="Select time of arrival" />
                                                                     </div>
                                                                     @if(($data->show_arrival_time_verbiage ?? 1) == 1)
-                                                                        <small style="display:block;margin-top:6px;font-size:12px;line-height:1.4;color:rgba(255,255,255,0.6);">Required when self-driving or when package transportation is not included.</small>
+                                                                        <small style="display:block;margin-top:6px;font-size:12px;line-height:1.4;color:#4b5563;font-weight:600;">Required when self-driving or when package transportation is not included.</small>
                                                                     @endif
                                                                     <div id="arrival-hours-badge" class="schedule-hours-badge" style="display: none; margin-top: 12px;"></div>
                                                                 </div>
@@ -6212,10 +6212,10 @@ body.embed-checkout-mode #cv-cart-toast .cv-toast-close {
                                                                 </label>
                                                             </div>
 
-                                                            <div id="transportation-notice-wrap" class="checkbox-container transportaiton" style="margin-top: 14px; border-color: rgba(255, 204, 0, 0.45) !important; background: linear-gradient(180deg, rgba(51, 34, 5, 0.72), rgba(27, 18, 4, 0.85)) !important;">
-                                                                <div style="display:flex; align-items:flex-start; gap:10px; color:rgba(255,255,255,0.95); font-size:14px; line-height:1.55;">
-                                                                    <i class="fas fa-triangle-exclamation" style="color:#ffcc00; font-size:16px; margin-top:2px; flex-shrink:0;"></i>
-                                                                    <span><strong style="color:#ffdc66;">Transportation Notice:</strong> Transportation is subject to availability. Requests made shortly before your desired pickup time may not be able to be accommodated. Please allow a reasonable amount of advance notice so we have time to coordinate a driver. While we will always do our best to assist, last-minute transportation cannot be guaranteed.</span>
+                                                            <div id="transportation-notice-wrap" class="checkbox-container transportaiton" style="margin-top: 14px;">
+                                                                <div style="display:flex; align-items:flex-start; gap:10px; color:#0b0b0b; font-size:14px; line-height:1.55;">
+                                                                    <i class="fas fa-triangle-exclamation" style="color:#d97706; font-size:16px; margin-top:2px; flex-shrink:0;"></i>
+                                                                    <span><strong style="color:#0b0b0b; font-weight:800;">Transportation Notice:</strong> Transportation is subject to availability. Requests made shortly before your desired pickup time may not be able to be accommodated. Please allow a reasonable amount of advance notice so we have time to coordinate a driver. While we will always do our best to assist, last-minute transportation cannot be guaranteed.</span>
                                                                 </div>
                                                             </div>
                                                         </div>
@@ -7385,20 +7385,394 @@ body.embed-checkout-mode #cv-cart-toast .cv-toast-close {
                 box-shadow: 6px 6px 0 #0b0b0b !important;
             }
 
-            #cv-order-sidebar .default-total,
-            #cv-order-sidebar .default-total *,
-            #cv-order-sidebar .default-deposit,
-            #cv-order-sidebar .default-deposit *,
             #cv-order-sidebar #cart-total,
             #cv-order-sidebar #cart-total * {
                 color: #111111 !important;
                 -webkit-text-fill-color: #111111 !important;
             }
 
-            #cv-order-sidebar .default-deposit {
+            #cv-order-sidebar .pricing-shell .default-deposit,
+            #cv-order-sidebar .default-deposit,
+            #cv-order-sidebar .pricing-shell .default-total,
+            #cv-order-sidebar .default-total {
+                background: #0b0b0b !important;
+                border: 2px solid #0b0b0b !important;
+                box-shadow: 4px 4px 0 #00c853 !important;
+                border-radius: 2px !important;
+            }
+
+            #cv-order-sidebar .pricing-shell .default-deposit > span:first-child,
+            #cv-order-sidebar .default-deposit > span:first-child,
+            #cv-order-sidebar .pricing-shell .default-total > span:first-child,
+            #cv-order-sidebar .default-total > span:first-child {
+                color: #ffffff !important;
+                -webkit-text-fill-color: #ffffff !important;
+                font-family: IBM Plex Mono, monospace !important;
+                text-transform: uppercase !important;
+                letter-spacing: 0.06em !important;
+            }
+
+            #cv-order-sidebar .pricing-shell .default-deposit > span:last-child,
+            #cv-order-sidebar .default-deposit > span:last-child,
+            #cv-order-sidebar .pricing-shell .default-total > span:last-child,
+            #cv-order-sidebar .default-total > span:last-child {
+                color: #00ff66 !important;
+                -webkit-text-fill-color: #00ff66 !important;
+                font-family: IBM Plex Mono, monospace !important;
+                font-size: 24px !important;
+                font-weight: 700 !important;
+            }
+
+            /* Due Today Box Contrast */
+            .cv-deposit-box {
                 background: #ffffff !important;
                 border: 2px solid #0b0b0b !important;
                 box-shadow: 4px 4px 0 #0b0b0b !important;
+                border-radius: 2px !important;
+            }
+            .cv-deposit-label {
+                color: #0b0b0b !important;
+                -webkit-text-fill-color: #0b0b0b !important;
+                font-weight: 700 !important;
+            }
+            .cv-deposit-label .cv-info-icon {
+                border: 1.5px solid #0b0b0b !important;
+                color: #0b0b0b !important;
+                -webkit-text-fill-color: #0b0b0b !important;
+            }
+            .cv-deposit-box .cv-deposit-main {
+                color: #0b0b0b !important;
+                -webkit-text-fill-color: #0b0b0b !important;
+                font-family: IBM Plex Mono, monospace !important;
+                font-weight: 800 !important;
+            }
+            .cv-deposit-sub {
+                color: #374151 !important;
+                -webkit-text-fill-color: #374151 !important;
+                font-weight: 600 !important;
+            }
+            .cv-deposit-due-row {
+                color: #0b0b0b !important;
+                -webkit-text-fill-color: #0b0b0b !important;
+                border-top: 2px solid #0b0b0b !important;
+            }
+            .cv-deposit-due-row #cv-due-on-arrival {
+                color: #0b0b0b !important;
+                -webkit-text-fill-color: #0b0b0b !important;
+                font-family: IBM Plex Mono, monospace !important;
+                font-weight: 700 !important;
+            }
+            .cv-deposit-shield {
+                background: #e6f9ed !important;
+                border: 1.5px solid #00c853 !important;
+                color: #00c853 !important;
+            }
+
+            /* All Form Fields Need Distinct Border */
+            .checkout-section[id^="section-"] input[type="text"],
+            .checkout-section[id^="section-"] input[type="email"],
+            .checkout-section[id^="section-"] input[type="tel"],
+            .checkout-section[id^="section-"] input[type="number"],
+            .checkout-section[id^="section-"] input[type="date"],
+            .checkout-section[id^="section-"] textarea,
+            .checkout-section[id^="section-"] select,
+            .checkout-section[id^="section-"] select.form-select,
+            .checkout-section[id^="section-"] .form-control,
+            .checkout-section[id^="section-"] .StripeElement,
+            .cv-main-col input[type="text"],
+            .cv-main-col input[type="email"],
+            .cv-main-col input[type="tel"],
+            .cv-main-col input[type="number"],
+            .cv-main-col textarea,
+            .cv-main-col select,
+            .cv-main-col .form-control,
+            .cv-main-col .StripeElement,
+            .iti,
+            .iti input,
+            .iti input[type="tel"] {
+                border: 2px solid #0b0b0b !important;
+                border-radius: 2px !important;
+                background: #ffffff !important;
+                color: #0b0b0b !important;
+                -webkit-text-fill-color: #0b0b0b !important;
+                box-shadow: none !important;
+            }
+
+            .checkout-section[id^="section-"] input:focus,
+            .checkout-section[id^="section-"] textarea:focus,
+            .checkout-section[id^="section-"] select:focus,
+            .checkout-section[id^="section-"] .StripeElement--focus,
+            .cv-main-col input:focus,
+            .cv-main-col textarea:focus,
+            .cv-main-col select:focus {
+                border-color: #00c853 !important;
+                box-shadow: 3px 3px 0 #0b0b0b !important;
+                outline: none !important;
+            }
+
+            /* Toast Notification Styling */
+            #cv-cart-toast {
+                background: #0b0b0b !important;
+                color: #ffffff !important;
+                border: 2px solid #0b0b0b !important;
+                box-shadow: 4px 4px 0 #00c853 !important;
+                border-radius: 2px !important;
+            }
+            #cv-cart-toast .cv-toast-icon {
+                background: #00c853 !important;
+                color: #0b0b0b !important;
+                border: 1px solid #0b0b0b !important;
+                box-shadow: none !important;
+            }
+            #cv-cart-toast .cv-toast-icon i {
+                color: #0b0b0b !important;
+            }
+            #cv-cart-toast .cv-toast-title {
+                color: #ffffff !important;
+                -webkit-text-fill-color: #ffffff !important;
+                font-weight: 800 !important;
+            }
+            #cv-cart-toast .cv-toast-sub {
+                color: #d1d5db !important;
+                -webkit-text-fill-color: #d1d5db !important;
+                font-weight: 500 !important;
+            }
+            #cv-cart-toast .cv-toast-close {
+                background: #1f2937 !important;
+                border: 1px solid #374151 !important;
+                color: #ffffff !important;
+                -webkit-text-fill-color: #ffffff !important;
+            }
+
+            /* Transportation Schedule Badge & Notice */
+            .schedule-hours-badge {
+                background: #ffffff !important;
+                border: 2px solid #0b0b0b !important;
+                box-shadow: 3px 3px 0 #0b0b0b !important;
+                border-radius: 2px !important;
+                color: #0b0b0b !important;
+                padding: 10px 14px !important;
+                width: 100% !important;
+                max-width: 100% !important;
+                box-sizing: border-box !important;
+                backdrop-filter: none !important;
+                -webkit-backdrop-filter: none !important;
+            }
+            .schedule-hours-badge .hours-title {
+                color: #0b0b0b !important;
+                -webkit-text-fill-color: #0b0b0b !important;
+                font-weight: 800 !important;
+                font-size: 12px !important;
+                text-transform: uppercase !important;
+                letter-spacing: 0.5px !important;
+                margin-bottom: 6px !important;
+                display: flex !important;
+                align-items: center !important;
+                gap: 6px !important;
+            }
+            .schedule-hours-badge .hours-title i {
+                color: #00c853 !important;
+            }
+            .schedule-hours-badge .hours-days {
+                color: #0b0b0b !important;
+                -webkit-text-fill-color: #0b0b0b !important;
+                font-weight: 700 !important;
+            }
+            .schedule-hours-badge .hours-time {
+                color: #374151 !important;
+                -webkit-text-fill-color: #374151 !important;
+                font-weight: 600 !important;
+            }
+
+            .checkbox-container.transportaiton,
+            #transport-confirmation,
+            #transportation-self-drive-wrap {
+                background: #ffffff !important;
+                border: 2px solid #0b0b0b !important;
+                border-radius: 2px !important;
+                box-shadow: 3px 3px 0 #0b0b0b !important;
+                color: #0b0b0b !important;
+                padding: 16px 20px !important;
+            }
+            .checkbox-container.transportaiton label,
+            #transportation-self-drive-wrap label {
+                color: #0b0b0b !important;
+                -webkit-text-fill-color: #0b0b0b !important;
+                font-size: 13.5px !important;
+                font-weight: 600 !important;
+                line-height: 1.5 !important;
+            }
+
+            #transportation-notice-wrap {
+                background: #fffbeb !important;
+                border: 2px solid #0b0b0b !important;
+                border-radius: 2px !important;
+                box-shadow: 3px 3px 0 #0b0b0b !important;
+                color: #0b0b0b !important;
+                padding: 16px 20px !important;
+            }
+            #transportation-notice-wrap * {
+                color: #0b0b0b !important;
+                -webkit-text-fill-color: #0b0b0b !important;
+            }
+            #transportation-notice-wrap i.fas.fa-triangle-exclamation {
+                color: #d97706 !important;
+            }
+            #transportation-notice-wrap strong {
+                color: #0b0b0b !important;
+                font-weight: 800 !important;
+            }
+
+            .checkbox-container.transportaiton input[type="checkbox"],
+            #transportation_self_drive_ack {
+                accent-color: #00c853 !important;
+                width: 18px !important;
+                height: 18px !important;
+                border: 2px solid #0b0b0b !important;
+                border-radius: 2px !important;
+                cursor: pointer !important;
+            }
+
+            /* Selected Pickup / Arrival Time Visibility */
+            #Pick-up-time,
+            #Arrival-time,
+            input[name="transportation_pickup_time"],
+            input[name="transportation_arrival_time"],
+            .checkout-section[id^="section-"] #Pick-up-time,
+            .checkout-section[id^="section-"] #Arrival-time,
+            .checkout-section[id^="section-"] input[name="transportation_pickup_time"],
+            .checkout-section[id^="section-"] input[name="transportation_arrival_time"] {
+                background: #ffffff !important;
+                color: #0b0b0b !important;
+                -webkit-text-fill-color: #0b0b0b !important;
+                border: 2px solid #0b0b0b !important;
+                border-radius: 2px !important;
+                font-weight: 700 !important;
+                font-family: inherit !important;
+            }
+            .checkout-section[id^="section-"] .pickup-time-icon {
+                color: #0b0b0b !important;
+            }
+            #Pick-up-time::placeholder,
+            #Arrival-time::placeholder,
+            input[name="transportation_pickup_time"]::placeholder,
+            input[name="transportation_arrival_time"]::placeholder {
+                color: #6b7280 !important;
+                -webkit-text-fill-color: #6b7280 !important;
+            }
+            .flatpickr-calendar.hasTime.noCalendar {
+                background: #ffffff !important;
+                border: 2px solid #0b0b0b !important;
+                border-radius: 2px !important;
+                box-shadow: 6px 6px 0 #0b0b0b !important;
+                color: #0b0b0b !important;
+            }
+            .flatpickr-calendar.hasTime.noCalendar .flatpickr-time {
+                background: #ffffff !important;
+            }
+            .flatpickr-time input.numInput,
+            .flatpickr-time .flatpickr-am-pm {
+                background: #f3f4f6 !important;
+                color: #0b0b0b !important;
+                -webkit-text-fill-color: #0b0b0b !important;
+                border: 2px solid #0b0b0b !important;
+                border-radius: 2px !important;
+            }
+            .flatpickr-time input.numInput:focus,
+            .flatpickr-time .flatpickr-am-pm:focus,
+            .flatpickr-time .flatpickr-am-pm:hover {
+                background: #e5e7eb !important;
+                color: #0b0b0b !important;
+                -webkit-text-fill-color: #0b0b0b !important;
+            }
+            .flatpickr-time .flatpickr-time-separator {
+                color: #0b0b0b !important;
+            }
+            .flatpickr-time .numInputWrapper span.arrowUp:after {
+                border-bottom-color: #0b0b0b !important;
+            }
+            .flatpickr-time .numInputWrapper span.arrowDown:after {
+                border-top-color: #0b0b0b !important;
+            }
+
+            /* Payment Toggles Visibility */
+            .checkbox-container #smsConsent_two,
+            .checkbox-container #smsConsent,
+            .checkbox-container #driverNotificationConsent_two,
+            .checkbox-container #driverNotificationConsent,
+            .checkbox-container #termsConsent_two,
+            .checkbox-container #termsConsent {
+                -webkit-appearance: none !important;
+                appearance: none !important;
+                width: 48px !important;
+                height: 26px !important;
+                border-radius: 999px !important;
+                border: 2px solid #0b0b0b !important;
+                background: #e5e7eb !important;
+                box-shadow: 2px 2px 0 #0b0b0b !important;
+                position: relative !important;
+                margin: 0 !important;
+                margin-right: 12px !important;
+                padding: 0 !important;
+                flex-shrink: 0 !important;
+                cursor: pointer !important;
+                transition: background .2s ease, border-color .2s ease !important;
+            }
+            .checkbox-container #smsConsent_two::before,
+            .checkbox-container #smsConsent::before,
+            .checkbox-container #driverNotificationConsent_two::before,
+            .checkbox-container #driverNotificationConsent::before,
+            .checkbox-container #termsConsent_two::before,
+            .checkbox-container #termsConsent::before {
+                content: '' !important;
+                position: absolute !important;
+                top: 2px !important;
+                left: 2px !important;
+                width: 18px !important;
+                height: 18px !important;
+                border-radius: 50% !important;
+                background: #0b0b0b !important;
+                transition: transform .2s ease, background .2s ease !important;
+            }
+            .checkbox-container #smsConsent_two:checked,
+            .checkbox-container #smsConsent:checked,
+            .checkbox-container #driverNotificationConsent_two:checked,
+            .checkbox-container #driverNotificationConsent:checked,
+            .checkbox-container #termsConsent_two:checked,
+            .checkbox-container #termsConsent:checked {
+                background: #00c853 !important;
+                border-color: #0b0b0b !important;
+            }
+            .checkbox-container #smsConsent_two:checked::before,
+            .checkbox-container #smsConsent:checked::before,
+            .checkbox-container #driverNotificationConsent_two:checked::before,
+            .checkbox-container #driverNotificationConsent:checked::before,
+            .checkbox-container #termsConsent_two:checked::before,
+            .checkbox-container #termsConsent::before {
+                background: #ffffff !important;
+                border: 1px solid #0b0b0b !important;
+                transform: translateX(22px) !important;
+            }
+            .checkbox-container.payment-consent-group,
+            #payment-consent-group {
+                background: #ffffff !important;
+                border: 2px solid #0b0b0b !important;
+                box-shadow: 3px 3px 0 #0b0b0b !important;
+                border-radius: 2px !important;
+                padding: 16px !important;
+            }
+            .checkbox-container .consent-label,
+            .checkbox-container.payment-consent-group label {
+                color: #0b0b0b !important;
+                -webkit-text-fill-color: #0b0b0b !important;
+                font-size: 13.5px !important;
+                font-weight: 600 !important;
+            }
+            .checkbox-container .consent-label a,
+            .checkbox-container.payment-consent-group a {
+                color: #0b0b0b !important;
+                text-decoration: underline !important;
+                font-weight: 700 !important;
             }
 
             .cv-events-shell,
