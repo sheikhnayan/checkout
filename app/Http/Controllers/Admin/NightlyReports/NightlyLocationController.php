@@ -34,9 +34,21 @@ class NightlyLocationController extends BaseNightlyReportsController
             'gm_name' => 'nullable|string|max:100',
             'gm_email' => 'nullable|email|max:150',
             'nightly_goal' => 'nullable|numeric|min:0',
+            'nightly_goals' => 'nullable|array',
+            'nightly_goals.*' => 'nullable|numeric|min:0',
             'break_even' => 'nullable|numeric|min:0',
             'historical_best' => 'nullable|numeric|min:0',
         ]);
+
+        if (isset($validated['nightly_goals']) && is_array($validated['nightly_goals'])) {
+            $cleanGoals = [];
+            foreach ($validated['nightly_goals'] as $day => $val) {
+                if ($val !== '' && $val !== null) {
+                    $cleanGoals[strtolower($day)] = (float) $val;
+                }
+            }
+            $validated['nightly_goals'] = !empty($cleanGoals) ? $cleanGoals : null;
+        }
 
         $loc = NrLocation::create($validated);
 
@@ -68,10 +80,22 @@ class NightlyLocationController extends BaseNightlyReportsController
             'gm_name' => 'nullable|string|max:100',
             'gm_email' => 'nullable|email|max:150',
             'nightly_goal' => 'nullable|numeric|min:0',
+            'nightly_goals' => 'nullable|array',
+            'nightly_goals.*' => 'nullable|numeric|min:0',
             'break_even' => 'nullable|numeric|min:0',
             'historical_best' => 'nullable|numeric|min:0',
             'active' => 'nullable|boolean',
         ]);
+
+        if (isset($validated['nightly_goals']) && is_array($validated['nightly_goals'])) {
+            $cleanGoals = [];
+            foreach ($validated['nightly_goals'] as $day => $val) {
+                if ($val !== '' && $val !== null) {
+                    $cleanGoals[strtolower($day)] = (float) $val;
+                }
+            }
+            $validated['nightly_goals'] = !empty($cleanGoals) ? $cleanGoals : null;
+        }
 
         $loc->update($validated);
 

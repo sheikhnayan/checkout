@@ -41,7 +41,16 @@
             </td>
             <td><span class="badge bg-secondary">{{ $loc->type }}</span></td>
             <td><small class="text-white">{{ $loc->city }}, {{ $loc->state }}</small></td>
-            <td><span class="text-warning fw-semibold">${{ number_format($loc->nightly_goal, 0) }}</span></td>
+            <td>
+              <span class="text-warning fw-semibold">${{ number_format($loc->nightly_goal ?? 0, 0) }}</span>
+              @if(!empty($loc->nightly_goals) && is_array($loc->nightly_goals))
+                <div class="mt-1">
+                  <span class="badge bg-dark text-warning border border-warning-subtle" style="font-size: 0.65rem;" title="Mon: ${{ number_format($loc->nightly_goals['monday'] ?? 0) }} | Tue: ${{ number_format($loc->nightly_goals['tuesday'] ?? 0) }} | Wed: ${{ number_format($loc->nightly_goals['wednesday'] ?? 0) }} | Thu: ${{ number_format($loc->nightly_goals['thursday'] ?? 0) }} | Fri: ${{ number_format($loc->nightly_goals['friday'] ?? 0) }} | Sat: ${{ number_format($loc->nightly_goals['saturday'] ?? 0) }} | Sun: ${{ number_format($loc->nightly_goals['sunday'] ?? 0) }}">
+                    <i class="fas fa-calendar-alt me-1"></i>7-Day Goals Set
+                  </span>
+                </div>
+              @endif
+            </td>
             <td><span class="text-info fw-semibold">${{ number_format($loc->break_even, 0) }}</span></td>
             <td><span class="text-success fw-semibold">${{ number_format($loc->historical_best, 0) }}</span></td>
             <td>
@@ -114,7 +123,7 @@
                         <input type="text" name="state" class="form-control" value="{{ $loc->state }}" />
                       </div>
                       <div class="col-md-4">
-                        <label class="form-label text-white small fw-bold">Nightly Sales Goal ($)</label>
+                        <label class="form-label text-white small fw-bold">Baseline Nightly Goal ($)</label>
                         <input type="number" step="0.01" name="nightly_goal" class="form-control" value="{{ $loc->nightly_goal }}" />
                       </div>
                       <div class="col-md-4">
@@ -125,6 +134,39 @@
                         <label class="form-label text-white small fw-bold">Historical Best Sales ($)</label>
                         <input type="number" step="0.01" name="historical_best" class="form-control" value="{{ $loc->historical_best }}" />
                       </div>
+
+                      <!-- 7-Day Nightly Goals -->
+                      <div class="col-12 mt-3">
+                        <div class="p-3 rounded" style="background: rgba(0, 0, 0, 0.25); border: 1px solid var(--nr-border);">
+                          <label class="form-label text-warning small fw-bold mb-2 d-flex align-items-center justify-content-between">
+                            <span><i class="fas fa-calendar-week me-2"></i>Nightly Sales Goals by Day of Week ($)</span>
+                            <span class="text-muted fw-normal" style="font-size: 0.75rem;">Overrides baseline goal for specific days</span>
+                          </label>
+                          <div class="row g-2">
+                            @php
+                              $dayList = [
+                                'monday' => 'Mon',
+                                'tuesday' => 'Tue',
+                                'wednesday' => 'Wed',
+                                'thursday' => 'Thu',
+                                'friday' => 'Fri',
+                                'saturday' => 'Sat',
+                                'sunday' => 'Sun',
+                              ];
+                            @endphp
+                            @foreach($dayList as $dKey => $dLabel)
+                              <div class="col-6 col-md">
+                                <label class="form-label text-white-50 small mb-1" style="font-size: 0.75rem;">{{ $dLabel }}</label>
+                                <input type="number" step="0.01" min="0" name="nightly_goals[{{ $dKey }}]" class="form-control form-control-sm" value="{{ $loc->nightly_goals[$dKey] ?? '' }}" placeholder="0.00" />
+                              </div>
+                            @endforeach
+                          </div>
+                          <div class="text-muted small mt-2" style="font-size: 0.75rem;">
+                            <i class="fas fa-info-circle me-1"></i> In the nightly report submission form, choosing this venue and date will auto-populate the goal for that day.
+                          </div>
+                        </div>
+                      </div>
+
                       <div class="col-md-6">
                         <label class="form-label text-white small fw-bold">General Manager Name</label>
                         <input type="text" name="gm_name" class="form-control" value="{{ $loc->gm_name }}" />
@@ -192,7 +234,7 @@
                 <input type="text" name="state" class="form-control" />
               </div>
               <div class="col-md-4">
-                <label class="form-label text-white small fw-bold">Nightly Sales Goal ($)</label>
+                <label class="form-label text-white small fw-bold">Baseline Nightly Goal ($)</label>
                 <input type="number" step="0.01" name="nightly_goal" class="form-control" placeholder="15000" />
               </div>
               <div class="col-md-4">
@@ -202,6 +244,27 @@
               <div class="col-md-4">
                 <label class="form-label text-white small fw-bold">Historical Best Sales ($)</label>
                 <input type="number" step="0.01" name="historical_best" class="form-control" placeholder="45000" />
+              </div>
+
+              <!-- 7-Day Nightly Goals -->
+              <div class="col-12 mt-3">
+                <div class="p-3 rounded" style="background: rgba(0, 0, 0, 0.25); border: 1px solid var(--nr-border);">
+                  <label class="form-label text-warning small fw-bold mb-2 d-flex align-items-center justify-content-between">
+                    <span><i class="fas fa-calendar-week me-2"></i>Nightly Sales Goals by Day of Week ($)</span>
+                    <span class="text-muted fw-normal" style="font-size: 0.75rem;">Overrides baseline goal for specific days</span>
+                  </label>
+                  <div class="row g-2">
+                    @foreach(['monday' => 'Mon', 'tuesday' => 'Tue', 'wednesday' => 'Wed', 'thursday' => 'Thu', 'friday' => 'Fri', 'saturday' => 'Sat', 'sunday' => 'Sun'] as $dKey => $dLabel)
+                      <div class="col-6 col-md">
+                        <label class="form-label text-white-50 small mb-1" style="font-size: 0.75rem;">{{ $dLabel }}</label>
+                        <input type="number" step="0.01" min="0" name="nightly_goals[{{ $dKey }}]" class="form-control form-control-sm" placeholder="0.00" />
+                      </div>
+                    @endforeach
+                  </div>
+                  <div class="text-muted small mt-2" style="font-size: 0.75rem;">
+                    <i class="fas fa-info-circle me-1"></i> In the nightly report submission form, choosing this venue and date will auto-populate the goal for that day.
+                  </div>
+                </div>
               </div>
               <div class="col-md-6">
                 <label class="form-label text-white small fw-bold">General Manager Name</label>

@@ -380,10 +380,13 @@
       <div class="row g-3">
         <div class="col-md-6">
           <label class="form-label">Venue *</label>
-          <select name="location_id" class="form-select" required>
+          <select name="location_id" id="locationSelect" class="form-select" required>
             <option value="">Choose a venue</option>
             @foreach($locations as $loc)
-              <option value="{{ $loc->id }}" {{ (string)$selectedLocationId === (string)$loc->id ? 'selected' : '' }}>
+              <option value="{{ $loc->id }}" 
+                      data-goals="{{ json_encode($loc->nightly_goals ?? []) }}" 
+                      data-default-goal="{{ $loc->nightly_goal ?? 0 }}"
+                      {{ (string)$selectedLocationId === (string)$loc->id ? 'selected' : '' }}>
                 {{ $loc->name }}
               </option>
             @endforeach
@@ -391,7 +394,7 @@
         </div>
         <div class="col-md-6">
           <label class="form-label">Business Date *</label>
-          <input type="date" name="business_date" class="form-control" value="{{ $defaultDate }}" required />
+          <input type="date" name="business_date" id="businessDateInput" class="form-control" value="{{ $defaultDate }}" required />
         </div>
         <div class="col-md-6">
           <label class="form-label">Submitter Name</label>
@@ -411,8 +414,16 @@
       <div class="section-header">SALES & REVENUE</div>
       <div class="row g-3">
         <div class="col-md-6">
-          <label class="form-label">Nightly Goal</label>
-          <input type="number" step="0.01" min="0" name="nightly_goal" class="form-control num-field" placeholder="0.00" />
+          <label class="form-label d-flex align-items-center justify-content-between">
+            <span>Nightly Goal</span>
+            <span class="badge" style="background: rgba(200, 160, 80, 0.15); color: #e8c872; font-size: 0.72rem; border: 1px solid rgba(200, 160, 80, 0.3); font-weight: normal;">
+              <i class="fas fa-lock me-1"></i>Read-Only
+            </span>
+          </label>
+          <input type="number" step="0.01" min="0" name="nightly_goal" id="nightlyGoalInput" class="form-control num-field" placeholder="0.00" readonly tabindex="-1" style="background: rgba(255, 255, 255, 0.05); color: #f2e3b6; cursor: not-allowed; border-color: rgba(200, 160, 80, 0.25); font-weight: 600;" />
+          <div class="field-hint" id="nightlyGoalHint" style="color: #94a3b8; font-size: 0.75rem; margin-top: 4px;">
+            <i class="fas fa-info-circle me-1"></i> Auto-calculated for selected venue & date
+          </div>
         </div>
         <div class="col-md-6">
           <label class="form-label">Net Sales</label>
@@ -759,7 +770,74 @@
     $('#netSalesInput, #totalGuestsInput, #danceDollarsInput, #ipesInput, #taxiPayoutInput, #atmPayoutInput, #otherPayoutInput')
       .on('input change', recalculate);
 
-    // ── 3. SAVE & RESTORE DRAFT VIA LOCALSTORAGE ──
+    // ── 3. NIGHTLY GOAL AUTO-POPULATION BY VENUE & DAY OF WEEK ──
+    function getDayOfWeekName(dateStr) {
+      if (!dateStr) return null;
+      var parts = dateStr.split('-');
+      if (parts.length !== 3) return null;
+      var y = parseInt(parts[0], 10);
+      var m = parseInt(parts[1], 10) - 1;
+      var d = parseInt(parts[2], 10);
+      var dateObj = new Date(y, m, d);
+      var days = ['sunday', 'monday', 'tuesday', 'wednesday', 'thursday', 'friday', 'saturday'];
+      return days[dateObj.getDay()];
+    }
+
+    function updateNightlyGoalFromSchedule() {
+      var $loc = $('#locationSelect');
+      var $date = $('#businessDateInput');
+      var $goal = $('#nightlyGoalInput');
+      var $hint = $('#nightlyGoalHint');
+
+      if (!$loc.length || !$date.length || !$goal.length) return;
+
+      var selectedOpt = $loc.find('option:selected');
+      var locVal = $loc.val();
+
+      if (!locVal) {
+        $goal.val('');
+        $hint.html('<i class="fas fa-info-circle text-muted me-1"></i> Select a venue to display the nightly goal target.');
+        return;
+      }
+
+      var rawGoals = selectedOpt.attr('data-goals');
+      var defaultGoal = selectedOpt.attr('data-default-goal');
+      var goals = {};
+      try {
+        goals = rawGoals ? JSON.parse(rawGoals) : {};
+      } catch (e) {
+        goals = {};
+      }
+
+      var dateStr = $date.val();
+      var dayOfWeek = getDayOfWeekName(dateStr);
+      var dayCap = dayOfWeek ? dayOfWeek.charAt(0).toUpperCase() + dayOfWeek.slice(1) : '';
+
+      var matchedGoal = null;
+      var sourceLabel = '';
+
+      if (dayOfWeek && goals && typeof goals[dayOfWeek] !== 'undefined' && goals[dayOfWeek] !== '' && goals[dayOfWeek] !== null) {
+        matchedGoal = goals[dayOfWeek];
+        sourceLabel = dayCap + ' target for ' + selectedOpt.text().trim();
+      } else if (defaultGoal && parseFloat(defaultGoal) > 0) {
+        matchedGoal = defaultGoal;
+        sourceLabel = 'Baseline target for ' + selectedOpt.text().trim();
+      }
+
+      if (matchedGoal !== null && matchedGoal !== '') {
+        var num = parseFloat(matchedGoal);
+        $goal.val(isNaN(num) ? '0.00' : num.toFixed(2));
+        $hint.html('<i class="fas fa-check-circle text-success me-1"></i> ' + sourceLabel);
+      } else {
+        $goal.val('0.00');
+        $hint.html('<i class="fas fa-info-circle text-warning me-1"></i> No target set for ' + (dayCap || 'selected day') + ' for this venue');
+      }
+    }
+
+    $('#locationSelect, #businessDateInput').on('change input', updateNightlyGoalFromSchedule);
+    updateNightlyGoalFromSchedule();
+
+    // ── 4. SAVE & RESTORE DRAFT VIA LOCALSTORAGE ──
     var draftKey = 'nightly_report_draft_data';
 
     $('#btnSaveDraft').on('click', function() {
@@ -792,6 +870,7 @@
             }
           }
         });
+        updateNightlyGoalFromSchedule();
       }
     } catch(e) {}
 

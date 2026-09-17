@@ -25,6 +25,7 @@ class NrLocation extends Model
         'gm_name',
         'gm_email',
         'nightly_goal',
+        'nightly_goals',
         'break_even',
         'historical_best',
         'active',
@@ -34,10 +35,39 @@ class NrLocation extends Model
     protected $casts = [
         'active' => 'boolean',
         'nightly_goal' => 'decimal:2',
+        'nightly_goals' => 'array',
         'break_even' => 'decimal:2',
         'historical_best' => 'decimal:2',
         'operating_days' => 'array',
     ];
+
+    /**
+     * Get the nightly goal for a given date or day of week.
+     * Falls back to base nightly_goal if daily goal is not set.
+     *
+     * @param string|\Carbon\Carbon|null $date
+     * @return float|null
+     */
+    public function getGoalForDate($date = null): ?float
+    {
+        if (!$date) {
+            return $this->nightly_goal !== null ? (float) $this->nightly_goal : null;
+        }
+
+        try {
+            $dayName = strtolower(\Carbon\Carbon::parse($date)->format('l'));
+        } catch (\Throwable $e) {
+            return $this->nightly_goal !== null ? (float) $this->nightly_goal : null;
+        }
+
+        $goals = $this->nightly_goals;
+
+        if (is_array($goals) && isset($goals[$dayName]) && $goals[$dayName] !== '' && $goals[$dayName] !== null) {
+            return (float) $goals[$dayName];
+        }
+
+        return $this->nightly_goal !== null ? (float) $this->nightly_goal : null;
+    }
 
     public function website()
     {

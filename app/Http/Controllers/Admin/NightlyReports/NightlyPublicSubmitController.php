@@ -77,6 +77,12 @@ class NightlyPublicSubmitController extends Controller
             'shift_comments' => 'nullable|string',
         ]);
 
+        if (empty($validated['nightly_goal'])) {
+            $loc = NrLocation::find($validated['location_id']);
+            if ($loc) {
+                $validated['nightly_goal'] = $loc->getGoalForDate($validated['business_date']);
+            }
+        }
         if (empty($validated['total_payouts'])) {
             $validated['total_payouts'] = ($validated['taxi_payout'] ?? 0) + ($validated['atm_payout'] ?? 0) + ($validated['other_payouts'] ?? 0);
         }
