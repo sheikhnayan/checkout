@@ -73,20 +73,35 @@
       border-color: var(--gold) !important;
       box-shadow: 0 0 0 0.2rem var(--gold-glow) !important;
     }
-    .btn-submit {
-      background: linear-gradient(135deg, #c9a84c 0%, #b3923d 100%);
-      border: none;
-      color: #07111f;
-      font-weight: 700;
-      font-size: 1rem;
-      border-radius: 10px;
-      padding: 0.85rem 2rem;
-      width: 100%;
-      transition: all 0.2s;
+    .btn-submit, button[type="submit"] {
+      background: linear-gradient(135deg, #c9a84c 0%, #b3923d 100%) !important;
+      background-color: #c9a84c !important;
+      border: 1px solid #c9a84c !important;
+      color: #07111f !important;
+      font-weight: 700 !important;
+      font-size: 1rem !important;
+      border-radius: 10px !important;
+      padding: 0.85rem 2rem !important;
+      width: 100% !important;
+      transition: all 0.2s ease-in-out !important;
+      box-shadow: 0 4px 14px rgba(0, 0, 0, 0.3) !important;
+      display: inline-flex !important;
+      align-items: center !important;
+      justify-content: center !important;
     }
-    .btn-submit:hover {
-      box-shadow: 0 6px 20px var(--gold-glow);
-      color: #000;
+    .btn-submit:hover, button[type="submit"]:hover {
+      background: linear-gradient(135deg, #dfbc5e 0%, #c9a84c 100%) !important;
+      background-color: #dfbc5e !important;
+      border-color: #dfbc5e !important;
+      box-shadow: 0 6px 20px var(--gold-glow) !important;
+      color: #000 !important;
+      transform: translateY(-1px);
+    }
+    .btn-submit *, button[type="submit"] * {
+      color: #07111f !important;
+    }
+    .btn-submit:hover *, button[type="submit"]:hover * {
+      color: #000 !important;
     }
     .calc-pill {
       background: rgba(201, 168, 76, 0.12);

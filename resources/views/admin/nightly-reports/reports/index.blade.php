@@ -69,7 +69,7 @@
           <input type="text" name="search" class="form-control form-control-sm" value="{{ $search }}" placeholder="Search submitter, notes..." />
         </div>
         <div class="col-md-2 d-flex gap-1">
-          <button type="submit" class="btn btn-sm btn-primary flex-grow-1"><i class="fas fa-search me-1"></i> Filter</button>
+          <button type="submit" class="btn btn-sm btn-gold flex-grow-1"><i class="fas fa-search me-1"></i> Filter</button>
           <a href="{{ route('admin.nightly-reports.reports.index') }}" class="btn btn-sm btn-outline-secondary"><i class="fas fa-redo"></i></a>
         </div>
       </form>

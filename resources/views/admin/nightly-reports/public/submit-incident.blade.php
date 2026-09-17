@@ -19,7 +19,36 @@
     .form-label, label, .form-check-label { font-size: 0.82rem; font-weight: 600; color: #ffffff !important; margin-bottom: 0.35rem; opacity: 1 !important; }
     .form-control, .form-select, textarea { background-color: var(--surface-2) !important; border: 1px solid var(--border) !important; color: #fff !important; border-radius: 8px; }
     .form-control:focus, .form-select:focus, textarea:focus { border-color: var(--gold) !important; box-shadow: 0 0 0 0.2rem var(--gold-glow) !important; }
-    .btn-submit { background: linear-gradient(135deg, #f43f5e 0%, #e11d48 100%); border: none; color: #fff; font-weight: 700; font-size: 1rem; border-radius: 10px; padding: 0.85rem 2rem; width: 100%; }
+    .btn-submit, button[type="submit"] {
+      background: linear-gradient(135deg, #c9a84c 0%, #b3923d 100%) !important;
+      background-color: #c9a84c !important;
+      border: 1px solid #c9a84c !important;
+      color: #07111f !important;
+      font-weight: 700 !important;
+      font-size: 1rem !important;
+      border-radius: 10px !important;
+      padding: 0.85rem 2rem !important;
+      width: 100% !important;
+      transition: all 0.2s ease-in-out !important;
+      box-shadow: 0 4px 14px rgba(0, 0, 0, 0.3) !important;
+      display: inline-flex !important;
+      align-items: center !important;
+      justify-content: center !important;
+    }
+    .btn-submit:hover, button[type="submit"]:hover {
+      background: linear-gradient(135deg, #dfbc5e 0%, #c9a84c 100%) !important;
+      background-color: #dfbc5e !important;
+      border-color: #dfbc5e !important;
+      box-shadow: 0 6px 20px var(--gold-glow) !important;
+      color: #000 !important;
+      transform: translateY(-1px);
+    }
+    .btn-submit *, button[type="submit"] * {
+      color: #07111f !important;
+    }
+    .btn-submit:hover *, button[type="submit"]:hover * {
+      color: #000 !important;
+    }
   </style>
 </head>
 <body>

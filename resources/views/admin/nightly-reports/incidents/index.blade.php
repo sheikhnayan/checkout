@@ -41,7 +41,7 @@
           <input type="text" name="search" class="form-control form-control-sm" value="{{ $search }}" placeholder="Search description, police #, involved persons..." />
         </div>
         <div class="col-md-2">
-          <button type="submit" class="btn btn-sm btn-primary w-100"><i class="fas fa-search me-1"></i> Search</button>
+          <button type="submit" class="btn btn-sm btn-gold w-100"><i class="fas fa-search me-1"></i> Search</button>
         </div>
       </form>
     </div>
