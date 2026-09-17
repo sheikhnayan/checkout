@@ -365,7 +365,7 @@
   <div class="badge-pill">ADULT CLUB - NIGHTLY REPORT</div>
   <h1 class="page-title">Nightly Report</h1>
   <p class="page-subtitle">
-    Date defaults to <span class="text-gold-highlight">yesterday ({{ $yesterdayFormatted ?? \Carbon\Carbon::yesterday()->format('D, M j, Y') }}).</span>
+    Date defaults to <span class="text-gold-highlight">yesterday ({{ $yesterdayFormatted ?? \Carbon\Carbon::yesterday('America/Los_Angeles')->format('D, M j, Y') }}).</span>
   </p>
 </div>
 

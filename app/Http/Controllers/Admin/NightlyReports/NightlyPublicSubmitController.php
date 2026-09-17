@@ -24,8 +24,19 @@ class NightlyPublicSubmitController extends Controller
     {
         $locations = NrLocation::where('active', true)->where('type', '!=', 'Boutique')->orderBy('name')->get();
         $selectedLocationId = $request->input('location');
-        $defaultDate = Carbon::yesterday()->toDateString();
-        $yesterdayFormatted = Carbon::yesterday()->format('D, M j, Y');
+
+        // Pacific Time (PT) timezone
+        $tz = 'America/Los_Angeles';
+        if ($selectedLocationId) {
+            $selectedLoc = $locations->firstWhere('id', $selectedLocationId);
+            if ($selectedLoc && !empty($selectedLoc->timezone)) {
+                $tz = $selectedLoc->timezone;
+            }
+        }
+
+        $yesterday = Carbon::yesterday($tz);
+        $defaultDate = $yesterday->toDateString();
+        $yesterdayFormatted = $yesterday->format('D, M j, Y');
         $configs = NrFormConfig::where('report_type', 'nightly')->get()->keyBy('field_key');
 
         return view('admin.nightly-reports.public.submit-nightly', compact('locations', 'selectedLocationId', 'defaultDate', 'yesterdayFormatted', 'configs'));
