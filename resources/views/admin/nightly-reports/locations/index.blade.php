@@ -125,10 +125,10 @@
     background: #19273c;
     color: #94a3b8;
   }
-  .goal-day-pill.peak {
-    background: rgba(217, 160, 91, 0.18);
+  .goal-day-pill.weekend {
+    background: rgba(217, 160, 91, 0.2);
     color: #e8b878;
-    border: 1px solid rgba(217, 160, 91, 0.35);
+    border: 1px solid rgba(217, 160, 91, 0.4);
   }
   .goal-day-name {
     font-size: 0.84rem;
@@ -169,6 +169,20 @@
   .goal-amount-input:focus {
     box-shadow: none !important;
     outline: none !important;
+  }
+
+  /* Remove number input increment/decrement spinner arrows */
+  .goal-amount-input::-webkit-outer-spin-button,
+  .goal-amount-input::-webkit-inner-spin-button,
+  .modal-portal input[type="number"]::-webkit-outer-spin-button,
+  .modal-portal input[type="number"]::-webkit-inner-spin-button {
+    -webkit-appearance: none !important;
+    margin: 0 !important;
+  }
+  .goal-amount-input,
+  .modal-portal input[type="number"] {
+    -moz-appearance: textfield !important;
+    appearance: textfield !important;
   }
 
   /* Portal Modal Action Buttons */
@@ -336,13 +350,13 @@
                       <div class="row g-2">
                         @php
                           $dayItems = [
-                            'monday' => ['name' => 'Monday', 'tag' => 'MON', 'peak' => false],
-                            'tuesday' => ['name' => 'Tuesday', 'tag' => 'TUE', 'peak' => false],
-                            'wednesday' => ['name' => 'Wednesday', 'tag' => 'WED', 'peak' => false],
-                            'thursday' => ['name' => 'Thursday', 'tag' => 'THU', 'peak' => false],
-                            'friday' => ['name' => 'Friday', 'tag' => 'FRI', 'peak' => true],
-                            'saturday' => ['name' => 'Saturday', 'tag' => 'SAT', 'peak' => true],
-                            'sunday' => ['name' => 'Sunday', 'tag' => 'SUN', 'peak' => false],
+                            'monday' => ['name' => 'Monday', 'tag' => 'MON', 'weekend' => false],
+                            'tuesday' => ['name' => 'Tuesday', 'tag' => 'TUE', 'weekend' => false],
+                            'wednesday' => ['name' => 'Wednesday', 'tag' => 'WED', 'weekend' => false],
+                            'thursday' => ['name' => 'Thursday', 'tag' => 'THU', 'weekend' => false],
+                            'friday' => ['name' => 'Friday', 'tag' => 'FRI', 'weekend' => false],
+                            'saturday' => ['name' => 'Saturday', 'tag' => 'SAT', 'weekend' => true],
+                            'sunday' => ['name' => 'Sunday', 'tag' => 'SUN', 'weekend' => true],
                           ];
                         @endphp
 
@@ -350,12 +364,12 @@
                           <div class="col-12 col-sm-6">
                             <div class="goal-card-item">
                               <div class="goal-day-info">
-                                <span class="goal-day-pill {{ $info['peak'] ? 'peak' : '' }}">{{ $info['tag'] }}</span>
+                                <span class="goal-day-pill {{ $info['weekend'] ? 'weekend' : '' }}">{{ $info['tag'] }}</span>
                                 <span class="goal-day-name">{{ $info['name'] }}</span>
                               </div>
                               <div class="goal-input-box">
                                 <span class="goal-dollar">$</span>
-                                <input type="number" step="0.01" min="0" name="nightly_goals[{{ $dKey }}]" class="goal-amount-input" value="{{ $loc->nightly_goals[$dKey] ?? '' }}" placeholder="0.00" />
+                                <input type="number" step="0.01" min="0" name="nightly_goals[{{ $dKey }}]" class="goal-amount-input" value="{{ $loc->nightly_goals[$dKey] ?? '' }}" placeholder="0.00" onwheel="this.blur()" />
                               </div>
                             </div>
                           </div>
@@ -445,13 +459,13 @@
               <div class="row g-2">
                 @php
                   $dayItems = [
-                    'monday' => ['name' => 'Monday', 'tag' => 'MON', 'peak' => false],
-                    'tuesday' => ['name' => 'Tuesday', 'tag' => 'TUE', 'peak' => false],
-                    'wednesday' => ['name' => 'Wednesday', 'tag' => 'WED', 'peak' => false],
-                    'thursday' => ['name' => 'Thursday', 'tag' => 'THU', 'peak' => false],
-                    'friday' => ['name' => 'Friday', 'tag' => 'FRI', 'peak' => true],
-                    'saturday' => ['name' => 'Saturday', 'tag' => 'SAT', 'peak' => true],
-                    'sunday' => ['name' => 'Sunday', 'tag' => 'SUN', 'peak' => false],
+                    'monday' => ['name' => 'Monday', 'tag' => 'MON', 'weekend' => false],
+                    'tuesday' => ['name' => 'Tuesday', 'tag' => 'TUE', 'weekend' => false],
+                    'wednesday' => ['name' => 'Wednesday', 'tag' => 'WED', 'weekend' => false],
+                    'thursday' => ['name' => 'Thursday', 'tag' => 'THU', 'weekend' => false],
+                    'friday' => ['name' => 'Friday', 'tag' => 'FRI', 'weekend' => false],
+                    'saturday' => ['name' => 'Saturday', 'tag' => 'SAT', 'weekend' => true],
+                    'sunday' => ['name' => 'Sunday', 'tag' => 'SUN', 'weekend' => true],
                   ];
                 @endphp
 
@@ -459,12 +473,12 @@
                   <div class="col-12 col-sm-6">
                     <div class="goal-card-item">
                       <div class="goal-day-info">
-                        <span class="goal-day-pill {{ $info['peak'] ? 'peak' : '' }}">{{ $info['tag'] }}</span>
+                        <span class="goal-day-pill {{ $info['weekend'] ? 'weekend' : '' }}">{{ $info['tag'] }}</span>
                         <span class="goal-day-name">{{ $info['name'] }}</span>
                       </div>
                       <div class="goal-input-box">
                         <span class="goal-dollar">$</span>
-                        <input type="number" step="0.01" min="0" name="nightly_goals[{{ $dKey }}]" class="goal-amount-input" placeholder="0.00" />
+                        <input type="number" step="0.01" min="0" name="nightly_goals[{{ $dKey }}]" class="goal-amount-input" placeholder="0.00" onwheel="this.blur()" />
                       </div>
                     </div>
                   </div>
@@ -479,7 +493,7 @@
                     </div>
                     <div class="goal-input-box">
                       <span class="goal-dollar">$</span>
-                      <input type="number" step="0.01" min="0" name="nightly_goal" class="goal-amount-input" placeholder="0.00" />
+                      <input type="number" step="0.01" min="0" name="nightly_goal" class="goal-amount-input" placeholder="0.00" onwheel="this.blur()" />
                     </div>
                   </div>
                 </div>
@@ -496,4 +510,27 @@
   </div>
 
 </div>
+
+<script>
+  document.addEventListener('DOMContentLoaded', function() {
+    // Prevent mouse wheel increment/decrement on all number inputs in modals
+    document.querySelectorAll('.modal-portal input[type="number"]').forEach(function(input) {
+      input.addEventListener('wheel', function(e) {
+        e.preventDefault();
+        input.blur();
+      }, { passive: false });
+
+      // Enforce 2 decimal places max
+      input.addEventListener('input', function() {
+        var val = this.value;
+        if (val.indexOf('.') !== -1) {
+          var parts = val.split('.');
+          if (parts[1].length > 2) {
+            this.value = parts[0] + '.' + parts[1].substring(0, 2);
+          }
+        }
+      });
+    });
+  });
+</script>
 @endsection
