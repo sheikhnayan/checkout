@@ -303,12 +303,13 @@
         </header>
         <main>
             <div class="container mt-4">
-                <div class="cv-checkout-body" id="cv-checkout-layout">
                 <button type="button" class="cv-mobile-cart-toggle" id="cv-mobile-cart-toggle" style="display:none;">
                     <span><i class="fas fa-shopping-cart" style="margin-right:6px;"></i>View Order Summary</span>
                     <span class="cv-mobile-cart-count" id="cv-mobile-cart-count">0 items</span>
                 </button>
-                <div class="cv-main-col" id="cv-checkout-main">
+
+                <div class="cv-checkout-body" id="cv-checkout-layout">
+                    <div class="cv-main-col" id="cv-checkout-main">
                     <div class="cv-desktop-shell">
                         <div class="cv-desktop-steps" id="cv-checkout-steps" @if(!empty($isSinglePackageCheckout) || $data->reservation != 1) style="grid-template-columns: repeat(3, minmax(0, 1fr)) !important;" @endif>
                             <div class="cv-dstep is-active" id="cv-dstep-1" data-step="1"><span class="cv-dstep-num">1</span><span>Choose Date</span></div>

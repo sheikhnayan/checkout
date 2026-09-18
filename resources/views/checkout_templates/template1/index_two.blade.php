@@ -203,13 +203,14 @@
         </header>
         <main>
             <div class="container mt-4">
-                <div class="cv-checkout-body" id="cv-checkout-layout">
                 {{-- Mobile: toggle to show/hide order summary --}}
                 <button type="button" class="cv-mobile-cart-toggle" id="cv-mobile-cart-toggle" style="display:none;">
                     <span><i class="fas fa-shopping-cart" style="margin-right:6px;"></i>View Order Summary</span>
                     <span class="cv-mobile-cart-count" id="cv-mobile-cart-count">0 items</span>
                 </button>
-                <div class="cv-main-col" id="cv-checkout-main">
+
+                <div class="cv-checkout-body" id="cv-checkout-layout">
+                    <div class="cv-main-col" id="cv-checkout-main">
                     <div class="cv-desktop-shell">
                         <div class="cv-desktop-steps" id="cv-checkout-steps" @if(!empty($isSinglePackageCheckout) || $data->reservation != 1) style="grid-template-columns: repeat(3, minmax(0, 1fr)) !important;" @endif>
                             <div class="cv-dstep is-active" id="cv-dstep-1" data-step="1"><span class="cv-dstep-num">1</span><span>Choose Date</span></div>
@@ -2628,13 +2629,21 @@
                     html += `<div class="cart-line">`
                         + pkgThumb
                         + `<div class="cart-line-main"><div class="cart-item-name">${pkg.packageName}</div><div class="cart-line-guests">Qty: ${guestQty}</div></div>`
-                        + `<div style="display:flex;flex-direction:column;align-items:flex-end;gap:4px;"><div class="cart-item-price">${priceLine}</div><button onclick='window.removePackageFromCart("${pkg.packageId}")' class="cart-remove-btn">Remove</button></div></div>`
-                        + (pkg.addons.length ? `<div class="cart-addons" style="color: #a774ff !important;">Add-ons: ${pkg.addons.map(a => a.name + ((parseInt(a.qty, 10) || 1) > 1 ? (' x' + (parseInt(a.qty, 10) || 1)) : '') + ' (' + formatCurrency(a.price) + ')').join(', ')}</div>` : '')
+                        + `<div style="display:flex;flex-direction:column;align-items:flex-end;gap:4px;"><div class="cart-item-price">${priceLine}</div><button onclick='window.removePackageFromCart("${pkg.packageId}")' class="cart-remove-btn">Remove</button></div>`
+                        + (pkg.addons.length ? `<div class="cart-addons" style="color: var(--cv-primary) !important;">Add-ons: ${pkg.addons.map(a => a.name + ((parseInt(a.qty, 10) || 1) > 1 ? (' x' + (parseInt(a.qty, 10) || 1)) : '') + ' (' + formatCurrency(a.price) + ')').join(', ')}</div>` : '')
                         + `</div>`;
                 });
                 $('#cart-list').html(html);
                 var emptyPlaceholder = document.getElementById('cv-sidebar-empty-placeholder');
-                if (emptyPlaceholder) emptyPlaceholder.style.display = (window.cart && window.cart.length > 0) ? 'none' : 'flex';
+                if (emptyPlaceholder) {
+                    if (window.cart && window.cart.length > 0) {
+                        emptyPlaceholder.style.setProperty('display', 'none', 'important');
+                        emptyPlaceholder.classList.add('is-hidden');
+                    } else {
+                        emptyPlaceholder.style.setProperty('display', 'flex', 'important');
+                        emptyPlaceholder.classList.remove('is-hidden');
+                    }
+                }
                 syncCheckoutCartFields();
             };
             
@@ -5892,9 +5901,17 @@
                                 var count = cartList.querySelectorAll('.cart-line').length;
                                 mobileCount.textContent = count + (count === 1 ? ' item' : ' items');
                             }
-                            // Show mobile toggle
+                            // Show mobile toggle only on mobile screens (< 992px)
                             var toggle = document.getElementById('cv-mobile-cart-toggle');
-                            if (toggle) toggle.style.display = hasItems ? 'flex' : 'none';
+                            if (toggle) {
+                                if (hasItems && window.innerWidth <= 991) {
+                                    toggle.style.display = 'flex';
+                                    toggle.classList.add('is-visible');
+                                } else {
+                                    toggle.style.display = 'none';
+                                    toggle.classList.remove('is-visible');
+                                }
+                            }
                         }).observe(cartList, { childList: true });
                     }
                 }

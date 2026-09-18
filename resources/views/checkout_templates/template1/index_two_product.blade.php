@@ -249,13 +249,14 @@
         </header>
         <main style="background: #f8fafc;">
             <div class="container mt-4">
-                <div class="cv-checkout-body" id="cv-checkout-layout">
                 {{-- Mobile: toggle to show/hide order summary --}}
                 <button type="button" class="cv-mobile-cart-toggle" id="cv-mobile-cart-toggle" style="display:none;">
                     <span><i class="fas fa-shopping-cart" style="margin-right:6px;"></i>View Order Summary</span>
                     <span class="cv-mobile-cart-count" id="cv-mobile-cart-count">0 items</span>
                 </button>
-                <div class="cv-main-col" id="cv-checkout-main">
+
+                <div class="cv-checkout-body" id="cv-checkout-layout">
+                    <div class="cv-main-col" id="cv-checkout-main">
                     <div class="cv-desktop-shell">
                         <div class="cv-desktop-steps" id="cv-checkout-steps" @if(!empty($isSinglePackageCheckout) || $data->reservation != 1) style="grid-template-columns: repeat(3, minmax(0, 1fr)) !important;" @endif>
                             <div class="cv-dstep is-active" id="cv-dstep-1" data-step="1"><span class="cv-dstep-num">1</span><span>Choose Date</span></div>
@@ -6053,9 +6054,17 @@
                                 var count = cartList.querySelectorAll('.cart-line').length;
                                 mobileCount.textContent = count + (count === 1 ? ' item' : ' items');
                             }
-                            // Show mobile toggle
+                            // Show mobile toggle only on mobile screens (< 992px)
                             var toggle = document.getElementById('cv-mobile-cart-toggle');
-                            if (toggle) toggle.style.display = hasItems ? 'flex' : 'none';
+                            if (toggle) {
+                                if (hasItems && window.innerWidth <= 991) {
+                                    toggle.style.display = 'flex';
+                                    toggle.classList.add('is-visible');
+                                } else {
+                                    toggle.style.display = 'none';
+                                    toggle.classList.remove('is-visible');
+                                }
+                            }
                         }).observe(cartList, { childList: true });
                     }
                 }

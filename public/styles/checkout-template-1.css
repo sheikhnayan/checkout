@@ -475,6 +475,42 @@ main, header, section, .container {
     width: 100% !important;
 }
 
+/* Mobile Cart Toggle (Hidden on Desktop, only shown on Mobile when cart has items) */
+.cv-mobile-cart-toggle {
+    display: none !important;
+}
+
+@media (max-width: 991px) {
+    .cv-mobile-cart-toggle {
+        display: none;
+        align-items: center;
+        justify-content: space-between;
+        width: 100%;
+        padding: 14px 18px;
+        background: #ffffff;
+        border: 1px solid var(--cv-border);
+        border-radius: var(--cv-radius);
+        color: var(--cv-ink);
+        font-size: 14px;
+        font-weight: 700;
+        cursor: pointer;
+        margin-bottom: 20px;
+        box-shadow: var(--cv-shadow-sm);
+        box-sizing: border-box;
+    }
+    .cv-mobile-cart-toggle.is-visible {
+        display: flex !important;
+    }
+    .cv-mobile-cart-count {
+        background: var(--cv-primary);
+        color: #ffffff;
+        padding: 4px 10px;
+        border-radius: 20px;
+        font-size: 12px;
+        font-weight: 700;
+    }
+}
+
 /* ==========================================================================
    STEPPERS (Matching Mockup Exactly)
    ========================================================================== */
@@ -1642,16 +1678,19 @@ input[name="transportation_pickup_time"] {
 
 /* Empty State in Sidebar */
 .cv-sidebar-empty-state {
-    display: flex !important;
-    flex-direction: column !important;
-    align-items: center !important;
-    justify-content: center !important;
-    padding: 24px 16px !important;
-    text-align: center !important;
-    background: #f8fafc !important;
-    border: 1.5px dashed var(--cv-border) !important;
-    border-radius: var(--cv-radius-lg) !important;
-    margin-bottom: 16px !important;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    padding: 24px 16px;
+    text-align: center;
+    background: #f8fafc;
+    border: 1.5px dashed var(--cv-border);
+    border-radius: var(--cv-radius-lg);
+    margin-bottom: 16px;
+}
+.cv-sidebar-empty-state.is-hidden {
+    display: none !important;
 }
 
 .cv-sidebar-empty-state i {
