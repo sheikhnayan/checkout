@@ -325,20 +325,17 @@
                                                 </div>
 
                                                 <div class="form-row" style="margin-bottom: 1rem;">
-                                                    <div class="form-group ddoobb" style="width: 50%;">
+                                                    <div class="form-group ddoobb" style="width: 100%;">
                                                         <label for="dob-month">Date of Birth <span class="text-danger">*</span></label>
-                                                        <div class="form-row">
+                                                        <div class="form-row" style="display: flex; gap: 10px; width: 100%;">
                                                             <select id="dob-month" name="reservation_day"
-                                                                class="form-select"
-                                                                style="width: 32%; display: inline-block; margin-right: 2%; text-align: center !important; padding-left: 5px !important"
+                                                                class="form-select cv-dob-select"
                                                                 required></select>
                                                             <select id="dob-day" name="reservation_month"
-                                                                class="form-select"
-                                                                style="width: 32%; display: inline-block; margin-right: 2%;"
+                                                                class="form-select cv-dob-select"
                                                                 required></select>
                                                             <select id="dob-year" name="reservation_year"
-                                                                class="form-select"
-                                                                style="width: 32%; display: inline-block;"
+                                                                class="form-select cv-dob-select"
                                                                 required></select>
                                                         </div>
                                                     </div>
@@ -538,7 +535,7 @@
                                                 @endphp
                                                 <button
                                                     type="button"
-                                                    class="package-category-tile{{ $catRgbStr ? ' has-cat-color' : '' }}"
+                                                    class="package-category-tile{{ $loop->first ? ' active' : '' }}{{ $catRgbStr ? ' has-cat-color' : '' }}"
                                                     data-target="#category-group-{{ $category['id'] }}"
                                                     @if($catRgbStr) style="--cat-rgb: {{ $catRgbStr }}" @endif
                                                 >
@@ -546,14 +543,13 @@
                                                         <i class="fas {{ $category['icon'] }} package-category-tile-icon"></i>
                                                     @endif
                                                     <span class="package-category-name">{{ $category['name'] }}</span>
-                                                    <span class="package-category-indicator">+</span>
                                                 </button>
                                             @endforeach
                                         </div>
                                         @endif
 
                                         @foreach ($packageCategories as $category)
-                                            <div id="category-group-{{ $category['id'] }}" class="package-category-group" style="display: {{ !empty($isSinglePackageCheckout) ? 'block' : 'none' }};">
+                                            <div id="category-group-{{ $category['id'] }}" class="package-category-group" style="display: {{ ($loop->first || !empty($isSinglePackageCheckout)) ? 'block' : 'none' }};">
                                                 @foreach ($category['packages'] as $item)
                                                     @php
                                                         $pkgTierIdx = ($loop->index % 5) + 1;
@@ -687,7 +683,7 @@
                                                                 data-sales_tax="{{ $data->sales_tax_fee ?? 10 }}"
                                                                 data-transportation="{{ $item->transportation }}"
                                                                 data-service_charge="{{ $data->service_charge_fee ?? 10 }}"
-                                                                data-default-label="Add to Cart">Add to Cart</button>
+                                                                data-default-label="Add to Cart">Add to Cart <i class="fas fa-chevron-right" style="font-size: 10px; margin-left: 4px;"></i></button>
 
                                                             <small class="package-guest-error" style="display:none;color:#ff6b6b;font-size:11px;line-height:1.35;margin-top:4px;"></small>
                                                             <div class="package-soldout" style="display:none;color:#ff2b2b;font-size:12px;font-weight:700;line-height:1.35;margin-top:4px;">Sold Out!</div>
@@ -809,7 +805,7 @@
                                         </li>
                                         <li class="step" id="step-2">
                                             <div class="step-number">2</div>
-                                            <p class="step-title">Arrival</p>
+                                            <p class="step-title">Transportation</p>
                                         </li>
                                         <li class="step" id="step-3">
                                             <div class="step-number">3</div>
@@ -877,18 +873,15 @@
                                                             <div class="form-row">
                                                                 <div class="form-group" style="width: 100%;">
                                                                     <label for="dob-month">Date of Birth <span class="text-danger">*</span></label>
-                                                                    <div class="form-row">
+                                                                    <div class="form-row" style="display: flex; gap: 10px; width: 100%;">
                                                                         <select id="package-dob-month"
-                                                                            name="package_month" class="form-select"
-                                                                            style="width: 32%; display: inline-block; margin-right: 2%;"
+                                                                            name="package_month" class="form-select cv-dob-select"
                                                                             required></select>
                                                                         <select id="package-dob-day"
-                                                                            name="package_day" class="form-select"
-                                                                            style="width: 32%; display: inline-block; margin-right: 2%;"
+                                                                            name="package_day" class="form-select cv-dob-select"
                                                                             required></select>
                                                                         <select id="package-dob-year"
-                                                                            name="package_year" class="form-select"
-                                                                            style="width: 32%; display: inline-block;"
+                                                                            name="package_year" class="form-select cv-dob-select"
                                                                             required></select>
                                                                     </div>
                                                                 </div>
@@ -911,7 +904,7 @@
                                             <!-- Step Navigation -->
                                             <div class="step-navigation">
                                                 <button type="button" class="btn-next" id="next-to-transport">Next:
-                                                    Transportation Details</button>
+                                                    Transportation Details <i class="fas fa-arrow-right" style="margin-left: 6px;"></i></button>
                                             </div>
                                         </section>
 
@@ -3508,26 +3501,28 @@
                         element.style.setProperty('-webkit-appearance', 'none', 'important');
                         // Force re-apply CSS styles for Safari/iOS
                         element.style.setProperty('-moz-appearance', 'none', 'important');
-                        element.style.setProperty('background-color', 'transparent', 'important');
+                        element.style.setProperty('background-color', '#ffffff', 'important');
                         element.style.setProperty('appearance', 'none', 'important');
-                        element.style.setProperty('background-image', 'url("data:image/svg+xml;charset=UTF-8,<svg xmlns=\'http://www.w3.org/2000/svg\' viewBox=\'0 0 24 24\' fill=\'white\'><path d=\'M7 10l5 5 5-5z\'  required /></svg>")', 'important');
+                        element.style.setProperty('background-image', 'url("data:image/svg+xml;charset=UTF-8,%3Csvg xmlns=\'http://www.w3.org/2000/svg\' viewBox=\'0 0 20 20\' fill=\'%2364748b\'%3E%3Cpath fill-rule=\'evenodd\' d=\'M5.293 7.293a1 1 0 011.414 0L10 10.586l3.293-3.293a1 1 0 111.414 1.414l-4 4a1 1 0 01-1.414 0l-4-4a1 1 0 010-1.414z\' clip-rule=\'evenodd\'/%3E%3C/svg%3E")', 'important');
                         element.style.setProperty('background-repeat', 'no-repeat', 'important');
-                        element.style.setProperty('background-position', 'right 15px center', 'important');
-                        element.style.setProperty('background-size', '20px', 'important');
-                        element.style.setProperty('padding', '12px 45px 12px 15px', 'important');
-                        element.style.setProperty('border', '1px solid #9797a0', 'important');
+                        element.style.setProperty('background-position', 'right 12px center', 'important');
+                        element.style.setProperty('background-size', '16px 16px', 'important');
+                        element.style.setProperty('padding', '10px 32px 10px 14px', 'important');
+                        element.style.setProperty('border', '1px solid #cbd5e1', 'important');
                         element.style.setProperty('border-radius', '10px', 'important');
-                        element.style.setProperty('color', '#fff', 'important');
-                        element.style.setProperty('font-size', '16px', 'important');
-                        element.style.setProperty('min-height', '45px', 'important');
+                        element.style.setProperty('color', '#0f172a', 'important');
+                        element.style.setProperty('-webkit-text-fill-color', '#0f172a', 'important');
+                        element.style.setProperty('font-size', '13.5px', 'important');
+                        element.style.setProperty('min-height', '46px', 'important');
                         element.style.setProperty('line-height', '1.5', 'important');
+                        element.style.setProperty('text-align', 'left', 'important');
 
                         // Special handling for DOB fields (smaller arrows)
                         if (id.includes('dob')) {
-                            element.style.setProperty('padding', '12px 30px 12px 15px', 'important');
-                            element.style.setProperty('background-size', '15px', 'important');
-                            element.style.setProperty('background-position', 'right 10px center', 'important');
-                            element.style.setProperty('text-align', 'center', 'important');
+                            element.style.setProperty('padding', '10px 28px 10px 12px', 'important');
+                            element.style.setProperty('background-size', '14px 14px', 'important');
+                            element.style.setProperty('background-position', 'right 8px center', 'important');
+                            element.style.setProperty('text-align', 'left', 'important');
                         }
                     }
                 });
@@ -3660,33 +3655,40 @@
                     });
                 });
 
-                $(document).on('click', '.package-category-tile', function() {
+                $(document).on('click', '.package-category-tile', function(e) {
+                    e.preventDefault();
                     let targetSelector = String($(this).data('target') || '');
                     let targetId = targetSelector.replace(/^#/, '');
                     let $target = targetId ? $('#' + targetId) : $();
-                    let isOpen = $(this).hasClass('active');
-                    let shouldNotifyEmbedResize = document.body.classList.contains('embed-checkout-mode');
+                    let isAlreadyActive = $(this).hasClass('active');
 
-                    $('.package-category-tile').removeClass('active');
-                    $('.package-category-group').stop(true, true).slideUp(180);
-
-                    if (!isOpen && $target.length) {
+                    if (!isAlreadyActive && $target.length) {
+                        $('.package-category-tile').removeClass('active');
                         $(this).addClass('active');
-                        $target.stop(true, true).slideDown(180);
+                        $('.package-category-group').hide();
+                        $target.stop(true, true).fadeIn(150);
                     }
 
-                    if (shouldNotifyEmbedResize) {
+                    if (document.body.classList.contains('embed-checkout-mode')) {
                         $('.package-category-group').promise().done(function() {
                             window.dispatchEvent(new CustomEvent('embed:category-toggle'));
                         });
                     }
                 });
 
-                if (singlePackageHeroMode) {
+                if ($('.package-category-tile').length) {
+                    if (!$('.package-category-tile.active').length) {
+                        $('.package-category-tile').first().addClass('active');
+                    }
+                    let activeTarget = $('.package-category-tile.active').data('target');
+                    if (activeTarget && $(activeTarget).length) {
+                        $('.package-category-group').hide();
+                        $(activeTarget).show();
+                    } else {
+                        $('.package-category-group').first().show();
+                    }
+                } else {
                     $('.package-category-group').show();
-                    $('.package-category-tile').first().addClass('active');
-                } else if (document.body.classList.contains('embed-checkout-mode') && $('.package-category-tile').length && !$('.package-category-tile.active').length) {
-                    $('.package-category-tile').first().trigger('click');
                 }
 
                 if ($('#package_use_date_iframe').length) {

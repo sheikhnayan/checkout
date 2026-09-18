@@ -639,7 +639,7 @@
                                                 @endphp
                                                 <button
                                                     type="button"
-                                                    class="package-category-tile{{ $catRgbStr ? ' has-cat-color' : '' }}"
+                                                    class="package-category-tile{{ $loop->first ? ' active' : '' }}{{ $catRgbStr ? ' has-cat-color' : '' }}"
                                                     @if($catRgbStr) style="--cat-rgb: {{ $catRgbStr }}" @endif
                                                     data-target="#category-group-{{ $category['id'] }}"
                                                 >
@@ -647,14 +647,13 @@
                                                         <i class="fas {{ $category['icon'] }} package-category-tile-icon"></i>
                                                     @endif
                                                     <span class="package-category-name">{{ $category['name'] }}</span>
-                                                    <span class="package-category-indicator">+</span>
                                                 </button>
                                             @endforeach
                                         </div>
                                         @endif
 
                                         @foreach ($packageCategories as $category)
-                                            <div id="category-group-{{ $category['id'] }}" class="package-category-group" style="display: {{ !empty($isSinglePackageCheckout) ? 'block' : 'none' }};">
+                                            <div id="category-group-{{ $category['id'] }}" class="package-category-group" style="display: {{ ($loop->first || !empty($isSinglePackageCheckout)) ? 'block' : 'none' }};">
                                                 @foreach ($category['packages'] as $item)
                                                     @php
                                                         $pkgGuestCap = max(1, (int) ($item->guests_per_table ?: $item->number_of_guest ?: 1));
@@ -3536,25 +3535,27 @@
                         element.style.setProperty('-webkit-appearance', 'none', 'important');
                         element.style.setProperty('-moz-appearance', 'none', 'important');
                         element.style.setProperty('appearance', 'none', 'important');
-                        element.style.setProperty('background-color', 'transparent', 'important');
-                        element.style.setProperty('background-image', 'url("data:image/svg+xml;charset=UTF-8,<svg xmlns=\'http://www.w3.org/2000/svg\' viewBox=\'0 0 24 24\' fill=\'white\'><path d=\'M7 10l5 5 5-5z\'/></svg>")', 'important');
+                        element.style.setProperty('background-color', '#ffffff', 'important');
+                        element.style.setProperty('background-image', 'url("data:image/svg+xml;charset=UTF-8,%3Csvg xmlns=\'http://www.w3.org/2000/svg\' viewBox=\'0 0 20 20\' fill=\'%2364748b\'%3E%3Cpath fill-rule=\'evenodd\' d=\'M5.293 7.293a1 1 0 011.414 0L10 10.586l3.293-3.293a1 1 0 111.414 1.414l-4 4a1 1 0 01-1.414 0l-4-4a1 1 0 010-1.414z\' clip-rule=\'evenodd\'/%3E%3C/svg%3E")', 'important');
                         element.style.setProperty('background-repeat', 'no-repeat', 'important');
-                        element.style.setProperty('background-position', 'right 15px center', 'important');
-                        element.style.setProperty('background-size', '20px', 'important');
-                        element.style.setProperty('padding', '12px 45px 12px 15px', 'important');
-                        element.style.setProperty('border', '1px solid #9797a0', 'important');
+                        element.style.setProperty('background-position', 'right 12px center', 'important');
+                        element.style.setProperty('background-size', '16px 16px', 'important');
+                        element.style.setProperty('padding', '10px 32px 10px 14px', 'important');
+                        element.style.setProperty('border', '1px solid #cbd5e1', 'important');
                         element.style.setProperty('border-radius', '10px', 'important');
-                        element.style.setProperty('color', '#fff', 'important');
-                        element.style.setProperty('font-size', '16px', 'important');
-                        element.style.setProperty('min-height', '45px', 'important');
+                        element.style.setProperty('color', '#0f172a', 'important');
+                        element.style.setProperty('-webkit-text-fill-color', '#0f172a', 'important');
+                        element.style.setProperty('font-size', '13.5px', 'important');
+                        element.style.setProperty('min-height', '46px', 'important');
                         element.style.setProperty('line-height', '1.5', 'important');
+                        element.style.setProperty('text-align', 'left', 'important');
                         
                         // Special handling for DOB fields (smaller arrows)
                         if (id.includes('dob')) {
-                            element.style.setProperty('padding', '12px 30px 12px 15px', 'important');
-                            element.style.setProperty('background-size', '15px', 'important');
-                            element.style.setProperty('background-position', 'right 10px center', 'important');
-                            element.style.setProperty('text-align', 'center', 'important');
+                            element.style.setProperty('padding', '10px 28px 10px 12px', 'important');
+                            element.style.setProperty('background-size', '14px 14px', 'important');
+                            element.style.setProperty('background-position', 'right 8px center', 'important');
+                            element.style.setProperty('text-align', 'left', 'important');
                         }
                     }
                 });
@@ -3691,34 +3692,41 @@
                     });
                 });
 
-                $(document).on('click', '.package-category-tile', function() {
+                $(document).on('click', '.package-category-tile', function(e) {
+                    e.preventDefault();
                     var $tile = $(this);
                     var targetSelector = String($tile.data('target') || '');
                     var targetId = targetSelector.replace(/^#/, '');
                     var $target = targetId ? $('#' + targetId) : $();
-                    var isOpen = $tile.hasClass('active');
-                    var shouldNotifyEmbedResize = document.body.classList.contains('embed-checkout-mode');
+                    var isAlreadyActive = $tile.hasClass('active');
 
-                    $('.package-category-tile').removeClass('active');
-                    $('.package-category-group').stop(true, true).slideUp(180);
-
-                    if (!isOpen && $target.length) {
+                    if (!isAlreadyActive && $target.length) {
+                        $('.package-category-tile').removeClass('active');
                         $tile.addClass('active');
-                        $target.stop(true, true).slideDown(180);
+                        $('.package-category-group').hide();
+                        $target.stop(true, true).fadeIn(150);
                     }
 
-                    if (shouldNotifyEmbedResize) {
+                    if (document.body.classList.contains('embed-checkout-mode')) {
                         $('.package-category-group').promise().done(function() {
                             window.dispatchEvent(new CustomEvent('embed:category-toggle'));
                         });
                     }
                 });
 
-                if (singlePackageHeroMode) {
+                if ($('.package-category-tile').length) {
+                    if (!$('.package-category-tile.active').length) {
+                        $('.package-category-tile').first().addClass('active');
+                    }
+                    var activeTarget = $('.package-category-tile.active').data('target');
+                    if (activeTarget && $(activeTarget).length) {
+                        $('.package-category-group').hide();
+                        $(activeTarget).show();
+                    } else {
+                        $('.package-category-group').first().show();
+                    }
+                } else {
                     $('.package-category-group').show();
-                    $('.package-category-tile').first().addClass('active');
-                } else if (document.body.classList.contains('embed-checkout-mode') && $('.package-category-tile').length && !$('.package-category-tile.active').length) {
-                    $('.package-category-tile').first().trigger('click');
                 }
 
                 $(document).on('change', '#package_use_date_iframe', function() {

@@ -814,44 +814,59 @@ main, header, section, .container {
     color: var(--cv-ink) !important;
 }
 
-/* Category Tab Pills */
+/* Category Tab Switcher (Full-width Segmented Control matching Mockup) */
 .package-category-tiles,
 .cv-access-grid {
     display: flex !important;
-    gap: 10px !important;
+    width: 100% !important;
+    background: #e2e8f0 !important;
+    padding: 3px !important;
+    border-radius: 8px !important;
+    gap: 3px !important;
     margin-bottom: 20px !important;
-    flex-wrap: wrap !important;
+    border: 1px solid #cbd5e1 !important;
+    box-sizing: border-box !important;
 }
 
 .package-category-tile,
 .cv-access-card {
-    padding: 8px 24px !important;
-    border-radius: 8px !important;
+    flex: 1 1 0% !important;
+    display: flex !important;
+    align-items: center !important;
+    justify-content: center !important;
+    gap: 8px !important;
+    padding: 10px 16px !important;
+    border-radius: 6px !important;
     font-size: 13.5px !important;
-    font-weight: 600 !important;
-    border: 1px solid var(--cv-border) !important;
-    background: #ffffff !important;
-    color: var(--cv-ink-muted) !important;
+    font-weight: 700 !important;
+    border: none !important;
+    background: transparent !important;
+    color: #475569 !important;
     cursor: pointer !important;
     transition: all 0.2s ease !important;
-    display: inline-flex !important;
-    align-items: center !important;
-    gap: 8px !important;
-    box-shadow: var(--cv-shadow-sm);
+    box-shadow: none !important;
+    text-decoration: none !important;
 }
 
 .package-category-tile.active,
 .cv-access-card.is-active {
     background: #334155 !important;
-    border-color: #334155 !important;
     color: #ffffff !important;
+    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.12) !important;
 }
 
 .package-category-tile:hover:not(.active),
 .cv-access-card:hover:not(.is-active) {
-    background: #f8fafc !important;
-    border-color: var(--cv-border-input) !important;
-    color: var(--cv-ink) !important;
+    background: rgba(255, 255, 255, 0.55) !important;
+    color: #0f172a !important;
+}
+
+.package-category-indicator {
+    display: none !important;
+}
+
+.package-category-tile-icon {
+    font-size: 13px !important;
 }
 
 /* ==========================================================================
@@ -1178,24 +1193,34 @@ main, header, section, .container {
 select,
 .form-select,
 .form-group select,
-#package-dob-month,
-#package-dob-day,
-#package-dob-year,
+.cv-dob-select,
+#dob-month, #dob-day, #dob-year,
+#package-dob-month, #package-dob-day, #package-dob-year,
+#payment-dob-month, #payment-dob-day, #payment-dob-year,
+#payment-dob-month2, #payment-dob-day2, #payment-dob-year2,
 .package-guest-input-wrap select {
     width: 100% !important;
     height: 46px !important;
     background-color: #ffffff !important;
+    background-image: url("data:image/svg+xml;charset=UTF-8,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 20 20' fill='%2364748b'%3E%3Cpath fill-rule='evenodd' d='M5.293 7.293a1 1 0 011.414 0L10 10.586l3.293-3.293a1 1 0 111.414 1.414l-4 4a1 1 0 01-1.414 0l-4-4a1 1 0 010-1.414z' clip-rule='evenodd'/%3E%3C/svg%3E") !important;
+    background-repeat: no-repeat !important;
+    background-position: right 12px center !important;
+    background-size: 16px 16px !important;
     color: #0f172a !important;
     -webkit-text-fill-color: #0f172a !important;
     border: 1px solid var(--cv-border-input) !important;
     border-radius: var(--cv-radius) !important;
-    padding: 10px 14px !important;
+    padding: 10px 32px 10px 14px !important;
     font-size: 13.5px !important;
-    font-weight: 600 !important;
+    font-weight: 500 !important;
     outline: none !important;
+    text-align: left !important;
     box-shadow: var(--cv-shadow-sm) !important;
     cursor: pointer !important;
     box-sizing: border-box !important;
+    appearance: none !important;
+    -webkit-appearance: none !important;
+    -moz-appearance: none !important;
 }
 
 select option,
@@ -1207,14 +1232,15 @@ select optgroup,
     -webkit-text-fill-color: #0f172a !important;
     font-size: 14px !important;
     padding: 8px 12px !important;
+    text-align: left !important;
 }
 
 select:focus,
 .form-select:focus,
 .form-group select:focus,
-#package-dob-month:focus,
-#package-dob-day:focus,
-#package-dob-year:focus {
+.cv-dob-select:focus,
+#dob-month:focus, #dob-day:focus, #dob-year:focus,
+#package-dob-month:focus, #package-dob-day:focus, #package-dob-year:focus {
     color: #0f172a !important;
     -webkit-text-fill-color: #0f172a !important;
     border-color: var(--cv-primary) !important;
@@ -2526,9 +2552,18 @@ input[name="transportation_arrival_time"]:focus {
 }
 
 /* Date of Birth Select Dropdowns Layout */
+#dob-month,
+#dob-day,
+#dob-year,
 #package-dob-month,
 #package-dob-day,
-#package-dob-year {
+#package-dob-year,
+#payment-dob-month,
+#payment-dob-day,
+#payment-dob-year,
+#payment-dob-month2,
+#payment-dob-day2,
+#payment-dob-year2 {
     width: 32% !important;
     max-width: 32% !important;
     display: inline-block !important;
@@ -2536,7 +2571,10 @@ input[name="transportation_arrival_time"]:focus {
     box-sizing: border-box !important;
 }
 
-#package-dob-year {
+#dob-year,
+#package-dob-year,
+#payment-dob-year,
+#payment-dob-year2 {
     margin-right: 0 !important;
 }
 
