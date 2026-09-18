@@ -1004,11 +1004,10 @@ input::placeholder, textarea::placeholder {
     content: '' !important;
     position: absolute !important;
     top: 2px !important;
-    left: 2px !important;
-    width: 20px !important;
+    left: 2px !important;    width: 20px !important;
     height: 20px !important;
     border-radius: 50% !important;
-    background: #fff !important;
+    background: #bcbcc3 !important;
     transition: transform .2s ease !important;
 }
 #payment-consent-group .consent-label input[type="checkbox"]:checked,
@@ -5088,7 +5087,7 @@ body.embed-checkout-mode #cv-cart-toast .cv-toast-close {
             };
         </script>
         @endif
-        <link rel="stylesheet" href="{{ asset('styles/checkout-template-4.css') }}">
+        <link rel="stylesheet" href="{{ asset('styles/checkout-template-4.css') }}?v={{ file_exists(public_path('styles/checkout-template-4.css')) ? filemtime(public_path('styles/checkout-template-4.css')) : time() }}">
     </head>
 
     <body class="{{ !empty($isIframeCheckout) ? 'embed-checkout-mode' : '' }} {{ !empty($isSinglePackageCheckout) ? 'single-package-checkout-mode' : '' }}">

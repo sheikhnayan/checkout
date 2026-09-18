@@ -1166,7 +1166,7 @@
             width: 20px !important;
             height: 20px !important;
             border-radius: 50% !important;
-            background: #fff !important;
+            background: #bcbcc3 !important;
             transition: transform .2s ease !important;
         }
         #payment-consent-group .consent-label input[type="checkbox"]:checked,
