@@ -210,7 +210,7 @@
                 </button>
 
                 <div class="cv-checkout-body" id="cv-checkout-layout">
-                    <div class="cv-main-col" id="cv-checkout-main">
+                    <div class="cv-main-col" id="cv-checkout-main" style="background: #fff; padding: 2rem; border-radius: 18px; border: 1px solid var(--cv-border) !important;">
                     <div class="cv-desktop-shell">
                         <div class="cv-desktop-steps" id="cv-checkout-steps" @if(!empty($isSinglePackageCheckout) || $data->reservation != 1) style="grid-template-columns: repeat(3, minmax(0, 1fr)) !important;" @endif>
                             <div class="cv-dstep is-active" id="cv-dstep-1" data-step="1"><span class="cv-dstep-num">1</span><span>Choose Date</span></div>
