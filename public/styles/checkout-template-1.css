@@ -17,7 +17,7 @@
     --cv-primary-border: #dbeafe;
     --cv-primary-ring: rgba(37, 99, 235, 0.18);
 
-    --cv-bg: #f8fafc;
+    --cv-bg: #f1f5f9;
     --cv-card-bg: #ffffff;
     --cv-surface-muted: #f1f5f9;
 
@@ -291,10 +291,17 @@ main, header, section, .container {
 /* Hero Bottom Row: Left Info + Right Map */
 .cv-hero-card-body {
     display: grid;
-    grid-template-columns: 1fr 340px;
+    grid-template-columns: 1fr 440px;
     gap: 36px;
     padding-top: 24px;
-    align-items: start;
+    align-items: stretch;
+}
+
+@media (max-width: 1100px) {
+    .cv-hero-card-body {
+        grid-template-columns: 1fr 380px;
+        gap: 24px;
+    }
 }
 
 @media (max-width: 991px) {
@@ -398,9 +405,14 @@ main, header, section, .container {
 .cv-find-us-card {
     background: #ffffff;
     border: 1px solid var(--cv-border);
-    border-radius: var(--cv-radius-lg);
-    padding: 16px;
+    border-radius: var(--cv-radius-xl);
+    padding: 20px;
     box-shadow: var(--cv-shadow-sm);
+    height: 100%;
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+    box-sizing: border-box;
 }
 
 .cv-find-us-header {
@@ -423,30 +435,33 @@ main, header, section, .container {
 }
 
 .cv-find-us-venue {
-    font-size: 14px;
+    font-size: 15px;
     font-weight: 800;
     color: var(--cv-ink);
     line-height: 1.3;
 }
 
 .cv-find-us-addr {
-    font-size: 12px;
+    font-size: 12.5px;
     color: var(--cv-ink-muted);
     line-height: 1.3;
 }
 
 .cv-map-container {
-    height: 140px;
+    height: 230px;
+    min-height: 230px;
     width: 100%;
-    border-radius: 10px;
+    border-radius: 12px;
     overflow: hidden;
     position: relative;
     border: 1px solid var(--cv-border);
+    margin-top: 10px;
 }
 
 .cv-map-iframe {
     width: 100%;
     height: 100%;
+    min-height: 230px;
     border: 0;
 }
 
@@ -1068,24 +1083,34 @@ main, header, section, .container {
 }
 
 /* ==========================================================================
-   PERSONAL DETAILS FORM CARD (Clean White Box)
+   PERSONAL DETAILS & CHECKOUT FORM CARDS (Enclosed White Cards)
    ========================================================================== */
 .checkout-section,
 .holder-info,
-#section-1 {
+.transport,
+.payment-info,
+#section-1,
+#section-2,
+#section-3 {
     background: #ffffff !important;
     border: 1px solid var(--cv-border) !important;
-    border-radius: var(--cv-radius-lg) !important;
-    padding: 24px 28px !important;
+    border-radius: var(--cv-radius-xl) !important;
+    padding: 28px 32px !important;
+    margin-top: 24px !important;
     margin-bottom: 24px !important;
     box-shadow: var(--cv-shadow) !important;
+    box-sizing: border-box !important;
+    width: 100% !important;
 }
 
-.holder-info h2 {
-    font-size: 18px !important;
+.holder-info h2,
+.transport h2,
+.payment-info h2,
+#transport-section-title {
+    font-size: 20px !important;
     font-weight: 800 !important;
     color: var(--cv-ink) !important;
-    margin-bottom: 4px !important;
+    margin: 0 0 6px 0 !important;
     line-height: 1.3 !important;
 }
 
@@ -1095,9 +1120,10 @@ main, header, section, .container {
     font-weight: 400 !important;
     color: var(--cv-ink-muted) !important;
     margin-top: 4px !important;
+    line-height: 1.4 !important;
 }
 
-/* Clean Form inputs */
+/* Clean Form Inputs */
 .form-group {
     margin-bottom: 16px !important;
 }
@@ -1111,28 +1137,31 @@ main, header, section, .container {
 }
 
 .form-group input,
-.form-group select,
 .form-group textarea,
-.country-code-field,
-#Pick-up-time,
-input[name="transportation_pickup_time"] {
+.country-code-field {
     width: 100% !important;
+    height: 46px !important;
     background: #ffffff !important;
     border: 1px solid var(--cv-border-input) !important;
-    border-radius: var(--cv-radius-sm) !important;
+    border-radius: var(--cv-radius) !important;
     padding: 10px 14px !important;
     font-size: 13.5px !important;
     color: var(--cv-ink) !important;
+    -webkit-text-fill-color: var(--cv-ink) !important;
     outline: none !important;
     transition: all 0.15s ease !important;
     box-shadow: var(--cv-shadow-sm) !important;
+    box-sizing: border-box !important;
+}
+
+.form-group textarea {
+    height: auto !important;
+    min-height: 70px !important;
 }
 
 .form-group input:focus,
-.form-group select:focus,
 .form-group textarea:focus,
-.country-code-field:focus,
-#Pick-up-time:focus {
+.country-code-field:focus {
     border-color: var(--cv-primary) !important;
     box-shadow: 0 0 0 3px var(--cv-primary-ring) !important;
 }
@@ -1140,6 +1169,105 @@ input[name="transportation_pickup_time"] {
 .form-group input::placeholder,
 .form-group textarea::placeholder {
     color: var(--cv-ink-light) !important;
+    -webkit-text-fill-color: var(--cv-ink-light) !important;
+}
+
+/* ==========================================================================
+   SELECT & OPTION FIX (Eliminates white/invisible text when selected)
+   ========================================================================== */
+select,
+.form-select,
+.form-group select,
+#package-dob-month,
+#package-dob-day,
+#package-dob-year,
+.package-guest-input-wrap select {
+    width: 100% !important;
+    height: 46px !important;
+    background-color: #ffffff !important;
+    color: #0f172a !important;
+    -webkit-text-fill-color: #0f172a !important;
+    border: 1px solid var(--cv-border-input) !important;
+    border-radius: var(--cv-radius) !important;
+    padding: 10px 14px !important;
+    font-size: 13.5px !important;
+    font-weight: 600 !important;
+    outline: none !important;
+    box-shadow: var(--cv-shadow-sm) !important;
+    cursor: pointer !important;
+    box-sizing: border-box !important;
+}
+
+select option,
+option,
+select optgroup,
+.form-select option {
+    background-color: #ffffff !important;
+    color: #0f172a !important;
+    -webkit-text-fill-color: #0f172a !important;
+    font-size: 14px !important;
+    padding: 8px 12px !important;
+}
+
+select:focus,
+.form-select:focus,
+.form-group select:focus,
+#package-dob-month:focus,
+#package-dob-day:focus,
+#package-dob-year:focus {
+    color: #0f172a !important;
+    -webkit-text-fill-color: #0f172a !important;
+    border-color: var(--cv-primary) !important;
+    box-shadow: 0 0 0 3px var(--cv-primary-ring) !important;
+}
+
+/* ==========================================================================
+   TIME PICKER (Pick-up Time & Arrival Time Full-Width)
+   ========================================================================== */
+.pickup-time-wrap {
+    position: relative !important;
+    width: 100% !important;
+    max-width: 100% !important;
+}
+
+.pickup-time-wrap .pickup-time-icon {
+    position: absolute !important;
+    left: 14px !important;
+    top: 50% !important;
+    transform: translateY(-50%) !important;
+    color: var(--cv-primary) !important;
+    font-size: 16px !important;
+    pointer-events: none !important;
+    z-index: 2 !important;
+}
+
+#Pick-up-time,
+#Arrival-time,
+input[name="transportation_pickup_time"],
+input[name="transportation_arrival_time"] {
+    width: 100% !important;
+    max-width: 100% !important;
+    height: 46px !important;
+    min-height: 46px !important;
+    padding: 10px 14px 10px 42px !important;
+    font-size: 14px !important;
+    font-weight: 600 !important;
+    color: var(--cv-ink) !important;
+    -webkit-text-fill-color: var(--cv-ink) !important;
+    background: #ffffff !important;
+    border: 1px solid var(--cv-border-input) !important;
+    border-radius: var(--cv-radius) !important;
+    box-sizing: border-box !important;
+    cursor: pointer !important;
+    box-shadow: var(--cv-shadow-sm) !important;
+}
+
+#Pick-up-time:focus,
+#Arrival-time:focus,
+input[name="transportation_pickup_time"]:focus,
+input[name="transportation_arrival_time"]:focus {
+    border-color: var(--cv-primary) !important;
+    box-shadow: 0 0 0 3px var(--cv-primary-ring) !important;
 }
 
 /* ==========================================================================
@@ -1418,32 +1546,10 @@ input[name="transportation_pickup_time"] {
     letter-spacing: -0.5px !important;
 }
 
-/* CTA Buttons */
+/* CTA Buttons - Proceed to checkout hidden per user request */
 .cv-cta-btn,
 #cv-sidebar-cta {
-    display: flex !important;
-    align-items: center !important;
-    justify-content: center !important;
-    gap: 8px !important;
-    width: 100% !important;
-    background: var(--cv-primary) !important;
-    color: #ffffff !important;
-    border: none !important;
-    border-radius: var(--cv-radius) !important;
-    padding: 14px !important;
-    font-size: 14.5px !important;
-    font-weight: 700 !important;
-    cursor: pointer !important;
-    box-shadow: 0 4px 12px rgba(37, 99, 235, 0.28) !important;
-    transition: all 0.2s ease !important;
-    text-decoration: none !important;
-}
-
-.cv-cta-btn:hover,
-#cv-sidebar-cta:hover {
-    background: var(--cv-primary-hover) !important;
-    box-shadow: 0 6px 16px rgba(37, 99, 235, 0.38) !important;
-    transform: translateY(-1px);
+    display: none !important;
 }
 
 .cv-continue-shopping-btn,
@@ -2544,5 +2650,104 @@ input[name="transportation_pickup_time"] {
     align-items: center !important;
     gap: 4px !important;
 }
+
+/* ==========================================================================
+   PROMO CODE / COUPON BOX (Clean Modern Styling)
+   ========================================================================== */
+.cv-promo-box {
+    width: 100% !important;
+    margin: 16px 0 !important;
+    padding: 0 !important;
+}
+
+.cv-promo-label {
+    display: block !important;
+    font-size: 12px !important;
+    font-weight: 700 !important;
+    color: var(--cv-ink-sub) !important;
+    margin-bottom: 6px !important;
+    text-transform: none !important;
+}
+
+.cv-promo-input-group {
+    display: flex !important;
+    gap: 8px !important;
+    align-items: center !important;
+    width: 100% !important;
+}
+
+.cv-promo-input,
+#promo_code {
+    flex: 1 !important;
+    min-width: 0 !important;
+    height: 44px !important;
+    background: #ffffff !important;
+    border: 1px solid var(--cv-border-input) !important;
+    border-radius: var(--cv-radius) !important;
+    padding: 8px 14px !important;
+    font-size: 13.5px !important;
+    font-weight: 700 !important;
+    color: var(--cv-ink) !important;
+    -webkit-text-fill-color: var(--cv-ink) !important;
+    outline: none !important;
+    text-transform: uppercase !important;
+    transition: all 0.15s ease !important;
+    box-shadow: var(--cv-shadow-sm) !important;
+    box-sizing: border-box !important;
+}
+
+.cv-promo-input::placeholder,
+#promo_code::placeholder {
+    color: var(--cv-ink-light) !important;
+    -webkit-text-fill-color: var(--cv-ink-light) !important;
+    text-transform: none !important;
+    font-weight: 400 !important;
+}
+
+.cv-promo-input:focus,
+#promo_code:focus {
+    border-color: var(--cv-primary) !important;
+    box-shadow: 0 0 0 3px var(--cv-primary-ring) !important;
+}
+
+.cv-promo-btn,
+#applyPromoBtn {
+    height: 44px !important;
+    background: var(--cv-primary) !important;
+    color: #ffffff !important;
+    border: none !important;
+    border-radius: var(--cv-radius) !important;
+    padding: 0 22px !important;
+    font-size: 13px !important;
+    font-weight: 700 !important;
+    letter-spacing: 0.5px !important;
+    text-transform: uppercase !important;
+    cursor: pointer !important;
+    transition: all 0.2s ease !important;
+    flex-shrink: 0 !important;
+    box-shadow: 0 2px 6px rgba(37, 99, 235, 0.25) !important;
+}
+
+.cv-promo-btn:hover,
+#applyPromoBtn:hover {
+    background: var(--cv-primary-hover) !important;
+    box-shadow: 0 4px 12px rgba(37, 99, 235, 0.35) !important;
+}
+
+.cv-promo-btn:disabled,
+#applyPromoBtn:disabled {
+    background: #94a3b8 !important;
+    cursor: not-allowed !important;
+    box-shadow: none !important;
+    opacity: 0.7 !important;
+}
+
+#cart-coupon {
+    font-size: 13px !important;
+    color: #16a34a !important;
+    font-weight: 700 !important;
+    margin-top: 6px !important;
+}
+
 
 

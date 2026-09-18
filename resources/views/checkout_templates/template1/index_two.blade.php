@@ -792,19 +792,11 @@
                                                     </div>
                                             @endif --}}
                                         </div>
-                                        <div class="col-md-6 dynamic-price" style="display: none;">
-                                            <label
-                                                style="color: rgba(255,255,255,0.7); font-size: 13.5px;">{{ $data->promo_code_name ?: 'Have a promo code?' }}</label>
-                                            <div class="row">
-                                                <div class="col-md-8 col-8" style="padding-right: 0%;">
-                                                    <input type="text" id="promo_code"
-                                                        style="color: #fff;"
-                                                        placeholder="Enter code"  required />
-                                                </div>
-                                                <div class="col-md-4 col-4" style="padding-left: 0%;">
-                                                    <button type="button" class="vip-btn-submit"
-                                                        id="applyPromoBtn">Apply</button>
-                                                </div>
+                                        <div class="cv-promo-box dynamic-price" style="display: none;">
+                                            <label class="cv-promo-label">{{ $data->promo_code_name ?: 'Have a promo code?' }}</label>
+                                            <div class="cv-promo-input-group">
+                                                <input type="text" id="promo_code" class="cv-promo-input" placeholder="Enter promo code" />
+                                                <button type="button" class="cv-promo-btn" id="applyPromoBtn">Apply</button>
                                             </div>
                                         </div>
                                     </div>
@@ -1409,9 +1401,6 @@
 
                 {{-- CTA buttons --}}
                 <div id="cv-sidebar-cta-wrap" style="margin-top:14px;">
-                    <button type="button" class="cv-cta-btn" id="cv-sidebar-cta" onclick="var el = document.getElementById('checkout-steps'); if(el) { el.scrollIntoView({behavior:'smooth'}); }">
-                        Proceed to Checkout <i class="fas fa-arrow-right" style="margin-left:6px;"></i>
-                    </button>
                     <button type="button" class="cv-continue-shopping-btn" id="cv-continue-shopping" onclick="var el = document.getElementById('cv-checkout-steps'); if(el) { el.scrollIntoView({behavior:'smooth'}); }">
                         Continue Shopping
                     </button>

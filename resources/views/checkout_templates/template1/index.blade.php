@@ -861,18 +861,11 @@
                                                 </div>
                                             @endif --}}
                                         </div>
-                                        <div class="col-md-6 dynamic-price" style="display: none;">
-                                            <label
-                                                style="color: rgba(255,255,255,0.7); font-size: 13.5px;">{{ $data->promo_code_name ?: 'Have a promo code?' }}</label>
-                                            <div class="row">
-                                                <div class="col-md-8 col-8" style="padding-right: 0%;">
-                                                    <input type="text" id="promo_code" style="color: #fff;"
-                                                        placeholder="Enter code" />
-                                                </div>
-                                                <div class="col-md-4 col-4" style="padding-left: 0%;">
-                                                    <button type="button" class="vip-btn-submit"
-                                                        id="applyPromoBtn">Apply</button>
-                                                </div>
+                                        <div class="cv-promo-box dynamic-price" style="display: none;">
+                                            <label class="cv-promo-label">{{ $data->promo_code_name ?: 'Have a promo code?' }}</label>
+                                            <div class="cv-promo-input-group">
+                                                <input type="text" id="promo_code" class="cv-promo-input" placeholder="Enter promo code" />
+                                                <button type="button" class="cv-promo-btn" id="applyPromoBtn">Apply</button>
                                             </div>
                                         </div>
                                     </div>
