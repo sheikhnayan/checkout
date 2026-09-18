@@ -19,7 +19,7 @@ use Illuminate\Support\Facades\Schema;
 
 class FrontendController extends Controller
 {
-    private const ENABLED_DEMO_CHECKOUT_TEMPLATES = ['template4'];
+    private const ENABLED_DEMO_CHECKOUT_TEMPLATES = ['template1', 'template4'];
 
     private WebsiteSessionAnalyticsService $sessionAnalytics;
 
@@ -31,16 +31,6 @@ class FrontendController extends Controller
     public function checkoutTemplateOne($slug, Request $request)
     {
         return $this->renderCheckoutForTemplate($slug, $request, 'template1');
-    }
-
-    public function checkoutTemplateTwo($slug, Request $request)
-    {
-        return $this->renderCheckoutForTemplate($slug, $request, 'template2');
-    }
-
-    public function checkoutTemplateThree($slug, Request $request)
-    {
-        return $this->renderCheckoutForTemplate($slug, $request, 'template3');
     }
 
     public function checkoutTemplateFour($slug, Request $request)
@@ -74,14 +64,6 @@ class FrontendController extends Controller
             'template1' => [
                 'event' => 'checkout_templates.template1.index',
                 'default' => 'checkout_templates.template1.index_two',
-            ],
-            'template2' => [
-                'event' => 'checkout_templates.template2.index',
-                'default' => 'checkout_templates.template2.index_two',
-            ],
-            'template3' => [
-                'event' => 'checkout_templates.template3.index',
-                'default' => 'checkout_templates.template3.index_two',
             ],
             'template4' => [
                 'event' => 'checkout_templates.template4.index',

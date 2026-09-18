@@ -767,8 +767,6 @@ Route::get('/reports/automation/public-preview-signed', [ReportController::class
 
 // Standalone client demo checkout templates (kept separate from main checkout pages)
 Route::get('/demo-checkout/template-1/{slug}', [FrontendController::class, 'checkoutTemplateOne'])->name('demo.checkout.template1');
-Route::get('/demo-checkout/template-2/{slug}', [FrontendController::class, 'checkoutTemplateTwo'])->name('demo.checkout.template2');
-Route::get('/demo-checkout/template-3/{slug}', [FrontendController::class, 'checkoutTemplateThree'])->name('demo.checkout.template3');
 Route::get('/demo-checkout/template-4/{slug}', [FrontendController::class, 'checkoutTemplateFour'])->name('demo.checkout.template4');
 
 // Help Center Invitations & Public Viewer (Protected by auth middleware - accessible to any logged in CartVIP user)

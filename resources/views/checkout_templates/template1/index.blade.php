@@ -1,11 +1,11 @@
 @php
-    $brandPrimary = '#ffcc00';
-    $brandSecondary = '#ddb774';
-    $brandGradient = 'linear-gradient(135deg, #f7e2b4 0%, #ddb774 52%, #ffcc00 100%)';
+    $brandPrimary = '#2563eb';
+    $brandSecondary = '#1d4ed8';
+    $brandGradient = 'linear-gradient(135deg, #3b82f6 0%, #2563eb 52%, #1d4ed8 100%)';
     $data->color = $brandPrimary;
     $data->secondary_color = $brandSecondary;
-    $data->background_color = '#0b0e1a';
-    $data->font_color = '#e8eaf6';
+    $data->background_color = '#ffffff';
+    $data->font_color = '#0f172a';
 @endphp
 <!DOCTYPE html>
 <html lang="en">
@@ -123,7 +123,7 @@ input[name="transportation_pickup_time"]::placeholder {
     font-weight: bold;
 }
 
-@media (max-width: 767px) {
+                    transform: translateX(-50%) translateY(-140%) !important;
     .checkout-steps { margin: 1.25rem 0; padding: 0 4px; }
     .step { padding: 0 0.2rem; }
     .step-number { width: 32px; height: 32px; font-size: 13px; }
@@ -1004,11 +1004,10 @@ input::placeholder, textarea::placeholder {
     content: '' !important;
     position: absolute !important;
     top: 2px !important;
-    left: 2px !important;
-    width: 20px !important;
+    left: 2px !important;    width: 20px !important;
     height: 20px !important;
     border-radius: 50% !important;
-    background: #fff !important;
+    background: #bcbcc3 !important;
     transition: transform .2s ease !important;
 }
 #payment-consent-group .consent-label input[type="checkbox"]:checked,
@@ -5088,7 +5087,7 @@ body.embed-checkout-mode #cv-cart-toast .cv-toast-close {
             };
         </script>
         @endif
-        <link rel="stylesheet" href="{{ asset('styles/checkout-template-1.css') }}">
+        <link rel="stylesheet" href="{{ asset('styles/checkout-template-1.css') }}?v={{ file_exists(public_path('styles/checkout-template-1.css')) ? filemtime(public_path('styles/checkout-template-1.css')) : time() }}">
     </head>
 
     <body class="{{ !empty($isIframeCheckout) ? 'embed-checkout-mode' : '' }} {{ !empty($isSinglePackageCheckout) ? 'single-package-checkout-mode' : '' }}">
@@ -5633,15 +5632,18 @@ body.embed-checkout-mode #cv-cart-toast .cv-toast-close {
                                         </div>
                                         <div class="col-md-12">
                                             <div class="checkbox-container">
+                                                @if($data->show_sms_consent ?? true)
                                                 <label class="consent-label">
                                                     <input type="checkbox" id="smsConsent_two" required />
-                                                    <span>I agree to receive SMS communications regarding my reservation, transportation updates, VIP services, and related notifications. Message and data rates may apply. Messaging frequency may vary. Reply STOP to opt out at any time.</span>
+                                                    <span>{{ $data->sms_consent_text }}</span>
                                                 </label>
+                                                @endif
+                                                @if($data->show_terms_consent ?? true)
                                                 <label class="consent-label">
                                                     <input type="checkbox" id="termsConsent_two" required />
-                                                    <span>I have read and agree to the <a target="_blank"
-                                                        href="{{ $data->terms }}">Terms of Service</a> / <a target="_blank" href="{{ $data->terms }}">Venue Policies</a></span>
+                                                    <span>{!! $data->terms_consent_text_formatted !!}</span>
                                                 </label>
+                                                @endif
                                             </div>
                                             <button class="submit-btn" type="submit" id="submitBtn_two">Create
                                                 Reservation</button>
@@ -6136,7 +6138,7 @@ body.embed-checkout-mode #cv-cart-toast .cv-toast-close {
                                                             <div class="form-row">
                                                                 <div class="form-group" style="width: 100%;">
                                                                     <label for="Pick-up-time">Pick-up Time</label>
-                                                                    <small style="display:block;margin-top:4px;margin-bottom:8px;font-size:12px;line-height:1.4;color:#ffdc66;">Reservations must be made at least 15 minutes in advance. Reservation times are available in 5-minute intervals.</small>
+                                                                    <small style="display:block;margin-top:4px;margin-bottom:8px;font-size:12px;line-height:1.4;color:#4b5563;font-weight:600;">Reservations must be made at least 15 minutes in advance. Reservation times are available in 5-minute intervals.</small>
                                                                     <div class="pickup-time-wrap">
                                                                         <i class="fas fa-clock pickup-time-icon"></i>
                                                                         <input name="transportation_pickup_time" type="text" readonly required
@@ -6144,6 +6146,7 @@ body.embed-checkout-mode #cv-cart-toast .cv-toast-close {
                                                                             class="form-control"
                                                                             placeholder="Select pick-up time" />
                                                                     </div>
+                                                                    <div id="pickup-hours-badge" class="schedule-hours-badge" style="display: none; margin-top: 12px;"></div>
                                                                 </div>
                                                             </div>
                                                             <div class="form-row" style="margin-top: 14px;">
@@ -6152,8 +6155,8 @@ body.embed-checkout-mode #cv-cart-toast .cv-toast-close {
                                                                     <input type="text" name="transportation_address"
                                                                         id="address" placeholder="Enter pick-up address" required />
                                                                 </div>
+
                                                             </div>
-                                                            <div id="pickup-hours-badge" class="schedule-hours-badge" style="display: none; margin-top: 12px;"></div>
     
                                                             <div class="form-row" style="display:none !important;" aria-hidden="true">
                                                                 <div class="form-group" style="width: 100%;">
@@ -6182,7 +6185,8 @@ body.embed-checkout-mode #cv-cart-toast .cv-toast-close {
                                                                 <textarea name="transportation_note" id="note"
                                                                     placeholder="If any"></textarea>
                                                             </div>
-                                                            
+                                                            </div>
+
                                                             <div class="form-row" id="transportation-arrival-time-field" style="display:none !important; margin-top: 14px;">
                                                                 <div class="form-group" style="width: 100%;">
                                                                     <label for="Arrival-time">Time of Arrival</label>
@@ -6194,11 +6198,10 @@ body.embed-checkout-mode #cv-cart-toast .cv-toast-close {
                                                                             placeholder="Select time of arrival" />
                                                                     </div>
                                                                     @if(($data->show_arrival_time_verbiage ?? 1) == 1)
-                                                                        <small style="display:block;margin-top:6px;font-size:12px;line-height:1.4;color:rgba(255,255,255,0.6);">Required when self-driving or when package transportation is not included.</small>
+                                                                        <small style="display:block;margin-top:6px;font-size:12px;line-height:1.4;color:#4b5563;font-weight:600;">Required when self-driving or when package transportation is not included.</small>
                                                                     @endif
                                                                     <div id="arrival-hours-badge" class="schedule-hours-badge" style="display: none; margin-top: 12px;"></div>
                                                                 </div>
-                                                            </div>
                                                             </div>
 
                                                             <div class="checkbox-container transportaiton" id="transportation-self-drive-wrap" style="margin-top: 20px;">
@@ -6208,10 +6211,10 @@ body.embed-checkout-mode #cv-cart-toast .cv-toast-close {
                                                                 </label>
                                                             </div>
 
-                                                            <div id="transportation-notice-wrap" class="checkbox-container transportaiton" style="margin-top: 14px; border-color: rgba(255, 204, 0, 0.45) !important; background: linear-gradient(180deg, rgba(51, 34, 5, 0.72), rgba(27, 18, 4, 0.85)) !important;">
-                                                                <div style="display:flex; align-items:flex-start; gap:10px; color:rgba(255,255,255,0.95); font-size:14px; line-height:1.55;">
-                                                                    <i class="fas fa-triangle-exclamation" style="color:#ffcc00; font-size:16px; margin-top:2px; flex-shrink:0;"></i>
-                                                                    <span><strong style="color:#ffdc66;">Transportation Notice:</strong> Transportation is subject to availability. Requests made shortly before your desired pickup time may not be able to be accommodated. Please allow a reasonable amount of advance notice so we have time to coordinate a driver. While we will always do our best to assist, last-minute transportation cannot be guaranteed.</span>
+                                                            <div id="transportation-notice-wrap" class="checkbox-container transportaiton" style="margin-top: 14px;">
+                                                                <div style="display:flex; align-items:flex-start; gap:10px; color:#0b0b0b; font-size:14px; line-height:1.55;">
+                                                                    <i class="fas fa-triangle-exclamation" style="color:#d97706; font-size:16px; margin-top:2px; flex-shrink:0;"></i>
+                                                                    <span><strong style="color:#0b0b0b; font-weight:800;">Transportation Notice:</strong> Transportation is subject to availability. Requests made shortly before your desired pickup time may not be able to be accommodated. Please allow a reasonable amount of advance notice so we have time to coordinate a driver. While we will always do our best to assist, last-minute transportation cannot be guaranteed.</span>
                                                                 </div>
                                                             </div>
                                                         </div>
@@ -6933,6 +6936,889 @@ body.embed-checkout-mode #cv-cart-toast .cv-toast-close {
                     overflow: visible;
                     text-overflow: clip;
                     line-height: 1.35;
+                }
+            }
+        </style>
+        <style>
+            /* Template 4 final visibility + brutalist coherence overrides */
+            .cv-hero-stage,
+            .cv-hero-stage .hero-date-card,
+            .cv-hero-stage .cv-hero-location,
+            .cv-main-col .cv-desktop-shell,
+            .cv-main-col .checkout-section,
+            .cv-main-col .guest > form > section,
+            .cv-main-col .package > section {
+                background: #ffffff !important;
+                border: 2px solid #0b0b0b !important;
+                box-shadow: 6px 6px 0 #0b0b0b !important;
+                border-radius: 2px !important;
+            }
+
+            .cv-hero-stage,
+            .cv-hero-stage *,
+            .cv-main-col,
+            .cv-main-col * {
+                color: #111111 !important;
+                -webkit-text-fill-color: #111111 !important;
+            }
+
+            .cv-main-col .section-kicker-lg,
+            .cv-main-col .cv-package-section-header p,
+            .cv-main-col .phone-note,
+            .cv-main-col .cv-price-meta,
+            .cv-main-col .cv-pkg-sub,
+            .cv-main-col .reservation-date-error {
+                color: #3a3a3a !important;
+                -webkit-text-fill-color: #3a3a3a !important;
+            }
+
+            .cv-main-col .reservation-date-error {
+                color: #a60f0f !important;
+                -webkit-text-fill-color: #a60f0f !important;
+            }
+
+            .cv-main-col #package_use_date,
+            .cv-main-col #package_use_date_iframe,
+            .cv-main-col .custom-calendar-input,
+            .cv-main-col input,
+            .cv-main-col select,
+            .cv-main-col textarea,
+            .cv-main-col .form-select,
+            .cv-main-col .form-control,
+            .cv-main-col .StripeElement {
+                background: #ffffff !important;
+                color: #111111 !important;
+                -webkit-text-fill-color: #111111 !important;
+                border: 2px solid #0b0b0b !important;
+                border-radius: 2px !important;
+                box-shadow: none !important;
+            }
+
+            .cv-main-col input::placeholder,
+            .cv-main-col textarea::placeholder,
+            .cv-main-col select:invalid {
+                color: #5a5a5a !important;
+                -webkit-text-fill-color: #5a5a5a !important;
+                opacity: 1 !important;
+            }
+
+            .cv-main-col .cv-access-card,
+            .cv-main-col .package-category-tile {
+                background: #f6f7f9 !important;
+                border: 2px solid #0b0b0b !important;
+                box-shadow: 4px 4px 0 #0b0b0b !important;
+            }
+
+            .cv-main-col .cv-access-card .cv-ac-body strong,
+            .cv-main-col .cv-access-card .cv-ac-body span,
+            .cv-main-col .package-category-tile,
+            .cv-main-col .package-category-tile * {
+                color: #111111 !important;
+                -webkit-text-fill-color: #111111 !important;
+            }
+
+            .cv-main-col .vip-card.cv-exact-card,
+            .cv-main-col .vip-card.cv-exact-card.cv-tier-1,
+            .cv-main-col .vip-card.cv-exact-card.cv-tier-2,
+            .cv-main-col .vip-card.cv-exact-card.cv-tier-3,
+            .cv-main-col .vip-card.cv-exact-card.cv-tier-4,
+            .cv-main-col .vip-card.cv-exact-card.cv-tier-5 {
+                background: #ffffff !important;
+                border: 2px solid #0b0b0b !important;
+                box-shadow: 6px 6px 0 #0b0b0b !important;
+            }
+
+            .cv-main-col .vip-card.cv-exact-card::before {
+                opacity: 0 !important;
+            }
+
+            .cv-main-col .vip-card.cv-exact-card .cv-pkg-title,
+            .cv-main-col .vip-card.cv-exact-card .cv-pkg-desc,
+            .cv-main-col .vip-card.cv-exact-card .cv-pkg-feature,
+            .cv-main-col .vip-card.cv-exact-card .vip-price-tag,
+            .cv-main-col .vip-card.cv-exact-card .cv-pkg-title-icon,
+            .cv-main-col .vip-card.cv-exact-card .cv-pkg-sub,
+            .cv-main-col .vip-card.cv-exact-card .package-guest-error,
+            .cv-main-col .vip-card.cv-exact-card .package-soldout {
+                color: #111111 !important;
+                -webkit-text-fill-color: #111111 !important;
+            }
+
+            .cv-main-col .vip-card.cv-exact-card .vip-price-tag {
+                font-family: IBM Plex Mono, monospace !important;
+                font-weight: 700 !important;
+            }
+
+            .cv-main-col .cv-popular-pill {
+                background: #0b0b0b !important;
+                color: #00e062 !important;
+                border: 2px solid #0b0b0b !important;
+                box-shadow: 3px 3px 0 #00c853 !important;
+            }
+
+            .cv-hero-stage .cv-hero-location-map-btn {
+                background: #00c853 !important;
+                color: #06210f !important;
+                border: 2px solid #0b0b0b !important;
+                box-shadow: 3px 3px 0 #0b0b0b !important;
+                border-radius: 2px !important;
+                font-family: IBM Plex Mono, monospace !important;
+                font-weight: 700 !important;
+                text-transform: uppercase;
+            }
+
+            .cv-hero-stage .cv-hero-location-contact,
+            .cv-hero-stage .location-contact-chip {
+                background: #ffffff !important;
+                border: 2px solid #0b0b0b !important;
+                border-radius: 2px !important;
+                box-shadow: 2px 2px 0 #0b0b0b !important;
+            }
+
+            .cv-main-col .checkbox-container .consent-label span,
+            .cv-main-col .checkbox-container .consent-label a,
+            .cv-main-col .payment-consent-group .consent-label span,
+            .cv-main-col .payment-consent-group .consent-label a,
+            .cv-main-col #payment-consent-group .consent-label span,
+            .cv-main-col #payment-consent-group .consent-label a {
+                color: #111111 !important;
+                -webkit-text-fill-color: #111111 !important;
+            }
+
+            .cv-main-col .btn-next,
+            .cv-main-col .btn-prev,
+            .cv-main-col .submit-btn,
+            .cv-main-col .vip-btn,
+            .cv-main-col .same-as-info,
+            .cv-main-col .same-as-info-transport {
+                color: #06210f !important;
+                -webkit-text-fill-color: #06210f !important;
+            }
+
+            .cv-main-col .cv-desktop-steps,
+            .cv-main-col #cv-checkout-steps,
+            .cv-main-col #cv-checkout-steps-res {
+                background: #ffffff !important;
+                border: 2px solid #0b0b0b !important;
+                border-radius: 2px !important;
+                box-shadow: 4px 4px 0 #0b0b0b !important;
+                padding: 10px 8px !important;
+            }
+
+            .cv-main-col .cv-dstep {
+                color: #3d3d3d !important;
+                -webkit-text-fill-color: #3d3d3d !important;
+            }
+
+            .cv-main-col .cv-dstep::before {
+                background: #0b0b0b !important;
+                opacity: 0.25;
+            }
+
+            .cv-main-col .cv-dstep .cv-dstep-num {
+                background: #ffffff !important;
+                color: #0b0b0b !important;
+                -webkit-text-fill-color: #0b0b0b !important;
+                border: 2px solid #0b0b0b !important;
+                box-shadow: none !important;
+            }
+
+            .cv-main-col .cv-dstep.is-active,
+            .cv-main-col .cv-dstep.is-complete {
+                color: #0b0b0b !important;
+                -webkit-text-fill-color: #0b0b0b !important;
+            }
+
+            .cv-main-col .cv-dstep.is-active .cv-dstep-num,
+            .cv-main-col .cv-dstep.is-complete .cv-dstep-num {
+                background: #00c853 !important;
+                color: #05210f !important;
+                -webkit-text-fill-color: #05210f !important;
+                border-color: #0b0b0b !important;
+                box-shadow: 2px 2px 0 #0b0b0b !important;
+            }
+
+            .cv-main-col .checkout-section,
+            .cv-main-col .checkout-section.holder-info,
+            .cv-main-col .checkout-section.transport,
+            .cv-main-col .checkout-section.payment-section,
+            .cv-main-col .checkout-section[id^="section-"] {
+                background: #ffffff !important;
+                border: 2px solid #0b0b0b !important;
+                box-shadow: 6px 6px 0 #0b0b0b !important;
+            }
+
+            .cv-main-col .checkout-section[id^="section-"]::before {
+                display: none !important;
+            }
+
+            .cv-main-col #package_use_date::placeholder,
+            .cv-main-col #package_use_date_iframe::placeholder,
+            .cv-main-col input[name="transportation_pickup_time"]::placeholder,
+            .cv-main-col input[name="transportation_arrival_time"]::placeholder,
+            .cv-main-col #Pick-up-time::placeholder,
+            .cv-main-col #Arrival-time::placeholder {
+                color: #626262 !important;
+                -webkit-text-fill-color: #626262 !important;
+                opacity: 1 !important;
+            }
+
+            .cv-main-col select.form-select,
+            .cv-main-col .package_number_of_guestss,
+            .cv-main-col .package-guest-input-wrap select {
+                background: #ffffff !important;
+                color: #111111 !important;
+                border: 2px solid #0b0b0b !important;
+                border-radius: 2px !important;
+                box-shadow: 2px 2px 0 #0b0b0b !important;
+                appearance: none;
+                -webkit-appearance: none;
+                -moz-appearance: none;
+                background-image: linear-gradient(45deg, transparent 50%, #111 50%), linear-gradient(135deg, #111 50%, transparent 50%);
+                background-position: calc(100% - 16px) calc(50% - 3px), calc(100% - 11px) calc(50% - 3px);
+                background-size: 5px 5px, 5px 5px;
+                background-repeat: no-repeat;
+                padding-right: 34px !important;
+            }
+
+            .cv-main-col select.form-select option,
+            .cv-main-col .package_number_of_guestss option {
+                background: #ffffff !important;
+                color: #111111 !important;
+            }
+
+            .cv-main-col select.form-select option[value=""],
+            .cv-main-col .package_number_of_guestss option[value=""] {
+                color: #5f5f5f !important;
+            }
+
+            .cv-main-col .cv-pkg-tooltip-trigger {
+                background: #ffffff !important;
+                color: #0b0b0b !important;
+                border: 2px solid #0b0b0b !important;
+                box-shadow: 2px 2px 0 #0b0b0b !important;
+            }
+
+            .cv-main-col .cv-pkg-tooltip-trigger:hover {
+                background: #f1f3f6 !important;
+            }
+
+            #infoTooltipModal .modal-content,
+            #addonSelectionModal .modal-content,
+            #checkoutPopupModal .modal-content {
+                background: #ffffff !important;
+                color: #111111 !important;
+                border: 2px solid #0b0b0b !important;
+                border-radius: 2px !important;
+                box-shadow: 8px 8px 0 #0b0b0b !important;
+            }
+
+            #infoTooltipModal .modal-header,
+            #addonSelectionModal .modal-header,
+            #checkoutPopupModal .modal-header,
+            #infoTooltipModal .modal-footer,
+            #addonSelectionModal .modal-footer,
+            #checkoutPopupModal .modal-footer {
+                background: #f2f4f7 !important;
+                border-color: #0b0b0b !important;
+            }
+
+            #infoTooltipModal .modal-title,
+            #addonSelectionModal .modal-title,
+            #checkoutPopupModal .modal-title,
+            #infoTooltipModal .modal-body,
+            #addonSelectionModal .modal-body,
+            #checkoutPopupModal .modal-body,
+            #infoTooltipModal .modal-body p,
+            #addonSelectionModal .modal-body p,
+            #checkoutPopupModal .modal-body p,
+            #addonSelectionModal .addon-modal-label,
+            #addonSelectionModal .addon-modal-unit,
+            #addonSelectionModal .addon-modal-desc,
+            #addonSelectionModal .addon-line-total {
+                color: #111111 !important;
+                -webkit-text-fill-color: #111111 !important;
+            }
+
+            #addonSelectionModal .addon-modal-row {
+                background: #ffffff !important;
+                border: 2px solid #0b0b0b !important;
+                border-radius: 2px !important;
+            }
+
+            #addonSelectionModal .addon-qty-btn,
+            #addonSelectionModal .btn-secondary,
+            #infoTooltipModal .btn-secondary,
+            #checkoutPopupModal .btn-secondary {
+                background: #dfe4ea !important;
+                color: #111111 !important;
+                border: 2px solid #0b0b0b !important;
+                border-radius: 2px !important;
+                box-shadow: 2px 2px 0 #0b0b0b !important;
+            }
+
+            #addonSelectionModal #addonModalConfirmBtn,
+            #checkoutPopupModal .popup-cta {
+                background: #00c853 !important;
+                color: #06210f !important;
+                border: 2px solid #0b0b0b !important;
+                border-radius: 2px !important;
+                box-shadow: 2px 2px 0 #0b0b0b !important;
+                font-family: IBM Plex Mono, monospace !important;
+                font-weight: 700 !important;
+                text-transform: uppercase;
+            }
+
+            #copyTooltip,
+            .tooltip-inner {
+                background: #0b0b0b !important;
+                color: #00e062 !important;
+                border: 1px solid #00c853 !important;
+                font-family: IBM Plex Mono, monospace !important;
+            }
+
+            .cv-top-nav {
+                background: #ffffff !important;
+                border-bottom: 2px solid #0b0b0b !important;
+                box-shadow: 0 4px 0 #0b0b0b !important;
+            }
+
+            .cv-top-nav::after {
+                display: none !important;
+            }
+
+            .cv-top-nav,
+            .cv-top-nav *,
+            .cv-nav-name,
+            .cv-nav-back,
+            .cv-nav-status,
+            .cv-nav-trust,
+            .cv-nav-brand {
+                color: #111111 !important;
+                -webkit-text-fill-color: #111111 !important;
+            }
+
+            .cv-nav-back {
+                background: #f2f4f7 !important;
+                border: 2px solid #0b0b0b !important;
+                box-shadow: 2px 2px 0 #0b0b0b !important;
+                border-radius: 2px !important;
+            }
+
+            .aff-footer {
+                background: #ffffff !important;
+                border-top: 2px solid #0b0b0b !important;
+            }
+
+            .aff-footer::before,
+            .aff-footer::after {
+                display: none !important;
+            }
+
+            .aff-footer,
+            .aff-footer *,
+            .cv-footer-inner,
+            .cv-footer-legal,
+            .cv-footer-bar,
+            .cv-footer-powered,
+            .cv-footer-tagline,
+            .cv-footer-legal-title,
+            .cv-footer-bar-copy,
+            .cv-footer-bar-copy strong,
+            .cv-footer-bar-social,
+            .cv-footer-legal a {
+                color: #111111 !important;
+                -webkit-text-fill-color: #111111 !important;
+            }
+
+            .cv-footer-bar-social,
+            .cv-footer-legal,
+            .cv-footer-brand {
+                border-color: #0b0b0b !important;
+            }
+
+            /* Template 4 hard-lock cleanup: final consistency pass */
+            body,
+            main,
+            header,
+            .cv-events-shell {
+                background: #ffffff !important;
+            }
+
+            #package_use_date,
+            #package_use_date[readonly],
+            #package_use_date.flatpickr-input[readonly],
+            #package_use_date_iframe,
+            #package_use_date_iframe[readonly],
+            #package_use_date_iframe.flatpickr-input[readonly] {
+                color: #111111 !important;
+                -webkit-text-fill-color: #111111 !important;
+                text-shadow: none !important;
+                opacity: 1 !important;
+                background: #ffffff !important;
+                border: 2px solid #0b0b0b !important;
+            }
+
+            #package_use_date::placeholder,
+            #package_use_date_iframe::placeholder {
+                color: #606060 !important;
+                -webkit-text-fill-color: #606060 !important;
+                opacity: 1 !important;
+            }
+
+            .cv-main-col #section-2,
+            .cv-main-col #section-3,
+            .cv-main-col #section-4,
+            .cv-main-col #section-2 *,
+            .cv-main-col #section-3 *,
+            .cv-main-col #section-4 * {
+                color: #111111 !important;
+                -webkit-text-fill-color: #111111 !important;
+            }
+
+            .cv-main-col #section-2,
+            .cv-main-col #section-3,
+            .cv-main-col #section-4 {
+                background: #ffffff !important;
+                border: 2px solid #0b0b0b !important;
+                box-shadow: 6px 6px 0 #0b0b0b !important;
+            }
+
+            #cv-order-sidebar #cart-total,
+            #cv-order-sidebar #cart-total * {
+                color: #111111 !important;
+                -webkit-text-fill-color: #111111 !important;
+            }
+
+            #cv-order-sidebar .pricing-shell .default-deposit,
+            #cv-order-sidebar .default-deposit,
+            #cv-order-sidebar .pricing-shell .default-total,
+            #cv-order-sidebar .default-total {
+                background: #0b0b0b !important;
+                border: 2px solid #0b0b0b !important;
+                box-shadow: 4px 4px 0 #00c853 !important;
+                border-radius: 2px !important;
+            }
+
+            #cv-order-sidebar .pricing-shell .default-deposit > span:first-child,
+            #cv-order-sidebar .default-deposit > span:first-child,
+            #cv-order-sidebar .pricing-shell .default-total > span:first-child,
+            #cv-order-sidebar .default-total > span:first-child {
+                color: #ffffff !important;
+                -webkit-text-fill-color: #ffffff !important;
+                font-family: IBM Plex Mono, monospace !important;
+                text-transform: uppercase !important;
+                letter-spacing: 0.06em !important;
+            }
+
+            #cv-order-sidebar .pricing-shell .default-deposit > span:last-child,
+            #cv-order-sidebar .default-deposit > span:last-child,
+            #cv-order-sidebar .pricing-shell .default-total > span:last-child,
+            #cv-order-sidebar .default-total > span:last-child {
+                color: #00ff66 !important;
+                -webkit-text-fill-color: #00ff66 !important;
+                font-family: IBM Plex Mono, monospace !important;
+                font-size: 24px !important;
+                font-weight: 700 !important;
+            }
+
+            /* Due Today Box Contrast */
+            .cv-deposit-box {
+                background: #ffffff !important;
+                border: 2px solid #0b0b0b !important;
+                box-shadow: 4px 4px 0 #0b0b0b !important;
+                border-radius: 2px !important;
+            }
+            .cv-deposit-label {
+                color: #0b0b0b !important;
+                -webkit-text-fill-color: #0b0b0b !important;
+                font-weight: 700 !important;
+            }
+            .cv-deposit-label .cv-info-icon {
+                border: 1.5px solid #0b0b0b !important;
+                color: #0b0b0b !important;
+                -webkit-text-fill-color: #0b0b0b !important;
+            }
+            .cv-deposit-box .cv-deposit-main {
+                color: #0b0b0b !important;
+                -webkit-text-fill-color: #0b0b0b !important;
+                font-family: IBM Plex Mono, monospace !important;
+                font-weight: 800 !important;
+            }
+            .cv-deposit-sub {
+                color: #374151 !important;
+                -webkit-text-fill-color: #374151 !important;
+                font-weight: 600 !important;
+            }
+            .cv-deposit-due-row {
+                color: #0b0b0b !important;
+                -webkit-text-fill-color: #0b0b0b !important;
+                border-top: 2px solid #0b0b0b !important;
+            }
+            .cv-deposit-due-row #cv-due-on-arrival {
+                color: #0b0b0b !important;
+                -webkit-text-fill-color: #0b0b0b !important;
+                font-family: IBM Plex Mono, monospace !important;
+                font-weight: 700 !important;
+            }
+            .cv-deposit-shield {
+                background: #e6f9ed !important;
+                border: 1.5px solid #00c853 !important;
+                color: #00c853 !important;
+            }
+
+            /* All Form Fields Need Distinct Border */
+            .checkout-section[id^="section-"] input[type="text"],
+            .checkout-section[id^="section-"] input[type="email"],
+            .checkout-section[id^="section-"] input[type="tel"],
+            .checkout-section[id^="section-"] input[type="number"],
+            .checkout-section[id^="section-"] input[type="date"],
+            .checkout-section[id^="section-"] textarea,
+            .checkout-section[id^="section-"] select,
+            .checkout-section[id^="section-"] select.form-select,
+            .checkout-section[id^="section-"] .form-control,
+            .checkout-section[id^="section-"] .StripeElement,
+            .cv-main-col input[type="text"],
+            .cv-main-col input[type="email"],
+            .cv-main-col input[type="tel"],
+            .cv-main-col input[type="number"],
+            .cv-main-col textarea,
+            .cv-main-col select,
+            .cv-main-col .form-control,
+            .cv-main-col .StripeElement,
+            .iti,
+            .iti input,
+            .iti input[type="tel"] {
+                border: 2px solid #0b0b0b !important;
+                border-radius: 2px !important;
+                background: #ffffff !important;
+                color: #0b0b0b !important;
+                -webkit-text-fill-color: #0b0b0b !important;
+                box-shadow: none !important;
+            }
+
+            .checkout-section[id^="section-"] input:focus,
+            .checkout-section[id^="section-"] textarea:focus,
+            .checkout-section[id^="section-"] select:focus,
+            .checkout-section[id^="section-"] .StripeElement--focus,
+            .cv-main-col input:focus,
+            .cv-main-col textarea:focus,
+            .cv-main-col select:focus {
+                border-color: #00c853 !important;
+                box-shadow: 3px 3px 0 #0b0b0b !important;
+                outline: none !important;
+            }
+
+            /* Toast Notification Styling */
+            #cv-cart-toast {
+                background: #0b0b0b !important;
+                color: #ffffff !important;
+                border: 2px solid #0b0b0b !important;
+                box-shadow: 4px 4px 0 #00c853 !important;
+                border-radius: 2px !important;
+            }
+            #cv-cart-toast .cv-toast-icon {
+                background: #00c853 !important;
+                color: #0b0b0b !important;
+                border: 1px solid #0b0b0b !important;
+                box-shadow: none !important;
+            }
+            #cv-cart-toast .cv-toast-icon i {
+                color: #0b0b0b !important;
+            }
+            #cv-cart-toast .cv-toast-title {
+                color: #ffffff !important;
+                -webkit-text-fill-color: #ffffff !important;
+                font-weight: 800 !important;
+            }
+            #cv-cart-toast .cv-toast-sub {
+                color: #d1d5db !important;
+                -webkit-text-fill-color: #d1d5db !important;
+                font-weight: 500 !important;
+            }
+            #cv-cart-toast .cv-toast-close {
+                background: #1f2937 !important;
+                border: 1px solid #374151 !important;
+                color: #ffffff !important;
+                -webkit-text-fill-color: #ffffff !important;
+            }
+
+            /* Transportation Schedule Badge & Notice */
+            .schedule-hours-badge {
+                background: #ffffff !important;
+                border: 2px solid #0b0b0b !important;
+                box-shadow: 3px 3px 0 #0b0b0b !important;
+                border-radius: 2px !important;
+                color: #0b0b0b !important;
+                padding: 10px 14px !important;
+                width: 100% !important;
+                max-width: 100% !important;
+                box-sizing: border-box !important;
+                backdrop-filter: none !important;
+                -webkit-backdrop-filter: none !important;
+            }
+            .schedule-hours-badge .hours-title {
+                color: #0b0b0b !important;
+                -webkit-text-fill-color: #0b0b0b !important;
+                font-weight: 800 !important;
+                font-size: 12px !important;
+                text-transform: uppercase !important;
+                letter-spacing: 0.5px !important;
+                margin-bottom: 6px !important;
+                display: flex !important;
+                align-items: center !important;
+                gap: 6px !important;
+            }
+            .schedule-hours-badge .hours-title i {
+                color: #00c853 !important;
+            }
+            .schedule-hours-badge .hours-days {
+                color: #0b0b0b !important;
+                -webkit-text-fill-color: #0b0b0b !important;
+                font-weight: 700 !important;
+            }
+            .schedule-hours-badge .hours-time {
+                color: #374151 !important;
+                -webkit-text-fill-color: #374151 !important;
+                font-weight: 600 !important;
+            }
+
+            .checkbox-container.transportaiton,
+            #transport-confirmation,
+            #transportation-self-drive-wrap {
+                background: #ffffff !important;
+                border: 2px solid #0b0b0b !important;
+                border-radius: 2px !important;
+                box-shadow: 3px 3px 0 #0b0b0b !important;
+                color: #0b0b0b !important;
+                padding: 16px 20px !important;
+            }
+            .checkbox-container.transportaiton label,
+            #transportation-self-drive-wrap label {
+                color: #0b0b0b !important;
+                -webkit-text-fill-color: #0b0b0b !important;
+                font-size: 13.5px !important;
+                font-weight: 600 !important;
+                line-height: 1.5 !important;
+            }
+
+            #transportation-notice-wrap {
+                background: #fffbeb !important;
+                border: 2px solid #0b0b0b !important;
+                border-radius: 2px !important;
+                box-shadow: 3px 3px 0 #0b0b0b !important;
+                color: #0b0b0b !important;
+                padding: 16px 20px !important;
+            }
+            #transportation-notice-wrap * {
+                color: #0b0b0b !important;
+                -webkit-text-fill-color: #0b0b0b !important;
+            }
+            #transportation-notice-wrap i.fas.fa-triangle-exclamation {
+                color: #d97706 !important;
+            }
+            #transportation-notice-wrap strong {
+                color: #0b0b0b !important;
+                font-weight: 800 !important;
+            }
+
+            .checkbox-container.transportaiton input[type="checkbox"],
+            #transportation_self_drive_ack {
+                accent-color: #00c853 !important;
+                width: 18px !important;
+                height: 18px !important;
+                border: 2px solid #0b0b0b !important;
+                border-radius: 2px !important;
+                cursor: pointer !important;
+            }
+
+            /* Selected Pickup / Arrival Time Visibility */
+            #Pick-up-time,
+            #Arrival-time,
+            input[name="transportation_pickup_time"],
+            input[name="transportation_arrival_time"],
+            .checkout-section[id^="section-"] #Pick-up-time,
+            .checkout-section[id^="section-"] #Arrival-time,
+            .checkout-section[id^="section-"] input[name="transportation_pickup_time"],
+            .checkout-section[id^="section-"] input[name="transportation_arrival_time"] {
+                background: #ffffff !important;
+                color: #0b0b0b !important;
+                -webkit-text-fill-color: #0b0b0b !important;
+                border: 2px solid #0b0b0b !important;
+                border-radius: 2px !important;
+                font-weight: 700 !important;
+                font-family: inherit !important;
+            }
+            .checkout-section[id^="section-"] .pickup-time-icon {
+                color: #0b0b0b !important;
+            }
+            #Pick-up-time::placeholder,
+            #Arrival-time::placeholder,
+            input[name="transportation_pickup_time"]::placeholder,
+            input[name="transportation_arrival_time"]::placeholder {
+                color: #6b7280 !important;
+                -webkit-text-fill-color: #6b7280 !important;
+            }
+            .flatpickr-calendar.hasTime.noCalendar {
+                background: #ffffff !important;
+                border: 2px solid #0b0b0b !important;
+                border-radius: 2px !important;
+                box-shadow: 6px 6px 0 #0b0b0b !important;
+                color: #0b0b0b !important;
+            }
+            .flatpickr-calendar.hasTime.noCalendar .flatpickr-time {
+                background: #ffffff !important;
+            }
+            .flatpickr-time input.numInput,
+            .flatpickr-time .flatpickr-am-pm {
+                background: #f3f4f6 !important;
+                color: #0b0b0b !important;
+                -webkit-text-fill-color: #0b0b0b !important;
+                border: 2px solid #0b0b0b !important;
+                border-radius: 2px !important;
+            }
+            .flatpickr-time input.numInput:focus,
+            .flatpickr-time .flatpickr-am-pm:focus,
+            .flatpickr-time .flatpickr-am-pm:hover {
+                background: #e5e7eb !important;
+                color: #0b0b0b !important;
+                -webkit-text-fill-color: #0b0b0b !important;
+            }
+            .flatpickr-time .flatpickr-time-separator {
+                color: #0b0b0b !important;
+            }
+            .flatpickr-time .numInputWrapper span.arrowUp:after {
+                border-bottom-color: #0b0b0b !important;
+            }
+            .flatpickr-time .numInputWrapper span.arrowDown:after {
+                border-top-color: #0b0b0b !important;
+            }
+
+            /* Payment Toggles Visibility */
+            .checkbox-container #smsConsent_two,
+            .checkbox-container #smsConsent,
+            .checkbox-container #driverNotificationConsent_two,
+            .checkbox-container #driverNotificationConsent,
+            .checkbox-container #termsConsent_two,
+            .checkbox-container #termsConsent {
+                -webkit-appearance: none !important;
+                appearance: none !important;
+                width: 48px !important;
+                height: 26px !important;
+                border-radius: 999px !important;
+                border: 2px solid #0b0b0b !important;
+                background: #e5e7eb !important;
+                box-shadow: 2px 2px 0 #0b0b0b !important;
+                position: relative !important;
+                margin: 0 !important;
+                margin-right: 12px !important;
+                padding: 0 !important;
+                flex-shrink: 0 !important;
+                cursor: pointer !important;
+                transition: background .2s ease, border-color .2s ease !important;
+            }
+            .checkbox-container #smsConsent_two::before,
+            .checkbox-container #smsConsent::before,
+            .checkbox-container #driverNotificationConsent_two::before,
+            .checkbox-container #driverNotificationConsent::before,
+            .checkbox-container #termsConsent_two::before,
+            .checkbox-container #termsConsent::before {
+                content: '' !important;
+                position: absolute !important;
+                top: 2px !important;
+                left: 2px !important;
+                width: 18px !important;
+                height: 18px !important;
+                border-radius: 50% !important;
+                background: #0b0b0b !important;
+                transition: transform .2s ease, background .2s ease !important;
+            }
+            .checkbox-container #smsConsent_two:checked,
+            .checkbox-container #smsConsent:checked,
+            .checkbox-container #driverNotificationConsent_two:checked,
+            .checkbox-container #driverNotificationConsent:checked,
+            .checkbox-container #termsConsent_two:checked,
+            .checkbox-container #termsConsent:checked {
+                background: #00c853 !important;
+                border-color: #0b0b0b !important;
+            }
+            .checkbox-container #smsConsent_two:checked::before,
+            .checkbox-container #smsConsent:checked::before,
+            .checkbox-container #driverNotificationConsent_two:checked::before,
+            .checkbox-container #driverNotificationConsent:checked::before,
+            .checkbox-container #termsConsent_two:checked::before,
+            .checkbox-container #termsConsent::before {
+                background: #ffffff !important;
+                border: 1px solid #0b0b0b !important;
+                transform: translateX(22px) !important;
+            }
+            .checkbox-container.payment-consent-group,
+            #payment-consent-group {
+                background: #ffffff !important;
+                border: 2px solid #0b0b0b !important;
+                box-shadow: 3px 3px 0 #0b0b0b !important;
+                border-radius: 2px !important;
+                padding: 16px !important;
+            }
+            .checkbox-container .consent-label,
+            .checkbox-container.payment-consent-group label {
+                color: #0b0b0b !important;
+                -webkit-text-fill-color: #0b0b0b !important;
+                font-size: 13.5px !important;
+                font-weight: 600 !important;
+            }
+            .checkbox-container .consent-label a,
+            .checkbox-container.payment-consent-group a {
+                color: #0b0b0b !important;
+                text-decoration: underline !important;
+                font-weight: 700 !important;
+            }
+
+            .cv-events-shell,
+            .cv-events-shell .events-section-container,
+            .cv-events-shell .event-header,
+            .cv-events-shell .event-header h2,
+            .cv-events-shell .event-filter,
+            .cv-events-shell .event-card,
+            .cv-events-shell .event-card .card,
+            .cv-events-shell .event-day,
+            .cv-events-shell .event-dates,
+            .cv-events-shell .event-dates span,
+            .cv-events-shell .event-location,
+            .cv-events-shell .col-12 {
+                color: #111111 !important;
+                -webkit-text-fill-color: #111111 !important;
+            }
+
+            .cv-events-shell .event-card,
+            .cv-events-shell .event-card .card,
+            .cv-events-shell .event-filter {
+                background: #ffffff !important;
+                border: 2px solid #0b0b0b !important;
+                box-shadow: 4px 4px 0 #0b0b0b !important;
+            }
+
+            .cv-events-shell .event-location:last-child {
+                color: #00a84a !important;
+                -webkit-text-fill-color: #00a84a !important;
+            }
+
+            .cv-footer-brand {
+                background: #ffffff !important;
+                border: 2px solid #0b0b0b !important;
+                box-shadow: 4px 4px 0 #0b0b0b !important;
+                border-radius: 2px !important;
+                padding: 14px !important;
+            }
+
+            @media (max-width: 768px) {
+                .cv-main-col .vip-card.cv-exact-card,
+                .cv-main-col .checkout-section,
+                .cv-main-col .guest > form > section,
+                .cv-main-col .package > section,
+                .cv-hero-stage .hero-date-card,
+                .cv-hero-stage .cv-hero-location {
+                    box-shadow: 4px 4px 0 #0b0b0b !important;
                 }
             }
         </style>
@@ -10173,7 +11059,7 @@ body.embed-checkout-mode #cv-cart-toast .cv-toast-close {
 
                 // Check SMS consent checkbox for package form
                 const smsConsentPackage = document.getElementById('smsConsent');
-                if (smsConsentPackage && !smsConsentPackage.checked) {
+                if (!smsConsentPackage || !smsConsentPackage.checked) {
                     e.preventDefault();
                     const errorMsg = document.getElementById('validation-error-msg-package') || document.createElement('div');
                     if (!errorMsg.id) {
@@ -10189,7 +11075,7 @@ body.embed-checkout-mode #cv-cart-toast .cv-toast-close {
 
                 // Check terms consent checkbox for package form
                 const termsConsentPackage = document.getElementById('termsConsent');
-                if (termsConsentPackage && !termsConsentPackage.checked) {
+                if (!termsConsentPackage || !termsConsentPackage.checked) {
                     e.preventDefault();
                     const errorMsg = document.getElementById('validation-error-msg-package') || document.createElement('div');
                     if (!errorMsg.id) {
@@ -10627,7 +11513,7 @@ body.embed-checkout-mode #cv-cart-toast .cv-toast-close {
                 if (isMobileDevice) {
                     el.type = 'time';
                     el.removeAttribute('readonly');
-                    el.step = 300;
+                    el.step = 900;
                     if (minT && maxT && hasSameDayRange) {
                         el.min = minT;
                         el.max = maxT;
