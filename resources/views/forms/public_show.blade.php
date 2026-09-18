@@ -477,6 +477,7 @@
                                 <h4 class="doc-section-heading">{{ $label }}</h4>
                                 @if($helpText)
                                     <div class="text-muted small mb-2">{{ $helpText }}</div>
+                                @endif
                             @elseif($type === 'image')
                                 @php
                                     $align = $field['image_align'] ?? 'center';
