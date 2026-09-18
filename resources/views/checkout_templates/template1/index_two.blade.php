@@ -256,8 +256,7 @@
                         
                         @endif
                         @if (empty($isSinglePackageCheckout))
-                        <div class="cv-access-grid">
-                            @if ($data->reservation == 1)
+                        @if ($data->reservation == 1)<div class="cv-access-grid">
                                 <button type="button" class="cv-access-card cv-access-tab is-active" data-name="package">
                                     @if(!empty($data->package_tab_ribbon))
                                         <span class="cv-ac-ribbon">{{ $data->package_tab_ribbon }}</span>
@@ -276,20 +275,7 @@
                                         <span style="color: #fff !important;">{{ $data->guest_tab_subtitle ?? 'Complimentary ride and general entry' }}</span>
                                     </span>
                                 </button>
-                            @else
-                                <div class="cv-access-card is-active" data-name="package">
-                                    @if(!empty($data->package_tab_ribbon))
-                                        <span class="cv-ac-ribbon">{{ $data->package_tab_ribbon }}</span>
-                                    @endif
-                                    <span class="cv-ac-shimmer" aria-hidden="true"></span>
-                                    <span class="cv-ac-icon-wrap"><i class="fas {{ $data->package_tab_icon ?? 'fa-star' }}"></i></span>
-                                    <span class="cv-ac-body">
-                                        <strong>{{ $data->package_button_text ?? 'VIP Packages' }}</strong>
-                                        <span style="color: #fff !important;">{{ $data->package_tab_subtitle ?? 'VIP table packages &amp; experiences' }}</span>
-                                    </span>
-                                </div>
-                            @endif
-                        </div>
+                            </div>@endif
                         @endif
                     </div>
 
@@ -766,7 +752,7 @@
                                             </div>
 
                                             <!-- Shareable Link Button -->
-                                            <div class="mt-3" id="shareLinkContainer" style="background:#fff;border:2px solid #0b0b0b;border-radius:2px;padding:12px;">
+                                            <div class="mt-3" id="shareLinkContainer" style="display:none;">
                                                 <button type="button" id="generateShareLink" style="background:#fff;color:#111;border:2px solid #0b0b0b;padding:8px 12px;border-radius:2px;font-size:12px;font-weight:700;">Generate
                                                     Shareable Link</button>
                                                 <div style="position: relative;">
@@ -785,7 +771,7 @@
                                                 </div>
                                             </div>
 
-                                            <div class="default-deposit" style="background:#fff;color:#111;border:2px solid #0b0b0b;padding:14px 16px;"><span>Total</span><span>$0.00</span></div>
+                                            <div class="default-deposit" class="default-deposit-clean"><span>Total</span><span>$0.00</span></div>
                                             @if ($data->refundable_fee > 0)
                                                 <div style="font-size: 16px; font-weight: 700; color: {{ $brandSecondary }} !important;"
                                                     class="vip-price default-refundable">
@@ -822,32 +808,11 @@
                                         </div>
                                     </div>
 
-                                    <!-- New visual step indicator -->
-                                    <div class="cv-steps" id="cv-steps" style="display:none; margin-bottom:20px;">
-                                        <div class="cv-step cv-step-active" id="cv-vstep-1">
-                                            <div class="cv-step-inner">
-                                                <div class="cv-step-circle">1</div>
-                                                <div class="cv-step-label">Package<br>Details</div>
-                                            </div>
-                                            <div class="cv-step-connector"></div>
-                                        </div>
-                                        <div class="cv-step" id="cv-vstep-2">
-                                            <div class="cv-step-inner">
-                                                <div class="cv-step-circle">2</div>
-                                                <div class="cv-step-label">Transport/<br>Confirm</div>
-                                            </div>
-                                            <div class="cv-step-connector"></div>
-                                        </div>
-                                        <div class="cv-step" id="cv-vstep-3">
-                                            <div class="cv-step-inner">
-                                                <div class="cv-step-circle">3</div>
-                                                <div class="cv-step-label">Review<br>&amp; Pay</div>
-                                            </div>
-                                        </div>
+                                    
                                     </div>
 
                                     <!-- Step Progress Indicator -->
-                                    <ul class="checkout-steps" id="checkout-steps" style="display: none;">
+                                    <ul class="checkout-steps" id="checkout-steps">
                                         <li class="step active" id="step-1">
                                             <div class="step-number">1</div>
                                             <p class="step-title">Package Details</p>
@@ -862,7 +827,7 @@
                                         </li>
                                     </ul>
 
-                                    <div style="display:none; margin: 14px 0;" class="dynamic-price cv-info-notice">
+                                    <div style="margin: 14px 0;" class="cv-info-notice">
                                         <i class="fas fa-info-circle"></i>
                                         <span>This experience is fulfilled by the venue. Entry is subject to venue rules including minimum age requirements (21+), ID verification and dress code.</span>
                                     </div>
@@ -874,8 +839,8 @@
 
                                         
                                         <!-- Step 1: Package Holder Info -->
-                                        <section class="checkout-section holder-info dynamic-price mt-4"
-                                            id="section-1" style="display: none; width: 100%;">
+                                        <section class="checkout-section holder-info mt-4"
+                                            id="section-1" style="width: 100%;">
                                             <div class="">
                                                 <div class="row">
 
@@ -1411,21 +1376,11 @@
                     {{-- <button type="button" class="cv-sidebar-edit-btn" id="cv-edit-cart" style="display:none;"><i class="fas fa-pen"></i> Edit Cart</button> --}}
                 </div>
 
-                @php
-                    $sidebarVenueImage = !empty($event->image ?? null) ? asset('uploads/' . $event->image) : ($data->logo ? asset('uploads/' . $data->logo) : null);
-                @endphp
-                @if($sidebarVenueImage)
-                    <img src="{{ $sidebarVenueImage }}" class="cv-sidebar-venue-image" alt="{{ $data->name }}">
-                @endif
-
-                {{-- Venue info --}}
-                <div class="cv-sidebar-venue-row" style="border-bottom:none; padding-bottom:0; margin-bottom:14px;">
-                    <div style="flex:1; min-width:0;">
-                        <div class="cv-sidebar-venue-name">{{ $data->name }}</div>
-                        <div class="cv-sidebar-venue-date" id="cv-sidebar-date">
-                            <i class="fas fa-calendar-alt" style="margin-right:4px;opacity:.6;"></i>Select a date
-                        </div>
-                    </div>
+                                {{-- Empty cart state placeholder --}}
+                <div id="cv-sidebar-empty-placeholder" class="cv-sidebar-empty-state">
+                    <i class="fas fa-shopping-bag"></i>
+                    <p>No package selected yet</p>
+                    <span>Select a package on the left to proceed</span>
                 </div>
 
                 {{-- Cart, pricing, promo will be moved here by JS --}}
@@ -1455,7 +1410,7 @@
                 </div>
 
                 {{-- CTA buttons --}}
-                <div class="dynamic-price" id="cv-sidebar-cta-wrap" style="display:none; margin-top:14px;">
+                <div id="cv-sidebar-cta-wrap" style="margin-top:14px;">
                     <button type="button" class="cv-cta-btn" id="cv-sidebar-cta" onclick="var el = document.getElementById('checkout-steps'); if(el) { el.scrollIntoView({behavior:'smooth'}); }">
                         Proceed to Checkout <i class="fas fa-arrow-right" style="margin-left:6px;"></i>
                     </button>
@@ -2672,13 +2627,17 @@
                     let guestQty = parseInt(pkg.guests, 10) || 1;
                     const isTicketPkg = pkg.packageType === 'ticket';
                     let guestLabel = guestQty + (isTicketPkg ? (guestQty === 1 ? ' Ticket' : ' Tickets') : (guestQty === 1 ? ' Guest' : ' Guests'));
+                    let pkgThumb = pkg.packageVisual ? `<img src="${pkg.packageVisual}" class="cart-item-thumb" alt="${pkg.packageName}">` : `<div class="cart-item-thumb-placeholder"><i class="fas fa-cocktail"></i></div>`;
                     html += `<div class="cart-line">`
-                        + `<div class="cart-line-main"><div style="flex:1;min-width:0;"><div class="cart-item-name">${pkg.packageName}</div><div class="cart-line-guests">${guestLabel}</div></div>`
+                        + pkgThumb
+                        + `<div class="cart-line-main"><div class="cart-item-name">${pkg.packageName}</div><div class="cart-line-guests">Qty: ${guestQty}</div></div>`
                         + `<div style="display:flex;flex-direction:column;align-items:flex-end;gap:4px;"><div class="cart-item-price">${priceLine}</div><button onclick='window.removePackageFromCart("${pkg.packageId}")' class="cart-remove-btn">Remove</button></div></div>`
                         + (pkg.addons.length ? `<div class="cart-addons" style="color: #a774ff !important;">Add-ons: ${pkg.addons.map(a => a.name + ((parseInt(a.qty, 10) || 1) > 1 ? (' x' + (parseInt(a.qty, 10) || 1)) : '') + ' (' + formatCurrency(a.price) + ')').join(', ')}</div>` : '')
                         + `</div>`;
                 });
                 $('#cart-list').html(html);
+                var emptyPlaceholder = document.getElementById('cv-sidebar-empty-placeholder');
+                if (emptyPlaceholder) emptyPlaceholder.style.display = (window.cart && window.cart.length > 0) ? 'none' : 'flex';
                 syncCheckoutCartFields();
             };
             
@@ -3773,6 +3732,7 @@
                             window.pendingPackageSelection = {
                                 packageId: packageId,
                                 packageName: packageName,
+                    packageVisual: $(this).closest('.vip-card').find('.cv-pkg-media').attr('src') || '',
                                 packagePrice: packagePrice,
                                 guests: guests,
                                 isMultiple: isMultiple,
