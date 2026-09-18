@@ -910,6 +910,41 @@
                                             <div class="text-muted micro-text mt-1">Select an image to auto-upload to media storage.</div>
                                         </div>
 
+                                        <div class="row g-2 mb-3">
+                                            <div class="col-6">
+                                                <label class="form-label text-white small fw-semibold">Width</label>
+                                                <input type="text" id="propImageWidth" class="txn-search-input" placeholder="e.g. 100%, 300px, auto">
+                                                <div class="text-muted micro-text mt-1">e.g. <code>auto</code>, <code>250px</code>, <code>100%</code></div>
+                                                <div class="d-flex flex-wrap gap-1 mt-1.5">
+                                                    <button type="button" class="btn-quick-pill" onclick="setQuickDimension('width', 'auto')">Auto</button>
+                                                    <button type="button" class="btn-quick-pill" onclick="setQuickDimension('width', '200px')">200px</button>
+                                                    <button type="button" class="btn-quick-pill" onclick="setQuickDimension('width', '350px')">350px</button>
+                                                    <button type="button" class="btn-quick-pill" onclick="setQuickDimension('width', '100%')">100%</button>
+                                                </div>
+                                            </div>
+                                            <div class="col-6">
+                                                <label class="form-label text-white small fw-semibold">Height</label>
+                                                <input type="text" id="propImageHeight" class="txn-search-input" placeholder="e.g. auto, 200px, 300px">
+                                                <div class="text-muted micro-text mt-1">e.g. <code>auto</code>, <code>150px</code>, <code>250px</code></div>
+                                                <div class="d-flex flex-wrap gap-1 mt-1.5">
+                                                    <button type="button" class="btn-quick-pill" onclick="setQuickDimension('height', 'auto')">Auto</button>
+                                                    <button type="button" class="btn-quick-pill" onclick="setQuickDimension('height', '150px')">150px</button>
+                                                    <button type="button" class="btn-quick-pill" onclick="setQuickDimension('height', '250px')">250px</button>
+                                                    <button type="button" class="btn-quick-pill" onclick="setQuickDimension('height', '350px')">350px</button>
+                                                </div>
+                                            </div>
+                                        </div>
+
+                                        <div class="mb-3">
+                                            <label class="form-label text-white small fw-semibold">Object Fit (Scaling)</label>
+                                            <select id="propImageObjectFit" class="txn-search-input">
+                                                <option value="contain">Contain (Preserve aspect ratio)</option>
+                                                <option value="cover">Cover (Fill & crop to fit)</option>
+                                                <option value="fill">Fill (Stretch to fit)</option>
+                                                <option value="scale-down">Scale Down</option>
+                                            </select>
+                                        </div>
+
                                         <div class="mb-3">
                                             <label class="form-label text-white small fw-semibold">Position / Alignment</label>
                                             <div class="btn-group w-100" role="group" id="propImageAlignGroup">
@@ -1588,6 +1623,9 @@ document.addEventListener('DOMContentLoaded', function() {
             max_file_uploads: type === 'file' ? 1 : null,
             image_url: '',
             image_align: 'center',
+            image_width: '',
+            image_height: '',
+            image_object_fit: 'contain',
             image_alt: '',
             width_class: 'col-12',
             required: false,
@@ -1748,11 +1786,17 @@ document.addEventListener('DOMContentLoaded', function() {
                     textAlign = 'right';
                 }
 
+                const rawWidth = (f.image_width || '').trim();
+                const rawHeight = (f.image_height || '').trim();
+                const imgWidth = rawWidth ? (!isNaN(rawWidth) ? rawWidth + 'px' : rawWidth) : 'auto';
+                const imgHeight = rawHeight ? (!isNaN(rawHeight) ? rawHeight + 'px' : rawHeight) : 'auto';
+                const objectFit = f.image_object_fit || 'contain';
+
                 if (f.image_url) {
                     inputPreview = `
                         <div class="image-field-canvas-preview d-flex w-100 py-1" style="justify-content: ${justify}; text-align: ${textAlign};">
                             <div style="max-width: 100%;">
-                                <img src="${f.image_url}" alt="${f.image_alt || f.label || 'Image'}" class="rounded shadow-sm" style="max-width: 100%; max-height: 240px; object-fit: contain; border: 1px solid rgba(255,255,255,0.15);">
+                                <img src="${f.image_url}" alt="${f.image_alt || f.label || 'Image'}" class="rounded shadow-sm" style="max-width: 100%; width: ${imgWidth}; height: ${imgHeight}; object-fit: ${objectFit}; border: 1px solid rgba(255,255,255,0.15);">
                             </div>
                         </div>
                     `;
@@ -1761,7 +1805,7 @@ document.addEventListener('DOMContentLoaded', function() {
                         <div class="image-field-canvas-placeholder p-3 rounded-3 text-center" style="background: rgba(15, 23, 42, 0.6); border: 2px dashed rgba(124, 58, 237, 0.4);">
                             <i class="bx bx-image text-warning fs-1 d-block mb-1"></i>
                             <div class="text-white fw-semibold small">Image Display Field</div>
-                            <div class="text-muted micro-text mt-0.5">Click to set image URL, upload image, or adjust alignment (${align})</div>
+                            <div class="text-muted micro-text mt-0.5">Click to set image URL, upload image, or adjust dimensions & alignment (${align})</div>
                         </div>
                     `;
                 }
@@ -1817,7 +1861,7 @@ document.addEventListener('DOMContentLoaded', function() {
                 <div class="d-flex align-items-center mb-1 flex-wrap gap-1">
                     <i class="bx bx-move field-drag-handle" title="Drag to relocate field"></i>
                     ${!isHeading && !isImage && f.type !== 'checkbox' ? `<label class="form-label text-white mb-0 fw-semibold small me-1">${f.label} ${f.required ? '<span class="text-danger">*</span>' : ''}</label>` : ''}
-                    ${isImage ? `<div class="d-flex align-items-center gap-1.5"><i class="bx bx-image text-warning fs-5"></i> <span class="fw-semibold text-white small">${f.label || 'Image'}</span> <span class="badge bg-secondary micro-text ms-1 text-uppercase">${f.image_align || 'center'}</span></div>` : ''}
+                    ${isImage ? `<div class="d-flex align-items-center gap-1.5"><i class="bx bx-image text-warning fs-5"></i> <span class="fw-semibold text-white small">${f.label || 'Image'}</span> <span class="badge bg-secondary micro-text ms-1 text-uppercase">${f.image_align || 'center'}</span> ${(f.image_width || f.image_height) ? `<span class="badge bg-dark border border-secondary micro-text ms-1">${f.image_width || 'auto'} &times; ${f.image_height || 'auto'}</span>` : ''}</div>` : ''}
                     ${logicBadge}
                 </div>
                 ${inputPreview}
@@ -1996,6 +2040,9 @@ document.addEventListener('DOMContentLoaded', function() {
             if (imagePropertiesGroup) imagePropertiesGroup.style.display = 'block';
             document.getElementById('propImageUrl').value = f.image_url || '';
             document.getElementById('propImageAlt').value = f.image_alt || '';
+            document.getElementById('propImageWidth').value = f.image_width || '';
+            document.getElementById('propImageHeight').value = f.image_height || '';
+            document.getElementById('propImageObjectFit').value = f.image_object_fit || 'contain';
             document.getElementById('propImageAlign').value = f.image_align || 'center';
             document.querySelectorAll('.image-align-prop-btn').forEach(btn => {
                 btn.classList.toggle('active', btn.getAttribute('data-align') === (f.image_align || 'center'));
@@ -2389,6 +2436,42 @@ document.addEventListener('DOMContentLoaded', function() {
             renderCanvas();
         }
     });
+
+    document.getElementById('propImageWidth')?.addEventListener('input', (e) => {
+        if (selectedFieldIndex !== null && fields[selectedFieldIndex]) {
+            fields[selectedFieldIndex].image_width = e.target.value;
+            renderCanvas();
+        }
+    });
+
+    document.getElementById('propImageHeight')?.addEventListener('input', (e) => {
+        if (selectedFieldIndex !== null && fields[selectedFieldIndex]) {
+            fields[selectedFieldIndex].image_height = e.target.value;
+            renderCanvas();
+        }
+    });
+
+    document.getElementById('propImageObjectFit')?.addEventListener('change', (e) => {
+        if (selectedFieldIndex !== null && fields[selectedFieldIndex]) {
+            fields[selectedFieldIndex].image_object_fit = e.target.value;
+            renderCanvas();
+        }
+    });
+
+    window.setQuickDimension = function(type, val) {
+        if (selectedFieldIndex !== null && fields[selectedFieldIndex]) {
+            if (type === 'width') {
+                fields[selectedFieldIndex].image_width = val;
+                const inp = document.getElementById('propImageWidth');
+                if (inp) inp.value = val;
+            } else if (type === 'height') {
+                fields[selectedFieldIndex].image_height = val;
+                const inp = document.getElementById('propImageHeight');
+                if (inp) inp.value = val;
+            }
+            renderCanvas();
+        }
+    };
 
     document.querySelectorAll('.image-align-prop-btn').forEach(btn => {
         btn.addEventListener('click', () => {

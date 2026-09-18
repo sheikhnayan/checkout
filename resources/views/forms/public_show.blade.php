@@ -492,11 +492,16 @@
                                     }
                                     $imageUrl = $field['image_url'] ?? '';
                                     $imageAlt = $field['image_alt'] ?? $label ?? 'Form Image';
+                                    $rawWidth = trim($field['image_width'] ?? '');
+                                    $rawHeight = trim($field['image_height'] ?? '');
+                                    $imgWidth = $rawWidth ? (is_numeric($rawWidth) ? $rawWidth . 'px' : $rawWidth) : 'auto';
+                                    $imgHeight = $rawHeight ? (is_numeric($rawHeight) ? $rawHeight . 'px' : $rawHeight) : 'auto';
+                                    $objectFit = !empty($field['image_object_fit']) ? $field['image_object_fit'] : 'contain';
                                 @endphp
                                 @if($imageUrl)
                                     <div class="doc-image-field w-100 d-flex" style="justify-content: {{ $justify }}; text-align: {{ $textAlign }};">
                                         <div style="max-width: 100%;">
-                                            <img src="{{ $imageUrl }}" alt="{{ $imageAlt }}" class="img-fluid rounded shadow-sm" style="max-width: 100%; height: auto; object-fit: contain; border: 1px solid #e2e8f0;">
+                                            <img src="{{ $imageUrl }}" alt="{{ $imageAlt }}" class="img-fluid rounded shadow-sm" style="max-width: 100%; width: {{ $imgWidth }}; height: {{ $imgHeight }}; object-fit: {{ $objectFit }}; border: 1px solid #e2e8f0;">
                                             @if($helpText)
                                                 <div class="form-text text-muted small mt-1.5" style="text-align: {{ $textAlign }};">{{ $helpText }}</div>
                                             @endif

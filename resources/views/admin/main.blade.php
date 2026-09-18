@@ -2184,8 +2184,20 @@
 
           const note = document.createElement('small');
           note.className = 'text-muted d-block mt-1 image-upload-criteria';
+          note.style.cssText = 'display: block !important; width: 100% !important; clear: both !important; flex-basis: 100% !important;';
           note.textContent = CRITERIA_TEXT;
-          input.insertAdjacentElement('afterend', note);
+
+          let target = input;
+          if (input.parentElement && (
+            input.parentElement.classList.contains('d-flex') || 
+            input.parentElement.classList.contains('input-group') || 
+            input.parentElement.classList.contains('custom-file') ||
+            input.parentElement.classList.contains('file-input-wrapper')
+          )) {
+            target = input.parentElement;
+          }
+
+          target.insertAdjacentElement('afterend', note);
           input.dataset.criteriaBound = '1';
         }
 
@@ -2194,14 +2206,30 @@
           const warning = document.createElement('div');
           warning.className = 'text-danger mt-1 image-upload-warning';
           warning.style.fontSize = '0.85rem';
+          warning.style.cssText = 'font-size: 0.85rem; display: block !important; width: 100% !important; clear: both !important; flex-basis: 100% !important;';
           warning.textContent = message;
-          input.insertAdjacentElement('afterend', warning);
+
+          let target = input;
+          if (input.parentElement && (
+            input.parentElement.classList.contains('d-flex') || 
+            input.parentElement.classList.contains('input-group') || 
+            input.parentElement.classList.contains('custom-file') ||
+            input.parentElement.classList.contains('file-input-wrapper')
+          )) {
+            target = input.parentElement;
+          }
+
+          target.insertAdjacentElement('afterend', warning);
         }
 
         function clearInputWarning(input) {
-          const next = input.parentElement ? input.parentElement.querySelector('.image-upload-warning') : null;
-          if (next) {
-            next.remove();
+          let container = input.parentElement;
+          if (container && (container.classList.contains('d-flex') || container.classList.contains('input-group') || container.classList.contains('custom-file') || container.classList.contains('file-input-wrapper'))) {
+            container = container.parentElement;
+          }
+          const warning = (container || document).querySelector('.image-upload-warning');
+          if (warning) {
+            warning.remove();
           }
         }
 
