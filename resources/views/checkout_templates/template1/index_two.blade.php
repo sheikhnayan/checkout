@@ -6235,6 +6235,7 @@
                                     <style>
                                         .cv-package-section-header p { display: none !important; }
                                     </style>
+                                    @endif
                                     @if(empty($isSinglePackageCheckout))
                                     <div class="cv-experience-banner">
                                         <div class="cv-experience-banner-left">
