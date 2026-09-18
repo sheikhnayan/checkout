@@ -458,7 +458,7 @@ main, header, section, .container {
     margin: 0 auto 60px;
     padding: 0 16px;
     display: grid !important;
-    grid-template-columns: 1fr 380px !important;
+    grid-template-columns: minmax(0, 1fr) 380px !important;
     gap: 32px !important;
     align-items: start !important;
 }
@@ -471,7 +471,8 @@ main, header, section, .container {
 }
 
 .cv-main-col {
-    min-width: 0;
+    min-width: 0 !important;
+    width: 100% !important;
 }
 
 /* ==========================================================================
@@ -1105,13 +1106,110 @@ input[name="transportation_pickup_time"] {
     color: var(--cv-ink-light) !important;
 }
 
-/* Phone input styling with country code */
+/* ==========================================================================
+   PHONE NUMBER INPUT & COUNTRY CODE PICKER (Matches Mockup Exactly)
+   ========================================================================== */
 .phone-input-wrapper {
     display: flex !important;
     gap: 8px !important;
+    align-items: stretch !important;
+    position: relative !important;
+    width: 100% !important;
 }
+
 .country-code-input {
-    flex: 0 0 100px !important;
+    flex: 0 0 115px !important;
+    min-width: 115px !important;
+    position: relative !important;
+}
+
+.country-code-field {
+    width: 100% !important;
+    height: 46px !important;
+    padding: 10px 12px !important;
+    border: 1px solid var(--cv-border-input) !important;
+    background: #ffffff !important;
+    border-radius: var(--cv-radius-sm) !important;
+    color: var(--cv-ink) !important;
+    font-size: 14px !important;
+    font-weight: 600 !important;
+    font-family: inherit !important;
+    cursor: pointer !important;
+    box-sizing: border-box !important;
+    transition: all 0.2s ease !important;
+    text-align: center !important;
+}
+
+.country-code-field:focus,
+.country-code-field:hover {
+    outline: none !important;
+    border-color: var(--cv-primary) !important;
+    box-shadow: 0 0 0 3px var(--cv-primary-ring) !important;
+}
+
+.country-code-dropdown {
+    position: absolute !important;
+    top: calc(100% + 4px) !important;
+    left: 0 !important;
+    width: 290px !important;
+    max-height: 260px !important;
+    overflow-y: auto !important;
+    background: #ffffff !important;
+    border: 1px solid var(--cv-border) !important;
+    border-radius: var(--cv-radius) !important;
+    box-shadow: var(--cv-shadow-lg) !important;
+    z-index: 99999 !important;
+    display: none !important;
+    padding: 4px 0 !important;
+}
+
+.country-code-dropdown.active {
+    display: block !important;
+}
+
+.country-option {
+    padding: 9px 14px !important;
+    cursor: pointer !important;
+    border-bottom: 1px solid #f8fafc !important;
+    font-size: 13px !important;
+    color: var(--cv-ink-sub) !important;
+    display: flex !important;
+    align-items: center !important;
+    gap: 10px !important;
+    background: #ffffff !important;
+    transition: all 0.15s ease !important;
+    white-space: nowrap !important;
+    overflow: hidden !important;
+    text-overflow: ellipsis !important;
+}
+
+.country-option:last-child {
+    border-bottom: none !important;
+}
+
+.country-option:hover {
+    background: var(--cv-primary-light) !important;
+    color: var(--cv-primary) !important;
+}
+
+.country-option.selected {
+    background: var(--cv-primary-light) !important;
+    color: var(--cv-primary) !important;
+    font-weight: 700 !important;
+}
+
+.flag-icon {
+    display: inline-block !important;
+    font-size: 16px !important;
+    line-height: 1 !important;
+    flex-shrink: 0 !important;
+}
+
+.phone-input-wrapper input[type="tel"] {
+    flex: 1 !important;
+    min-width: 0 !important;
+    height: 46px !important;
+    box-sizing: border-box !important;
 }
 
 /* Date of Birth dropdowns */
@@ -1160,7 +1258,16 @@ input[name="transportation_pickup_time"] {
     box-shadow: var(--cv-shadow) !important;
     position: sticky !important;
     top: 24px !important;
-    width: 100% !important;
+    width: 380px !important;
+    max-width: 100% !important;
+    box-sizing: border-box !important;
+}
+
+@media (max-width: 991px) {
+    .cv-sidebar {
+        width: 100% !important;
+        position: static !important;
+    }
 }
 
 .cv-sidebar-header {
