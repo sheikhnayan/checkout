@@ -949,7 +949,7 @@
                                                                     <input type="email" id="email"
                                                                         name="package_email"
                                                                         placeholder="sample@sample.com" required />
-                                                                    <div class="email-note" style="font-size: 0.75rem; color: yellow; margin-top: 4px;">Your booking confirmation will be sent to this email. Please make sure it’s correct.</div>
+                                                                    <div class="email-note" style="font-size: 0.75rem; color: #64748b; margin-top: 4px;">Your booking confirmation will be sent to this email. Please make sure it’s correct.</div>
                                                                 </div>
                                                             </div>
 
@@ -1593,10 +1593,10 @@
 
             <div class="modal fade" id="infoTooltipModal" tabindex="-1" aria-hidden="true">
                 <div class="modal-dialog modal-dialog-centered">
-                    <div class="modal-content" style="background:#1a1d2e;color:#ddd;">
+                    <div class="modal-content">
                         <div class="modal-header">
-                            <h5 class="modal-title" style="color:#fff;">Modal title</h5>
-                            <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"
+                            <h5 class="modal-title">Modal title</h5>
+                            <button type="button" class="btn-close" data-bs-dismiss="modal"
                                 aria-label="Close"></button>
                         </div>
                         <div class="modal-body">
@@ -1609,15 +1609,14 @@
                 </div>
             </div>
 
-            <div class="modal fade" id="addonSelectionModal" style="height: 95% !important;" tabindex="-1" aria-hidden="true">
+            <div class="modal fade" id="addonSelectionModal" tabindex="-1" aria-hidden="true">
                 <div class="modal-dialog modal-dialog-centered modal-dialog-scrollable addon-modal-dialog">
                     <div class="modal-content">
                         <div class="modal-header">
                             <h5 class="modal-title" id="addonSelectionModalTitle">Select Add-ons</h5>
-                            <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
+                            <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
                         </div>
                         <div class="modal-body" id="addonSelectionModalBody"></div>
-                        <button type="button" class="addon-scroll-down-fab" aria-label="Scroll down add-ons" style="position:absolute;left:50%;bottom:104px;transform:translateX(-50%);z-index:20;width:48px;height:48px;min-width:48px;min-height:48px;padding:0;aspect-ratio:1/1;border:2px solid rgba(255,255,255,0.78);border-radius:50%;background:linear-gradient(135deg,#a774ff 0%,#7c3aed 50%,#5b21b6 100%);color:#fff;font-size:22px;font-weight:800;line-height:1;display:none;align-items:center;justify-content:center;box-shadow:0 12px 28px rgba(124,58,237,0.55);">&darr;</button>
                         <div class="modal-footer">
                             <button type="button" class="btn btn-secondary" id="addonModalNoAddonsBtn">No Add-ons</button>
                             <button type="button" class="btn" id="addonModalConfirmBtn">Confirm & Add to Cart</button>
@@ -1634,7 +1633,7 @@
                                 @if(!empty($checkoutPopup->title))
                                     <h5 class="modal-title">{{ $checkoutPopup->title }}</h5>
                                 @endif
-                                <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
+                                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
                             </div>
                             <div class="modal-body">
                                 @if($checkoutPopup->image_path)
