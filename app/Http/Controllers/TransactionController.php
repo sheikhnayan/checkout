@@ -4535,6 +4535,13 @@ class TransactionController extends Controller
             'pickup_datetime' => $pickupDateTime,
         ];
 
+        $totalAmount = (float) ($add->total ?? 0);
+        if ($totalAmount > 0) {
+            $payload['price_total'] = round($totalAmount, 2);
+        }
+
+        $payload['guests'] = max((int) ($add->package_number_of_guest ?? 1), 1);
+
         $customerPhone = trim((string) ($add->package_phone ?: $add->transportation_phone ?: $add->payment_phone));
         if ($customerPhone !== '') {
             $payload['customer_phone'] = $customerPhone;
@@ -4559,10 +4566,6 @@ class TransactionController extends Controller
         $packageName = $this->resolveClubLifterPackageName($add);
         if (! empty($packageName)) {
             $payload['package'] = $packageName;
-        }
-
-        if (! empty($add->package_number_of_guest)) {
-            $payload['guests'] = (int) $add->package_number_of_guest;
         }
 
         $details = trim((string) ($add->transportation_note ?? ''));
@@ -5105,14 +5108,22 @@ class TransactionController extends Controller
             }
 
             return response()->json([
-                'success' => true,
-                'customer_id' => $cleanId,
-                'status' => $status,
-                'driver_note' => $driverNote,
-                'driver_name' => $data['driver_name'] ?? null,
-                'driver_phone' => $data['driver_phone'] ?? null,
-                'car' => $data['car'] ?? null,
-                'raw' => $data,
+                'success'          => true,
+                'customer_id'      => $cleanId,
+                'status'           => $status,
+                'ride_status_text' => $data['ride_status_text'] ?? null,
+                'priority_level'   => $data['priority_level'] ?? null,
+                'driver_note'      => $driverNote,
+                'driver_name'      => $data['driver_name'] ?? null,
+                'driver_phone'     => $data['driver_phone'] ?? null,
+                'car'              => $data['car'] ?? null,
+                'distance_km'      => $data['distance_km'] ?? null,
+                'needs_transport'  => $data['needs_transport'] ?? null,
+                'pickup_datetime'  => $data['pickup_datetime'] ?? null,
+                'pickup_location'  => $data['pickup_location'] ?? null,
+                'destination'      => $data['destination'] ?? null,
+                'driver_assigned'  => !empty($data['driver_assigned']),
+                'raw'              => $data,
             ]);
         } catch (\Throwable $e) {
             \Log::warning('Error fetching ClubLifter status for customer ID ' . $cleanId, [
@@ -5126,6 +5137,163 @@ class TransactionController extends Controller
                 'driver_note' => null,
             ], 500);
         }
+    }
+
+    /**
+     * Reschedule an existing ClubLifter booking from the transactions dashboard.
+     * Updates ClubLifter, texts the driver, re-arms proximity alerts, and updates local transaction record.
+     */
+    public function rescheduleClubLifterBooking(Request $request, $id)
+    {
+        $transaction = Transaction::withoutGlobalScopes()->findOrFail($id);
+        $this->ensureCanAccess($transaction);
+
+        $clublifterId = trim((string) ($transaction->clublifter_customer_id ?? ''));
+        if ($clublifterId === '' || $clublifterId === '0' || $clublifterId === 'null') {
+            return response()->json([
+                'success' => false,
+                'message' => 'This transaction does not have an active ClubLifter booking ID.',
+            ], 422);
+        }
+
+        $request->validate([
+            'pickup_date' => 'required|string',
+            'pickup_time' => 'required|string',
+        ]);
+
+        $pickupDate = trim((string) $request->input('pickup_date'));
+        $pickupTime = trim((string) $request->input('pickup_time'));
+
+        $formattedDateTime = $this->formatClubLifterDateTime($pickupDate, $pickupTime);
+        if (!$formattedDateTime) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Invalid pickup date or time format. Please provide a valid date and time.',
+            ], 422);
+        }
+
+        $payload = [
+            'customer_id'     => is_numeric($clublifterId) ? (int) $clublifterId : $clublifterId,
+            'pickup_datetime' => $formattedDateTime,
+        ];
+
+        $phone = trim((string) ($transaction->package_phone ?: $transaction->transportation_phone ?: $transaction->payment_phone));
+        if ($phone !== '') {
+            $payload['phone'] = $phone;
+        }
+
+        $result = app(\App\Services\ClubLifterService::class)->reschedule($payload);
+
+        if (empty($result) || empty($result['success'])) {
+            $errMsg = $result['error'] ?? 'ClubLifter was unable to reschedule the ride. Please verify that the booking is still active.';
+            \Log::warning('ClubLifter reschedule failed', [
+                'transaction_id'         => $transaction->id,
+                'clublifter_customer_id' => $clublifterId,
+                'payload'                => $payload,
+                'response'               => $result,
+            ]);
+            return response()->json([
+                'success' => false,
+                'message' => $errMsg,
+            ], 400);
+        }
+
+        // Update local transaction pickup schedule in database to stay fully synchronized
+        $parsedDate = null;
+        try {
+            $parsedDate = \Carbon\Carbon::parse($pickupDate)->format('Y-m-d');
+        } catch (\Throwable $e) {
+            $parsedDate = $pickupDate;
+        }
+
+        $transaction->package_use_date = $parsedDate;
+        $transaction->transportation_pickup_time = $pickupTime;
+
+        // Add audit entry in transaction admin notes
+        $adminUser = auth()->user();
+        $adminName = $adminUser ? $adminUser->name : 'System Admin';
+        $driverNotice = !empty($result['driver_notified']) ? 'Assigned driver was notified via SMS.' : 'No driver assigned yet.';
+        $auditText = "[ClubLifter] Rescheduled ride to {$formattedDateTime} by {$adminName}. {$driverNotice}";
+        
+        $currentNotes = trim((string) $transaction->admin_notes);
+        $transaction->admin_notes = $currentNotes !== '' ? ($currentNotes . "\n" . date('m/d/Y h:i A') . " - " . $auditText) : (date('m/d/Y h:i A') . " - " . $auditText);
+        $transaction->admin_notes_by = $adminName;
+        $transaction->admin_notes_at = now();
+        $transaction->save();
+
+        \Log::info('ClubLifter ride rescheduled successfully', [
+            'transaction_id'         => $transaction->id,
+            'clublifter_customer_id' => $clublifterId,
+            'new_datetime'           => $formattedDateTime,
+            'result'                 => $result,
+        ]);
+
+        return response()->json([
+            'success'         => true,
+            'message'         => 'Ride successfully rescheduled to ' . $formattedDateTime . '! ' . $driverNotice,
+            'old_datetime'    => $result['old_datetime'] ?? null,
+            'new_datetime'    => $result['new_datetime'] ?? $formattedDateTime,
+            'driver_name'     => $result['driver_name'] ?? null,
+            'driver_notified' => !empty($result['driver_notified']),
+        ]);
+    }
+
+    /**
+     * Update dispatch notes on an existing ClubLifter booking.
+     */
+    public function updateClubLifterNotes(Request $request, $id)
+    {
+        $transaction = Transaction::withoutGlobalScopes()->findOrFail($id);
+        $this->ensureCanAccess($transaction);
+
+        $clublifterId = trim((string) ($transaction->clublifter_customer_id ?? ''));
+        if ($clublifterId === '' || $clublifterId === '0' || $clublifterId === 'null') {
+            return response()->json([
+                'success' => false,
+                'message' => 'This transaction does not have an active ClubLifter booking ID.',
+            ], 422);
+        }
+
+        $request->validate([
+            'notes'  => 'required|string|max:1000',
+            'append' => 'nullable',
+        ]);
+
+        $notesText = trim((string) $request->input('notes'));
+        $isAppend = filter_var($request->input('append', true), FILTER_VALIDATE_BOOLEAN);
+
+        $payload = [
+            'customer_id' => is_numeric($clublifterId) ? (int) $clublifterId : $clublifterId,
+            'notes'       => $notesText,
+            'append'      => $isAppend,
+        ];
+
+        $phone = trim((string) ($transaction->package_phone ?: $transaction->transportation_phone ?: $transaction->payment_phone));
+        if ($phone !== '') {
+            $payload['phone'] = $phone;
+        }
+
+        $result = app(\App\Services\ClubLifterService::class)->updateRideNotes($payload);
+
+        if (empty($result) || empty($result['success'])) {
+            $errMsg = $result['error'] ?? 'ClubLifter was unable to update dispatch notes.';
+            return response()->json([
+                'success' => false,
+                'message' => $errMsg,
+            ], 400);
+        }
+
+        $updatedNotes = $result['notes'] ?? $notesText;
+
+        // Also save to transaction transportation_note in local DB
+        $transaction->transportation_note = $updatedNotes;
+        $transaction->save();
+
+        return response()->json([
+            'success' => true,
+            'message' => 'Dispatch note sent to ClubLifter successfully!',
+            'notes'   => $updatedNotes,
+        ]);
     }
 
     public function sendRepayEmail(Request $request, $id)

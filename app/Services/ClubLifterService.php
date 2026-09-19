@@ -56,20 +56,43 @@ class ClubLifterService
         return $this->get('/api/ai/lookup?phone=' . urlencode($phone));
     }
 
-    /** Add or update notes on a booking. POST /api/ai/update-notes */
-    public function updateNotes(string $phone, string $notes, bool $append = false): ?array
+    /** Reschedule a booking's pickup time. POST /api/v1/reschedule */
+    public function reschedule(array $payload): ?array
     {
-        return $this->post('/api/ai/update-notes', [
-            'phone' => $phone,
+        return $this->post('/api/v1/reschedule', $payload);
+    }
+
+    /** Add or update dispatch notes on a booking. POST /api/ai/update-notes */
+    public function updateRideNotes(array $payload): ?array
+    {
+        return $this->post('/api/ai/update-notes', $payload);
+    }
+
+    /** Add or update notes on a booking (by phone or customer_id). POST /api/ai/update-notes */
+    public function updateNotes(int|string $identifier, string $notes, bool $append = false): ?array
+    {
+        $payload = [
             'notes' => $notes,
             'append' => $append,
-        ]);
+        ];
+        if (is_numeric($identifier) && (int)$identifier > 0 && strlen((string)$identifier) <= 9) {
+            $payload['customer_id'] = (int) $identifier;
+        } else {
+            $payload['phone'] = (string) $identifier;
+        }
+        return $this->updateRideNotes($payload);
     }
 
     /** Request the driver to call the customer (masked). POST /api/ai/request-driver-call */
-    public function requestDriverCall(string $phone): ?array
+    public function requestDriverCall(int|string $identifier): ?array
     {
-        return $this->post('/api/ai/request-driver-call', ['phone' => $phone]);
+        $payload = [];
+        if (is_numeric($identifier) && (int)$identifier > 0 && strlen((string)$identifier) <= 9) {
+            $payload['customer_id'] = (int) $identifier;
+        } else {
+            $payload['phone'] = (string) $identifier;
+        }
+        return $this->post('/api/ai/request-driver-call', $payload);
     }
 
     protected function get(string $path): ?array

@@ -229,7 +229,11 @@ class User extends Authenticatable
                 ->exists();
         }
 
-        if ($routeName === 'admin.transaction.clublifter-status') {
+        if (in_array($routeName, [
+            'admin.transaction.clublifter-status',
+            'admin.transaction.clublifter-reschedule',
+            'admin.transaction.clublifter-update-notes',
+        ], true)) {
             return $role->permissions()
                 ->where('key', 'admin.transaction.index')
                 ->exists();

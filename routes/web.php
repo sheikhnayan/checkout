@@ -330,6 +330,8 @@ Route::group(['prefix'=> 'admins', 'as' => 'admin.', 'middleware' => ['admin.or.
         Route::post('/{id}/update-admin-note', [TransactionController::class, 'updateAdminNote'])->name('update-admin-note');
         Route::get('/{id}/pdf', [TransactionController::class, 'downloadPdf'])->name('pdf');
         Route::get('/clublifter-status/{customerId}', [TransactionController::class, 'getClubLifterStatus'])->name('clublifter-status');
+        Route::post('/{id}/clublifter-reschedule', [TransactionController::class, 'rescheduleClubLifterBooking'])->name('clublifter-reschedule');
+        Route::post('/{id}/clublifter-update-notes', [TransactionController::class, 'updateClubLifterNotes'])->name('clublifter-update-notes');
     });
 
     Route::group(['prefix' => 'jobs', 'as' => 'jobs.'], function () {

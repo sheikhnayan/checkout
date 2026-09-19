@@ -3178,6 +3178,98 @@ body.modal-open .admin-mobile-menu-toggle {
                 </div>
             </div>
 
+            <!-- ClubLifter Reschedule Modal -->
+            <div class="modal fade" id="clublifterRescheduleModal" tabindex="-1" aria-labelledby="clublifterRescheduleModalLabel" aria-hidden="true" style="z-index: 1065;">
+                <div class="modal-dialog modal-dialog-centered" style="max-width: 490px;">
+                    <div class="modal-content" style="background:#0f172a;border:1px solid rgba(217,160,91,0.4);border-radius:14px;box-shadow: 0 10px 35px rgba(0,0,0,0.65);">
+                        <div class="modal-header d-flex align-items-center justify-content-between" style="border-bottom: 1px solid rgba(255,255,255,0.1); padding: 14px 18px;">
+                            <h5 class="modal-title text-white mb-0 d-flex align-items-center gap-2" style="font-size:1.05rem;" id="clublifterRescheduleModalLabel">
+                                <i class="fas fa-calendar-alt text-warning"></i> Reschedule ClubLifter Ride
+                            </h5>
+                            <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close" style="filter: invert(1);"></button>
+                        </div>
+                        <div class="modal-body" style="padding: 18px;">
+                            <input type="hidden" id="clRescheduleTxnId" value="" />
+                            <input type="hidden" id="clRescheduleCustomerId" value="" />
+                            
+                            <!-- Context Info Banner -->
+                            <div class="p-3 mb-3 rounded" style="background: rgba(255,255,255,0.03); border: 1px solid rgba(255,255,255,0.08);">
+                                <div class="d-flex justify-content-between mb-1" style="font-size:0.82rem;">
+                                    <span class="text-muted">Guest:</span>
+                                    <span class="text-white fw-bold" id="clRescheduleGuestName">—</span>
+                                </div>
+                                <div class="d-flex justify-content-between mb-1" style="font-size:0.82rem;">
+                                    <span class="text-muted">ClubLifter ID:</span>
+                                    <span class="badge" style="background:rgba(192,132,252,0.2);color:#c084fc;font-weight:600;" id="clRescheduleBookingId">—</span>
+                                </div>
+                                <div class="d-flex justify-content-between" style="font-size:0.82rem;">
+                                    <span class="text-muted">Current Pickup:</span>
+                                    <span class="text-warning fw-semibold" id="clRescheduleCurrentTime">—</span>
+                                </div>
+                            </div>
+
+                            <div class="mb-3">
+                                <label class="form-label text-white small fw-bold mb-1">New Pickup Date *</label>
+                                <input type="date" id="clRescheduleDateInput" class="form-control form-control-sm" style="background:#1e293b;border:1px solid #334155;color:#f8fafc;" required />
+                            </div>
+
+                            <div class="mb-3">
+                                <label class="form-label text-white small fw-bold mb-1">New Pickup Time *</label>
+                                <input type="text" id="clRescheduleTimeInput" class="form-control form-control-sm" placeholder="e.g. 11:00 PM" style="background:#1e293b;border:1px solid #334155;color:#f8fafc;" required />
+                                <div class="text-muted" style="font-size:0.72rem;margin-top:4px;">Enter time in 12-hour format with AM/PM (e.g., 10:30 PM).</div>
+                            </div>
+
+                            <div class="alert alert-info py-2 px-3 mb-0 d-flex align-items-start gap-2" style="background:rgba(14,165,233,0.1);border:1px solid rgba(14,165,233,0.25);color:#7dd3fc;font-size:0.75rem;">
+                                <i class="fas fa-info-circle mt-1"></i>
+                                <div>ClubLifter will immediately update the booking, recalculate proximity alerts, and automatically text the assigned driver via SMS about the new time.</div>
+                            </div>
+                        </div>
+                        <div class="modal-footer" style="border-top:1px solid rgba(255,255,255,0.1);padding:12px 18px;">
+                            <button type="button" class="btn btn-sm btn-secondary" data-bs-dismiss="modal">Cancel</button>
+                            <button type="button" class="btn btn-sm btn-warning fw-bold px-3" id="btnSubmitClReschedule">
+                                <i class="fas fa-check-circle me-1"></i> Confirm Reschedule
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- ClubLifter Notes Modal -->
+            <div class="modal fade" id="clublifterNotesModal" tabindex="-1" aria-labelledby="clublifterNotesModalLabel" aria-hidden="true" style="z-index: 1065;">
+                <div class="modal-dialog modal-dialog-centered" style="max-width: 490px;">
+                    <div class="modal-content" style="background:#0f172a;border:1px solid rgba(56,189,248,0.3);border-radius:14px;box-shadow: 0 10px 35px rgba(0,0,0,0.65);">
+                        <div class="modal-header d-flex align-items-center justify-content-between" style="border-bottom: 1px solid rgba(255,255,255,0.1); padding: 14px 18px;">
+                            <h5 class="modal-title text-white mb-0 d-flex align-items-center gap-2" style="font-size:1.05rem;" id="clublifterNotesModalLabel">
+                                <i class="fas fa-comment-dots text-info"></i> Update ClubLifter Dispatch Notes
+                            </h5>
+                            <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close" style="filter: invert(1);"></button>
+                        </div>
+                        <div class="modal-body" style="padding: 18px;">
+                            <input type="hidden" id="clNoteTxnId" value="" />
+                            <input type="hidden" id="clNoteCustomerId" value="" />
+
+                            <div class="mb-3">
+                                <label class="form-label text-white small fw-bold mb-1">Dispatch Note for Driver & Dispatcher *</label>
+                                <textarea id="clNoteInput" class="form-control form-control-sm" rows="3" placeholder="e.g. VIP guest waiting at North Valet. Wearing a dark suit." style="background:#1e293b;border:1px solid #334155;color:#f8fafc;"></textarea>
+                            </div>
+
+                            <div class="form-check mb-2">
+                                <input class="form-check-input" type="checkbox" id="clNoteAppendCheck" checked>
+                                <label class="form-check-label text-muted small" for="clNoteAppendCheck">
+                                    Append to existing notes (separated by " | ") instead of replacing
+                                </label>
+                            </div>
+                        </div>
+                        <div class="modal-footer" style="border-top:1px solid rgba(255,255,255,0.1);padding:12px 18px;">
+                            <button type="button" class="btn btn-sm btn-secondary" data-bs-dismiss="modal">Cancel</button>
+                            <button type="button" class="btn btn-sm btn-info fw-bold text-dark px-3" id="btnSubmitClNote">
+                                <i class="fas fa-paper-plane me-1"></i> Send Note to ClubLifter
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
             <!-- Mobile Filter Bottom Sheet Modal / Drawer -->
             <div class="modal fade" id="mobileFilterModal" tabindex="-1" aria-labelledby="mobileFilterModalLabel" aria-hidden="true">
                 <div class="modal-dialog modal-dialog-scrollable">
@@ -6711,6 +6803,7 @@ body.modal-open .admin-mobile-menu-toggle {
                 var $driverNoteEl = $modal.find('.clublifter-driver-note-val');
                 var $driverDetailsRow = $modal.find('.clublifter-driver-details-row');
                 var $driverDetailsVal = $modal.find('.clublifter-driver-details-val');
+                var $priorityEl = $modal.find('.clublifter-priority-val');
 
                 if (!customerId || customerId === '0' || customerId === 'null') {
                     return;
@@ -6733,20 +6826,35 @@ body.modal-open .admin-mobile-menu-toggle {
                             var lowerStatus = statusText.toLowerCase();
                             if (lowerStatus.indexOf('cancel') !== -1) {
                                 badgeClass = 'bg-danger';
-                            } else if (lowerStatus.indexOf('complete') !== -1 || lowerStatus.indexOf('picked') !== -1 || lowerStatus.indexOf('drop') !== -1) {
+                            } else if (lowerStatus.indexOf('complete') !== -1 || lowerStatus.indexOf('picked') !== -1 || lowerStatus.indexOf('drop') !== -1 || lowerStatus.indexOf('venue') !== -1) {
                                 badgeClass = 'bg-success';
-                            } else if (lowerStatus.indexOf('assign') !== -1 || lowerStatus.indexOf('dispatch') !== -1 || lowerStatus.indexOf('en route') !== -1 || lowerStatus.indexOf('way') !== -1) {
+                            } else if (lowerStatus.indexOf('assign') !== -1 || lowerStatus.indexOf('dispatch') !== -1 || lowerStatus.indexOf('enroute') !== -1 || lowerStatus.indexOf('arrived') !== -1 || lowerStatus.indexOf('way') !== -1) {
                                 badgeClass = 'bg-info text-dark';
                             } else if (lowerStatus.indexOf('wait') !== -1 || lowerStatus.indexOf('pending') !== -1) {
                                 badgeClass = 'bg-warning text-dark';
                             }
 
-                            $statusEl.html('<span class="badge ' + badgeClass + '" style="font-size:0.78rem;text-transform:capitalize;padding:5px 10px;"><i class="fas fa-check-circle me-1"></i>' + safeEsc(statusText) + '</span>');
+                            var statusHtml = '<span class="badge ' + badgeClass + '" style="font-size:0.78rem;text-transform:capitalize;padding:5px 10px;"><i class="fas fa-check-circle me-1"></i>' + safeEsc(statusText) + '</span>';
+                            if (res.ride_status_text && res.ride_status_text !== statusText) {
+                                statusHtml += '<span class="ms-2 text-white small" style="font-size:0.78rem;opacity:0.9;">' + safeEsc(res.ride_status_text) + '</span>';
+                            }
+                            $statusEl.html(statusHtml);
 
                             if (rawNote) {
                                 $driverNoteEl.css({'color': '#e2e8f0', 'font-style': 'normal'}).text(rawNote);
                             } else {
                                 $driverNoteEl.css({'color': '#94a3b8', 'font-style': 'italic'}).text('No driver note yet');
+                            }
+
+                            // Priority level tag
+                            if (res.priority_level && $priorityEl.length) {
+                                var pClass = 'bg-secondary';
+                                var pLevel = String(res.priority_level).toLowerCase();
+                                if (pLevel === 'vip') pClass = 'bg-danger text-white';
+                                else if (pLevel === 'starred') pClass = 'bg-warning text-dark';
+                                else if (pLevel === 'high') pClass = 'bg-primary text-white';
+                                else if (pLevel === 'medium') pClass = 'bg-info text-dark';
+                                $priorityEl.html('<span class="badge ' + pClass + '" style="font-size:0.68rem;letter-spacing:0.04em;text-transform:uppercase;padding:3px 7px;"><i class="fas fa-crown me-1"></i>' + safeEsc(res.priority_level) + '</span>');
                             }
 
                             var driverParts = [];
@@ -6755,6 +6863,9 @@ body.modal-open .admin-mobile-menu-toggle {
                             }
                             if (res.car) {
                                 driverParts.push(safeEsc(res.car));
+                            }
+                            if (res.distance_km) {
+                                driverParts.push(safeEsc(res.distance_km) + ' km');
                             }
                             if (driverParts.length && $driverDetailsRow.length) {
                                 $driverDetailsVal.html(driverParts.join(' • '));
@@ -6898,6 +7009,163 @@ body.modal-open .admin-mobile-menu-toggle {
                     error: function(xhr) {
                         $btn.prop('disabled', false).html(originalBtnText);
                         alert('Failed to save note. Please try again.');
+                    }
+                });
+            });
+
+            // ── CLUBLIFTER RESCHEDULE & NOTE HANDLERS ──
+            $(document).on('click', '.btn-cl-reschedule', function(e) {
+                e.preventDefault();
+                e.stopPropagation();
+
+                var txnId = $(this).data('txn-id');
+                var clId = $(this).data('cl-id');
+                var guest = $(this).data('guest') || 'Guest';
+                var date = $(this).data('date') || '';
+                var time = $(this).data('time') || '';
+
+                $('#clRescheduleTxnId').val(txnId);
+                $('#clRescheduleCustomerId').val(clId);
+                $('#clRescheduleGuestName').text(guest);
+                $('#clRescheduleBookingId').text('#' + clId);
+                $('#clRescheduleCurrentTime').text((date || 'No Date') + (time ? ' at ' + time : ''));
+                $('#clRescheduleDateInput').val(date);
+                $('#clRescheduleTimeInput').val(time);
+
+                var modalEl = document.getElementById('clublifterRescheduleModal');
+                var bsModal = (window.bootstrap && bootstrap.Modal) ? (bootstrap.Modal.getInstance(modalEl) || bootstrap.Modal.getOrCreateInstance(modalEl)) : null;
+                if (bsModal) {
+                    bsModal.show();
+                } else if (typeof $(modalEl).modal === 'function') {
+                    $(modalEl).modal('show');
+                }
+            });
+
+            $('#btnSubmitClReschedule').on('click', function() {
+                var $btn = $(this);
+                var txnId = $('#clRescheduleTxnId').val();
+                var date = $('#clRescheduleDateInput').val();
+                var time = $('#clRescheduleTimeInput').val();
+
+                if (!date || !time) {
+                    alert('Please enter both pickup date and pickup time.');
+                    return;
+                }
+
+                var originalHtml = $btn.html();
+                $btn.prop('disabled', true).html('<i class="fas fa-spinner fa-spin me-1"></i>Rescheduling...');
+
+                $.ajax({
+                    url: '{{ url("/admins/transaction") }}/' + encodeURIComponent(txnId) + '/clublifter-reschedule',
+                    type: 'POST',
+                    data: {
+                        _token: '{{ csrf_token() }}',
+                        pickup_date: date,
+                        pickup_time: time
+                    },
+                    dataType: 'json',
+                    success: function(res) {
+                        $btn.prop('disabled', false).html(originalHtml);
+                        if (res && res.success) {
+                            var modalEl = document.getElementById('clublifterRescheduleModal');
+                            var bsModal = (window.bootstrap && bootstrap.Modal) ? (bootstrap.Modal.getInstance(modalEl) || bootstrap.Modal.getOrCreateInstance(modalEl)) : null;
+                            if (bsModal) {
+                                bsModal.hide();
+                            } else if (typeof $(modalEl).modal === 'function') {
+                                $(modalEl).modal('hide');
+                            }
+
+                            alert(res.message || 'Ride rescheduled successfully!');
+
+                            // Refresh live status in any open transaction modal
+                            var clId = $('#clRescheduleCustomerId').val();
+                            if (clId) {
+                                window.fetchClubLifterCustomerStatus(clId, $('#viewTransactionModal'));
+                                window.fetchClubLifterCustomerStatus(clId, $('#packageDetailsModal'));
+                            }
+
+                            // Update date and time attributes on the row buttons
+                            $('.btn-cl-reschedule[data-txn-id="' + txnId + '"]').data('date', date).data('time', time);
+                        } else {
+                            alert((res && res.message) ? res.message : 'Reschedule failed.');
+                        }
+                    },
+                    error: function(xhr) {
+                        $btn.prop('disabled', false).html(originalHtml);
+                        var err = (xhr.responseJSON && xhr.responseJSON.message) ? xhr.responseJSON.message : 'Server error while rescheduling ride.';
+                        alert(err);
+                    }
+                });
+            });
+
+            $(document).on('click', '.btn-cl-note', function(e) {
+                e.preventDefault();
+                e.stopPropagation();
+
+                var txnId = $(this).data('txn-id');
+                var clId = $(this).data('cl-id');
+
+                $('#clNoteTxnId').val(txnId);
+                $('#clNoteCustomerId').val(clId);
+                $('#clNoteInput').val('');
+
+                var modalEl = document.getElementById('clublifterNotesModal');
+                var bsModal = (window.bootstrap && bootstrap.Modal) ? (bootstrap.Modal.getInstance(modalEl) || bootstrap.Modal.getOrCreateInstance(modalEl)) : null;
+                if (bsModal) {
+                    bsModal.show();
+                } else if (typeof $(modalEl).modal === 'function') {
+                    $(modalEl).modal('show');
+                }
+            });
+
+            $('#btnSubmitClNote').on('click', function() {
+                var $btn = $(this);
+                var txnId = $('#clNoteTxnId').val();
+                var notes = $('#clNoteInput').val();
+                var append = $('#clNoteAppendCheck').is(':checked') ? 1 : 0;
+
+                if (!$.trim(notes)) {
+                    alert('Please enter a note for the driver.');
+                    return;
+                }
+
+                var originalHtml = $btn.html();
+                $btn.prop('disabled', true).html('<i class="fas fa-spinner fa-spin me-1"></i>Saving Note...');
+
+                $.ajax({
+                    url: '{{ url("/admins/transaction") }}/' + encodeURIComponent(txnId) + '/clublifter-update-notes',
+                    type: 'POST',
+                    data: {
+                        _token: '{{ csrf_token() }}',
+                        notes: notes,
+                        append: append
+                    },
+                    dataType: 'json',
+                    success: function(res) {
+                        $btn.prop('disabled', false).html(originalHtml);
+                        if (res && res.success) {
+                            var modalEl = document.getElementById('clublifterNotesModal');
+                            var bsModal = (window.bootstrap && bootstrap.Modal) ? (bootstrap.Modal.getInstance(modalEl) || bootstrap.Modal.getOrCreateInstance(modalEl)) : null;
+                            if (bsModal) {
+                                bsModal.hide();
+                            } else if (typeof $(modalEl).modal === 'function') {
+                                $(modalEl).modal('hide');
+                            }
+
+                            alert(res.message || 'Dispatch note updated successfully in ClubLifter!');
+                            var clId = $('#clNoteCustomerId').val();
+                            if (clId) {
+                                window.fetchClubLifterCustomerStatus(clId, $('#viewTransactionModal'));
+                                window.fetchClubLifterCustomerStatus(clId, $('#packageDetailsModal'));
+                            }
+                        } else {
+                            alert((res && res.message) ? res.message : 'Failed to update note.');
+                        }
+                    },
+                    error: function(xhr) {
+                        $btn.prop('disabled', false).html(originalHtml);
+                        var err = (xhr.responseJSON && xhr.responseJSON.message) ? xhr.responseJSON.message : 'Server error while updating note.';
+                        alert(err);
                     }
                 });
             });
@@ -7529,11 +7797,20 @@ body.modal-open .admin-mobile-menu-toggle {
                 html += row('Transport Address', $(this).data('transportation_address') || 'N/A');
                 html += row('Transport Note', $(this).data('transportation_note') || 'N/A');
                 if (hasClubLifterId) {
+                    var clTxnId = $(this).data('id') || $(this).data('transaction-id') || '';
+                    var clGuestName = (String($(this).data('package_first_name') || '') + ' ' + String($(this).data('package_last_name') || '')).trim() || 'Guest';
+                    var clUseDate = $(this).data('package_use_date') || '';
+                    var clPickupTime = $(this).data('transportation_pickup_time') || '';
+
                     pushPdfRow('ClubLifter ID', clublifterCustomerId);
-                    html += '<div class="txn-detail-row"><span class="txn-detail-label">ClubLifter ID:</span><span class="txn-detail-value" style="font-weight:600;color:#c084fc;">' + esc(clublifterCustomerId) + '</span></div>';
+                    html += '<div class="txn-detail-row"><span class="txn-detail-label">ClubLifter ID:</span><span class="txn-detail-value d-flex align-items-center justify-content-between" style="gap:8px;"><span style="font-weight:600;color:#c084fc;">' + esc(clublifterCustomerId) + '</span><span class="clublifter-priority-val"></span></span></div>';
                     html += '<div class="txn-detail-row"><span class="txn-detail-label">Transport Status:</span><span class="txn-detail-value clublifter-status-val" style="color:#94a3b8;"><i class="fas fa-spinner fa-spin me-1"></i>Fetching live status...</span></div>';
                     html += '<div class="txn-detail-row"><span class="txn-detail-label">Driver Note:</span><span class="txn-detail-value clublifter-driver-note-val" style="color:#94a3b8;"><i class="fas fa-spinner fa-spin me-1"></i>Fetching live note...</span></div>';
                     html += '<div class="txn-detail-row clublifter-driver-details-row" style="display:none;"><span class="txn-detail-label">Assigned Driver:</span><span class="txn-detail-value clublifter-driver-details-val" style="color:#93c5fd;"></span></div>';
+                    html += '<div class="txn-detail-row" style="margin-top:8px;padding-top:8px;border-top:1px dashed rgba(255,255,255,0.1);"><span class="txn-detail-label">ClubLifter:</span><span class="txn-detail-value d-flex gap-2 flex-wrap">' +
+                        '<button type="button" class="btn btn-xs btn-outline-warning btn-cl-reschedule" data-txn-id="' + esc(clTxnId) + '" data-cl-id="' + esc(clublifterCustomerId) + '" data-guest="' + esc(clGuestName) + '" data-date="' + esc(clUseDate) + '" data-time="' + esc(clPickupTime) + '" style="font-size:0.75rem;padding:3px 9px;border-radius:5px;"><i class="fas fa-calendar-alt me-1"></i>Reschedule Ride</button>' +
+                        '<button type="button" class="btn btn-xs btn-outline-info btn-cl-note" data-txn-id="' + esc(clTxnId) + '" data-cl-id="' + esc(clublifterCustomerId) + '" data-guest="' + esc(clGuestName) + '" style="font-size:0.75rem;padding:3px 9px;border-radius:5px;"><i class="fas fa-comment-dots me-1"></i>Driver Note</button>' +
+                        '</span></div>';
                 }
                 html += '</div>';
 
@@ -8427,10 +8704,19 @@ body.modal-open .admin-mobile-menu-toggle {
                 html += row(hasPickupTime ? 'Transport Phone' : 'Contact Phone', transportationPhone || 'N/A');
                 html += row(hasPickupTime ? 'Transport Note' : 'Arrival Note', transportationNote || 'N/A');
                 if (hasClubLifterId) {
-                    html += '<div class="txn-detail-row"><span class="txn-detail-label">ClubLifter ID:</span><span class="txn-detail-value" style="font-weight:600;color:#c084fc;">' + esc(clublifterCustomerId) + '</span></div>';
+                    var clTxnId = $(this).data('id') || $(this).data('transaction-id') || '';
+                    var clGuestName = (String($(this).data('package_first_name') || '') + ' ' + String($(this).data('package_last_name') || '')).trim() || 'Guest';
+                    var clUseDate = $(this).data('package_use_date') || '';
+                    var clPickupTime = $(this).data('transportation_pickup_time') || '';
+
+                    html += '<div class="txn-detail-row"><span class="txn-detail-label">ClubLifter ID:</span><span class="txn-detail-value d-flex align-items-center justify-content-between" style="gap:8px;"><span style="font-weight:600;color:#c084fc;">' + esc(clublifterCustomerId) + '</span><span class="clublifter-priority-val"></span></span></div>';
                     html += '<div class="txn-detail-row"><span class="txn-detail-label">Transport Status:</span><span class="txn-detail-value clublifter-status-val" style="color:#94a3b8;"><i class="fas fa-spinner fa-spin me-1"></i>Fetching live status...</span></div>';
                     html += '<div class="txn-detail-row"><span class="txn-detail-label">Driver Note:</span><span class="txn-detail-value clublifter-driver-note-val" style="color:#94a3b8;"><i class="fas fa-spinner fa-spin me-1"></i>Fetching live note...</span></div>';
                     html += '<div class="txn-detail-row clublifter-driver-details-row" style="display:none;"><span class="txn-detail-label">Assigned Driver:</span><span class="txn-detail-value clublifter-driver-details-val" style="color:#93c5fd;"></span></div>';
+                    html += '<div class="txn-detail-row" style="margin-top:8px;padding-top:8px;border-top:1px dashed rgba(255,255,255,0.1);"><span class="txn-detail-label">ClubLifter:</span><span class="txn-detail-value d-flex gap-2 flex-wrap">' +
+                        '<button type="button" class="btn btn-xs btn-outline-warning btn-cl-reschedule" data-txn-id="' + esc(clTxnId) + '" data-cl-id="' + esc(clublifterCustomerId) + '" data-guest="' + esc(clGuestName) + '" data-date="' + esc(clUseDate) + '" data-time="' + esc(clPickupTime) + '" style="font-size:0.75rem;padding:3px 9px;border-radius:5px;"><i class="fas fa-calendar-alt me-1"></i>Reschedule Ride</button>' +
+                        '<button type="button" class="btn btn-xs btn-outline-info btn-cl-note" data-txn-id="' + esc(clTxnId) + '" data-cl-id="' + esc(clublifterCustomerId) + '" data-guest="' + esc(clGuestName) + '" style="font-size:0.75rem;padding:3px 9px;border-radius:5px;"><i class="fas fa-comment-dots me-1"></i>Driver Note</button>' +
+                        '</span></div>';
                 }
                 html += '</div>';
                 html += '</div>';
