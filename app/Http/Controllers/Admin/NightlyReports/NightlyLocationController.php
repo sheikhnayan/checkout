@@ -44,12 +44,18 @@ class NightlyLocationController extends BaseNightlyReportsController
 
         if (isset($validated['nightly_goals']) && is_array($validated['nightly_goals'])) {
             $cleanGoals = [];
+            $weeklySum = 0;
             foreach ($validated['nightly_goals'] as $day => $val) {
                 if ($val !== '' && $val !== null) {
-                    $cleanGoals[strtolower($day)] = (float) $val;
+                    $valFloat = (float) $val;
+                    $cleanGoals[strtolower($day)] = $valFloat;
+                    $weeklySum += $valFloat;
                 }
             }
             $validated['nightly_goals'] = !empty($cleanGoals) ? $cleanGoals : null;
+            if ((!isset($validated['nightly_goal']) || $validated['nightly_goal'] === '' || $validated['nightly_goal'] === null) && $weeklySum > 0) {
+                $validated['nightly_goal'] = $weeklySum;
+            }
         }
 
         // Dynamically save only columns that exist in the database table to prevent 1054 Unknown column errors
@@ -110,12 +116,18 @@ class NightlyLocationController extends BaseNightlyReportsController
 
         if (isset($validated['nightly_goals']) && is_array($validated['nightly_goals'])) {
             $cleanGoals = [];
+            $weeklySum = 0;
             foreach ($validated['nightly_goals'] as $day => $val) {
                 if ($val !== '' && $val !== null) {
-                    $cleanGoals[strtolower($day)] = (float) $val;
+                    $valFloat = (float) $val;
+                    $cleanGoals[strtolower($day)] = $valFloat;
+                    $weeklySum += $valFloat;
                 }
             }
             $validated['nightly_goals'] = !empty($cleanGoals) ? $cleanGoals : null;
+            if ((!isset($validated['nightly_goal']) || $validated['nightly_goal'] === '' || $validated['nightly_goal'] === null) && $weeklySum > 0) {
+                $validated['nightly_goal'] = $weeklySum;
+            }
         }
 
         // Dynamically save only columns that exist in the database table to prevent 1054 Unknown column errors

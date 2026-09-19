@@ -76,6 +76,16 @@
     </div>
   </div>
 
+  <style>
+    tr.report-clickable-row {
+      cursor: pointer;
+      transition: background-color 0.15s ease;
+    }
+    tr.report-clickable-row:hover td {
+      background-color: rgba(217, 160, 91, 0.08) !important;
+    }
+  </style>
+
   <!-- Reports Table -->
   <div class="card">
     <div class="table-responsive">
@@ -96,14 +106,22 @@
         </thead>
         <tbody>
           @forelse($reports as $r)
-          <tr>
+          <tr class="report-clickable-row" data-href="{{ route('admin.nightly-reports.reports.show', ['type' => 'nightly', 'id' => $r->id]) }}" title="Click anywhere on row to view full shift report">
             <td class="fw-bold text-white">{{ $r->business_date->format('M d, Y') }}</td>
             <td>
               <div class="fw-bold text-white">{{ $r->location->name ?? 'Venue' }}</div>
               <div class="small text-muted">{{ $r->location->type ?? '' }}</div>
             </td>
             <td><span class="text-success fw-bold">${{ number_format($r->net_sales, 2) }}</span></td>
-            <td><span class="text-muted">${{ number_format($r->nightly_goal, 2) }}</span></td>
+            <td>
+              <span class="text-muted">${{ number_format($r->nightly_goal, 2) }}</span>
+              @if($r->nightly_goal > 0)
+                @php $diff = $r->net_sales - $r->nightly_goal; @endphp
+                <div class="small fw-semibold {{ $diff >= 0 ? 'text-success' : 'text-danger' }}" style="font-size: 0.72rem; line-height: 1.2; margin-top: 2px;">
+                  <i class="fas {{ $diff >= 0 ? 'fa-arrow-up' : 'fa-arrow-down' }} me-1"></i>{{ $diff >= 0 ? '+' : '-' }}${{ number_format(abs($diff), 2) }}
+                </div>
+              @endif
+            </td>
             <td>{{ number_format($r->total_guests) }}</td>
             <td><span class="text-warning fw-semibold">${{ number_format($r->guest_average, 2) }}</span></td>
             <td>
@@ -151,4 +169,21 @@
   </div>
 
 </div>
+
+<script>
+  document.addEventListener('DOMContentLoaded', function() {
+    document.querySelectorAll('tr.report-clickable-row').forEach(function(row) {
+      row.addEventListener('click', function(e) {
+        // Prevent row navigation if clicking directly inside an action button, anchor, or input
+        if (e.target.closest('a, button, input, select, textarea, .btn-group, [role="button"]')) {
+          return;
+        }
+        var href = row.getAttribute('data-href');
+        if (href) {
+          window.location.href = href;
+        }
+      });
+    });
+  });
+</script>
 @endsection

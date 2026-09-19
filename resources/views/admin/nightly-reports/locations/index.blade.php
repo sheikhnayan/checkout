@@ -124,11 +124,12 @@
     border-radius: 6px;
     background: #19273c;
     color: #94a3b8;
+    border: 1px solid #243750;
   }
-  .goal-day-pill.weekend {
-    background: rgba(217, 160, 91, 0.2);
-    color: #e8b878;
-    border: 1px solid rgba(217, 160, 91, 0.4);
+  .goal-day-pill-week {
+    background: rgba(217, 160, 91, 0.2) !important;
+    color: #f6c478 !important;
+    border: 1px solid rgba(217, 160, 91, 0.45) !important;
   }
   .goal-day-name {
     font-size: 0.84rem;
@@ -241,7 +242,7 @@
             <th>Type</th>
             <th>Club Inbox</th>
             <th>GM Email</th>
-            <th>Nightly Goals</th>
+            <th>Weekly Goal</th>
             <th>Status</th>
             <th class="text-end">Actions</th>
           </tr>
@@ -266,7 +267,7 @@
               <div class="small text-muted">{{ $loc->gm_email ?? '—' }}</div>
             </td>
             <td>
-              <span class="text-warning fw-semibold">${{ number_format($loc->nightly_goal ?? 0, 0) }}</span>
+              <div class="fw-semibold text-warning">${{ number_format($loc->nightly_goal ?? 0, 0) }} <span class="text-muted small fw-normal">/wk</span></div>
               @if(!empty($loc->nightly_goals) && is_array($loc->nightly_goals))
                 <div class="mt-1">
                   <span class="badge bg-dark text-warning border border-warning-subtle" style="font-size: 0.65rem;" title="Mon: ${{ number_format($loc->nightly_goals['monday'] ?? 0) }} | Tue: ${{ number_format($loc->nightly_goals['tuesday'] ?? 0) }} | Wed: ${{ number_format($loc->nightly_goals['wednesday'] ?? 0) }} | Thu: ${{ number_format($loc->nightly_goals['thursday'] ?? 0) }} | Fri: ${{ number_format($loc->nightly_goals['friday'] ?? 0) }} | Sat: ${{ number_format($loc->nightly_goals['saturday'] ?? 0) }} | Sun: ${{ number_format($loc->nightly_goals['sunday'] ?? 0) }}">
@@ -350,13 +351,13 @@
                       <div class="row g-2">
                         @php
                           $dayItems = [
-                            'monday' => ['name' => 'Monday', 'tag' => 'MON', 'weekend' => false],
-                            'tuesday' => ['name' => 'Tuesday', 'tag' => 'TUE', 'weekend' => false],
-                            'wednesday' => ['name' => 'Wednesday', 'tag' => 'WED', 'weekend' => false],
-                            'thursday' => ['name' => 'Thursday', 'tag' => 'THU', 'weekend' => false],
-                            'friday' => ['name' => 'Friday', 'tag' => 'FRI', 'weekend' => false],
-                            'saturday' => ['name' => 'Saturday', 'tag' => 'SAT', 'weekend' => true],
-                            'sunday' => ['name' => 'Sunday', 'tag' => 'SUN', 'weekend' => true],
+                            'monday' => ['name' => 'Monday', 'tag' => 'MON'],
+                            'tuesday' => ['name' => 'Tuesday', 'tag' => 'TUE'],
+                            'wednesday' => ['name' => 'Wednesday', 'tag' => 'WED'],
+                            'thursday' => ['name' => 'Thursday', 'tag' => 'THU'],
+                            'friday' => ['name' => 'Friday', 'tag' => 'FRI'],
+                            'saturday' => ['name' => 'Saturday', 'tag' => 'SAT'],
+                            'sunday' => ['name' => 'Sunday', 'tag' => 'SUN'],
                           ];
                         @endphp
 
@@ -364,30 +365,33 @@
                           <div class="col-12 col-sm-6">
                             <div class="goal-card-item">
                               <div class="goal-day-info">
-                                <span class="goal-day-pill {{ $info['weekend'] ? 'weekend' : '' }}">{{ $info['tag'] }}</span>
+                                <span class="goal-day-pill">{{ $info['tag'] }}</span>
                                 <span class="goal-day-name">{{ $info['name'] }}</span>
                               </div>
                               <div class="goal-input-box">
                                 <span class="goal-dollar">$</span>
-                                <input type="number" step="0.01" min="0" name="nightly_goals[{{ $dKey }}]" class="goal-amount-input" value="{{ $loc->nightly_goals[$dKey] ?? '' }}" placeholder="0.00" onwheel="this.blur()" />
+                                <input type="number" step="0.01" min="0" name="nightly_goals[{{ $dKey }}]" class="goal-amount-input day-goal-input" value="{{ $loc->nightly_goals[$dKey] ?? '' }}" placeholder="0.00" onwheel="this.blur()" />
                               </div>
                             </div>
                           </div>
                         @endforeach
 
-                        <!-- Baseline Fallback Target -->
+                        <!-- Weekly Total Goal (Auto-Tallied) -->
                         <div class="col-12 col-sm-6">
-                          <div class="goal-card-item" style="border-style: dashed; border-color: rgba(217, 160, 91, 0.35);">
+                          <div class="goal-card-item goal-card-weekly" style="border-style: dashed; border-color: rgba(217, 160, 91, 0.45); background: rgba(217, 160, 91, 0.04);">
                             <div class="goal-day-info">
-                              <span class="goal-day-pill" style="background: rgba(255, 255, 255, 0.06); color: #cbd5e1;">BASE</span>
-                              <span class="goal-day-name text-muted">Baseline Goal</span>
+                              <span class="goal-day-pill goal-day-pill-week">WEEK</span>
+                              <span class="goal-day-name" style="color: #f6c478;">Weekly Goal *</span>
                             </div>
-                            <div class="goal-input-box">
+                            <div class="goal-input-box" style="border-color: rgba(217, 160, 91, 0.35);">
                               <span class="goal-dollar">$</span>
-                              <input type="number" step="0.01" min="0" name="nightly_goal" class="goal-amount-input" value="{{ $loc->nightly_goal }}" placeholder="0.00" />
+                              <input type="number" step="0.01" min="0" name="nightly_goal" class="goal-amount-input weekly-goal-input" value="{{ $loc->nightly_goal ? number_format($loc->nightly_goal, 2, '.', '') : '' }}" placeholder="0.00" title="Weekly total (sum of 7 daily goals)" onwheel="this.blur()" />
                             </div>
                           </div>
                         </div>
+                      </div>
+                      <div class="mt-2 text-muted" style="font-size: 0.72rem; line-height: 1.4;">
+                        <span class="text-warning">*</span> <strong>Weekly Goal:</strong> Sum of all 7 daily targets (auto-tallied as you enter daily amounts).
                       </div>
                     </div>
                   </div>
@@ -459,13 +463,13 @@
               <div class="row g-2">
                 @php
                   $dayItems = [
-                    'monday' => ['name' => 'Monday', 'tag' => 'MON', 'weekend' => false],
-                    'tuesday' => ['name' => 'Tuesday', 'tag' => 'TUE', 'weekend' => false],
-                    'wednesday' => ['name' => 'Wednesday', 'tag' => 'WED', 'weekend' => false],
-                    'thursday' => ['name' => 'Thursday', 'tag' => 'THU', 'weekend' => false],
-                    'friday' => ['name' => 'Friday', 'tag' => 'FRI', 'weekend' => false],
-                    'saturday' => ['name' => 'Saturday', 'tag' => 'SAT', 'weekend' => true],
-                    'sunday' => ['name' => 'Sunday', 'tag' => 'SUN', 'weekend' => true],
+                    'monday' => ['name' => 'Monday', 'tag' => 'MON'],
+                    'tuesday' => ['name' => 'Tuesday', 'tag' => 'TUE'],
+                    'wednesday' => ['name' => 'Wednesday', 'tag' => 'WED'],
+                    'thursday' => ['name' => 'Thursday', 'tag' => 'THU'],
+                    'friday' => ['name' => 'Friday', 'tag' => 'FRI'],
+                    'saturday' => ['name' => 'Saturday', 'tag' => 'SAT'],
+                    'sunday' => ['name' => 'Sunday', 'tag' => 'SUN'],
                   ];
                 @endphp
 
@@ -473,30 +477,33 @@
                   <div class="col-12 col-sm-6">
                     <div class="goal-card-item">
                       <div class="goal-day-info">
-                        <span class="goal-day-pill {{ $info['weekend'] ? 'weekend' : '' }}">{{ $info['tag'] }}</span>
+                        <span class="goal-day-pill">{{ $info['tag'] }}</span>
                         <span class="goal-day-name">{{ $info['name'] }}</span>
                       </div>
                       <div class="goal-input-box">
                         <span class="goal-dollar">$</span>
-                        <input type="number" step="0.01" min="0" name="nightly_goals[{{ $dKey }}]" class="goal-amount-input" placeholder="0.00" onwheel="this.blur()" />
+                        <input type="number" step="0.01" min="0" name="nightly_goals[{{ $dKey }}]" class="goal-amount-input day-goal-input" placeholder="0.00" onwheel="this.blur()" />
                       </div>
                     </div>
                   </div>
                 @endforeach
 
-                <!-- Baseline Fallback Target -->
+                <!-- Weekly Total Goal (Auto-Tallied) -->
                 <div class="col-12 col-sm-6">
-                  <div class="goal-card-item" style="border-style: dashed; border-color: rgba(217, 160, 91, 0.35);">
+                  <div class="goal-card-item goal-card-weekly" style="border-style: dashed; border-color: rgba(217, 160, 91, 0.45); background: rgba(217, 160, 91, 0.04);">
                     <div class="goal-day-info">
-                      <span class="goal-day-pill" style="background: rgba(255, 255, 255, 0.06); color: #cbd5e1;">BASE</span>
-                      <span class="goal-day-name text-muted">Baseline Goal</span>
+                      <span class="goal-day-pill goal-day-pill-week">WEEK</span>
+                      <span class="goal-day-name" style="color: #f6c478;">Weekly Goal *</span>
                     </div>
-                    <div class="goal-input-box">
+                    <div class="goal-input-box" style="border-color: rgba(217, 160, 91, 0.35);">
                       <span class="goal-dollar">$</span>
-                      <input type="number" step="0.01" min="0" name="nightly_goal" class="goal-amount-input" placeholder="0.00" onwheel="this.blur()" />
+                      <input type="number" step="0.01" min="0" name="nightly_goal" class="goal-amount-input weekly-goal-input" placeholder="0.00" title="Weekly total (sum of 7 daily goals)" onwheel="this.blur()" />
                     </div>
                   </div>
                 </div>
+              </div>
+              <div class="mt-2 text-muted" style="font-size: 0.72rem; line-height: 1.4;">
+                <span class="text-warning">*</span> <strong>Weekly Goal:</strong> Sum of all 7 daily targets (auto-tallied as you enter daily amounts).
               </div>
             </div>
           </div>
@@ -530,6 +537,36 @@
           }
         }
       });
+    });
+
+    // Auto-tally 7 daily goals into the Weekly Goal input for each modal
+    function setupGoalAutoTally(container) {
+      var dayInputs = container.querySelectorAll('.day-goal-input');
+      var weeklyInput = container.querySelector('.weekly-goal-input');
+      if (!dayInputs.length || !weeklyInput) return;
+
+      function tally() {
+        var total = 0;
+        var hasEntered = false;
+        dayInputs.forEach(function(inp) {
+          var val = parseFloat(inp.value);
+          if (!isNaN(val) && val > 0) {
+            total += val;
+            hasEntered = true;
+          }
+        });
+        if (hasEntered) {
+          weeklyInput.value = total.toFixed(2);
+        }
+      }
+
+      dayInputs.forEach(function(inp) {
+        inp.addEventListener('input', tally);
+      });
+    }
+
+    document.querySelectorAll('.modal-portal').forEach(function(modal) {
+      setupGoalAutoTally(modal);
     });
   });
 </script>

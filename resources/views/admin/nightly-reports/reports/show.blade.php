@@ -30,7 +30,15 @@
       <div class="nr-kpi-card">
         <div class="nr-kpi-label">Net Sales</div>
         <div class="nr-kpi-value text-success">${{ number_format($report->net_sales, 2) }}</div>
-        <div class="nr-kpi-sub text-muted">Goal: ${{ number_format($report->nightly_goal, 2) }}</div>
+        <div class="nr-kpi-sub text-muted">
+          Goal: ${{ number_format($report->nightly_goal, 2) }}
+          @if($report->nightly_goal > 0)
+            @php $vDiff = $report->net_sales - $report->nightly_goal; @endphp
+            <span class="ms-1 fw-bold {{ $vDiff >= 0 ? 'text-success' : 'text-danger' }}">
+              ({{ $vDiff >= 0 ? '+' : '-' }}${{ number_format(abs($vDiff), 2) }})
+            </span>
+          @endif
+        </div>
       </div>
     </div>
     <div class="col-6 col-md-3">
@@ -69,8 +77,29 @@
             <tbody>
               <tr><td class="text-muted">Net Sales ($):</td><td class="text-end fw-bold text-success">${{ number_format($report->net_sales, 2) }}</td></tr>
               <tr><td class="text-muted">Nightly Goal ($):</td><td class="text-end text-white">${{ number_format($report->nightly_goal, 2) }}</td></tr>
+              @if($report->nightly_goal > 0)
+                @php $dDiff = $report->net_sales - $report->nightly_goal; @endphp
+                <tr>
+                  <td class="text-muted">Daily Goal Performance:</td>
+                  <td class="text-end fw-bold {{ $dDiff >= 0 ? 'text-success' : 'text-danger' }}">
+                    <i class="fas {{ $dDiff >= 0 ? 'fa-arrow-up' : 'fa-arrow-down' }} me-1"></i>{{ $dDiff >= 0 ? 'Exceeded by +' : 'Short by -' }}${{ number_format(abs($dDiff), 2) }}
+                  </td>
+                </tr>
+              @endif
               <tr><td class="text-muted">Last Year Net Sales ($):</td><td class="text-end text-white">${{ number_format($report->last_year_net_sales, 2) }}</td></tr>
               <tr><td class="text-muted">Weekly Running Net Sales ($):</td><td class="text-end text-white">${{ number_format($report->weekly_running_net_sales, 2) }}</td></tr>
+              @if(!empty($report->location->nightly_goal) && $report->location->nightly_goal > 0)
+                <tr><td class="text-muted">Weekly Goal Target ($):</td><td class="text-end text-warning">${{ number_format($report->location->nightly_goal, 2) }}</td></tr>
+                @if($report->weekly_running_net_sales > 0)
+                  @php $wDiff = $report->weekly_running_net_sales - $report->location->nightly_goal; @endphp
+                  <tr>
+                    <td class="text-muted">Weekly Performance:</td>
+                    <td class="text-end fw-bold {{ $wDiff >= 0 ? 'text-success' : 'text-danger' }}">
+                      <i class="fas {{ $wDiff >= 0 ? 'fa-arrow-up' : 'fa-arrow-down' }} me-1"></i>{{ $wDiff >= 0 ? 'Exceeded by +' : 'Short by -' }}${{ number_format(abs($wDiff), 2) }}
+                    </td>
+                  </tr>
+                @endif
+              @endif
               <tr><td class="text-muted">Day Shift Net Sales ($):</td><td class="text-end text-white">${{ number_format($report->day_shift_net_sales, 2) }}</td></tr>
               <tr><td class="text-muted">POS Voids ($):</td><td class="text-end text-danger">${{ number_format($report->voids, 2) }}</td></tr>
               <tr><td class="text-muted">Manager Comps ($):</td><td class="text-end text-danger">${{ number_format($report->comps, 2) }}</td></tr>
