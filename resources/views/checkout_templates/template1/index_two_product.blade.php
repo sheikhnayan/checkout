@@ -949,14 +949,17 @@
                                                             </div>
 
                                                             <div class="form-row">
-                                                                <div class="form-group" style="width: 50%;">
+                                                                <div class="form-group" style="width: 100%;">
                                                                     <label for="phone">Phone Number</label>
                                                                     <input type="tel" id="package_phone"
                                                                         name="package_phone"
                                                                         placeholder="(555) 123-4567" required />
-                                                                    <div class="phone-note" style="font-size: 0.75rem; color: rgba(255,255,255,0.6); margin-top: 4px;">Phone formatting may vary by country. International SMS delivery is not guaranteed.</div>
+                                                                    <div class="phone-note" style="font-size: 0.75rem; color: #64748b; margin-top: 4px;">Phone formatting may vary by country. International SMS delivery is not guaranteed.</div>
                                                                 </div>
-                                                                <div class="form-group" style="width: 50%;">
+                                                            </div>
+
+                                                            <div class="form-row">
+                                                                <div class="form-group" style="width: 100%;">
                                                                     <label for="email">Email</label>
                                                                     <input type="email" id="email"
                                                                         name="package_email"
@@ -1308,20 +1311,20 @@
                                                                     </div>
 
                                                                 </div>
-                                                                <div class="form-row">
-                                                                    <div class="form-group" style="width: 25%;">
+                                                                <div class="form-row" style="display: flex; gap: 12px; width: 100%;">
+                                                                    <div class="form-group" style="flex: 1; min-width: 0;">
                                                                         <label>Month</label>
                                                                         <input type="tel" maxlength="2"
                                                                             name="card_month" id="city"
                                                                             placeholder="(MM)" required data-card-required="1" />
                                                                     </div>
-                                                                    <div class="form-group" style="width: 25%;">
+                                                                    <div class="form-group" style="flex: 1; min-width: 0;">
                                                                         <label>Year</label>
                                                                         <input type="tel" maxlength="2"
                                                                             name="card_year" placeholder="(YY)"
                                                                             required data-card-required="1" />
                                                                     </div>
-                                                                    <div class="form-group" style="width: 25%;">
+                                                                    <div class="form-group" style="flex: 1; min-width: 0;">
                                                                         <label>CVV</label>
                                                                         <input type="tel" name="card_cvv"
                                                                             id="cvv" placeholder="CVV"
@@ -5490,6 +5493,22 @@
                             el.value = normalizedTime;
                         }
                     });
+                    el.addEventListener('click', function () {
+                        if (typeof el.showPicker === 'function') {
+                            try { el.showPicker(); } catch (e) {}
+                        }
+                    });
+                    var wrap = el.closest('.pickup-time-wrap');
+                    if (wrap) {
+                        wrap.addEventListener('click', function (e) {
+                            if (e.target !== el) {
+                                el.focus();
+                                if (typeof el.showPicker === 'function') {
+                                    try { el.showPicker(); } catch (err) {}
+                                }
+                            }
+                        });
+                    }
                     return;
                 }
 
@@ -5512,6 +5531,9 @@
                     enableTime: true,
                     noCalendar: true,
                     time_24hr: false,
+                    position: "below",
+                    appendTo: document.body,
+                    static: true,
                     minuteIncrement: 5,
                     dateFormat: 'h:i K',
                     allowInput: true,
@@ -5592,6 +5614,22 @@
                             el.value = normalizedTime;
                         }
                     });
+                    el.addEventListener('click', function () {
+                        if (typeof el.showPicker === 'function') {
+                            try { el.showPicker(); } catch (e) {}
+                        }
+                    });
+                    var wrap = el.closest('.pickup-time-wrap');
+                    if (wrap) {
+                        wrap.addEventListener('click', function (e) {
+                            if (e.target !== el) {
+                                el.focus();
+                                if (typeof el.showPicker === 'function') {
+                                    try { el.showPicker(); } catch (err) {}
+                                }
+                            }
+                        });
+                    }
                     return;
                 }
 
@@ -5614,6 +5652,9 @@
                     enableTime: true,
                     noCalendar: true,
                     time_24hr: false,
+                    position: "below",
+                    appendTo: document.body,
+                    static: true,
                     minuteIncrement: 5,
                     dateFormat: 'h:i K',
                     allowInput: true,
@@ -7777,21 +7818,7 @@
             }
         }, true);
 
-        var timeEls = document.querySelectorAll('#Pick-up-time, input[name="transportation_pickup_time"]');
-        Array.prototype.forEach.call(timeEls, function(el){
-            el.addEventListener('focus', function(){
-                setTimeout(function(){
-                    var rect = el.getBoundingClientRect();
-                    var spaceBelow = window.innerHeight - rect.bottom;
-                    var needed = 360;
-                    if (spaceBelow < needed) {
-                        var scrollY = window.scrollY + rect.top - 120;
-                        if (scrollY < 0) scrollY = 0;
-                        window.scrollTo({ top: scrollY, behavior: 'smooth' });
-                    }
-                }, 120);
-            });
-        });
+        // Intrusive programmatic scrollTo on focus removed to preserve mobile time wheel pickers
     })();
     </script>
     </html>

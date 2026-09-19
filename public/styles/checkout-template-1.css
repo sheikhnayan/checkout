@@ -1605,26 +1605,9 @@ select:focus,
 }
 
 /* ==========================================================================
-   TIME PICKER (Pick-up Time & Arrival Time Full-Width)
+/* ==========================================================================
+   TIME PICKER (Pick-up Time & Arrival Time) - Styled like index_two main page
    ========================================================================== */
-.pickup-time-wrap {
-    position: relative !important;
-    width: 100% !important;
-    max-width: 100% !important;
-}
-
-.pickup-time-wrap .pickup-time-icon {
-    position: absolute !important;
-    left: 14px !important;
-    top: 50% !important;
-    transform: translateY(-50%) !important;
-    color: var(--cv-primary) !important;
-    font-size: 16px !important;
-    pointer-events: none !important;
-    z-index: 2 !important;
-}
-
-/* Pick-up time & Arrival time — styled like index_two main (max-width: 260px) */
 .pickup-time-wrap {
     position: relative !important;
     width: 100% !important;
@@ -1637,7 +1620,7 @@ select:focus,
     top: 50% !important;
     transform: translateY(-50%) !important;
     color: var(--cv-primary) !important;
-    font-size: 14px !important;
+    font-size: 15px !important;
     pointer-events: none !important;
     z-index: 2 !important;
 }
@@ -1646,30 +1629,131 @@ select:focus,
 #Arrival-time,
 input[name="transportation_pickup_time"],
 input[name="transportation_arrival_time"] {
-    width: 100% !important;
-    max-width: 260px !important;
-    height: 46px !important;
-    min-height: 46px !important;
-    padding: 10px 14px 10px 38px !important;
-    font-size: 14px !important;
-    font-weight: 600 !important;
-    color: var(--cv-ink) !important;
-    -webkit-text-fill-color: var(--cv-ink) !important;
     background: #ffffff !important;
     border: 1.5px solid var(--cv-border-input) !important;
-    border-radius: var(--cv-radius) !important;
-    box-sizing: border-box !important;
+    color: var(--cv-ink) !important;
+    -webkit-text-fill-color: var(--cv-ink) !important;
+    border-radius: 10px !important;
+    padding: 12px 14px 12px 40px !important;
+    font-size: 15px !important;
+    min-height: 46px !important;
+    width: 100% !important;
+    max-width: 260px !important;
+    height: auto !important;
     cursor: pointer !important;
+    font-family: inherit !important;
+    box-sizing: border-box !important;
     box-shadow: var(--cv-shadow-sm) !important;
+    transition: border-color 0.15s ease, box-shadow 0.15s ease !important;
+}
+
+#Pick-up-time::placeholder,
+#Arrival-time::placeholder,
+input[name="transportation_pickup_time"]::placeholder,
+input[name="transportation_arrival_time"]::placeholder {
+    color: var(--cv-ink-muted) !important;
+    opacity: 0.8 !important;
 }
 
 #Pick-up-time:focus,
 #Arrival-time:focus,
 input[name="transportation_pickup_time"]:focus,
 input[name="transportation_arrival_time"]:focus {
+    outline: none !important;
     border-color: var(--cv-primary) !important;
+    background: #ffffff !important;
     box-shadow: 0 0 0 3px var(--cv-primary-ring) !important;
 }
+
+@media (max-width: 767px) {
+    .pickup-time-wrap,
+    #Pick-up-time,
+    #Arrival-time,
+    input[name="transportation_pickup_time"],
+    input[name="transportation_arrival_time"] {
+        max-width: 100% !important;
+        width: 100% !important;
+    }
+}
+
+/* Flatpickr visual time picker popup - light aesthetic matching Template 1 */
+.flatpickr-calendar.hasTime.noCalendar {
+    background: #ffffff !important;
+    border: 1.5px solid var(--cv-border) !important;
+    border-radius: 16px !important;
+    box-shadow: 0 20px 50px rgba(15, 23, 42, 0.16), 0 0 0 1px rgba(37, 99, 235, 0.08) !important;
+    padding: 20px 18px !important;
+    min-width: 288px !important;
+    width: auto !important;
+    max-width: min(340px, calc(100vw - 32px)) !important;
+    z-index: 999999 !important;
+}
+
+.flatpickr-calendar.hasTime.noCalendar .flatpickr-time {
+    border-top: none !important;
+    background: transparent !important;
+    max-height: none !important;
+    height: auto !important;
+    line-height: 1 !important;
+    display: flex !important;
+    align-items: center !important;
+    justify-content: center !important;
+    gap: 8px !important;
+}
+
+.flatpickr-time input.numInput,
+.flatpickr-time .flatpickr-am-pm {
+    color: var(--cv-ink) !important;
+    background: #f8fafc !important;
+    border: 1.5px solid var(--cv-border-input) !important;
+    border-radius: 10px !important;
+    font-size: 18px !important;
+    font-weight: 700 !important;
+    height: 52px !important;
+    min-height: 52px !important;
+    line-height: 52px !important;
+    padding: 0 8px !important;
+    text-align: center !important;
+    overflow: visible !important;
+    box-sizing: border-box !important;
+    transition: all 0.15s ease !important;
+}
+
+.flatpickr-time .numInputWrapper {
+    height: 52px !important;
+    display: flex !important;
+    align-items: center !important;
+}
+
+.flatpickr-time input.numInput {
+    min-width: 60px !important;
+    width: 100% !important;
+    display: block !important;
+    appearance: textfield !important;
+    -moz-appearance: textfield !important;
+    padding: 0 8px 2px !important;
+}
+
+.flatpickr-time .flatpickr-am-pm {
+    min-width: 72px !important;
+    width: 72px !important;
+    padding: 0 8px !important;
+    cursor: pointer !important;
+}
+
+.flatpickr-time input.numInput:focus,
+.flatpickr-time .flatpickr-am-pm:focus,
+.flatpickr-time .flatpickr-am-pm:hover {
+    background: #eff6ff !important;
+    border-color: var(--cv-primary) !important;
+    outline: none !important;
+    color: var(--cv-primary) !important;
+}
+
+.flatpickr-time .numInputWrapper span.arrowUp:after { border-bottom-color: var(--cv-ink-muted) !important; }
+.flatpickr-time .numInputWrapper span.arrowDown:after { border-top-color: var(--cv-ink-muted) !important; }
+.flatpickr-time .numInputWrapper span:hover { background: #eff6ff !important; }
+.flatpickr-time .flatpickr-time-separator { color: var(--cv-ink-muted) !important; font-size: 20px !important; font-weight: 700 !important; }
 
 /* Schedule Hours Badge (Pickup Hours & Operational Hours) - Fix white invisible text */
 .schedule-hours-badge {
