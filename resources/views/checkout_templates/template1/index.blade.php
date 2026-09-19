@@ -1862,6 +1862,8 @@
                     if (titleEl) titleEl.textContent = title || 'Notice';
                     if (subEl) subEl.textContent = sub || '';
                     if (iconEl) iconEl.className = iconClass || 'fas fa-check';
+                    var isError = iconClass && (iconClass.indexOf('exclamation') !== -1 || iconClass.indexOf('times') !== -1 || iconClass.indexOf('triangle') !== -1 || iconClass.indexOf('calendar') !== -1);
+                    toast.classList.toggle('toast-error', !!isError);
                     toast.classList.add('is-visible');
                     if (hideTimer) clearTimeout(hideTimer);
                     hideTimer = setTimeout(function () { window.hideCartToast(); }, 4000);
@@ -5204,7 +5206,7 @@
                     return {
                         valid: false,
                         field: pickupTimeField,
-                        message: 'Please complete the required transportation details before proceeding.'
+                        message: 'Please select a pickup time.'
                     };
                 }
 

@@ -1424,18 +1424,10 @@
 
                 {{-- Trust badges --}}
                 <div class="cv-trust-list">
-                    <div class="cv-trust-item">
-                        <i class="fas fa-calendar-check"></i>
-                        <div><strong>Free Cancellation</strong><span>Up to 24 hours before your booking</span></div>
-                    </div>
-                    <div class="cv-trust-item">
-                        <i class="fas fa-headset"></i>
-                        <div><strong>Instant Support</strong><span>Get help anytime, anywhere</span></div>
-                    </div>
-                    <div class="cv-trust-item">
-                        <i class="fas fa-lock"></i>
-                        <div><strong>Secure Payment</strong><span>100% safe &amp; encrypted</span></div>
-                    </div>
+                    <div class="cv-trust-item"><i class="fas fa-lock"></i><div><strong>Secure Checkout</strong><span>Your payment is encrypted and securely processed</span></div></div>
+                    <div class="cv-trust-item"><i class="fas fa-check-circle"></i><div><strong>Instant Confirmation</strong><span>Receive your booking details immediately after checkout</span></div></div>
+                    <div class="cv-trust-item"><i class="fas fa-bolt"></i><div><strong>Priority Reservation Access</strong><span>Reservation request and package details submitted instantly</span></div></div>
+                    <div class="cv-trust-item"><i class="fas fa-headset"></i><div><strong>Customer Support Available</strong><span>Assistance available before and after your reservation</span></div></div>
                 </div>
 
                 <p class="cv-cta-terms">
@@ -1864,6 +1856,8 @@
                     if (titleEl) titleEl.textContent = title || 'Notice';
                     if (subEl) subEl.textContent = sub || '';
                     if (iconEl) iconEl.className = iconClass || 'fas fa-check';
+                    var isError = iconClass && (iconClass.indexOf('exclamation') !== -1 || iconClass.indexOf('times') !== -1 || iconClass.indexOf('triangle') !== -1 || iconClass.indexOf('calendar') !== -1);
+                    toast.classList.toggle('toast-error', !!isError);
                     toast.classList.add('is-visible');
                     if (hideTimer) clearTimeout(hideTimer);
                     hideTimer = setTimeout(function () { window.hideCartToast(); }, 4000);
@@ -5222,7 +5216,7 @@
                     return {
                         valid: false,
                         field: pickupDateField,
-                        message: 'Please complete the required transportation details before proceeding.'
+                        message: 'Please select a reservation date.'
                     };
                 }
 
@@ -5241,7 +5235,7 @@
                     return {
                         valid: false,
                         field: pickupTimeField,
-                        message: 'Please complete the required transportation details before proceeding.'
+                        message: 'Please select a pickup time.'
                     };
                 }
 
