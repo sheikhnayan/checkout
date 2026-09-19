@@ -5444,11 +5444,10 @@
                 return { valid: true, field: null, message: '' };
             }
 
-            // Flatpickr time picker for pick-up time — visual picker on all devices including iOS.
-            // Pick-up time picker: desktop uses Flatpickr, mobile uses the native time control.
-            (function () {
-                var el = document.querySelector('input[name="transportation_pickup_time"]');
+            // Pick-up and Arrival time picker helper: desktop uses Flatpickr (anchored directly under input), mobile uses native time control
+            function initTimePickerElement(el, scheduleObj) {
                 if (!el) return;
+
                 function to24h(t) {
                     if (!t) return null;
                     var m = String(t).trim().match(/^(\d{1,2}):(\d{2})\s*(AM|PM)?$/i);
@@ -5462,230 +5461,137 @@
                     }
                     return String(hh).padStart(2, '0') + ':' + String(mm).padStart(2, '0');
                 }
-                var minT = to24h(arrivalTransportationSchedule.startTime);
-                var maxT = to24h(arrivalTransportationSchedule.endTime);
+
+                function checkIsMobile() {
+                    return window.matchMedia('(max-width: 767px)').matches
+                        || /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent)
+                        || (navigator.platform === 'MacIntel' && navigator.maxTouchPoints > 1);
+                }
+
+                var minT = to24h(scheduleObj.startTime);
+                var maxT = to24h(scheduleObj.endTime);
                 var hasSameDayRange = false;
-                var startMinutes = parseTimeToMinutes(arrivalTransportationSchedule.startTime);
-                var endMinutes = parseTimeToMinutes(arrivalTransportationSchedule.endTime);
+                var startMinutes = parseTimeToMinutes(scheduleObj.startTime);
+                var endMinutes = parseTimeToMinutes(scheduleObj.endTime);
                 if (startMinutes !== null && endMinutes !== null) {
                     hasSameDayRange = endMinutes >= startMinutes;
                 }
-                var isMobileDevice = /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent)
-                    || (navigator.platform === 'MacIntel' && navigator.maxTouchPoints > 1);
 
-                if (isMobileDevice) {
-                    el.type = 'time';
-                    el.removeAttribute('readonly');
-                    el.step = 300;
-                    if (minT && maxT && hasSameDayRange) {
-                        el.min = minT;
-                        el.max = maxT;
+                function applyPicker() {
+                    var isMobile = checkIsMobile();
+
+                    if (isMobile) {
+                        if (el._flatpickr) {
+                            try { el._flatpickr.destroy(); } catch(e) {}
+                        }
+                        el.type = 'time';
+                        el.removeAttribute('readonly');
+                        el.step = 300;
+                        if (minT && maxT && hasSameDayRange) {
+                            el.min = minT;
+                            el.max = maxT;
+                        } else {
+                            el.removeAttribute('min');
+                            el.removeAttribute('max');
+                        }
                     } else {
-                        el.removeAttribute('min');
-                        el.removeAttribute('max');
+                        el.type = 'text';
+                        el.removeAttribute('readonly');
+
+                        if (typeof flatpickr !== 'undefined') {
+                            if (!el._flatpickr) {
+                                var pickerConfig = {
+                                    enableTime: true,
+                                    noCalendar: true,
+                                    time_24hr: false,
+                                    minuteIncrement: 5,
+                                    dateFormat: 'h:i K',
+                                    allowInput: true,
+                                    clickOpens: true,
+                                    position: 'auto',
+                                    onChange: function (selectedDates, dateStr, instance) {
+                                        const normalizedTime = normalizeTimeToFiveMinutes(instance.input.value, '12h');
+                                        if (normalizedTime && normalizedTime !== instance.input.value) {
+                                            instance.setDate(normalizedTime, true, 'h:i K');
+                                        }
+                                        $(el).removeClass('required-field');
+                                    }
+                                };
+                                if (minT && maxT && hasSameDayRange) {
+                                    pickerConfig.minTime = minT;
+                                    pickerConfig.maxTime = maxT;
+                                }
+                                flatpickr(el, pickerConfig);
+                            }
+                        } else {
+                            el.type = 'time';
+                            el.step = 300;
+                            if (minT && maxT && hasSameDayRange) {
+                                el.min = minT;
+                                el.max = maxT;
+                            }
+                        }
                     }
-                    el.addEventListener('input', function () {
-                        $(el).removeClass('required-field');
-                    });
-                    el.addEventListener('change', function () {
+                }
+
+                applyPicker();
+
+                el.addEventListener('input', function () {
+                    $(el).removeClass('required-field');
+                });
+                el.addEventListener('change', function () {
+                    if (el.type === 'time') {
                         const normalizedTime = normalizeTimeToFiveMinutes(el.value, '24h');
                         if (normalizedTime) {
                             el.value = normalizedTime;
                         }
-                    });
-                    el.addEventListener('click', function () {
-                        if (typeof el.showPicker === 'function') {
-                            try { el.showPicker(); } catch (e) {}
-                        }
-                    });
-                    var wrap = el.closest('.pickup-time-wrap');
-                    if (wrap) {
-                        wrap.addEventListener('click', function (e) {
-                            if (e.target !== el) {
-                                el.focus();
-                                if (typeof el.showPicker === 'function') {
-                                    try { el.showPicker(); } catch (err) {}
-                                }
-                            }
-                        });
-                    }
-                    return;
-                }
-
-                el.type = 'text';
-                el.removeAttribute('readonly');
-                if (typeof flatpickr === 'undefined') {
-                    el.type = 'time';
-                    if (minT && maxT && hasSameDayRange) {
-                        el.min = minT;
-                        el.max = maxT;
-                    } else {
-                        el.removeAttribute('min');
-                        el.removeAttribute('max');
-                    }
-                    el.step = 300;
-                    return;
-                }
-
-                var pickerConfig = {
-                    enableTime: true,
-                    noCalendar: true,
-                    time_24hr: false,
-                    position: "below",
-                    appendTo: document.body,
-                    static: true,
-                    minuteIncrement: 5,
-                    dateFormat: 'h:i K',
-                    allowInput: true,
-                    clickOpens: true,
-                    onChange: function (selectedDates, dateStr, instance) {
-                        const normalizedTime = normalizeTimeToFiveMinutes(instance.input.value, '12h');
-                        if (normalizedTime && normalizedTime !== instance.input.value) {
-                            instance.setDate(normalizedTime, true, 'h:i K');
-                        }
-                        $(el).removeClass('required-field');
-                    }
-                };
-                if (minT && maxT && hasSameDayRange) {
-                    pickerConfig.minTime = minT;
-                    pickerConfig.maxTime = maxT;
-                }
-
-                var pickupTimePicker = flatpickr(el, pickerConfig);
-
-                el.addEventListener('focus', function () {
-                    if (pickupTimePicker && typeof pickupTimePicker.open === 'function') {
-                        pickupTimePicker.open();
                     }
                 });
-
                 el.addEventListener('click', function () {
-                    if (pickupTimePicker && typeof pickupTimePicker.open === 'function') {
-                        pickupTimePicker.open();
+                    if (el.type === 'time' && typeof el.showPicker === 'function') {
+                        try { el.showPicker(); } catch (e) {}
+                    } else if (el._flatpickr && typeof el._flatpickr.open === 'function') {
+                        el._flatpickr.open();
                     }
                 });
-            })();
-
-            // Arrival time picker mirrors pickup-time behavior for cross-platform support.
-            (function () {
-                var el = document.querySelector('input[name="transportation_arrival_time"]');
-                if (!el) return;
-                function to24h(t) {
-                    if (!t) return null;
-                    var m = String(t).trim().match(/^(\d{1,2}):(\d{2})\s*(AM|PM)?$/i);
-                    if (!m) return null;
-                    var hh = parseInt(m[1], 10);
-                    var mm = parseInt(m[2], 10);
-                    if (m[3]) {
-                        var mer = m[3].toUpperCase();
-                        if (mer === 'PM' && hh < 12) hh += 12;
-                        else if (mer === 'AM' && hh === 12) hh = 0;
-                    }
-                    return String(hh).padStart(2, '0') + ':' + String(mm).padStart(2, '0');
-                }
-                var minT = to24h(transportationSchedule.startTime);
-                var maxT = to24h(transportationSchedule.endTime);
-                var hasSameDayRange = false;
-                var startMinutes = parseTimeToMinutes(transportationSchedule.startTime);
-                var endMinutes = parseTimeToMinutes(transportationSchedule.endTime);
-                if (startMinutes !== null && endMinutes !== null) {
-                    hasSameDayRange = endMinutes >= startMinutes;
-                }
-                var isMobileDevice = /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent)
-                    || (navigator.platform === 'MacIntel' && navigator.maxTouchPoints > 1);
-
-                if (isMobileDevice) {
-                    el.type = 'time';
-                    el.removeAttribute('readonly');
-                    el.step = 300;
-                    if (minT && maxT && hasSameDayRange) {
-                        el.min = minT;
-                        el.max = maxT;
-                    } else {
-                        el.removeAttribute('min');
-                        el.removeAttribute('max');
-                    }
-                    el.addEventListener('input', function () {
-                        $(el).removeClass('required-field');
-                    });
-                    el.addEventListener('change', function () {
-                        const normalizedTime = normalizeTimeToFiveMinutes(el.value, '24h');
-                        if (normalizedTime) {
-                            el.value = normalizedTime;
-                        }
-                    });
-                    el.addEventListener('click', function () {
-                        if (typeof el.showPicker === 'function') {
-                            try { el.showPicker(); } catch (e) {}
-                        }
-                    });
-                    var wrap = el.closest('.pickup-time-wrap');
-                    if (wrap) {
-                        wrap.addEventListener('click', function (e) {
-                            if (e.target !== el) {
-                                el.focus();
-                                if (typeof el.showPicker === 'function') {
-                                    try { el.showPicker(); } catch (err) {}
-                                }
-                            }
-                        });
-                    }
-                    return;
-                }
-
-                el.type = 'text';
-                el.removeAttribute('readonly');
-                if (typeof flatpickr === 'undefined') {
-                    el.type = 'time';
-                    if (minT && maxT && hasSameDayRange) {
-                        el.min = minT;
-                        el.max = maxT;
-                    } else {
-                        el.removeAttribute('min');
-                        el.removeAttribute('max');
-                    }
-                    el.step = 300;
-                    return;
-                }
-
-                var pickerConfig = {
-                    enableTime: true,
-                    noCalendar: true,
-                    time_24hr: false,
-                    position: "below",
-                    appendTo: document.body,
-                    static: true,
-                    minuteIncrement: 5,
-                    dateFormat: 'h:i K',
-                    allowInput: true,
-                    clickOpens: true,
-                    onChange: function (selectedDates, dateStr, instance) {
-                        const normalizedTime = normalizeTimeToFiveMinutes(instance.input.value, '12h');
-                        if (normalizedTime && normalizedTime !== instance.input.value) {
-                            instance.setDate(normalizedTime, true, 'h:i K');
-                        }
-                        $(el).removeClass('required-field');
-                    }
-                };
-                if (minT && maxT && hasSameDayRange) {
-                    pickerConfig.minTime = minT;
-                    pickerConfig.maxTime = maxT;
-                }
-
-                var arrivalTimePicker = flatpickr(el, pickerConfig);
-
                 el.addEventListener('focus', function () {
-                    if (arrivalTimePicker && typeof arrivalTimePicker.open === 'function') {
-                        arrivalTimePicker.open();
+                    if (el._flatpickr && typeof el._flatpickr.open === 'function') {
+                        el._flatpickr.open();
                     }
                 });
 
-                el.addEventListener('click', function () {
-                    if (arrivalTimePicker && typeof arrivalTimePicker.open === 'function') {
-                        arrivalTimePicker.open();
-                    }
+                var wrap = el.closest('.pickup-time-wrap');
+                if (wrap) {
+                    wrap.addEventListener('click', function (e) {
+                        if (e.target !== el) {
+                            el.focus();
+                            if (el.type === 'time' && typeof el.showPicker === 'function') {
+                                try { el.showPicker(); } catch (err) {}
+                            } else if (el._flatpickr && typeof el._flatpickr.open === 'function') {
+                                el._flatpickr.open();
+                            }
+                        }
+                    });
+                }
+
+                var resizeTimer = null;
+                window.addEventListener('resize', function () {
+                    if (resizeTimer) clearTimeout(resizeTimer);
+                    resizeTimer = setTimeout(applyPicker, 150);
                 });
-            })();
+            }
+
+            // Pick-up time picker: desktop uses Flatpickr directly under input, mobile uses native time control
+            initTimePickerElement(
+                document.querySelector('input[name="transportation_pickup_time"]'),
+                arrivalTransportationSchedule
+            );
+
+            // Arrival time picker: mirrors pickup-time behavior
+            initTimePickerElement(
+                document.querySelector('input[name="transportation_arrival_time"]'),
+                transportationSchedule
+            );
 
             updateTransportationHoursDisplay();
 
