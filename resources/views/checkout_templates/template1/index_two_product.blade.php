@@ -520,18 +520,34 @@
 
                                     @php
                                         $mostPopularPackageName = '';
+                                        $mostPopularPackageId = null;
+                                        $mostPopularPackageCatId = null;
                                         if (isset($packageCategories) && $packageCategories->count()) {
-                                            $mostPopularPackage = collect($packageCategories)
-                                                ->flatMap(function ($category) {
-                                                    return is_array($category)
-                                                        ? collect($category['packages'] ?? [])
-                                                        : collect($category->packages ?? []);
-                                                })
-                                                ->first(function ($package) {
-                                                    return (int) ($package->is_most_popular ?? 0) === 1;
-                                                });
-
-                                            $mostPopularPackageName = $mostPopularPackage->name ?? '';
+                                            foreach ($packageCategories as $category) {
+                                                $catId = is_array($category) ? ($category['id'] ?? null) : ($category->id ?? null);
+                                                $pkgs = is_array($category) ? ($category['packages'] ?? []) : ($category->packages ?? []);
+                                                foreach ($pkgs as $pkg) {
+                                                    if ((int) ($pkg->is_most_popular ?? 0) === 1) {
+                                                        $mostPopularPackage = $pkg;
+                                                        $mostPopularPackageName = $pkg->name ?? '';
+                                                        $mostPopularPackageId = $pkg->id ?? null;
+                                                        $mostPopularPackageCatId = $catId;
+                                                        break 2;
+                                                    }
+                                                }
+                                            }
+                                            if (!$mostPopularPackageId) {
+                                                $firstCategory = $packageCategories->first();
+                                                if ($firstCategory) {
+                                                    $mostPopularPackageCatId = is_array($firstCategory) ? ($firstCategory['id'] ?? null) : ($firstCategory->id ?? null);
+                                                    $pkgs = is_array($firstCategory) ? ($firstCategory['packages'] ?? []) : ($firstCategory->packages ?? []);
+                                                    $firstPkg = collect($pkgs)->first();
+                                                    if ($firstPkg) {
+                                                        $mostPopularPackageName = $firstPkg->name ?? '';
+                                                        $mostPopularPackageId = $firstPkg->id ?? null;
+                                                    }
+                                                }
+                                            }
                                         }
                                     @endphp
                                     @if(!empty($isSinglePackageCheckout))
@@ -547,16 +563,21 @@
                                             </style>
                                                 <h5 class="section-kicker-lg" style="margin:0 !important; text-transform: unset; font-size: 0.8rem">Select your package to checkout, or <a href="{{ $allPackagesCheckoutUrl }}" style="text-transform: uppercase; color:inherit;text-decoration:underline;">View all packages.</a></h5>
                                             @else
-                                                <h5 class="section-kicker-lg" style="margin:0 !important;">{{ $data->package_section_title ?: 'Select Your Package' }}</h5>
-                                                <p style="margin: 4px 0 0; font-size: 12.5px; color: rgba(255,255,255,0.5);">{{ $data->package_section_subtext ?: 'All packages include free ride, club entry, and priority access.' }}</p>
+                                                <h5 class="section-kicker-lg" style="margin:0 !important; font-size: 15px; font-weight: 800; text-transform: uppercase; letter-spacing: 0.05em; color: var(--cv-t1-ink);">{{ $data->package_section_title ?: 'Select Your Package' }}</h5>
+                                                <p style="margin: 4px 0 0; font-size: 12.5px; color: var(--cv-t1-ink-muted);">{{ $data->package_section_subtext ?: 'All packages include free ride, club entry, and priority access.' }}</p>
                                             @endif
                                         </div>
-                                        @if($mostPopularPackageName)
-                                        <div class="cv-most-popular-tag" style="display:inline-flex; align-items:center; gap:10px; padding: 7px 14px; border-radius: 999px; background: rgba(167,116,255,0.08); border: 1px solid rgba(167,116,255,0.32); font-size: 12.5px; color: rgba(255,255,255,0.9); font-weight: 600;">
-                                            <span style="background: linear-gradient(135deg, #a774ff 0%, #7c3aed 50%, #5b21b6 100%); color: #fff; padding: 3px 9px; border-radius: 999px; font-size: 10px; font-weight: 800; letter-spacing: .06em; display: inline-flex; align-items: center; gap: 4px; box-shadow: 0 2px 8px rgba(124,58,237,0.35), inset 0 1px 0 rgba(255,255,255,0.2); border: 1px solid rgba(255,255,255,0.18); text-transform: uppercase;"><i class="fas fa-fire" style="font-size:9px;"></i>MOST POPULAR</span>
-                                            <span>{{ $mostPopularPackageName }}</span>
+                                        <div class="cv-filter-pills">
+                                            <button type="button" class="cv-pill-btn is-active" id="btnFilterMostPopular">Most Popular</button>
+                                            @if(!empty($mostPopularPackageName))
+                                                <button type="button" class="cv-pill-btn btn-outline" id="btnFilterPopularPkg"
+                                                    data-target-cat="#category-group-{{ $mostPopularPackageCatId }}"
+                                                    data-target-pkg="#pkg-card-{{ $mostPopularPackageId }}"
+                                                    title="View {{ $mostPopularPackageName }}">
+                                                    {{ $mostPopularPackageName }}
+                                                </button>
+                                            @endif
                                         </div>
-                                        @endif
                                     </div>
 
                                     @if(!empty($isIframeCheckout))
@@ -3772,6 +3793,55 @@
                 if ($('#package_use_date_iframe').length) {
                     $('#package_use_date_iframe').val($('#package_use_date').val() || '');
                 }
+
+                $(document).on('click', '#btnFilterPopularPkg', function(e) {
+                    e.preventDefault();
+                    $('.cv-filter-pills .cv-pill-btn').removeClass('is-active').addClass('btn-outline');
+                    $(this).addClass('is-active').removeClass('btn-outline');
+
+                    let targetCat = String($(this).data('target-cat') || '');
+                    let targetPkg = String($(this).data('target-pkg') || '');
+
+                    if (targetCat) {
+                        let $catTile = $('.package-category-tile[data-target="' + targetCat + '"]');
+                        if ($catTile.length && !$catTile.hasClass('active')) {
+                            $catTile.trigger('click');
+                        } else {
+                            $('.package-category-group').hide();
+                            $(targetCat).show();
+                        }
+                    }
+
+                    if (targetPkg && $(targetPkg).length) {
+                        let $pkgCard = $(targetPkg);
+                        $pkgCard.show();
+                        $('html, body').stop().animate({
+                            scrollTop: $pkgCard.offset().top - 120
+                        }, 300);
+                        $pkgCard.addClass('selected-package highlight-pulse');
+                        setTimeout(function() {
+                            $pkgCard.removeClass('highlight-pulse');
+                        }, 2000);
+                    }
+                });
+
+                $(document).on('click', '#btnFilterMostPopular', function(e) {
+                    e.preventDefault();
+                    $('.cv-filter-pills .cv-pill-btn').removeClass('is-active').addClass('btn-outline');
+                    $(this).addClass('is-active').removeClass('btn-outline');
+
+                    let $activeTile = $('.package-category-tile.active');
+                    if (!$activeTile.length) {
+                        $activeTile = $('.package-category-tile').first();
+                        $activeTile.addClass('active');
+                    }
+                    let targetCat = $activeTile.data('target');
+                    if (targetCat && $(targetCat).length) {
+                        $('.package-category-group').hide();
+                        $(targetCat).show();
+                        $(targetCat).find('.vip-card').show();
+                    }
+                });
 
                 $(document).on('click', '.vip-btn', function() {
                     let $btn = $(this);

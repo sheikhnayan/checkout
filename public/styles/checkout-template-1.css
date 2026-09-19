@@ -531,23 +531,41 @@ main, header, section, .container {
    ========================================================================== */
 .cv-desktop-steps {
     display: flex !important;
-    align-items: center !important;
+    align-items: flex-start !important;
     justify-content: space-between !important;
+    width: 100% !important;
     background: transparent !important;
     border: none !important;
-    padding: 0 20px 24px !important;
+    padding: 0 0 24px !important;
     margin-bottom: 8px !important;
-    position: relative;
+    position: relative !important;
 }
 
 .cv-dstep {
+    flex: 1 1 0% !important;
     display: flex !important;
     flex-direction: column !important;
     align-items: center !important;
+    text-align: center !important;
     gap: 8px !important;
-    position: relative;
-    z-index: 2;
-    cursor: default;
+    position: relative !important;
+    cursor: default !important;
+}
+
+/* Precise connecting line between circle centers (never goes outside start or end) */
+.cv-dstep:not(:last-child)::after {
+    content: "" !important;
+    position: absolute !important;
+    top: 16px !important;
+    left: 50% !important;
+    width: 100% !important;
+    height: 2px !important;
+    background: #e2e8f0 !important;
+    z-index: 1 !important;
+}
+
+.cv-dstep.is-active:not(:last-child)::after {
+    background: #93c5fd !important;
 }
 
 .cv-dstep-num {
@@ -562,14 +580,18 @@ main, header, section, .container {
     background: #ffffff !important;
     border: 2px solid var(--cv-border) !important;
     color: var(--cv-ink-light) !important;
-    transition: all 0.2s ease;
+    transition: all 0.2s ease !important;
+    position: relative !important;
+    z-index: 2 !important;
 }
 
 .cv-dstep-label {
     font-size: 13px !important;
     font-weight: 600 !important;
     color: var(--cv-ink-muted) !important;
-    white-space: nowrap;
+    white-space: nowrap !important;
+    position: relative !important;
+    z-index: 2 !important;
 }
 
 /* Active Step 1 */
@@ -590,35 +612,44 @@ main, header, section, .container {
     color: var(--cv-primary) !important;
 }
 
-/* Connecting line */
 .cv-desktop-steps::before {
-    content: "";
-    position: absolute;
-    top: 16px;
-    left: 45px;
-    right: 45px;
-    height: 2px;
-    background: var(--cv-border);
-    z-index: 1;
+    display: none !important;
 }
 
 /* Secondary Stepper (cv-steps) */
 .cv-steps {
     display: flex !important;
-    align-items: center !important;
+    align-items: flex-start !important;
     justify-content: space-between !important;
-    padding: 24px 20px 18px !important;
+    width: 100% !important;
+    padding: 24px 0 18px !important;
     margin: 20px 0 10px !important;
-    position: relative;
+    position: relative !important;
 }
 
 .cv-step {
+    flex: 1 1 0% !important;
     display: flex !important;
     flex-direction: column !important;
     align-items: center !important;
+    text-align: center !important;
     gap: 8px !important;
-    position: relative;
-    z-index: 2;
+    position: relative !important;
+}
+
+.cv-step:not(:last-child)::after {
+    content: "" !important;
+    position: absolute !important;
+    top: 15px !important;
+    left: 50% !important;
+    width: 100% !important;
+    height: 2px !important;
+    background: #e2e8f0 !important;
+    z-index: 1 !important;
+}
+
+.cv-step.cv-step-active:not(:last-child)::after {
+    background: #93c5fd !important;
 }
 
 .cv-step-circle {
@@ -633,13 +664,17 @@ main, header, section, .container {
     background: #ffffff !important;
     border: 2px solid var(--cv-border) !important;
     color: var(--cv-ink-light) !important;
+    position: relative !important;
+    z-index: 2 !important;
 }
 
 .cv-step-label {
     font-size: 12.5px !important;
     font-weight: 600 !important;
     color: var(--cv-ink-muted) !important;
-    text-align: center;
+    text-align: center !important;
+    position: relative !important;
+    z-index: 2 !important;
 }
 
 .cv-step.cv-step-active .cv-step-circle {
@@ -653,30 +688,47 @@ main, header, section, .container {
 }
 
 .cv-steps::before {
-    content: "";
-    position: absolute;
-    top: 39px;
-    left: 45px;
-    right: 45px;
-    height: 2px;
-    background: var(--cv-border);
-    z-index: 1;
+    display: none !important;
 }
 
-/* Legacy checkout-steps override */
+/* Legacy checkout-steps override (Second Step Progress with clean connecting lines) */
 .checkout-steps {
     display: flex !important;
+    align-items: flex-start !important;
     justify-content: space-between !important;
+    width: 100% !important;
     padding: 0 !important;
     margin: 24px 0 !important;
     list-style: none !important;
+    position: relative !important;
 }
+
 .checkout-steps .step {
+    flex: 1 1 0% !important;
     display: flex !important;
     flex-direction: column !important;
     align-items: center !important;
+    text-align: center !important;
     gap: 6px !important;
+    position: relative !important;
 }
+
+/* Connecting line for 2nd stepper */
+.checkout-steps .step:not(:last-child)::after {
+    content: "" !important;
+    position: absolute !important;
+    top: 16px !important;
+    left: 50% !important;
+    width: 100% !important;
+    height: 2px !important;
+    background: #e2e8f0 !important;
+    z-index: 1 !important;
+}
+
+.checkout-steps .step.active:not(:last-child)::after {
+    background: #93c5fd !important;
+}
+
 .checkout-steps .step-number {
     width: 32px !important;
     height: 32px !important;
@@ -688,21 +740,50 @@ main, header, section, .container {
     border: 2px solid var(--cv-border) !important;
     color: var(--cv-ink-light) !important;
     font-weight: 700 !important;
+    position: relative !important;
+    z-index: 2 !important;
 }
+
 .checkout-steps .step.active .step-number {
     background: var(--cv-primary) !important;
     border-color: var(--cv-primary) !important;
     color: #ffffff !important;
+    box-shadow: 0 2px 8px rgba(37, 99, 235, 0.3) !important;
 }
+
 .checkout-steps .step-title {
     font-size: 12.5px !important;
     font-weight: 600 !important;
     color: var(--cv-ink-muted) !important;
     margin: 0 !important;
+    position: relative !important;
+    z-index: 2 !important;
 }
+
 .checkout-steps .step.active .step-title {
     color: var(--cv-primary) !important;
     font-weight: 700 !important;
+}
+
+/* Pulse animation for highlighting selected package */
+@keyframes cvHighlightPulse {
+    0% {
+        box-shadow: 0 0 0 0 rgba(37, 99, 235, 0.4);
+        border-color: #2563eb !important;
+    }
+    50% {
+        box-shadow: 0 0 0 6px rgba(37, 99, 235, 0.2);
+        border-color: #2563eb !important;
+    }
+    100% {
+        box-shadow: 0 0 0 0 rgba(37, 99, 235, 0);
+        border-color: #2563eb !important;
+    }
+}
+
+.vip-card.highlight-pulse {
+    animation: cvHighlightPulse 1.2s ease-in-out !important;
+    border-color: #2563eb !important;
 }
 
 /* ==========================================================================

@@ -210,7 +210,7 @@
                 </button>
 
                 <div class="cv-checkout-body" id="cv-checkout-layout">
-                    <div class="cv-main-col" id="cv-checkout-main" style="background: #fff; padding: 2rem; border-radius: 18px; border: 1px solid var(--cv-border) !important;">
+                    <div class="cv-main-col" id="cv-checkout-main" style="background: #fff; padding: 24px; border-radius: 18px; border: 1px solid var(--cv-border) !important;">
                     <div class="cv-desktop-shell">
                         <div class="cv-desktop-steps" id="cv-checkout-steps" @if(!empty($isSinglePackageCheckout) || $data->reservation != 1) style="grid-template-columns: repeat(3, minmax(0, 1fr)) !important;" @endif>
                             <div class="cv-dstep is-active" id="cv-dstep-1" data-step="1"><span class="cv-dstep-num">1</span><span>Choose Date</span></div>
@@ -457,18 +457,34 @@
 
                                     @php
                                         $mostPopularPackageName = '';
+                                        $mostPopularPackageId = null;
+                                        $mostPopularPackageCatId = null;
                                         if (isset($packageCategories) && $packageCategories->count()) {
-                                            $mostPopularPackage = collect($packageCategories)
-                                                ->flatMap(function ($category) {
-                                                    return is_array($category)
-                                                        ? collect($category['packages'] ?? [])
-                                                        : collect($category->packages ?? []);
-                                                })
-                                                ->first(function ($package) {
-                                                    return (int) ($package->is_most_popular ?? 0) === 1;
-                                                });
-
-                                            $mostPopularPackageName = $mostPopularPackage->name ?? '';
+                                            foreach ($packageCategories as $category) {
+                                                $catId = is_array($category) ? ($category['id'] ?? null) : ($category->id ?? null);
+                                                $pkgs = is_array($category) ? ($category['packages'] ?? []) : ($category->packages ?? []);
+                                                foreach ($pkgs as $pkg) {
+                                                    if ((int) ($pkg->is_most_popular ?? 0) === 1) {
+                                                        $mostPopularPackage = $pkg;
+                                                        $mostPopularPackageName = $pkg->name ?? '';
+                                                        $mostPopularPackageId = $pkg->id ?? null;
+                                                        $mostPopularPackageCatId = $catId;
+                                                        break 2;
+                                                    }
+                                                }
+                                            }
+                                            if (!$mostPopularPackageId) {
+                                                $firstCategory = $packageCategories->first();
+                                                if ($firstCategory) {
+                                                    $mostPopularPackageCatId = is_array($firstCategory) ? ($firstCategory['id'] ?? null) : ($firstCategory->id ?? null);
+                                                    $pkgs = is_array($firstCategory) ? ($firstCategory['packages'] ?? []) : ($firstCategory->packages ?? []);
+                                                    $firstPkg = collect($pkgs)->first();
+                                                    if ($firstPkg) {
+                                                        $mostPopularPackageName = $firstPkg->name ?? '';
+                                                        $mostPopularPackageId = $firstPkg->id ?? null;
+                                                    }
+                                                }
+                                            }
                                         }
                                     @endphp
                                     @if(!empty($isSinglePackageCheckout))
@@ -504,8 +520,15 @@
                                             @endif
                                         </div>
                                         <div class="cv-filter-pills">
-                                            <span class="cv-pill-btn is-active">Most Popular</span>
-                                            <span class="cv-pill-btn btn-outline">Newest First</span>
+                                            <button type="button" class="cv-pill-btn is-active" id="btnFilterMostPopular">Most Popular</button>
+                                            @if(!empty($mostPopularPackageName))
+                                                <button type="button" class="cv-pill-btn btn-outline" id="btnFilterPopularPkg"
+                                                    data-target-cat="#category-group-{{ $mostPopularPackageCatId }}"
+                                                    data-target-pkg="#pkg-card-{{ $mostPopularPackageId }}"
+                                                    title="View {{ $mostPopularPackageName }}">
+                                                    {{ $mostPopularPackageName }}
+                                                </button>
+                                            @endif
                                         </div>
                                     </div>
 
@@ -3694,6 +3717,55 @@
                 if ($('#package_use_date_iframe').length) {
                     $('#package_use_date_iframe').val($('#package_use_date').val() || '');
                 }
+
+                $(document).on('click', '#btnFilterPopularPkg', function(e) {
+                    e.preventDefault();
+                    $('.cv-filter-pills .cv-pill-btn').removeClass('is-active').addClass('btn-outline');
+                    $(this).addClass('is-active').removeClass('btn-outline');
+
+                    let targetCat = String($(this).data('target-cat') || '');
+                    let targetPkg = String($(this).data('target-pkg') || '');
+
+                    if (targetCat) {
+                        let $catTile = $('.package-category-tile[data-target="' + targetCat + '"]');
+                        if ($catTile.length && !$catTile.hasClass('active')) {
+                            $catTile.trigger('click');
+                        } else {
+                            $('.package-category-group').hide();
+                            $(targetCat).show();
+                        }
+                    }
+
+                    if (targetPkg && $(targetPkg).length) {
+                        let $pkgCard = $(targetPkg);
+                        $pkgCard.show();
+                        $('html, body').stop().animate({
+                            scrollTop: $pkgCard.offset().top - 120
+                        }, 300);
+                        $pkgCard.addClass('selected-package highlight-pulse');
+                        setTimeout(function() {
+                            $pkgCard.removeClass('highlight-pulse');
+                        }, 2000);
+                    }
+                });
+
+                $(document).on('click', '#btnFilterMostPopular', function(e) {
+                    e.preventDefault();
+                    $('.cv-filter-pills .cv-pill-btn').removeClass('is-active').addClass('btn-outline');
+                    $(this).addClass('is-active').removeClass('btn-outline');
+
+                    let $activeTile = $('.package-category-tile.active');
+                    if (!$activeTile.length) {
+                        $activeTile = $('.package-category-tile').first();
+                        $activeTile.addClass('active');
+                    }
+                    let targetCat = $activeTile.data('target');
+                    if (targetCat && $(targetCat).length) {
+                        $('.package-category-group').hide();
+                        $(targetCat).show();
+                        $(targetCat).find('.vip-card').show();
+                    }
+                });
 
                 $(document).on('click', '.vip-btn', function() {
                     let $btn = $(this);
