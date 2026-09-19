@@ -1348,21 +1348,39 @@ select:focus,
     z-index: 2 !important;
 }
 
+/* Pick-up time & Arrival time — styled like index_two main (max-width: 260px) */
+.pickup-time-wrap {
+    position: relative !important;
+    width: 100% !important;
+    max-width: 260px !important;
+}
+
+.pickup-time-icon {
+    position: absolute !important;
+    left: 14px !important;
+    top: 50% !important;
+    transform: translateY(-50%) !important;
+    color: var(--cv-primary) !important;
+    font-size: 14px !important;
+    pointer-events: none !important;
+    z-index: 2 !important;
+}
+
 #Pick-up-time,
 #Arrival-time,
 input[name="transportation_pickup_time"],
 input[name="transportation_arrival_time"] {
     width: 100% !important;
-    max-width: 100% !important;
+    max-width: 260px !important;
     height: 46px !important;
     min-height: 46px !important;
-    padding: 10px 14px 10px 42px !important;
+    padding: 10px 14px 10px 38px !important;
     font-size: 14px !important;
     font-weight: 600 !important;
     color: var(--cv-ink) !important;
     -webkit-text-fill-color: var(--cv-ink) !important;
     background: #ffffff !important;
-    border: 1px solid var(--cv-border-input) !important;
+    border: 1.5px solid var(--cv-border-input) !important;
     border-radius: var(--cv-radius) !important;
     box-sizing: border-box !important;
     cursor: pointer !important;
@@ -1375,6 +1393,63 @@ input[name="transportation_pickup_time"]:focus,
 input[name="transportation_arrival_time"]:focus {
     border-color: var(--cv-primary) !important;
     box-shadow: 0 0 0 3px var(--cv-primary-ring) !important;
+}
+
+/* Schedule Hours Badge (Pickup Hours & Operational Hours) - Fix white invisible text */
+.schedule-hours-badge {
+    background: #fffbeb !important;
+    border: 1px solid #fde047 !important;
+    border-radius: 10px !important;
+    padding: 12px 16px !important;
+    margin-top: 10px !important;
+    margin-bottom: 12px !important;
+    width: 100% !important;
+    max-width: 440px !important;
+    box-sizing: border-box !important;
+    backdrop-filter: none !important;
+    -webkit-backdrop-filter: none !important;
+    box-shadow: 0 1px 3px rgba(245, 158, 11, 0.08) !important;
+}
+
+.schedule-hours-badge .hours-title {
+    font-weight: 800 !important;
+    font-size: 11px !important;
+    text-transform: uppercase !important;
+    letter-spacing: 0.5px !important;
+    color: #b45309 !important;
+    margin-bottom: 8px !important;
+    display: flex !important;
+    align-items: center !important;
+    gap: 6px !important;
+}
+
+.schedule-hours-badge .hours-title i {
+    color: #d97706 !important;
+    font-size: 12px !important;
+}
+
+.schedule-hours-badge .hours-list {
+    display: flex !important;
+    flex-direction: column !important;
+    gap: 5px !important;
+}
+
+.schedule-hours-badge .hours-line {
+    display: flex !important;
+    align-items: center !important;
+    justify-content: space-between !important;
+    font-size: 13px !important;
+    line-height: 1.4 !important;
+}
+
+.schedule-hours-badge .hours-days {
+    font-weight: 700 !important;
+    color: #0f172a !important;
+}
+
+.schedule-hours-badge .hours-time {
+    font-weight: 600 !important;
+    color: #334155 !important;
 }
 
 /* ==========================================================================
@@ -1746,110 +1821,191 @@ input[name="transportation_arrival_time"]:focus {
     line-height: 1.3 !important;
 }
 
-/* Legal notice in sidebar */
+/* Legal notice in sidebar — clean inline flowing paragraph */
 .cv-cta-terms {
-    display: flex !important;
-    align-items: center !important;
-    gap: 6px !important;
-    font-size: 11px !important;
+    display: block !important;
+    text-align: center !important;
+    font-size: 12px !important;
     color: var(--cv-ink-muted) !important;
     margin-top: 16px !important;
-    line-height: 1.4 !important;
+    line-height: 1.55 !important;
 }
 
 .cv-cta-terms a {
-    color: var(--cv-ink-muted) !important;
+    color: var(--cv-primary) !important;
+    font-weight: 600 !important;
     text-decoration: underline !important;
+    text-decoration-color: rgba(37, 99, 235, 0.35) !important;
+    text-underline-offset: 3px !important;
+    transition: all 0.15s ease !important;
 }
 .cv-cta-terms a:hover {
-    color: var(--cv-primary) !important;
+    color: var(--cv-primary-hover) !important;
+    text-decoration-color: var(--cv-primary) !important;
 }
 
 /* ==========================================================================
-   FOOTER (Clean light SaaS Footer)
+   FOOTER (Matches Main Theme Contents with Template 1 Aesthetics)
    ========================================================================== */
 .aff-footer {
     background: #ffffff !important;
     border-top: 1px solid var(--cv-border) !important;
-    padding: 36px 0 24px !important;
+    padding: 48px 0 24px !important;
     margin-top: 60px !important;
     color: var(--cv-ink-muted) !important;
+    position: relative !important;
 }
 
 .cv-footer-inner {
-    display: flex !important;
-    justify-content: space-between !important;
-    align-items: center !important;
-    flex-wrap: wrap !important;
-    gap: 20px !important;
-    padding-bottom: 24px !important;
-    border-bottom: 1px solid var(--cv-surface-muted) !important;
+    display: grid !important;
+    grid-template-columns: 280px 1fr !important;
+    gap: 48px !important;
+    align-items: start !important;
+    padding-bottom: 36px !important;
+    border-bottom: 1px solid var(--cv-border) !important;
 }
 
 .cv-footer-brand {
     display: flex !important;
     flex-direction: column !important;
-    gap: 4px !important;
+}
+
+.cv-footer-brand-card {
+    background: #f8fafc !important;
+    border: 1px solid var(--cv-border) !important;
+    border-radius: var(--cv-radius-lg) !important;
+    padding: 24px !important;
+    box-shadow: var(--cv-shadow-sm) !important;
+    display: flex !important;
+    flex-direction: column !important;
+    align-items: flex-start !important;
+    gap: 12px !important;
 }
 
 .cv-footer-logo {
-    height: 32px !important;
+    height: 48px !important;
     width: auto !important;
+    max-width: 180px !important;
     object-fit: contain !important;
 }
 
+.cv-footer-powered {
+    font-size: 10.5px !important;
+    font-weight: 800 !important;
+    color: var(--cv-primary) !important;
+    letter-spacing: 0.1em !important;
+    text-transform: uppercase !important;
+    display: inline-flex !important;
+    align-items: center !important;
+    gap: 6px !important;
+}
+
+.cv-footer-powered-dot {
+    width: 6px !important;
+    height: 6px !important;
+    background: var(--cv-primary) !important;
+    border-radius: 50% !important;
+    box-shadow: 0 0 6px rgba(37, 99, 235, 0.6) !important;
+    display: inline-block !important;
+}
+
 .cv-footer-tagline {
-    font-size: 12.5px !important;
+    font-size: 12px !important;
     color: var(--cv-ink-muted) !important;
+    line-height: 1.5 !important;
     margin: 0 !important;
 }
 
-.cv-footer-links {
-    display: flex !important;
-    gap: 20px !important;
-    font-size: 13px !important;
-}
-
-.cv-footer-links a {
-    color: var(--cv-ink-sub) !important;
-    font-weight: 500 !important;
-}
-.cv-footer-links a:hover {
-    color: var(--cv-primary) !important;
-}
-
-.cv-footer-socials {
-    display: flex !important;
-    gap: 14px !important;
-}
-
-.cv-footer-socials a {
+.cv-footer-legal {
     color: var(--cv-ink-muted) !important;
-    font-size: 16px !important;
-    transition: color 0.15s ease !important;
+    font-size: 11.5px !important;
+    line-height: 1.6 !important;
+    display: flex !important;
+    flex-direction: column !important;
+    gap: 10px !important;
+    min-width: 0 !important;
+    text-align: left !important;
 }
-.cv-footer-socials a:hover {
+
+.cv-footer-legal-title {
+    font-size: 11px !important;
+    font-weight: 800 !important;
+    color: var(--cv-ink) !important;
+    text-transform: uppercase !important;
+    letter-spacing: 0.12em !important;
+    margin: 0 0 4px !important;
+}
+
+.cv-footer-legal p {
+    margin: 0 !important;
+    color: var(--cv-ink-muted) !important;
+}
+
+.cv-footer-legal a {
     color: var(--cv-primary) !important;
+    font-weight: 600 !important;
+    text-decoration: underline !important;
+    text-decoration-color: rgba(37, 99, 235, 0.35) !important;
+    text-underline-offset: 3px !important;
+    transition: all 0.15s ease !important;
+}
+
+.cv-footer-legal a:hover {
+    color: var(--cv-primary-hover) !important;
+    text-decoration-color: var(--cv-primary) !important;
 }
 
 .cv-footer-bar {
     display: flex !important;
-    justify-content: space-between !important;
     align-items: center !important;
-    padding-top: 18px !important;
+    justify-content: space-between !important;
+    flex-wrap: wrap !important;
+    gap: 12px !important;
+    padding-top: 20px !important;
     font-size: 12px !important;
-    color: var(--cv-ink-light) !important;
-}
-
-.cv-footer-bar-links {
-    display: flex !important;
-    gap: 16px !important;
-}
-.cv-footer-bar-links a {
     color: var(--cv-ink-muted) !important;
 }
-.cv-footer-bar-links a:hover {
+
+.cv-footer-bar-copy strong {
+    color: var(--cv-ink) !important;
+    font-weight: 700 !important;
+}
+
+.cv-footer-bar-socials {
+    display: inline-flex !important;
+    gap: 8px !important;
+}
+
+.cv-footer-bar-social {
+    width: 32px !important;
+    height: 32px !important;
+    border-radius: 8px !important;
+    background: #ffffff !important;
+    border: 1px solid var(--cv-border) !important;
+    color: var(--cv-ink-muted) !important;
+    display: inline-flex !important;
+    align-items: center !important;
+    justify-content: center !important;
+    font-size: 13px !important;
+    transition: all 0.15s ease !important;
+    text-decoration: none !important;
+}
+
+.cv-footer-bar-social:hover {
+    background: var(--cv-primary-light) !important;
+    border-color: var(--cv-primary-border) !important;
     color: var(--cv-primary) !important;
+}
+
+@media (max-width: 768px) {
+    .cv-footer-inner {
+        grid-template-columns: 1fr !important;
+        gap: 28px !important;
+    }
+    .cv-footer-brand-card {
+        max-width: 100% !important;
+        width: 100% !important;
+    }
 }
 
 /* ==========================================================================

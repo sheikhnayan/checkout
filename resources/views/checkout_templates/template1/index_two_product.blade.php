@@ -1532,9 +1532,7 @@
                     Continue to Payment <i class="fas fa-lock"></i>
                 </button> --}}
                 <p class="cv-cta-terms">
-                    By continuing, you agree to our
-                    <a href="{{ $data->terms }}" target="_blank">Terms of Service</a> and
-                    <a href="{{ $data->privacy_policy ?? $data->terms }}" target="_blank">Privacy Policy</a>
+                    By continuing, you agree to our <a href="{{ $data->terms }}" target="_blank">Terms of Service</a> and <a href="{{ $data->privacy_policy ?? $data->terms }}" target="_blank">Privacy Policy</a>
                 </p>
             </aside>
 
@@ -1686,32 +1684,31 @@
                 <p class="checkout-processing-copy">Please wait while we securely complete your transaction.</p>
             </div>
         </div>
-                <footer class="aff-footer">
+        <footer class="aff-footer">
             <div class="container">
                 <div class="cv-footer-inner">
                     <div class="cv-footer-brand">
-                        <img src="{{ asset('images/logo.png') }}" alt="CartVIP" class="cv-footer-logo" onerror="this.style.display='none';">
-                        <p class="cv-footer-tagline">Your premium experiences, simplified.</p>
+                        <div class="cv-footer-brand-card">
+                            <img src="{{ asset('images/logo.png') }}" alt="CartVIP" class="cv-footer-logo" onerror="this.style.display='none';">
+                            <div class="cv-footer-powered">
+                                <span class="cv-footer-powered-dot"></span> POWERED BY CARTVIP
+                            </div>
+                            <p class="cv-footer-tagline">Modern commerce infrastructure for products, services, reservations, and affiliate sales.</p>
+                        </div>
                     </div>
-                    <div class="cv-footer-links">
-                        <a href="https://cartvip.com">Home</a>
-                        <a href="https://cartvip.com">Shop</a>
-                        <a href="https://cartvip.com">Packages</a>
-                        <a href="https://cartvip.com">Events</a>
-                        <a href="https://cartvip.com">Contact</a>
-                    </div>
-                    <div class="cv-footer-socials">
-                        <a href="https://facebook.com" target="_blank" rel="noopener" aria-label="Facebook"><i class="fab fa-facebook-f"></i></a>
-                        <a href="https://instagram.com" target="_blank" rel="noopener" aria-label="Instagram"><i class="fab fa-instagram"></i></a>
-                        <a href="https://youtube.com" target="_blank" rel="noopener" aria-label="YouTube"><i class="fab fa-youtube"></i></a>
+                    <div class="cv-footer-legal">
+                        <div class="cv-footer-legal-title">LEGAL &amp; DISCLOSURES</div>
+                        <p>Secure checkout and booking technology provided by <a href="https://cartvip.com" target="_blank" rel="noopener">CartVIP.com</a>.</p>
+                        <p>Experiences, reservations, products, and services displayed on this website are offered and fulfilled by the participating venue or business. Pricing, availability, admission policies, refunds, and fulfillment terms are determined by the venue or merchant.</p>
+                        <p>Payments are securely processed through authorized payment providers. CartVIP provides checkout infrastructure and payment support services only.</p>
+                        <p>By completing this purchase, you agree to the participating venue or merchant's purchase terms as well as CartVIP's <a href="https://cartvip.com/page/privacy-policy" target="_blank" rel="noopener">Privacy Policy</a>, <a href="https://cartvip.com/page/terms-of-service" target="_blank" rel="noopener">Terms of Service</a>, and <a href="https://cartvip.com/page/merchant-disclosures" target="_blank" rel="noopener">Merchant Disclosures</a>.</p>
                     </div>
                 </div>
                 <div class="cv-footer-bar">
-                    <span class="cv-footer-bar-copy">&copy; {{ date('Y') }} CartVIP.com &middot; All rights reserved</span>
-                    <div class="cv-footer-bar-links">
-                        <a href="https://cartvip.com/page/privacy-policy" target="_blank">Privacy Policy</a>
-                        <a href="https://cartvip.com/page/terms-of-service" target="_blank">Terms of Service</a>
-                        <a href="https://cartvip.com/page/contact" target="_blank">Help</a>
+                    <span class="cv-footer-bar-copy">&copy; {{ date('Y') }} <strong>CartVIP.com</strong> &middot; All rights reserved</span>
+                    <div class="cv-footer-bar-socials">
+                        <a href="https://cartvip.com" target="_blank" rel="noopener" class="cv-footer-bar-social" aria-label="Website"><i class="fas fa-globe"></i></a>
+                        <a href="mailto:hello@cartvip.com" class="cv-footer-bar-social" aria-label="Email"><i class="fas fa-envelope"></i></a>
                     </div>
                 </div>
             </div>
