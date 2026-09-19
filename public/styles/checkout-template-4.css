@@ -322,25 +322,55 @@ textarea,
     text-transform: uppercase;
 }
 
+#shareLinkContainer,
 #cv-order-sidebar #shareLinkContainer {
-    margin-top: 6px !important;
+    margin-top: 10px !important;
+    background: #ffffff !important;
+    border: 2px solid #0b0b0b !important;
+    border-radius: 2px !important;
+    box-shadow: 4px 4px 0 #0b0b0b !important;
+    padding: 12px !important;
 }
 
+#generateShareLink,
 #cv-order-sidebar #generateShareLink {
+    width: 100% !important;
     background: #0b0b0b !important;
     color: #ffffff !important;
+    -webkit-text-fill-color: #ffffff !important;
     border: 2px solid #0b0b0b !important;
     border-radius: 2px !important;
     box-shadow: 3px 3px 0 #00c853 !important;
     font-family: IBM Plex Mono, monospace !important;
-    font-size: 11px !important;
+    font-size: 12px !important;
     font-weight: 700 !important;
     letter-spacing: 0.06em;
     text-transform: uppercase;
+    padding: 12px 14px !important;
+    display: block !important;
+    text-align: center !important;
+    cursor: pointer !important;
+    transition: transform 0.1s ease, background 0.1s ease !important;
 }
 
+#generateShareLink *,
+#cv-order-sidebar #generateShareLink * {
+    color: #ffffff !important;
+    -webkit-text-fill-color: #ffffff !important;
+}
+
+#generateShareLink:hover,
 #cv-order-sidebar #generateShareLink:hover {
-    transform: translate(-1px, -1px);
+    background: #1f2937 !important;
+    color: #00ff66 !important;
+    -webkit-text-fill-color: #00ff66 !important;
+    transform: translate(-1px, -1px) !important;
+}
+
+#generateShareLink:hover *,
+#cv-order-sidebar #generateShareLink:hover * {
+    color: #00ff66 !important;
+    -webkit-text-fill-color: #00ff66 !important;
 }
 
 #cv-order-sidebar .cv-trust-list {
@@ -739,4 +769,224 @@ input[name="transportation_arrival_time"]::placeholder {
     color: #0b0b0b !important;
     text-decoration: underline !important;
     font-weight: 700 !important;
+}
+
+/* ==========================================================================
+   Template 4: Access Card (VIP Packages / Choose Your Experience) Brutalist Styling
+   ========================================================================== */
+.cv-access-grid {
+    gap: 12px !important;
+}
+
+.cv-access-card {
+    background: #ffffff !important;
+    color: #0b0b0b !important;
+    border: 2px solid #0b0b0b !important;
+    border-radius: 4px !important;
+    box-shadow: 5px 5px 0 #0b0b0b !important;
+    padding: 16px 54px 16px 16px !important;
+    min-height: 84px !important;
+    overflow: hidden !important;
+    position: relative !important;
+    display: flex !important;
+    align-items: center !important;
+    gap: 14px !important;
+    text-align: left !important;
+    transition: all 0.2s ease !important;
+}
+
+.cv-access-card::before,
+.cv-access-card::after {
+    display: none !important;
+}
+
+.cv-access-card.is-active,
+.cv-access-card[data-name="package"].is-active,
+.cv-access-card[data-name="guest"].is-active {
+    background: #ffffff !important;
+    border-color: #0b0b0b !important;
+    outline: 3px solid #00c853 !important;
+    box-shadow: 6px 6px 0 #0b0b0b !important;
+}
+
+.cv-access-card:hover {
+    box-shadow: 7px 7px 0 #0b0b0b !important;
+    transform: translate(-1px, -1px) !important;
+}
+
+.cv-access-card .cv-ac-icon-wrap {
+    width: 48px !important;
+    height: 48px !important;
+    min-width: 48px !important;
+    background: #f3f4f6 !important;
+    border: 2px solid #0b0b0b !important;
+    border-radius: 4px !important;
+    box-shadow: 2px 2px 0 #0b0b0b !important;
+    display: flex !important;
+    align-items: center !important;
+    justify-content: center !important;
+    position: relative !important;
+    flex-shrink: 0 !important;
+}
+
+.cv-access-card .cv-ac-icon-wrap i {
+    color: #0b0b0b !important;
+    font-size: 20px !important;
+    position: static !important;
+    transform: none !important;
+}
+
+.cv-access-card .cv-ac-body {
+    flex: 1 1 0% !important;
+    min-width: 0 !important;
+    padding-right: 12px !important;
+    display: flex !important;
+    flex-direction: column !important;
+    justify-content: center !important;
+}
+
+.cv-access-card .cv-ac-body strong,
+.cv-access-card strong {
+    display: block !important;
+    font-family: Archivo, sans-serif !important;
+    font-size: clamp(12.5px, 3.4vw, 14.5px) !important;
+    font-weight: 800 !important;
+    line-height: 1.3 !important;
+    letter-spacing: 0.04em !important;
+    text-transform: uppercase !important;
+    color: #0b0b0b !important;
+    -webkit-text-fill-color: #0b0b0b !important;
+    white-space: normal !important;
+    word-break: break-word !important;
+    overflow-wrap: break-word !important;
+    margin-bottom: 3px !important;
+}
+
+.cv-access-card .cv-ac-body span,
+.cv-access-card span:not(.cv-ac-ribbon):not(.cv-ac-shimmer) {
+    display: block !important;
+    font-family: Archivo, sans-serif !important;
+    font-size: 11.5px !important;
+    font-weight: 500 !important;
+    line-height: 1.35 !important;
+    color: #4b5563 !important;
+    -webkit-text-fill-color: #4b5563 !important;
+    white-space: normal !important;
+    word-break: break-word !important;
+    overflow-wrap: break-word !important;
+}
+
+.cv-access-card .cv-ac-shimmer {
+    display: none !important;
+}
+
+/* Yellow VIP Ribbon matching brutalist aesthetic */
+.cv-access-card .cv-ac-ribbon {
+    position: absolute !important;
+    top: 10px !important;
+    right: -26px !important;
+    width: 104px !important;
+    text-align: center !important;
+    padding: 4px 0 !important;
+    font-family: IBM Plex Mono, monospace !important;
+    font-size: 10px !important;
+    font-weight: 900 !important;
+    letter-spacing: 0.12em !important;
+    text-transform: uppercase !important;
+    white-space: nowrap !important;
+    overflow: hidden !important;
+    line-height: 1 !important;
+    transform: rotate(45deg) !important;
+    background: #ffe600 !important;
+    color: #000000 !important;
+    -webkit-text-fill-color: #000000 !important;
+    border-bottom: 2px solid #000000 !important;
+    box-shadow: 0 2px 6px rgba(0, 0, 0, 0.25) !important;
+    text-shadow: none !important;
+    pointer-events: none !important;
+    z-index: 10 !important;
+}
+
+/* Most Popular Badge in Template 4 */
+.cv-most-popular-tag {
+    background: #ffffff !important;
+    border: 2px solid #0b0b0b !important;
+    border-radius: 2px !important;
+    box-shadow: 3px 3px 0 #0b0b0b !important;
+    color: #0b0b0b !important;
+    font-family: IBM Plex Mono, monospace !important;
+    padding: 6px 12px !important;
+    display: inline-flex !important;
+    align-items: center !important;
+    gap: 8px !important;
+}
+
+.cv-most-popular-tag > span:first-child {
+    background: #0b0b0b !important;
+    color: #00ff66 !important;
+    -webkit-text-fill-color: #00ff66 !important;
+    border: 1px solid #0b0b0b !important;
+    border-radius: 2px !important;
+    font-family: IBM Plex Mono, monospace !important;
+    font-size: 10px !important;
+    font-weight: 800 !important;
+    letter-spacing: 0.06em !important;
+    padding: 3px 8px !important;
+    box-shadow: none !important;
+    text-transform: uppercase !important;
+}
+
+.cv-most-popular-tag > span:first-child i {
+    color: #00ff66 !important;
+}
+
+.cv-most-popular-tag > span:last-child {
+    color: #0b0b0b !important;
+    -webkit-text-fill-color: #0b0b0b !important;
+    font-weight: 700 !important;
+    font-size: 12px !important;
+}
+
+/* Package Category Accordion Buttons */
+.package-category-tiles {
+    display: flex !important;
+    flex-direction: column !important;
+    gap: 10px !important;
+}
+
+.package-category-tile {
+    background: #ffffff !important;
+    color: #0b0b0b !important;
+    border: 2px solid #0b0b0b !important;
+    border-radius: 2px !important;
+    box-shadow: 4px 4px 0 #0b0b0b !important;
+    font-family: Archivo, sans-serif !important;
+    font-weight: 700 !important;
+    padding: 14px 18px !important;
+    display: flex !important;
+    align-items: center !important;
+    justify-content: space-between !important;
+    width: 100% !important;
+    cursor: pointer !important;
+    transition: transform 0.15s ease, box-shadow 0.15s ease !important;
+}
+
+.package-category-tile .package-category-name {
+    color: #0b0b0b !important;
+    font-size: 15px !important;
+    font-weight: 700 !important;
+}
+
+.package-category-tile .package-category-indicator {
+    color: #0b0b0b !important;
+    font-family: IBM Plex Mono, monospace !important;
+    font-size: 18px !important;
+    font-weight: 700 !important;
+}
+
+.package-category-tile:hover,
+.package-category-tile.is-active {
+    outline: 3px solid #00c853 !important;
+    box-shadow: 6px 6px 0 #0b0b0b !important;
+    transform: translate(-1px, -1px) !important;
 }

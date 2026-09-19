@@ -5677,7 +5677,7 @@
             };
         </script>
         @endif
-        <link rel="stylesheet" href="{{ asset('styles/checkout-template-4.css') }}">
+        <link rel="stylesheet" href="{{ asset('styles/checkout-template-4.css') }}?v={{ file_exists(public_path('styles/checkout-template-4.css')) ? filemtime(public_path('styles/checkout-template-4.css')) : time() }}">
     </head>
 
     <body class="{{ !empty($isIframeCheckout) ? 'embed-checkout-mode' : '' }} {{ !empty($isSinglePackageCheckout) ? 'single-package-checkout-mode' : '' }}">
