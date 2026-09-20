@@ -1119,6 +1119,7 @@ async function submitForm() {
         'line1_name': line1,
         'line2_business': document.getElementById('line2').value.trim(),
         'line3a_tax': Array.from(document.querySelectorAll('input[name="tax_3a"]:checked')).map(el => el.value),
+        'llc_code': document.getElementById('llc_code') ? document.getElementById('llc_code').value.trim() : '',
         'line3b': document.getElementById('line3b').checked,
         'line4_exempt': document.getElementById('line4exempt').value.trim(),
         'line4_fatca': document.getElementById('line4fatca').value.trim(),

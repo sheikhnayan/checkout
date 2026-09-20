@@ -603,9 +603,9 @@
                                                 <p style="margin: 4px 0 0; font-size: 12.5px; color: rgba(255,255,255,0.5);">{{ $data->package_section_subtext ?: 'All packages include free ride, club entry, and priority access.' }}</p>
                                             @endif
                                         </div>
-                                        @if($mostPopularPackageName)
-                                        <div class="cv-most-popular-tag" style="display:inline-flex; align-items:center; gap:10px; padding: 7px 14px; border-radius: 999px; background: rgba(167,116,255,0.08); border: 1px solid rgba(167,116,255,0.32); font-size: 12.5px; color: rgba(255,255,255,0.9); font-weight: 600;">
-                                            <span style="background: linear-gradient(135deg, #a774ff 0%, #7c3aed 50%, #5b21b6 100%); color: #fff; padding: 3px 9px; border-radius: 999px; font-size: 10px; font-weight: 800; letter-spacing: .06em; display: inline-flex; align-items: center; gap: 4px; box-shadow: 0 2px 8px rgba(124,58,237,0.35), inset 0 1px 0 rgba(255,255,255,0.2); border: 1px solid rgba(255,255,255,0.18); text-transform: uppercase;"><i class="fas fa-fire" style="font-size:9px;"></i>MOST POPULAR</span>
+                                        @if(!empty($mostPopularPackageName))
+                                        <div class="cv-most-popular-tag" style="display:inline-flex; align-items:center; gap:9px; padding: 6px 14px; border-radius: 999px; background: #eff6ff; border: 1px solid #bfdbfe; font-size: 12.5px; color: var(--cv-ink, #0f172a); font-weight: 600;">
+                                            <span style="background: linear-gradient(135deg, #2563eb 0%, #1d4ed8 100%); color: #fff; padding: 3px 9px; border-radius: 999px; font-size: 10px; font-weight: 800; letter-spacing: .06em; display: inline-flex; align-items: center; gap: 4px; box-shadow: 0 2px 6px rgba(37,99,235,0.3); text-transform: uppercase;"><i class="fas fa-fire" style="font-size:9px;"></i>MOST POPULAR</span>
                                             <span>{{ $mostPopularPackageName }}</span>
                                         </div>
                                         @endif
@@ -6380,9 +6380,17 @@
                 validateAndFormatPhoneIndex(phoneInput, countryCodeInput);
             });
 
+            phoneInput.addEventListener('change', () => {
+                validateAndFormatPhoneIndex(phoneInput, countryCodeInput);
+            });
+
             phoneInput.addEventListener('blur', () => {
                 validateAndFormatPhoneIndex(phoneInput, countryCodeInput);
             });
+
+            if (phoneInput.value) {
+                validateAndFormatPhoneIndex(phoneInput, countryCodeInput);
+            }
         }
 
         function selectCountryIndex(countryCodeInput, optionEl, country, phoneInput) {
@@ -6476,15 +6484,18 @@
             }
 
             let digitsOnly = phoneValue.replace(/\D/g, '');
+
+            // Remove leading 1 if it's a North American number (already in country code) before enforcing maxDigits
+            if (countryCode === '+1' && digitsOnly.length === 11 && digitsOnly.startsWith('1')) {
+                digitsOnly = digitsOnly.substring(1);
+            }
+
             const maxDigits = parseInt(phoneInput.dataset.maxDigits || requirements.max);
             if (digitsOnly.length > maxDigits) {
                 digitsOnly = digitsOnly.substring(0, maxDigits);
             }
 
             let cleanNumber = digitsOnly;
-            if (countryCode === '+1' && digitsOnly.startsWith('1')) {
-                cleanNumber = digitsOnly.substring(1);
-            }
 
             phoneInput.value = formatPhoneNumberIndex(cleanNumber, countryCode);
 

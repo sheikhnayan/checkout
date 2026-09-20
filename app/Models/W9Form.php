@@ -39,6 +39,7 @@ class W9Form extends Model
         'admin_notes',
         'reviewed_by',
         'reviewed_at',
+        'pdf_form_data',
     ];
 
     protected $casts = [

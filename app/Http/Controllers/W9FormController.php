@@ -178,6 +178,57 @@ class W9FormController extends Controller
                 $dataToSave['tax_id_number'] = $taxId;
             }
 
+            // Extract additional W-9 fields
+            if (!empty($pdfData['line2_business'])) {
+                $dataToSave['business_name'] = trim($pdfData['line2_business']);
+            }
+
+            if (!empty($pdfData['line3a_tax'])) {
+                $taxClassification = is_array($pdfData['line3a_tax']) ? ($pdfData['line3a_tax'][0] ?? null) : $pdfData['line3a_tax'];
+                if ($taxClassification === 'llc') {
+                    $llcCode = strtolower(trim($pdfData['llc_code'] ?? ''));
+                    if ($llcCode === 'c') {
+                        $taxClassification = 'limited_liability_company_c';
+                    } elseif ($llcCode === 's') {
+                        $taxClassification = 'limited_liability_company_s';
+                    } else {
+                        $taxClassification = 'limited_liability_company_individual';
+                    }
+                }
+                if ($taxClassification) {
+                    $dataToSave['tax_classification'] = $taxClassification;
+                }
+            }
+
+            $taxIdType = $pdfData['tin_type'] ?? null;
+            if (empty($taxIdType)) {
+                $taxIdType = 'ssn';
+            }
+            $dataToSave['tax_id_type'] = $taxIdType;
+
+            if (!empty($pdfData['line4_exempt'])) {
+                $dataToSave['exempt_payee_code'] = trim($pdfData['line4_exempt']);
+            }
+
+            if (!empty($pdfData['line4_fatca'])) {
+                $dataToSave['fatca_exemption_code'] = trim($pdfData['line4_fatca']);
+            }
+
+            if (!empty($pdfData['line5_address'])) {
+                $dataToSave['street_address'] = trim($pdfData['line5_address']);
+            }
+
+            if (!empty($pdfData['line6_city_state_zip'])) {
+                $csz = trim($pdfData['line6_city_state_zip']);
+                if (preg_match('/^(.*?)[,\s]+([A-Za-z]{2})[,\s]+([0-9]{5}(?:-[0-9]{4})?)$/', $csz, $matches)) {
+                    $dataToSave['city'] = trim($matches[1]);
+                    $dataToSave['state'] = strtoupper(trim($matches[2]));
+                    $dataToSave['zip_code'] = trim($matches[3]);
+                } else {
+                    $dataToSave['city'] = $csz;
+                }
+            }
+
             // Store raw PDF data for reference
             $dataToSave['pdf_form_data'] = json_encode($pdfData);
 

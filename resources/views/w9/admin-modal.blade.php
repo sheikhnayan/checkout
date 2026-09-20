@@ -602,6 +602,104 @@
     <!-- Main W-9 Form -->
     <div class="form-document">
 
+        @php
+            $pdfData = $w9Form->pdf_form_data ? (is_array($w9Form->pdf_form_data) ? $w9Form->pdf_form_data : json_decode($w9Form->pdf_form_data, true)) : [];
+            if (!is_array($pdfData)) {
+                $pdfData = [];
+            }
+
+            // 1. Legal Name
+            $fullName = $w9Form->full_name ?: ($pdfData['line1_name'] ?? ($pdfData['manual_full_name'] ?? ''));
+
+            // 2. Business Name
+            $businessName = $w9Form->business_name ?: ($pdfData['line2_business'] ?? '');
+
+            // 3a. Tax Classification
+            $taxClassification = $w9Form->tax_classification;
+            if (!$taxClassification && !empty($pdfData['line3a_tax'])) {
+                $taxClassification = is_array($pdfData['line3a_tax']) ? ($pdfData['line3a_tax'][0] ?? '') : $pdfData['line3a_tax'];
+            }
+
+            // LLC code
+            $llcCode = '';
+            if (strpos($taxClassification ?? '', 'limited_liability_company') === 0) {
+                $parts = explode('_', $taxClassification);
+                $llcCode = strtoupper(end($parts));
+                if ($llcCode === 'INDIVIDUAL') $llcCode = 'P';
+            } elseif (!empty($pdfData['llc_code'])) {
+                $llcCode = strtoupper($pdfData['llc_code']);
+            }
+
+            // 3b. Foreign partners
+            $hasForeignPartners = !empty($pdfData['line3b']);
+
+            // 4. Exemptions
+            $exemptPayeeCode = $w9Form->exempt_payee_code ?: ($pdfData['line4_exempt'] ?? '');
+            $fatcaExemptionCode = $w9Form->fatca_exemption_code ?: ($pdfData['line4_fatca'] ?? '');
+
+            // 5. Street Address
+            $streetAddress = $w9Form->street_address ?: ($pdfData['line5_address'] ?? '');
+
+            // 6. City, State, ZIP
+            $cityStateZip = '';
+            if ($w9Form->city || $w9Form->state || $w9Form->zip_code) {
+                if ($w9Form->city) $cityStateZip .= $w9Form->city;
+                if ($w9Form->state) $cityStateZip .= ($cityStateZip ? ', ' : '') . $w9Form->state;
+                if ($w9Form->zip_code) $cityStateZip .= ($cityStateZip ? ' ' : '') . $w9Form->zip_code;
+            }
+            if (!$cityStateZip && !empty($pdfData['line6_city_state_zip'])) {
+                $cityStateZip = $pdfData['line6_city_state_zip'];
+            }
+
+            // Part I. TIN
+            $taxIdType = $w9Form->tax_id_type ?: ($pdfData['tin_type'] ?? '');
+            $taxIdNumber = $w9Form->tax_id_number ?: ($pdfData['tin_number'] ?? ($pdfData['manual_tax_id'] ?? ''));
+
+            if (!$taxIdType && $taxIdNumber) {
+                $cleanNum = preg_replace('/[^0-9]/', '', $taxIdNumber);
+                if (strlen($cleanNum) === 9) {
+                    if (in_array($taxClassification, ['c_corporation', 's_corporation', 'partnership'])) {
+                        $taxIdType = 'ein';
+                    } else {
+                        $taxIdType = 'ssn';
+                    }
+                }
+            }
+            if (!$taxIdType) {
+                $taxIdType = 'ssn';
+            }
+
+            $tinParts = ['', '', ''];
+            $einParts = ['', ''];
+            $cleanedTin = preg_replace('/[^0-9]/', '', $taxIdNumber);
+
+            if ($taxIdType === 'ssn') {
+                if (strlen($cleanedTin) >= 9) {
+                    $tinParts = [
+                        substr($cleanedTin, 0, 3),
+                        substr($cleanedTin, 3, 2),
+                        substr($cleanedTin, 5, 4)
+                    ];
+                } elseif (strlen($cleanedTin) > 0) {
+                    $tinParts[0] = $cleanedTin;
+                }
+            } elseif ($taxIdType === 'ein') {
+                if (strlen($cleanedTin) >= 9) {
+                    $einParts = [
+                        substr($cleanedTin, 0, 2),
+                        substr($cleanedTin, 2, 7)
+                    ];
+                } elseif (strlen($cleanedTin) > 0) {
+                    $einParts[0] = $cleanedTin;
+                }
+            }
+
+            // Signature details
+            $signatureMethod = $pdfData['signature_method'] ?? $pdfData['signature_type'] ?? 'typed';
+            $signatureTyped = $pdfData['signature'] ?? $pdfData['signature_typed'] ?? '';
+            $signatureImage = $pdfData['signature_image'] ?? ($pdfData['signature'] ?? '');
+        @endphp
+
         <!-- ======================== PAGE 1: FORM ======================== -->
 
         <!-- Header -->
@@ -627,7 +725,7 @@
     <div class="form-line">
         <div class="line-number">1</div>
         <div class="line-content">
-            <input type="text" class="line-input" disabled value="{{ $w9Form->full_name ?? '' }}">
+            <input type="text" class="line-input" disabled value="{{ $fullName }}">
             <div class="line-label">Name of entity/individual</div>
         </div>
     </div>
@@ -636,7 +734,7 @@
     <div class="form-line">
         <div class="line-number">2</div>
         <div class="line-content">
-            <input type="text" class="line-input" disabled value="{{ $w9Form->business_name ?? '' }}">
+            <input type="text" class="line-input" disabled value="{{ $businessName }}">
             <div class="line-label">Business name/disregarded entity name, if different from above.</div>
         </div>
     </div>
@@ -649,42 +747,35 @@
 
             <div class="checkbox-group">
                 <div class="checkbox-item">
-                    <input type="checkbox" disabled {{ $w9Form->tax_classification === 'individual' ? 'checked' : '' }}>
+                    <input type="checkbox" disabled {{ $taxClassification === 'individual' ? 'checked' : '' }}>
                     <label>Individual/sole proprietor</label>
                 </div>
                 <div class="checkbox-item">
-                    <input type="checkbox" disabled {{ $w9Form->tax_classification === 'c_corporation' ? 'checked' : '' }}>
+                    <input type="checkbox" disabled {{ $taxClassification === 'c_corporation' ? 'checked' : '' }}>
                     <label>C corporation</label>
                 </div>
                 <div class="checkbox-item">
-                    <input type="checkbox" disabled {{ $w9Form->tax_classification === 's_corporation' ? 'checked' : '' }}>
+                    <input type="checkbox" disabled {{ $taxClassification === 's_corporation' ? 'checked' : '' }}>
                     <label>S corporation</label>
                 </div>
             </div>
 
             <div class="checkbox-group">
                 <div class="checkbox-item">
-                    <input type="checkbox" disabled {{ $w9Form->tax_classification === 'partnership' ? 'checked' : '' }}>
+                    <input type="checkbox" disabled {{ $taxClassification === 'partnership' ? 'checked' : '' }}>
                     <label>Partnership</label>
                 </div>
                 <div class="checkbox-item">
-                    <input type="checkbox" disabled {{ $w9Form->tax_classification === 'trust_estate' ? 'checked' : '' }}>
+                    <input type="checkbox" disabled {{ $taxClassification === 'trust_estate' ? 'checked' : '' }}>
                     <label>Trust/estate</label>
                 </div>
             </div>
 
             <div style="margin-top: 6px;">
                 <div class="checkbox-item">
-                    <input type="checkbox" disabled {{ strpos($w9Form->tax_classification ?? '', 'limited_liability_company') === 0 ? 'checked' : '' }}>
+                    <input type="checkbox" disabled {{ (strpos($taxClassification ?? '', 'limited_liability_company') === 0 || $taxClassification === 'llc') ? 'checked' : '' }}>
                     <label><strong>LLC.</strong> Enter the tax classification (C = C corporation, S = S corporation, P = Partnership)</label>
                 </div>
-                @php
-                    $llcCode = '';
-                    if (strpos($w9Form->tax_classification ?? '', 'limited_liability_company') === 0) {
-                        $parts = explode('_', $w9Form->tax_classification);
-                        $llcCode = end($parts);
-                    }
-                @endphp
                 <input type="text" disabled value="{{ $llcCode }}" style="border: none; border-bottom: 1px solid #000; width: 35px; padding: 1px; font-size: 10px; margin-left: 17px;" maxlength="1">
             </div>
 
@@ -693,7 +784,7 @@
             </div>
 
             <div class="checkbox-item" style="margin-left: 17px; margin-top: 4px;">
-                <input type="checkbox" disabled {{ $w9Form->tax_classification === 'other' ? 'checked' : '' }}>
+                <input type="checkbox" disabled {{ $taxClassification === 'other' ? 'checked' : '' }}>
                 <label>Other</label>
             </div>
         </div>
@@ -705,7 +796,7 @@
         <div class="line-content">
             <div style="font-size: 9px; line-height: 1.4; margin-bottom: 6px;">If applicable, check this box if you have foreign partners, owners, or beneficiaries.</div>
             <div class="checkbox-item">
-                <input type="checkbox" disabled>
+                <input type="checkbox" disabled {{ $hasForeignPartners ? 'checked' : '' }}>
                 <label></label>
             </div>
         </div>
@@ -719,11 +810,11 @@
 
             <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 15px;">
                 <div>
-                    <input type="text" class="line-input" disabled value="{{ $w9Form->exempt_payee_code ?? '' }}" maxlength="2">
+                    <input type="text" class="line-input" disabled value="{{ $exemptPayeeCode }}" maxlength="2">
                     <div class="line-label">Exempt payee code (if any)</div>
                 </div>
                 <div>
-                    <input type="text" class="line-input" disabled value="{{ $w9Form->fatca_exemption_code ?? '' }}" maxlength="2">
+                    <input type="text" class="line-input" disabled value="{{ $fatcaExemptionCode }}" maxlength="2">
                     <div class="line-label">Exemption from FATCA reporting code (if any)</div>
                 </div>
             </div>
@@ -734,7 +825,7 @@
     <div class="form-line">
         <div class="line-number">5</div>
         <div class="line-content">
-            <input type="text" class="line-input" disabled value="{{ $w9Form->street_address ?? '' }}">
+            <input type="text" class="line-input" disabled value="{{ $streetAddress }}">
             <div class="line-label">Address (number, street, apartment, or suite)</div>
         </div>
     </div>
@@ -743,12 +834,6 @@
     <div class="form-line">
         <div class="line-number">6</div>
         <div class="line-content">
-            @php
-                $cityStateZip = '';
-                if ($w9Form->city) $cityStateZip .= $w9Form->city;
-                if ($w9Form->state) $cityStateZip .= ($cityStateZip ? ', ' : '') . $w9Form->state;
-                if ($w9Form->zip_code) $cityStateZip .= ($cityStateZip ? ' ' : '') . $w9Form->zip_code;
-            @endphp
             <input type="text" class="line-input" disabled value="{{ $cityStateZip }}">
             <div class="line-label">City, state, and ZIP code</div>
         </div>
@@ -767,22 +852,9 @@
         <!-- SSN -->
         <div class="tin-option">
             <div class="checkbox-item">
-                <input type="radio" disabled {{ $w9Form->tax_id_type === 'ssn' ? 'checked' : '' }}>
+                <input type="radio" disabled {{ $taxIdType === 'ssn' ? 'checked' : '' }}>
                 <label>Social security number</label>
             </div>
-            @php
-                $tinParts = ['', '', ''];
-                if ($w9Form->tax_id_type === 'ssn' && $w9Form->tax_id_number) {
-                    $cleaned = preg_replace('/[^0-9]/', '', $w9Form->tax_id_number);
-                    if (strlen($cleaned) >= 9) {
-                        $tinParts = [
-                            substr($cleaned, 0, 3),
-                            substr($cleaned, 3, 2),
-                            substr($cleaned, 5, 4)
-                        ];
-                    }
-                }
-            @endphp
             <div style="display: flex; gap: 8px; align-items: center; margin-top: 6px;">
                 <input type="text" disabled value="{{ $tinParts[0] }}" style="width: 60px; padding: 8px; border: 1px solid #ccc; border-radius: 3px; font-size: 12px; text-align: center; background: white; color: #000;">
                 <div style="font-weight: bold; font-size: 14px;">–</div>
@@ -795,21 +867,9 @@
         <!-- EIN -->
         <div class="tin-option">
             <div class="checkbox-item">
-                <input type="radio" disabled {{ $w9Form->tax_id_type === 'ein' ? 'checked' : '' }}>
+                <input type="radio" disabled {{ $taxIdType === 'ein' ? 'checked' : '' }}>
                 <label>Employer identification number</label>
             </div>
-            @php
-                $einParts = ['', ''];
-                if ($w9Form->tax_id_type === 'ein' && $w9Form->tax_id_number) {
-                    $cleaned = preg_replace('/[^0-9]/', '', $w9Form->tax_id_number);
-                    if (strlen($cleaned) >= 9) {
-                        $einParts = [
-                            substr($cleaned, 0, 2),
-                            substr($cleaned, 2, 7)
-                        ];
-                    }
-                }
-            @endphp
             <div style="display: flex; gap: 8px; align-items: center; margin-top: 6px;">
                 <input type="text" disabled value="{{ $einParts[0] }}" style="width: 60px; padding: 8px; border: 1px solid #ccc; border-radius: 3px; font-size: 12px; text-align: center; background: white; color: #000;">
                 <div style="font-weight: bold; font-size: 14px;">–</div>
@@ -863,11 +923,11 @@
                     <div class="sig-label">Signature Method</div>
                     <div style="margin-top: 8px;">
                         <div class="checkbox-item">
-                            <input type="radio" disabled>
+                            <input type="radio" disabled {{ $signatureMethod === 'typed' ? 'checked' : '' }}>
                             <label>Type Legal Name</label>
                         </div>
                         <div class="checkbox-item">
-                            <input type="radio" disabled>
+                            <input type="radio" disabled {{ $signatureMethod === 'draw' ? 'checked' : '' }}>
                             <label>Draw Signature</label>
                         </div>
                     </div>
@@ -879,13 +939,6 @@
             </div>
 
             <!-- Signature Display -->
-            @php
-                $pdfData = $w9Form->pdf_form_data ? json_decode($w9Form->pdf_form_data, true) : [];
-                $signatureMethod = $pdfData['signature_method'] ?? $pdfData['signature_type'] ?? 'typed';
-                $signatureTyped = $pdfData['signature'] ?? $pdfData['signature_typed'] ?? '';
-                $signatureImage = $pdfData['signature'] ?? '';
-            @endphp
-
             <div style="margin-bottom: 15px;">
                 <div class="sig-label">Signature</div>
                 <div class="sig-area" style="min-height: 60px; padding: 10px; border: none;">

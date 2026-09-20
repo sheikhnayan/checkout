@@ -1544,6 +1544,35 @@ main, header, section, .container {
     -webkit-text-fill-color: var(--cv-ink-light) !important;
 }
 
+/* Prevent iOS Safari from auto-zooming when focusing inputs on mobile */
+@media screen and (max-width: 768px) {
+    .form-group input,
+    .form-group textarea,
+    .form-group select,
+    select,
+    .form-select,
+    .country-code-field,
+    .cv-dob-select,
+    #dob-month, #dob-day, #dob-year,
+    #package-dob-month, #package-dob-day, #package-dob-year,
+    #payment-dob-month, #payment-dob-day, #payment-dob-year,
+    #payment-dob-month2, #payment-dob-day2, #payment-dob-year2,
+    .package-guest-input-wrap select,
+    .cv-date-input-group input,
+    #Pick-up-time,
+    #Arrival-time,
+    input[name="transportation_pickup_time"],
+    input[name="transportation_arrival_time"],
+    input[type="text"],
+    input[type="tel"],
+    input[type="email"],
+    input[type="number"],
+    input[type="password"] {
+        font-size: 16px !important;
+    }
+}
+
+
 /* ==========================================================================
    SELECT & OPTION FIX (Eliminates white/invisible text when selected)
    ========================================================================== */

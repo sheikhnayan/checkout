@@ -568,17 +568,12 @@
                                                 <p style="margin: 4px 0 0; font-size: 12.5px; color: var(--cv-t1-ink-muted);">{{ $data->package_section_subtext ?: 'All packages include free ride, club entry, and priority access.' }}</p>
                                             @endif
                                         </div>
-                                        <div class="cv-filter-pills">
-                                            <button type="button" class="cv-pill-btn is-active" id="btnFilterMostPopular">Most Popular</button>
-                                            @if(!empty($mostPopularPackageName))
-                                                <button type="button" class="cv-pill-btn btn-outline" id="btnFilterPopularPkg"
-                                                    data-target-cat="#category-group-{{ $mostPopularPackageCatId }}"
-                                                    data-target-pkg="#pkg-card-{{ $mostPopularPackageId }}"
-                                                    title="View {{ $mostPopularPackageName }}">
-                                                    {{ $mostPopularPackageName }}
-                                                </button>
-                                            @endif
+                                        @if(!empty($mostPopularPackageName))
+                                        <div class="cv-most-popular-tag" style="display:inline-flex; align-items:center; gap:9px; padding: 6px 14px; border-radius: 999px; background: #eff6ff; border: 1px solid #bfdbfe; font-size: 12.5px; color: var(--cv-ink, #0f172a); font-weight: 600;">
+                                            <span style="background: linear-gradient(135deg, #2563eb 0%, #1d4ed8 100%); color: #fff; padding: 3px 9px; border-radius: 999px; font-size: 10px; font-weight: 800; letter-spacing: .06em; display: inline-flex; align-items: center; gap: 4px; box-shadow: 0 2px 6px rgba(37,99,235,0.3); text-transform: uppercase;"><i class="fas fa-fire" style="font-size:9px;"></i>MOST POPULAR</span>
+                                            <span>{{ $mostPopularPackageName }}</span>
                                         </div>
+                                        @endif
                                     </div>
 
                                     @if(!empty($isIframeCheckout))
@@ -3799,54 +3794,6 @@
                     $('#package_use_date_iframe').val($('#package_use_date').val() || '');
                 }
 
-                $(document).on('click', '#btnFilterPopularPkg', function(e) {
-                    e.preventDefault();
-                    $('.cv-filter-pills .cv-pill-btn').removeClass('is-active').addClass('btn-outline');
-                    $(this).addClass('is-active').removeClass('btn-outline');
-
-                    let targetCat = String($(this).data('target-cat') || '');
-                    let targetPkg = String($(this).data('target-pkg') || '');
-
-                    if (targetCat) {
-                        let $catTile = $('.package-category-tile[data-target="' + targetCat + '"]');
-                        if ($catTile.length && !$catTile.hasClass('active')) {
-                            $catTile.trigger('click');
-                        } else {
-                            $('.package-category-group').hide();
-                            $(targetCat).show();
-                        }
-                    }
-
-                    if (targetPkg && $(targetPkg).length) {
-                        let $pkgCard = $(targetPkg);
-                        $pkgCard.show();
-                        $('html, body').stop().animate({
-                            scrollTop: $pkgCard.offset().top - 120
-                        }, 300);
-                        $pkgCard.addClass('selected-package highlight-pulse');
-                        setTimeout(function() {
-                            $pkgCard.removeClass('highlight-pulse');
-                        }, 2000);
-                    }
-                });
-
-                $(document).on('click', '#btnFilterMostPopular', function(e) {
-                    e.preventDefault();
-                    $('.cv-filter-pills .cv-pill-btn').removeClass('is-active').addClass('btn-outline');
-                    $(this).addClass('is-active').removeClass('btn-outline');
-
-                    let $activeTile = $('.package-category-tile.active');
-                    if (!$activeTile.length) {
-                        $activeTile = $('.package-category-tile').first();
-                        $activeTile.addClass('active');
-                    }
-                    let targetCat = $activeTile.data('target');
-                    if (targetCat && $(targetCat).length) {
-                        $('.package-category-group').hide();
-                        $(targetCat).show();
-                        $(targetCat).find('.vip-card').show();
-                    }
-                });
 
                 $(document).on('click', '.vip-btn', function() {
                     let $btn = $(this);
@@ -6716,6 +6663,10 @@
                 validateAndFormatPhone(phoneInput, countryCodeInput);
             });
 
+            phoneInput.addEventListener('change', () => {
+                validateAndFormatPhone(phoneInput, countryCodeInput);
+            });
+
             phoneInput.addEventListener('blur', () => {
                 validateAndFormatPhone(phoneInput, countryCodeInput);
             });
@@ -6896,11 +6847,7 @@
                 digitsOnly = digitsOnly.substring(0, maxDigits);
             }
 
-            // Remove leading 1 if it's a North American number (already in country code)
             let cleanNumber = digitsOnly;
-            if (countryCode === '+1' && digitsOnly.startsWith('1')) {
-                cleanNumber = digitsOnly.substring(1);
-            }
 
             // Display formatted number with proper formatting
             phoneInput.value = formatPhoneNumber(cleanNumber, countryCode);
