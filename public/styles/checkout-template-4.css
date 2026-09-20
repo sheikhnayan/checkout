@@ -85,6 +85,25 @@ strong {
     box-shadow: 10px 10px 0 #0b0b0b !important;
 }
 
+/* Template 4: Remove watermark background icon and line covering text */
+.cv-access-card .cv-ac-body::before,
+.cv-access-card.is-active .cv-ac-body::before,
+.cv-access-card[data-name="package"] .cv-ac-body::before,
+.cv-access-card[data-name="package"].is-active .cv-ac-body::before,
+.cv-access-card[data-name="guest"] .cv-ac-body::before,
+.cv-access-card[data-name="guest"].is-active .cv-ac-body::before,
+.cv-access-card .cv-ac-body::after,
+.cv-access-card.is-active .cv-ac-body::after,
+.cv-access-card[data-name="package"] .cv-ac-body::after,
+.cv-access-card[data-name="package"].is-active .cv-ac-body::after,
+.cv-access-card[data-name="guest"] .cv-ac-body::after,
+.cv-access-card[data-name="guest"].is-active .cv-ac-body::after {
+    display: none !important;
+    content: none !important;
+    opacity: 0 !important;
+    visibility: hidden !important;
+}
+
 input,
 select,
 textarea,
