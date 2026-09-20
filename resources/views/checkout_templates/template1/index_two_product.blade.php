@@ -5480,7 +5480,9 @@
                 var endMinutes = parseTimeToMinutes(scheduleObj.endTime);
                 if (startMinutes !== null && endMinutes !== null) {
                     hasSameDayRange = endMinutes >= startMinutes;
-                   var wrap = el.closest('.pickup-time-wrap');
+                }
+
+                var wrap = el.closest('.pickup-time-wrap');
                 var nativePicker = wrap ? wrap.querySelector('.pickup-time-native-mobile') : null;
                 if (wrap && !nativePicker) {
                     nativePicker = document.createElement('input');
