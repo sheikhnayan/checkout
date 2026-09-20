@@ -1055,6 +1055,7 @@
                                                                                 id="Pick-up-time"
                                                                                 class="form-control"
                                                                                 placeholder="Select pick-up time" required />
+                                                                            <span class="pickup-time-placeholder">Select pick-up time</span>
                                                                         </div>
                                                                         <div id="pickup-hours-badge" class="schedule-hours-badge" style="display: none; margin-top: 12px;"></div>
                                                                     </div>
@@ -1109,6 +1110,7 @@
                                                                                 id="Arrival-time"
                                                                                 class="form-control"
                                                                                 placeholder="Select time of arrival" />
+                                                                            <span class="pickup-time-placeholder">Select time of arrival</span>
                                                                         </div>
                                                                         @if(($data->show_arrival_time_verbiage ?? 1) == 1)
                                                                             <small style="display:block;margin-top:6px;font-size:12px;line-height:1.4;color:#4b5563;font-weight:600;">Required when self-driving or when package transportation is not included.</small>
@@ -5354,12 +5356,14 @@
                 if (pickupEl && pickupEl.value) {
                     if (isTimeInPastForSelectedDate(pickupEl.value, transportationSchedule, true) || !isTimeWithinOperatingHours(pickupEl.value, transportationSchedule)) {
                         pickupEl.value = '';
+                        pickupEl.dispatchEvent(new Event('change'));
                     }
                 }
                 var arrivalEl = document.querySelector('input[name="transportation_arrival_time"]');
                 if (arrivalEl && arrivalEl.value) {
                     if (isTimeInPastForSelectedDate(arrivalEl.value, arrivalTransportationSchedule, false) || !isTimeWithinOperatingHours(arrivalEl.value, arrivalTransportationSchedule)) {
                         arrivalEl.value = '';
+                        arrivalEl.dispatchEvent(new Event('change'));
                     }
                 }
             });
@@ -5478,6 +5482,32 @@
                     hasSameDayRange = endMinutes >= startMinutes;
                 }
 
+                function syncTimePickerPlaceholder() {
+                    if (!el) return;
+                    var wrap = el.closest('.pickup-time-wrap');
+                    if (!wrap) return;
+                    var ph = wrap.querySelector('.pickup-time-placeholder');
+                    if (!ph) {
+                        var phText = el.getAttribute('placeholder') || 'Select pick-up time';
+                        ph = document.createElement('span');
+                        ph.className = 'pickup-time-placeholder';
+                        ph.textContent = phText;
+                        wrap.appendChild(ph);
+                    }
+                    var val = (el.value || '').trim();
+                    if (val.length > 0) {
+                        wrap.classList.add('has-value');
+                        ph.style.display = 'none';
+                        ph.style.opacity = '0';
+                        ph.style.visibility = 'hidden';
+                    } else {
+                        wrap.classList.remove('has-value');
+                        ph.style.display = 'block';
+                        ph.style.opacity = '';
+                        ph.style.visibility = '';
+                    }
+                }
+
                 function applyPicker() {
                     var isMobile = checkIsMobile();
 
@@ -5516,6 +5546,10 @@
                                             instance.setDate(normalizedTime, true, 'h:i K');
                                         }
                                         $(el).removeClass('required-field');
+                                        syncTimePickerPlaceholder();
+                                    },
+                                    onClose: function () {
+                                        syncTimePickerPlaceholder();
                                     }
                                 };
                                 if (minT && maxT && hasSameDayRange) {
@@ -5533,12 +5567,14 @@
                             }
                         }
                     }
+                    syncTimePickerPlaceholder();
                 }
 
                 applyPicker();
 
                 el.addEventListener('input', function () {
                     $(el).removeClass('required-field');
+                    syncTimePickerPlaceholder();
                 });
                 el.addEventListener('change', function () {
                     if (el.type === 'time') {
@@ -5547,6 +5583,10 @@
                             el.value = normalizedTime;
                         }
                     }
+                    syncTimePickerPlaceholder();
+                });
+                el.addEventListener('blur', function () {
+                    syncTimePickerPlaceholder();
                 });
                 el.addEventListener('click', function () {
                     if (el.type === 'time' && typeof el.showPicker === 'function') {
@@ -5580,6 +5620,10 @@
                     if (resizeTimer) clearTimeout(resizeTimer);
                     resizeTimer = setTimeout(applyPicker, 150);
                 });
+
+                setInterval(function () {
+                    syncTimePickerPlaceholder();
+                }, 400);
             }
 
             // Pick-up time picker: desktop uses Flatpickr directly under input, mobile uses native time control

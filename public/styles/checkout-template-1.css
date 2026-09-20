@@ -1622,7 +1622,47 @@ select:focus,
     color: var(--cv-primary) !important;
     font-size: 15px !important;
     pointer-events: none !important;
+    z-index: 3 !important;
+}
+
+.pickup-time-placeholder {
+    position: absolute !important;
+    left: 40px !important;
+    top: 50% !important;
+    transform: translateY(-50%) !important;
+    color: var(--cv-ink-muted, #64748b) !important;
+    -webkit-text-fill-color: var(--cv-ink-muted, #64748b) !important;
+    font-size: 15px !important;
+    line-height: 1.2 !important;
+    font-family: inherit !important;
+    font-weight: 400 !important;
+    pointer-events: none !important;
+    user-select: none !important;
     z-index: 2 !important;
+    white-space: nowrap !important;
+    overflow: hidden !important;
+    text-overflow: ellipsis !important;
+    max-width: calc(100% - 54px) !important;
+    transition: opacity 0.15s ease, visibility 0.15s ease !important;
+    opacity: 0.85 !important;
+    display: block;
+}
+
+.pickup-time-wrap.has-value .pickup-time-placeholder {
+    opacity: 0 !important;
+    visibility: hidden !important;
+    display: none !important;
+    pointer-events: none !important;
+}
+
+.pickup-time-wrap:not(.has-value) input[type="time"]::-webkit-datetime-edit,
+.pickup-time-wrap:not(.has-value) input[type="time"]::-webkit-datetime-edit-fields-wrapper,
+.pickup-time-wrap:not(.has-value) input[type="time"]::-webkit-datetime-edit-text,
+.pickup-time-wrap:not(.has-value) input[type="time"]::-webkit-datetime-edit-minute,
+.pickup-time-wrap:not(.has-value) input[type="time"]::-webkit-datetime-edit-hour,
+.pickup-time-wrap:not(.has-value) input[type="time"]::-webkit-datetime-edit-ampm-field {
+    color: transparent !important;
+    -webkit-text-fill-color: transparent !important;
 }
 
 #Pick-up-time,
@@ -1651,8 +1691,9 @@ input[name="transportation_arrival_time"] {
 #Arrival-time::placeholder,
 input[name="transportation_pickup_time"]::placeholder,
 input[name="transportation_arrival_time"]::placeholder {
-    color: var(--cv-ink-muted) !important;
-    opacity: 0.8 !important;
+    color: transparent !important;
+    -webkit-text-fill-color: transparent !important;
+    opacity: 0 !important;
 }
 
 #Pick-up-time:focus,
