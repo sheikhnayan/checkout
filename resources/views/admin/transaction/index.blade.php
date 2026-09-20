@@ -638,6 +638,14 @@
     outline: none;
     box-shadow: 0 0 0 2px rgba(139, 92, 246, 0.4);
 }
+#clublifterRescheduleModal,
+#clublifterNotesModal {
+    z-index: 1105 !important;
+}
+#clublifterRescheduleModal .modal-dialog,
+#clublifterNotesModal .modal-dialog {
+    z-index: 1106 !important;
+}
 #txnNotesModal .modal-header {
     display: flex !important;
     align-items: center !important;
@@ -2643,6 +2651,20 @@ body.modal-open .admin-mobile-menu-toggle {
                             <td class="txn-pkg-name">
                                 <div style="font-size:0.85rem;font-weight:600;margin-bottom:8px;">{{ $venueName }}</div>
                                 <button type="button" class="btn btn-sm btn-link-package view-btn" data-total="{{ (float)($item->total ?? 0) }}" data-guests="{{ $item->package_number_of_guest ?? 1 }}" data-date="{{ $purchaseAtLocal?->format('M d, Y') ?? '' }}" data-date-iso="{{ $purchaseAtLocal?->format('Y-m-d') ?? '' }}" data-bs-toggle="modal" data-bs-target="#packageDetailsModal" data-transaction-id="{{ $item->id }}" data-id="{{ $item->id }}" data-requires_transportation="{{ $requiresTransportationForRow ? 1 : 0 }}" data-admin_notes="{{ $item->admin_notes ?? '' }}" data-admin_notes_by="{{ $item->admin_notes_by ?? '' }}" data-admin_notes_at="{{ $formatDatePst($item->admin_notes_at) }}" data-confirmation-number="{{ $item->transaction_id ?? 'N/A' }}" data-cart-items='@json($cartItems)' data-package-descriptions-b64="{{ base64_encode(json_encode($packageDescriptionsPayload)) }}" data-breakdown='@json($item->price_breakdown)' data-transaction-type='{{ $item->type }}' data-men='{{ $item->package_men ?? 0 }}' data-women='{{ $item->package_women ?? 0 }}' data-package-label="{{ $packageDetailsText }}" data-package_use_date="{{ $item->package_use_date ?? '' }}" data-checked_in_status="{{ $item->checked_in_status ?? $item->checked_in ?? 0 }}" data-package_number_of_guest="{{ $item->package_number_of_guest ?? 0 }}" data-package_first_name="{{ $item->package_first_name ?? '' }}" data-package_last_name="{{ $item->package_last_name ?? '' }}" data-package_phone="{{ $item->package_phone ?? '' }}" data-package_email="{{ $item->package_email ?? '' }}" data-package_dob="{{ $item->package_dob ?? '' }}" data-package_note="{{ $item->package_note ?? '' }}" data-host_name="{{ $item->host_name ?? '' }}" data-transportation_pickup_time="{{ $item->transportation_pickup_time ?? '' }}" data-transportation_arrival_time="{{ $item->transportation_arrival_time ?? '' }}" data-transportation_address="{{ $item->transportation_address ?? '' }}" data-transportation_phone="{{ $item->transportation_phone ?? '' }}" data-transportation_note="{{ $item->transportation_note ?? '' }}" data-clublifter_customer_id="{{ $item->clublifter_customer_id ?? '' }}" data-payment_first_name="{{ $item->payment_first_name ?? '' }}" data-payment_last_name="{{ $item->payment_last_name ?? '' }}" data-payment_phone="{{ $item->payment_phone ?? '' }}" data-payment_email="{{ $item->payment_email ?? '' }}" data-payment_address="{{ $item->payment_address ?? '' }}" data-payment_city="{{ $item->payment_city ?? '' }}" data-payment_state="{{ $item->payment_state ?? '' }}" data-payment_country="{{ $item->payment_country ?? '' }}" data-payment_dob="{{ $item->payment_dob ?? '' }}" data-payment_zip_code="{{ $item->payment_zip_code ?? '' }}" data-type="{{ $item->type }}" data-status="{{ $item->status }}" data-ip_address="{{ $item->ip_address ?? '' }}" data-website_id="{{ $item->website->name ?? '' }}" data-affiliate_name="{{ $affiliateName ?: '' }}" data-affiliate_sub_name="{{ $subName ?: '' }}" data-affiliate_parent_name="{{ $parentName ?: '' }}" data-entertainer_name="{{ $item->entertainer ? ($item->entertainer->display_name ?: optional($item->entertainer->user)->name) : '' }}" data-addons="{{ $addons }}" style="font-size:0.85rem;min-width:72px;">Quick View</button>
+                                @if(!empty($item->clublifter_customer_id) && $item->clublifter_customer_id !== '0')
+                                    <div class="mt-1">
+                                        <button type="button" class="btn btn-xs btn-outline-warning btn-cl-reschedule"
+                                            data-txn-id="{{ $item->id }}"
+                                            data-cl-id="{{ $item->clublifter_customer_id }}"
+                                            data-guest="{{ $item->package_first_name }} {{ $item->package_last_name }}"
+                                            data-date="{{ $item->package_use_date }}"
+                                            data-time="{{ $item->transportation_pickup_time }}"
+                                            title="Reschedule ClubLifter Ride"
+                                            style="font-size:0.68rem;padding:2px 6px;border-radius:4px;white-space:nowrap;">
+                                            <i class="fas fa-calendar-alt me-1"></i>Reschedule Ride
+                                        </button>
+                                    </div>
+                                @endif
                             </td>
                             <td class="txn-host-name">
                                 @if(!empty($item->host_name))
@@ -3179,7 +3201,7 @@ body.modal-open .admin-mobile-menu-toggle {
             </div>
 
             <!-- ClubLifter Reschedule Modal -->
-            <div class="modal fade" id="clublifterRescheduleModal" tabindex="-1" aria-labelledby="clublifterRescheduleModalLabel" aria-hidden="true" style="z-index: 1065;">
+            <div class="modal fade" id="clublifterRescheduleModal" tabindex="-1" aria-labelledby="clublifterRescheduleModalLabel" aria-hidden="true" style="z-index: 1105;">
                 <div class="modal-dialog modal-dialog-centered" style="max-width: 490px;">
                     <div class="modal-content" style="background:#0f172a;border:1px solid rgba(217,160,91,0.4);border-radius:14px;box-shadow: 0 10px 35px rgba(0,0,0,0.65);">
                         <div class="modal-header d-flex align-items-center justify-content-between" style="border-bottom: 1px solid rgba(255,255,255,0.1); padding: 14px 18px;">
@@ -3210,7 +3232,7 @@ body.modal-open .admin-mobile-menu-toggle {
 
                             <div class="mb-3">
                                 <label class="form-label text-white small fw-bold mb-1">New Pickup Date *</label>
-                                <input type="date" id="clRescheduleDateInput" class="form-control form-control-sm" style="background:#1e293b;border:1px solid #334155;color:#f8fafc;" required />
+                                <input type="date" id="clRescheduleDateInput" class="form-control form-control-sm" style="background:#1e293b;border:1px solid #334155;color:#f8fafc;color-scheme:dark;" required />
                             </div>
 
                             <div class="mb-3">
@@ -3235,7 +3257,7 @@ body.modal-open .admin-mobile-menu-toggle {
             </div>
 
             <!-- ClubLifter Notes Modal -->
-            <div class="modal fade" id="clublifterNotesModal" tabindex="-1" aria-labelledby="clublifterNotesModalLabel" aria-hidden="true" style="z-index: 1065;">
+            <div class="modal fade" id="clublifterNotesModal" tabindex="-1" aria-labelledby="clublifterNotesModalLabel" aria-hidden="true" style="z-index: 1105;">
                 <div class="modal-dialog modal-dialog-centered" style="max-width: 490px;">
                     <div class="modal-content" style="background:#0f172a;border:1px solid rgba(56,189,248,0.3);border-radius:14px;box-shadow: 0 10px 35px rgba(0,0,0,0.65);">
                         <div class="modal-header d-flex align-items-center justify-content-between" style="border-bottom: 1px solid rgba(255,255,255,0.1); padding: 14px 18px;">
@@ -7013,24 +7035,116 @@ body.modal-open .admin-mobile-menu-toggle {
                 });
             });
 
+            function toIsoDate(val) {
+                if (!val) return '';
+                var s = String(val).trim();
+                var matchYmd = s.match(/^(\d{4})-(\d{1,2})-(\d{1,2})/);
+                if (matchYmd) {
+                    var y = matchYmd[1];
+                    var m = matchYmd[2].length === 1 ? '0' + matchYmd[2] : matchYmd[2];
+                    var d = matchYmd[3].length === 1 ? '0' + matchYmd[3] : matchYmd[3];
+                    return y + '-' + m + '-' + d;
+                }
+                var matchMdy = s.match(/^(\d{1,2})[\/\-](\d{1,2})[\/\-](\d{4})/);
+                if (matchMdy) {
+                    var m = matchMdy[1].length === 1 ? '0' + matchMdy[1] : matchMdy[1];
+                    var d = matchMdy[2].length === 1 ? '0' + matchMdy[2] : matchMdy[2];
+                    var y = matchMdy[3];
+                    return y + '-' + m + '-' + d;
+                }
+                var parsed = new Date(s);
+                if (!isNaN(parsed.getTime())) {
+                    var year = parsed.getFullYear();
+                    var month = String(parsed.getMonth() + 1).padStart(2, '0');
+                    var day = String(parsed.getDate()).padStart(2, '0');
+                    return year + '-' + month + '-' + day;
+                }
+                return '';
+            }
+
+            function to12HourTime(val) {
+                if (!val) return '';
+                var s = String(val).trim();
+                if (s.toLowerCase() === 'n/a' || s.toLowerCase() === 'null') return '';
+                if (/\b(?:AM|PM)\b/i.test(s)) {
+                    return s.toUpperCase();
+                }
+                if (s.indexOf(':') !== -1) {
+                    var parts = s.split(':');
+                    var hours = parseInt(parts[0], 10);
+                    var minutes = parts[1] ? parts[1].substring(0, 2) : '00';
+                    if (!isNaN(hours)) {
+                        var ampm = hours >= 12 ? 'PM' : 'AM';
+                        var h12 = hours % 12 || 12;
+                        return (h12 < 10 ? '0' : '') + h12 + ':' + minutes + ' ' + ampm;
+                    }
+                }
+                return s;
+            }
+
+            // Ensure nested modals (Reschedule & Notes) stack cleanly above parent transaction modals and backdrops
+            $(document).on('show.bs.modal', '#clublifterRescheduleModal, #clublifterNotesModal', function() {
+                var $modal = $(this);
+                $modal.css('z-index', 1105);
+                setTimeout(function() {
+                    var $backdrops = $('.modal-backdrop');
+                    if ($backdrops.length > 1) {
+                        $backdrops.last().css('z-index', 1100);
+                    }
+                }, 10);
+            });
+
+            // Prevent loss of body modal-open class when closing a nested modal while parent modal is open
+            $(document).on('hidden.bs.modal', '#clublifterRescheduleModal, #clublifterNotesModal', function() {
+                if ($('#viewTransactionModal.show, #packageDetailsModal.show').length > 0) {
+                    $('body').addClass('modal-open');
+                }
+            });
+
+            $(document).on('hidden.bs.modal', '#viewTransactionModal, #packageDetailsModal', function() {
+                if ($('#clublifterRescheduleModal.show, #clublifterNotesModal.show').length > 0) {
+                    $('body').addClass('modal-open');
+                }
+            });
+
             // ── CLUBLIFTER RESCHEDULE & NOTE HANDLERS ──
             $(document).on('click', '.btn-cl-reschedule', function(e) {
                 e.preventDefault();
                 e.stopPropagation();
 
-                var txnId = $(this).data('txn-id');
-                var clId = $(this).data('cl-id');
-                var guest = $(this).data('guest') || 'Guest';
-                var date = $(this).data('date') || '';
-                var time = $(this).data('time') || '';
+                var txnId = $(this).data('txn-id') || $(this).attr('data-txn-id');
+                var clId = $(this).data('cl-id') || $(this).attr('data-cl-id');
+                var guest = $(this).data('guest') || $(this).attr('data-guest') || 'Guest';
+                var date = $(this).data('date') || $(this).attr('data-date') || '';
+                var time = $(this).data('time') || $(this).attr('data-time') || '';
+
+                // If date or time is missing from this button, fallback to row / view button
+                if ((!date || !time) && txnId) {
+                    var $viewBtn = $('.view-btn[data-id="' + txnId + '"]').first();
+                    if ($viewBtn.length) {
+                        if (!date) {
+                            date = $viewBtn.data('package_use_date') || $viewBtn.attr('data-package_use_date') || $viewBtn.data('date-iso') || '';
+                        }
+                        if (!time) {
+                            time = $viewBtn.data('transportation_pickup_time') || $viewBtn.attr('data-transportation_pickup_time') || '';
+                        }
+                    }
+                }
+
+                var isoDate = toIsoDate(date);
+                var formattedTime = to12HourTime(time);
 
                 $('#clRescheduleTxnId').val(txnId);
                 $('#clRescheduleCustomerId').val(clId);
                 $('#clRescheduleGuestName').text(guest);
                 $('#clRescheduleBookingId').text('#' + clId);
-                $('#clRescheduleCurrentTime').text((date || 'No Date') + (time ? ' at ' + time : ''));
-                $('#clRescheduleDateInput').val(date);
-                $('#clRescheduleTimeInput').val(time);
+
+                var displayDate = isoDate ? (window.formatDateUS ? window.formatDateUS(isoDate) : isoDate) : (date || 'No Date');
+                var displayTime = formattedTime || (time ? String(time) : '');
+                $('#clRescheduleCurrentTime').text(displayDate + (displayTime ? ' at ' + displayTime : ''));
+
+                $('#clRescheduleDateInput').val(isoDate);
+                $('#clRescheduleTimeInput').val(formattedTime);
 
                 var modalEl = document.getElementById('clublifterRescheduleModal');
                 var bsModal = (window.bootstrap && bootstrap.Modal) ? (bootstrap.Modal.getInstance(modalEl) || bootstrap.Modal.getOrCreateInstance(modalEl)) : null;
@@ -7084,8 +7198,24 @@ body.modal-open .admin-mobile-menu-toggle {
                                 window.fetchClubLifterCustomerStatus(clId, $('#packageDetailsModal'));
                             }
 
-                            // Update date and time attributes on the row buttons
-                            $('.btn-cl-reschedule[data-txn-id="' + txnId + '"]').data('date', date).data('time', time);
+                            // Update date and time attributes on the row buttons and in-modal buttons
+                            $('.btn-cl-reschedule[data-txn-id="' + txnId + '"]').data('date', date).attr('data-date', date)
+                                .data('time', time).attr('data-time', time);
+                            $('.view-btn[data-id="' + txnId + '"]').data('package_use_date', date).attr('data-package_use_date', date)
+                                .data('transportation_pickup_time', time).attr('data-transportation_pickup_time', time);
+
+                            // Update displayed details in open modals
+                            var formattedDateUS = window.formatDateUS ? window.formatDateUS(date) : date;
+                            var formattedTime12 = to12HourTime(time);
+                            $('#viewTransactionModal, #packageDetailsModal').find('.txn-detail-row').each(function() {
+                                var $label = $(this).find('.txn-detail-label');
+                                var labelText = $.trim($label.text()).replace(/:$/, '');
+                                if (labelText === 'Pickup Time') {
+                                    $(this).find('.txn-detail-value').text(formattedTime12);
+                                } else if (labelText === 'Date Of Use' || labelText === 'Transportation Date') {
+                                    $(this).find('.txn-detail-value').text(formattedDateUS);
+                                }
+                            });
                         } else {
                             alert((res && res.message) ? res.message : 'Reschedule failed.');
                         }
@@ -7799,8 +7929,8 @@ body.modal-open .admin-mobile-menu-toggle {
                 if (hasClubLifterId) {
                     var clTxnId = $(this).data('id') || $(this).data('transaction-id') || '';
                     var clGuestName = (String($(this).data('package_first_name') || '') + ' ' + String($(this).data('package_last_name') || '')).trim() || 'Guest';
-                    var clUseDate = $(this).data('package_use_date') || '';
-                    var clPickupTime = $(this).data('transportation_pickup_time') || '';
+                    var clUseDate = $(this).data('package_use_date') || $(this).closest('tr').find('.view-btn').data('package_use_date') || '';
+                    var clPickupTime = $(this).data('transportation_pickup_time') || $(this).closest('tr').find('.view-btn').data('transportation_pickup_time') || '';
 
                     pushPdfRow('ClubLifter ID', clublifterCustomerId);
                     html += '<div class="txn-detail-row"><span class="txn-detail-label">ClubLifter ID:</span><span class="txn-detail-value d-flex align-items-center justify-content-between" style="gap:8px;"><span style="font-weight:600;color:#c084fc;">' + esc(clublifterCustomerId) + '</span><span class="clublifter-priority-val"></span></span></div>';
@@ -8706,8 +8836,8 @@ body.modal-open .admin-mobile-menu-toggle {
                 if (hasClubLifterId) {
                     var clTxnId = $(this).data('id') || $(this).data('transaction-id') || '';
                     var clGuestName = (String($(this).data('package_first_name') || '') + ' ' + String($(this).data('package_last_name') || '')).trim() || 'Guest';
-                    var clUseDate = $(this).data('package_use_date') || '';
-                    var clPickupTime = $(this).data('transportation_pickup_time') || '';
+                    var clUseDate = $(this).data('package_use_date') || $(this).closest('tr').find('.view-btn').data('package_use_date') || '';
+                    var clPickupTime = $(this).data('transportation_pickup_time') || $(this).closest('tr').find('.view-btn').data('transportation_pickup_time') || '';
 
                     html += '<div class="txn-detail-row"><span class="txn-detail-label">ClubLifter ID:</span><span class="txn-detail-value d-flex align-items-center justify-content-between" style="gap:8px;"><span style="font-weight:600;color:#c084fc;">' + esc(clublifterCustomerId) + '</span><span class="clublifter-priority-val"></span></span></div>';
                     html += '<div class="txn-detail-row"><span class="txn-detail-label">Transport Status:</span><span class="txn-detail-value clublifter-status-val" style="color:#94a3b8;"><i class="fas fa-spinner fa-spin me-1"></i>Fetching live status...</span></div>';
