@@ -386,7 +386,7 @@ class CustomFormController extends Controller
         $form = CustomForm::where('slug', $slug)->firstOrFail();
 
         if (!$form->is_active) {
-            return response()->view('errors.404', [], 404);
+            abort(404, 'This form is currently inactive or unavailable.');
         }
 
         $targetWebsites = [];
