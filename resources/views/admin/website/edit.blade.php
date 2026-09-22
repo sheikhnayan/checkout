@@ -208,9 +208,22 @@
                                         @csrf
 
                                         <div class="card-body">
-                                            <div class="alert alert-info d-flex justify-content-between align-items-center mb-4">
+                                            <div class="alert alert-info d-flex justify-content-between align-items-center mb-3">
                                                 <span>Payment keys and fees were moved to a dedicated page.</span>
                                                 <a href="{{ route('admin.website.payment-settings', $data->id) }}" class="btn btn-sm btn-primary">Open Payment Settings</a>
+                                            </div>
+                                            <div class="alert alert-warning d-flex justify-content-between align-items-center mb-4 flex-wrap gap-2" style="background: rgba(245, 158, 11, 0.15); border: 1px solid rgba(245, 158, 11, 0.4); color: #fef08a;">
+                                                <div class="d-flex align-items-center gap-2">
+                                                    <i class="fas fa-palette fa-lg text-warning"></i>
+                                                    <span>
+                                                        <strong>Primary Checkout Template:</strong> 
+                                                        <span class="badge bg-dark text-warning ms-1">{{ ucfirst($data->resolved_checkout_template) }}</span>
+                                                        &mdash; Customize your venue's checkout design.
+                                                    </span>
+                                                </div>
+                                                <a href="{{ route('admin.website.select-template', $data->id) }}" class="btn btn-sm btn-warning text-dark fw-bold">
+                                                    <i class="fas fa-layer-group me-1"></i>Select Checkout Template
+                                                </a>
                                             </div>
                                             <h4 class="mb-3 website-section-title">Basic Information</h4>
                                             <div class="row">

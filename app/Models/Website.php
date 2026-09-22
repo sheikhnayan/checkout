@@ -16,6 +16,7 @@ class Website extends Model
         'name',
         'short_name',
         'domain',
+        'checkout_template',
         'google_analytics_id',
         'slug',
         'logo',
@@ -310,9 +311,12 @@ class Website extends Model
         if (!empty($this->logo_width)) {
             $styles[] = 'width: ' . (is_numeric($this->logo_width) ? $this->logo_width . 'px' : $this->logo_width) . ' !important';
         }
-        if (!empty($this->logo_height)) {
-            $styles[] = 'height: ' . (is_numeric($this->logo_height) ? $this->logo_height . 'px' : $this->logo_height) . ' !important';
-        }
         return !empty($styles) ? implode('; ', $styles) . ';' : '';
+    }
+
+    public function getResolvedCheckoutTemplateAttribute(): string
+    {
+        $template = trim((string) ($this->checkout_template ?? ''));
+        return $template !== '' ? $template : 'default';
     }
 }

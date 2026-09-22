@@ -214,6 +214,8 @@ Route::group(['prefix'=> 'admins', 'as' => 'admin.', 'middleware' => ['admin.or.
         Route::post('/update/{id}', [WebsiteController::class,'update'])->name('update');
         Route::get('/{website}/payment-settings', [PaymentSettingsController::class,'edit'])->name('payment-settings');
         Route::post('/{website}/payment-settings', [PaymentSettingsController::class,'update'])->name('payment-settings.update');
+        Route::get('/{website}/select-template', [WebsiteController::class,'selectTemplate'])->name('select-template');
+        Route::post('/{website}/select-template', [WebsiteController::class,'updateTemplate'])->name('select-template.update');
     });
 
     Route::group(['prefix'=> 'package-category', 'as' => 'package-category.'], function () {
@@ -768,6 +770,7 @@ Route::get('/reports/automation/public-preview-signed', [ReportController::class
     ->name('reports.automation.publicPreviewSigned');
 
 // Standalone client demo checkout templates (kept separate from main checkout pages)
+Route::get('/demo-checkout/default/{slug}', [FrontendController::class, 'checkoutTemplateDefault'])->name('demo.checkout.default');
 Route::get('/demo-checkout/template-1/{slug}', [FrontendController::class, 'checkoutTemplateOne'])->name('demo.checkout.template1');
 Route::get('/demo-checkout/template-4/{slug}', [FrontendController::class, 'checkoutTemplateFour'])->name('demo.checkout.template4');
 

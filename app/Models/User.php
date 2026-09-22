@@ -239,6 +239,15 @@ class User extends Authenticatable
                 ->exists();
         }
 
+        if (in_array($routeName, [
+            'admin.website.select-template',
+            'admin.website.select-template.update',
+        ], true)) {
+            return $role->permissions()
+                ->whereIn('key', ['admin.website.edit', 'admin.website.index'])
+                ->exists();
+        }
+
         return false;
     }
 

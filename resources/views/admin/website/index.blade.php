@@ -135,6 +135,9 @@
                                                                     <a href="{{ route('admin.website.payment-settings', $item->id) }}" class="btn btn-info btn-sm" title="Payment Settings">
                                                                         <i class="fas fa-credit-card"></i>
                                                                     </a>
+                                                                    <a href="{{ route('admin.website.select-template', $item->id) }}" class="btn btn-warning btn-sm" title="Select Checkout Template">
+                                                                        <i class="fas fa-palette"></i>
+                                                                    </a>
                                                                     <button
                                                                         type="button"
                                                                         class="btn btn-dark btn-sm js-copy-embed"

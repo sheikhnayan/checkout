@@ -19,13 +19,33 @@ use Illuminate\Support\Facades\Schema;
 
 class FrontendController extends Controller
 {
-    private const ENABLED_DEMO_CHECKOUT_TEMPLATES = ['template1', 'template4'];
+    private const ENABLED_DEMO_CHECKOUT_TEMPLATES = ['default', 'template1', 'template4'];
+
+    public const TEMPLATE_VIEW_MAP = [
+        'default' => [
+            'event' => 'index',
+            'default' => 'index_two',
+        ],
+        'template1' => [
+            'event' => 'checkout_templates.template1.index',
+            'default' => 'checkout_templates.template1.index_two',
+        ],
+        'template4' => [
+            'event' => 'checkout_templates.template4.index',
+            'default' => 'checkout_templates.template4.index_two',
+        ],
+    ];
 
     private WebsiteSessionAnalyticsService $sessionAnalytics;
 
     public function __construct(WebsiteSessionAnalyticsService $sessionAnalytics)
     {
         $this->sessionAnalytics = $sessionAnalytics;
+    }
+
+    public function checkoutTemplateDefault($slug, Request $request)
+    {
+        return $this->renderCheckoutForTemplate($slug, $request, 'default');
     }
 
     public function checkoutTemplateOne($slug, Request $request)
@@ -55,23 +75,20 @@ class FrontendController extends Controller
 
     public function index($slug, Request $request)
     {
-        return $this->renderCheckoutWithViews($slug, $request, 'index', 'index_two');
+        $website = Website::where('slug', $slug)
+            ->where('status', 1)
+            ->where('is_archieved', 0)
+            ->first();
+
+        $templateKey = $website?->resolved_checkout_template ?? 'default';
+        $views = self::TEMPLATE_VIEW_MAP[$templateKey] ?? self::TEMPLATE_VIEW_MAP['default'];
+
+        return $this->renderCheckoutWithViews($slug, $request, $views['event'], $views['default']);
     }
 
     private function renderCheckoutForTemplate(string $slug, Request $request, string $templateKey)
     {
-        $templateViewMap = [
-            'template1' => [
-                'event' => 'checkout_templates.template1.index',
-                'default' => 'checkout_templates.template1.index_two',
-            ],
-            'template4' => [
-                'event' => 'checkout_templates.template4.index',
-                'default' => 'checkout_templates.template4.index_two',
-            ],
-        ];
-
-        if (!isset($templateViewMap[$templateKey])) {
+        if (!isset(self::TEMPLATE_VIEW_MAP[$templateKey])) {
             abort(404, 'Checkout template not found');
         }
 
@@ -79,11 +96,13 @@ class FrontendController extends Controller
             abort(404, 'Checkout template not found');
         }
 
+        $views = self::TEMPLATE_VIEW_MAP[$templateKey];
+
         return $this->renderCheckoutWithViews(
             $slug,
             $request,
-            $templateViewMap[$templateKey]['event'],
-            $templateViewMap[$templateKey]['default']
+            $views['event'],
+            $views['default']
         );
     }
 

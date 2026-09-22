@@ -944,4 +944,113 @@ class WebsiteController extends Controller
             ->values()
             ->all();
     }
+
+    /**
+     * Get available checkout templates with metadata, features, and preview info.
+     */
+    public function getAvailableCheckoutTemplates(?Website $website = null): array
+    {
+        $slug = $website?->slug ?: '';
+
+        return [
+            'default' => [
+                'key' => 'default',
+                'name' => 'Classic CartVIP (Original)',
+                'subtitle' => 'Standard Full-Featured Checkout',
+                'badge' => 'Classic',
+                'badge_class' => 'bg-secondary',
+                'description' => 'The original, battle-tested CartVIP checkout interface with comprehensive single and multi-product cart support, responsive date picker, and classic nightclub dark aesthetics.',
+                'features' => [
+                    'Multi-step checkout with slide-out cart drawer',
+                    'Single & multi-package purchase support',
+                    'Integrated event calendar & date picker',
+                    'Established, familiar booking flow for customers',
+                ],
+                'preview_url' => $slug ? route('demo.checkout.default', $slug) : '#',
+                'recommended' => false,
+            ],
+            'template1' => [
+                'key' => 'template1',
+                'name' => 'Template 1 (Modern Sleek)',
+                'subtitle' => 'High-Conversion Streamlined Layout',
+                'badge' => 'Modern',
+                'badge_class' => 'bg-info text-dark',
+                'description' => 'Refined VIP layout with streamlined package presentation, prominent reservation details, modern typography, and optimized mobile touch targets.',
+                'features' => [
+                    'Streamlined package selection cards',
+                    'Polished input forms with clean hierarchy',
+                    'Mobile-first responsive architecture',
+                    'Optimized checkout completion rate',
+                ],
+                'preview_url' => $slug ? route('demo.checkout.template1', $slug) : '#',
+                'recommended' => false,
+            ],
+            'template4' => [
+                'key' => 'template4',
+                'name' => 'Template 4 (Ultra Luxury VIP)',
+                'subtitle' => 'Vibrant High-End Nightlife Aesthetic',
+                'badge' => 'Ultra Luxury',
+                'badge_class' => 'bg-warning text-dark',
+                'description' => 'Immersive ultra-luxury nightlife design featuring bold typography, dynamic guest count counters, rich package breakdowns, and elevated bottle service presentation.',
+                'features' => [
+                    'Vibrant neon & golden luxury styling',
+                    'Visual package lineup with rich addon breakdown',
+                    'Interactive guest count controls',
+                    'Elevated table & bottle service checkout',
+                ],
+                'preview_url' => $slug ? route('demo.checkout.template4', $slug) : '#',
+                'recommended' => true,
+            ],
+        ];
+    }
+
+    /**
+     * Show the template selection screen for a specific website.
+     */
+    public function selectTemplate(string $id)
+    {
+        $data = Website::findOrFail($id);
+        $this->authorizeWebsiteAccess($data->id, 'Access denied. You can only manage templates for your own website.');
+
+        $templates = $this->getAvailableCheckoutTemplates($data);
+        $currentTemplate = $data->resolved_checkout_template;
+
+        return view('admin.website.select_template', compact('data', 'templates', 'currentTemplate'));
+    }
+
+    /**
+     * Update the primary checkout template for a specific website.
+     */
+    public function updateTemplate(Request $request, string $id)
+    {
+        $data = Website::findOrFail($id);
+        $this->authorizeWebsiteAccess($data->id, 'Access denied. You can only manage templates for your own website.');
+
+        $templates = $this->getAvailableCheckoutTemplates($data);
+        $validKeys = array_keys($templates);
+
+        $request->validate([
+            'checkout_template' => ['required', 'string', \Illuminate\Validation\Rule::in($validKeys)],
+        ]);
+
+        $previousTemplate = $data->checkout_template ?: 'default';
+        $newTemplate = $request->input('checkout_template');
+
+        $data->checkout_template = $newTemplate;
+        $data->save();
+
+        $newTemplateName = $templates[$newTemplate]['name'] ?? $newTemplate;
+
+        \App\Services\ActivityLogger::log(
+            'update',
+            "Changed primary checkout template for '{$data->name}' from '{$previousTemplate}' to '{$newTemplateName}'.",
+            'settings',
+            $data,
+            $data->id
+        );
+
+        return redirect()
+            ->route('admin.website.select-template', $data->id)
+            ->with('success', "Primary checkout template updated successfully to {$newTemplateName}.");
+    }
 }
