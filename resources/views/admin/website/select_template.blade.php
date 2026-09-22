@@ -12,15 +12,15 @@
     }
 
     .venue-logo-box {
-        width: 110px;
-        height: 64px;
-        background: rgba(15, 23, 42, 0.9);
+        width: 120px;
+        height: 68px;
+        background: rgba(255, 255, 255, 0.06);
         border: 1px solid rgba(255, 255, 255, 0.15);
         border-radius: 12px;
         display: flex;
         align-items: center;
         justify-content: center;
-        padding: 6px 10px;
+        padding: 6px 12px;
         flex-shrink: 0;
         overflow: hidden;
     }
@@ -80,53 +80,136 @@
         align-items: center;
         gap: 5px;
         box-shadow: 0 4px 12px rgba(34, 197, 94, 0.35);
+        z-index: 5;
+    }
+
+    /* Tall Realtime Viewframe Styles */
+    .viewframe-card-container {
+        border-radius: 14px;
+        overflow: hidden;
+        border: 1px solid rgba(255, 255, 255, 0.12);
+        background: #0b1120;
+        margin-bottom: 20px;
+        display: flex;
+        flex-direction: column;
+        box-shadow: 0 10px 25px rgba(0, 0, 0, 0.4);
+    }
+
+    .viewframe-toolbar {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        padding: 8px 14px;
+        background: rgba(15, 23, 42, 0.95);
+        border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+        font-size: 0.76rem;
         z-index: 4;
     }
 
-    .preview-mockup-wrapper {
-        border-radius: 12px;
-        overflow: hidden;
-        border: 1px solid rgba(255, 255, 255, 0.12);
-        background: #0f172a;
-        margin-bottom: 18px;
-        position: relative;
-        aspect-ratio: 16 / 9;
-        display: flex;
+    .viewframe-status-dot {
+        width: 8px;
+        height: 8px;
+        background: #22c55e;
+        border-radius: 50%;
+        box-shadow: 0 0 8px #22c55e;
+        display: inline-block;
+        animation: pulseDot 2s infinite ease-in-out;
+    }
+
+    @keyframes pulseDot {
+        0%, 100% { opacity: 1; transform: scale(1); }
+        50% { opacity: 0.4; transform: scale(0.85); }
+    }
+
+    .viewframe-toolbar-title {
+        color: #94a3b8;
+        font-weight: 600;
+        letter-spacing: 0.03em;
+    }
+
+    .viewframe-toolbar-link {
+        color: #cbd5e1;
+        text-decoration: none;
+        font-size: 0.74rem;
+        font-weight: 600;
+        padding: 3px 10px;
+        border-radius: 6px;
+        background: rgba(255, 255, 255, 0.08);
+        transition: all 0.2s ease;
+        display: inline-flex;
         align-items: center;
-        justify-content: center;
+        gap: 5px;
     }
 
-    .template-thumbnail-img {
+    .viewframe-toolbar-link:hover {
+        color: #fff;
+        background: rgba(99, 102, 241, 0.5);
+    }
+
+    .viewframe-viewport {
+        position: relative;
         width: 100%;
-        height: 100%;
-        object-fit: cover;
-        object-position: top center;
-        transition: transform 0.35s ease;
+        height: 520px; /* Tall viewframe so the full layout can be viewed! */
+        overflow: hidden;
+        background: #0b1120;
     }
 
-    .preview-mockup-wrapper:hover .template-thumbnail-img {
-        transform: scale(1.05);
-    }
-
-    .mockup-overlay-btn {
+    .viewframe-loading-placeholder {
         position: absolute;
         inset: 0;
-        background: rgba(15, 23, 42, 0.78);
+        background: #0b1120;
         display: flex;
         flex-direction: column;
         align-items: center;
         justify-content: center;
-        gap: 8px;
-        opacity: 0;
-        transition: opacity 0.2s ease;
-        backdrop-filter: blur(3px);
-        text-decoration: none;
-        color: #fff;
-        z-index: 3;
+        gap: 10px;
+        z-index: 2;
+        color: #94a3b8;
+        font-size: 0.85rem;
     }
 
-    .preview-mockup-wrapper:hover .mockup-overlay-btn {
+    .viewframe-scaler {
+        position: absolute;
+        top: 0;
+        left: 0;
+        transform-origin: top left;
+    }
+
+    .viewframe-iframe {
+        width: 100%;
+        height: 100%;
+        border: none;
+        display: block;
+        background: #0b1120;
+    }
+
+    .viewframe-hover-expand-btn {
+        position: absolute;
+        bottom: 12px;
+        right: 12px;
+        background: rgba(15, 23, 42, 0.9);
+        border: 1px solid rgba(255, 255, 255, 0.2);
+        color: #fff;
+        padding: 6px 14px;
+        border-radius: 8px;
+        font-size: 0.78rem;
+        font-weight: 600;
+        display: flex;
+        align-items: center;
+        gap: 6px;
+        opacity: 0.85;
+        transition: all 0.2s ease;
+        text-decoration: none;
+        z-index: 3;
+        backdrop-filter: blur(4px);
+    }
+
+    .viewframe-hover-expand-btn:hover {
         opacity: 1;
+        background: #6366f1;
+        color: #fff;
+        transform: translateY(-1px);
+        box-shadow: 0 4px 12px rgba(99, 102, 241, 0.4);
     }
 
     .feature-item {
@@ -211,11 +294,11 @@
                         @if($logoUrl)
                             <img src="{{ $logoUrl }}" alt="{{ $data->name }}" class="venue-logo-img" onerror="this.style.display='none'; this.nextElementSibling.style.display='flex';">
                             <div class="venue-logo-fallback" style="display: none;">
-                                <i class="fas fa-building fa-lg text-warning"></i>
+                                <i class="fas fa-building fa-2x text-warning"></i>
                             </div>
                         @else
                             <div class="venue-logo-fallback">
-                                <i class="fas fa-building fa-lg text-warning"></i>
+                                <i class="fas fa-building fa-2x text-warning"></i>
                             </div>
                         @endif
                     </div>
@@ -271,15 +354,38 @@
                         </div>
                     @endif
 
-                    <!-- Visual Screenshot Preview -->
-                    <div class="preview-mockup-wrapper">
-                        <img src="{{ $template['image'] }}" alt="{{ $template['name'] }} Preview" class="template-thumbnail-img" onerror="this.onerror=null; this.src='{{ asset('assets/img/templates/default.jpg') }}';">
-
-                        <!-- Hover Overlay to Preview Live -->
-                        <a href="{{ $template['preview_url'] }}" target="_blank" class="mockup-overlay-btn" title="Click to preview with {{ $data->name }}'s data">
-                            <i class="fas fa-external-link-alt fa-2x text-warning"></i>
-                            <span class="fw-bold small">Live Preview with Venue Data</span>
-                        </a>
+                    <!-- Tall Realtime Viewframe -->
+                    <div class="viewframe-card-container">
+                        <div class="viewframe-toolbar">
+                            <div class="d-flex align-items-center gap-2">
+                                <span class="viewframe-status-dot"></span>
+                                <span class="viewframe-toolbar-title">Live Preview</span>
+                            </div>
+                            <div>
+                                <a href="{{ $template['preview_url'] }}" target="_blank" class="viewframe-toolbar-link" title="Open Fullpage Preview in New Tab">
+                                    <i class="fas fa-external-link-alt"></i> Full Screen
+                                </a>
+                            </div>
+                        </div>
+                        <div class="viewframe-viewport">
+                            <div class="viewframe-loading-placeholder">
+                                <div class="spinner-border spinner-border-sm text-warning" role="status"></div>
+                                <span>Loading realtime {{ $template['name'] }}...</span>
+                            </div>
+                            <div class="viewframe-scaler">
+                                <iframe 
+                                    src="{{ $template['preview_url'] }}" 
+                                    class="viewframe-iframe" 
+                                    loading="lazy"
+                                    onload="var p = this.closest('.viewframe-viewport').querySelector('.viewframe-loading-placeholder'); if(p) p.style.display='none';"
+                                    title="Realtime preview of {{ $template['name'] }} for {{ $data->name }}">
+                                </iframe>
+                            </div>
+                            <a href="{{ $template['preview_url'] }}" target="_blank" class="viewframe-hover-expand-btn" title="Open live checkout in a new window">
+                                <i class="fas fa-search-plus"></i>
+                                <span>Open Fullscreen</span>
+                            </a>
+                        </div>
                     </div>
 
                     <!-- Template Info -->
@@ -348,4 +454,34 @@
         </div>
     </div>
 </div>
+
+<script>
+(function() {
+    var TARGET_DESKTOP_WIDTH = 1080;
+
+    function resizeLiveViewframes() {
+        document.querySelectorAll('.viewframe-viewport').forEach(function(viewport) {
+            var containerWidth = viewport.clientWidth;
+            if (!containerWidth) return;
+
+            var scale = containerWidth / TARGET_DESKTOP_WIDTH;
+            var scaler = viewport.querySelector('.viewframe-scaler');
+            if (scaler) {
+                scaler.style.width = TARGET_DESKTOP_WIDTH + 'px';
+                scaler.style.height = (viewport.clientHeight / scale) + 'px';
+                scaler.style.transform = 'scale(' + scale + ')';
+            }
+        });
+    }
+
+    window.addEventListener('resize', resizeLiveViewframes);
+    window.addEventListener('load', resizeLiveViewframes);
+    document.addEventListener('DOMContentLoaded', function() {
+        resizeLiveViewframes();
+        setTimeout(resizeLiveViewframes, 100);
+        setTimeout(resizeLiveViewframes, 400);
+        setTimeout(resizeLiveViewframes, 1000);
+    });
+})();
+</script>
 @endsection
