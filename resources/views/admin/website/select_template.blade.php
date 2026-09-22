@@ -3,7 +3,7 @@
 @section('content')
 <style>
     .template-selection-header {
-        background: linear-gradient(135deg, rgba(30, 41, 59, 0.9), rgba(15, 23, 42, 0.95));
+        background: linear-gradient(135deg, rgba(30, 41, 59, 0.95), rgba(15, 23, 42, 0.98));
         border: 1px solid rgba(255, 255, 255, 0.1);
         border-radius: 16px;
         padding: 24px 28px;
@@ -11,11 +11,39 @@
         box-shadow: 0 10px 30px rgba(0, 0, 0, 0.3);
     }
 
+    .venue-logo-box {
+        width: 110px;
+        height: 64px;
+        background: rgba(15, 23, 42, 0.9);
+        border: 1px solid rgba(255, 255, 255, 0.15);
+        border-radius: 12px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        padding: 6px 10px;
+        flex-shrink: 0;
+        overflow: hidden;
+    }
+
+    .venue-logo-img {
+        max-height: 100%;
+        max-width: 100%;
+        object-fit: contain;
+    }
+
+    .venue-logo-fallback {
+        width: 100%;
+        height: 100%;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+    }
+
     .template-card {
         background: rgba(30, 41, 59, 0.7);
         border: 2px solid rgba(255, 255, 255, 0.08);
         border-radius: 18px;
-        padding: 24px;
+        padding: 22px;
         height: 100%;
         display: flex;
         flex-direction: column;
@@ -38,8 +66,8 @@
 
     .active-ribbon {
         position: absolute;
-        top: 18px;
-        right: 18px;
+        top: 16px;
+        right: 16px;
         background: #22c55e;
         color: #052e16;
         font-weight: 800;
@@ -52,23 +80,7 @@
         align-items: center;
         gap: 5px;
         box-shadow: 0 4px 12px rgba(34, 197, 94, 0.35);
-        z-index: 2;
-    }
-
-    .recommended-badge {
-        position: absolute;
-        top: 18px;
-        left: 18px;
-        background: linear-gradient(135deg, #f59e0b, #d97706);
-        color: #ffffff;
-        font-weight: 700;
-        font-size: 0.7rem;
-        padding: 4px 10px;
-        border-radius: 999px;
-        letter-spacing: 0.04em;
-        text-transform: uppercase;
-        box-shadow: 0 4px 10px rgba(245, 158, 11, 0.3);
-        z-index: 2;
+        z-index: 4;
     }
 
     .preview-mockup-wrapper {
@@ -76,106 +88,30 @@
         overflow: hidden;
         border: 1px solid rgba(255, 255, 255, 0.12);
         background: #0f172a;
-        margin-bottom: 20px;
+        margin-bottom: 18px;
         position: relative;
-        aspect-ratio: 16 / 10;
+        aspect-ratio: 16 / 9;
         display: flex;
         align-items: center;
         justify-content: center;
     }
 
-    /* Template Mockup Styles */
-    .mockup-ui {
+    .template-thumbnail-img {
         width: 100%;
         height: 100%;
-        padding: 12px;
-        display: flex;
-        flex-direction: column;
-        gap: 8px;
-        background: #0b1120;
-        font-size: 10px;
-        user-select: none;
+        object-fit: cover;
+        object-position: top center;
+        transition: transform 0.35s ease;
     }
 
-    .mockup-header {
-        display: flex;
-        align-items: center;
-        justify-content: space-between;
-        padding-bottom: 6px;
-        border-bottom: 1px solid rgba(255, 255, 255, 0.08);
-    }
-
-    .mockup-logo-pill {
-        width: 45px;
-        height: 10px;
-        background: rgba(255, 255, 255, 0.2);
-        border-radius: 4px;
-    }
-
-    .mockup-nav-dots {
-        display: flex;
-        gap: 4px;
-    }
-
-    .mockup-nav-dot {
-        width: 16px;
-        height: 6px;
-        background: rgba(255, 255, 255, 0.15);
-        border-radius: 3px;
-    }
-
-    .mockup-body {
-        flex: 1;
-        display: flex;
-        gap: 8px;
-    }
-
-    .mockup-card-item {
-        flex: 1;
-        border-radius: 6px;
-        padding: 8px;
-        display: flex;
-        flex-direction: column;
-        justify-content: space-between;
-    }
-
-    /* Template 1 Mockup Specifics */
-    .mockup-t1 .mockup-card-item {
-        background: rgba(99, 102, 241, 0.12);
-        border: 1px solid rgba(99, 102, 241, 0.3);
-    }
-    .mockup-t1 .mockup-accent-btn {
-        height: 12px;
-        background: #6366f1;
-        border-radius: 4px;
-    }
-
-    /* Template 4 Mockup Specifics */
-    .mockup-t4 .mockup-card-item {
-        background: rgba(245, 158, 11, 0.12);
-        border: 1px solid rgba(245, 158, 11, 0.35);
-    }
-    .mockup-t4 .mockup-accent-btn {
-        height: 12px;
-        background: linear-gradient(90deg, #f59e0b, #ec4899);
-        border-radius: 4px;
-    }
-
-    /* Default Mockup Specifics */
-    .mockup-default .mockup-card-item {
-        background: rgba(255, 255, 255, 0.05);
-        border: 1px solid rgba(255, 255, 255, 0.1);
-    }
-    .mockup-default .mockup-accent-btn {
-        height: 12px;
-        background: #2563eb;
-        border-radius: 4px;
+    .preview-mockup-wrapper:hover .template-thumbnail-img {
+        transform: scale(1.05);
     }
 
     .mockup-overlay-btn {
         position: absolute;
         inset: 0;
-        background: rgba(15, 23, 42, 0.75);
+        background: rgba(15, 23, 42, 0.78);
         display: flex;
         flex-direction: column;
         align-items: center;
@@ -214,7 +150,7 @@
         line-height: 1.55;
         color: #94a3b8;
         margin-bottom: 18px;
-        min-height: 58px;
+        min-height: 54px;
     }
 
     .card-actions {
@@ -252,18 +188,37 @@
         </div>
     </div>
 
+    @php
+        $logoUrl = null;
+        if (!empty($data->logo)) {
+            $rawLogo = trim((string) $data->logo);
+            if (str_starts_with($rawLogo, 'http://') || str_starts_with($rawLogo, 'https://')) {
+                $logoUrl = $rawLogo;
+            } elseif (str_starts_with($rawLogo, 'uploads/') || str_starts_with($rawLogo, '/uploads/')) {
+                $logoUrl = asset(ltrim($rawLogo, '/'));
+            } else {
+                $logoUrl = asset('uploads/' . $rawLogo);
+            }
+        }
+    @endphp
+
     <!-- Club Overview Banner -->
     <div class="template-selection-header">
         <div class="row align-items-center g-3">
             <div class="col-md-7">
                 <div class="d-flex align-items-center gap-3">
-                    @if($data->logo)
-                        <img src="{{ asset('storage/' . $data->logo) }}" alt="{{ $data->name }}" style="max-height: 44px; max-width: 140px; object-fit: contain;">
-                    @else
-                        <div class="bg-primary text-white rounded p-2 d-inline-flex align-items-center justify-content-center" style="width: 44px; height: 44px;">
-                            <i class="fas fa-building fa-lg"></i>
-                        </div>
-                    @endif
+                    <div class="venue-logo-box">
+                        @if($logoUrl)
+                            <img src="{{ $logoUrl }}" alt="{{ $data->name }}" class="venue-logo-img" onerror="this.style.display='none'; this.nextElementSibling.style.display='flex';">
+                            <div class="venue-logo-fallback" style="display: none;">
+                                <i class="fas fa-building fa-lg text-warning"></i>
+                            </div>
+                        @else
+                            <div class="venue-logo-fallback">
+                                <i class="fas fa-building fa-lg text-warning"></i>
+                            </div>
+                        @endif
+                    </div>
                     <div>
                         <h5 class="text-white mb-1 fw-bold">{{ $data->name }}</h5>
                         <div class="d-flex align-items-center gap-2 flex-wrap text-muted small">
@@ -316,36 +271,9 @@
                         </div>
                     @endif
 
-                    @if(!empty($template['recommended']))
-                        <div class="recommended-badge">
-                            <i class="fas fa-crown me-1"></i> Recommended
-                        </div>
-                    @endif
-
-                    <!-- Visual Mini-Mockup Preview -->
+                    <!-- Visual Screenshot Preview -->
                     <div class="preview-mockup-wrapper">
-                        <!-- Visual representation of the layout -->
-                        <div class="mockup-ui mockup-{{ $key }}">
-                            <div class="mockup-header">
-                                <div class="mockup-logo-pill"></div>
-                                <div class="mockup-nav-dots">
-                                    <div class="mockup-nav-dot"></div>
-                                    <div class="mockup-nav-dot"></div>
-                                </div>
-                            </div>
-                            <div class="mockup-body">
-                                <div class="mockup-card-item">
-                                    <div style="height: 6px; width: 60%; background: rgba(255,255,255,0.3); border-radius: 2px;"></div>
-                                    <div style="height: 4px; width: 40%; background: rgba(255,255,255,0.15); border-radius: 2px;"></div>
-                                    <div class="mockup-accent-btn"></div>
-                                </div>
-                                <div class="mockup-card-item">
-                                    <div style="height: 6px; width: 70%; background: rgba(255,255,255,0.3); border-radius: 2px;"></div>
-                                    <div style="height: 4px; width: 50%; background: rgba(255,255,255,0.15); border-radius: 2px;"></div>
-                                    <div class="mockup-accent-btn"></div>
-                                </div>
-                            </div>
-                        </div>
+                        <img src="{{ $template['image'] }}" alt="{{ $template['name'] }} Preview" class="template-thumbnail-img" onerror="this.onerror=null; this.src='{{ asset('assets/img/templates/default.jpg') }}';">
 
                         <!-- Hover Overlay to Preview Live -->
                         <a href="{{ $template['preview_url'] }}" target="_blank" class="mockup-overlay-btn" title="Click to preview with {{ $data->name }}'s data">
