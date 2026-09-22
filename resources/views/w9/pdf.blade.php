@@ -7,7 +7,7 @@
     <style>
         @page {
             size: letter portrait;
-            margin: 7mm 10mm 7mm 10mm;
+            margin: 6mm 10mm 6mm 10mm;
         }
 
         * {
@@ -17,15 +17,17 @@
         }
 
         body {
-            font-family: 'Helvetica Neue', Helvetica, Arial, sans-serif;
-            font-size: 8.2pt;
+            font-family: Arial, Helvetica, sans-serif;
+            font-size: 8pt;
             line-height: 1.25;
-            color: #111111;
+            color: #000000;
             background: #ffffff;
         }
 
-        .page {
-            width: 100%;
+        /* Centered Paper Sheet - proportional like the modal, not stretched wide */
+        .document-wrapper {
+            width: 575px;
+            margin: 0 auto;
             position: relative;
         }
 
@@ -42,7 +44,7 @@
         }
 
         .doc-title {
-            font-size: 13.5pt;
+            font-size: 14pt;
             font-weight: bold;
             color: #0066cc;
             margin-bottom: 2px;
@@ -57,8 +59,8 @@
 
         .doc-org {
             font-size: 7.5pt;
-            color: #555555;
-            letter-spacing: 0.5px;
+            color: #666666;
+            margin-bottom: 2px;
         }
 
         /* Disclaimer Callout */
@@ -67,8 +69,8 @@
             border-left: 3.5px solid #0066cc;
             padding: 5px 8px;
             margin-bottom: 5px;
-            border-radius: 2px;
-            font-size: 7pt;
+            border-radius: 3px;
+            font-size: 6.8pt;
             line-height: 1.3;
             color: #1a202c;
         }
@@ -79,34 +81,34 @@
 
         /* Before Begin / Note */
         .note-box {
-            background-color: #f8fafc;
-            border: 1px solid #e2e8f0;
+            background-color: #f9f9f9;
+            border: 1px solid #cccccc;
             padding: 4px 6px;
             margin-bottom: 5px;
             font-size: 6.8pt;
             line-height: 1.25;
-            color: #334155;
+            color: #222222;
             border-radius: 2px;
         }
 
-        /* Form Lines Layout using Float */
+        /* Form Lines - Underline styling like the modal */
         .form-line {
             width: 100%;
             margin-bottom: 4px;
             clear: both;
         }
 
-        .col-num {
+        .line-number {
             float: left;
-            width: 22px;
+            width: 20px;
             font-weight: bold;
             font-size: 8.5pt;
-            color: #111111;
-            padding-top: 2px;
+            color: #000000;
+            padding-top: 1px;
         }
 
-        .col-content {
-            margin-left: 24px;
+        .line-content {
+            margin-left: 22px;
         }
 
         .clear {
@@ -116,20 +118,19 @@
             font-size: 0;
         }
 
-        .field-input-box {
-            border: 1px solid #777777;
-            background-color: #ffffff;
-            padding: 3px 6px;
-            min-height: 18px;
-            font-size: 8.2pt;
+        .line-input-underline {
+            border: none;
+            border-bottom: 1px solid #000000;
+            padding: 1px 3px;
+            font-size: 8.5pt;
+            font-weight: bold;
             color: #000000;
-            font-weight: 500;
-            border-radius: 2px;
+            min-height: 16px;
         }
 
-        .field-label {
+        .line-label {
             font-size: 6.5pt;
-            color: #555555;
+            color: #444444;
             margin-top: 1px;
             line-height: 1.15;
         }
@@ -139,10 +140,10 @@
             display: inline-block;
             width: 11px;
             height: 11px;
-            border: 1.2px solid #222222;
+            border: 1.2px solid #000000;
             text-align: center;
             line-height: 9px;
-            font-size: 8pt;
+            font-size: 8.5pt;
             font-weight: bold;
             color: #000000;
             margin-right: 4px;
@@ -155,7 +156,7 @@
             display: inline-block;
             width: 11px;
             height: 11px;
-            border: 1.2px solid #222222;
+            border: 1.2px solid #000000;
             border-radius: 50%;
             text-align: center;
             line-height: 8px;
@@ -183,41 +184,42 @@
         /* Section Bars */
         .section-bar {
             background-color: #f1f5f9;
-            border-top: 1.5px solid #1e293b;
-            border-bottom: 1px solid #cbd5e1;
-            padding: 3px 6px;
-            margin: 5px 0 3px 0;
+            border-top: 1.5px solid #111111;
+            border-bottom: 1px solid #cccccc;
+            padding: 2.5px 6px;
+            margin: 4px 0 2px 0;
             font-size: 7.8pt;
             font-weight: bold;
-            color: #0f172a;
+            color: #000000;
             clear: both;
         }
 
         .section-desc {
-            font-size: 6.8pt;
-            line-height: 1.25;
-            color: #334155;
-            margin-bottom: 4px;
+            font-size: 6.6pt;
+            line-height: 1.2;
+            color: #333333;
+            margin-bottom: 3px;
         }
 
         /* Part I TIN Box */
         .tin-table {
             width: 100%;
             border-collapse: collapse;
-            margin-top: 2px;
+            margin-top: 1px;
+            margin-bottom: 3px;
         }
 
         .tin-table td {
             vertical-align: top;
-            padding: 2px 6px;
+            padding: 1px 6px;
         }
 
         .tin-digit-cell {
-            border: 1px solid #333333;
+            border: 1px solid #000000;
             background: #ffffff;
             height: 18px;
             text-align: center;
-            font-size: 8.2pt;
+            font-size: 8.5pt;
             font-weight: bold;
             line-height: 18px;
             color: #000000;
@@ -233,17 +235,17 @@
 
         /* Part II Certification Box */
         .cert-container {
-            border: 1px solid #777777;
-            padding: 5px 8px;
+            border: 1px solid #888888;
+            padding: 4px 6px;
             background-color: #ffffff;
-            margin-top: 3px;
+            margin-top: 2px;
             clear: both;
         }
 
         .cert-intro {
-            font-size: 7pt;
+            font-size: 6.8pt;
             font-weight: bold;
-            margin-bottom: 3px;
+            margin-bottom: 2px;
         }
 
         .cert-list {
@@ -253,67 +255,66 @@
         }
 
         .cert-list li {
-            font-size: 6.6pt;
-            line-height: 1.25;
-            margin-bottom: 2px;
-            color: #222222;
+            font-size: 6.3pt;
+            line-height: 1.2;
+            margin-bottom: 1.5px;
+            color: #111111;
         }
 
         .cert-list li strong {
             display: inline-block;
-            width: 12px;
+            width: 11px;
         }
 
         .cert-divider {
             border-top: 0.8px solid #cccccc;
-            margin: 4px 0;
+            margin: 3px 0;
         }
 
         .cert-ack-box {
             background-color: #f0fdf4;
             border-left: 3px solid #16a34a;
-            padding: 4px 8px;
-            margin: 3px 0 5px 0;
-            font-size: 6.8pt;
-            line-height: 1.25;
+            padding: 3px 6px;
+            margin: 2px 0 4px 0;
+            font-size: 6.6pt;
+            line-height: 1.2;
         }
 
         .signature-table {
             width: 100%;
             border-collapse: collapse;
-            margin-top: 3px;
+            margin-top: 2px;
         }
 
         .signature-table td {
             vertical-align: top;
-            padding: 2px 4px;
+            padding: 1px 4px;
         }
 
         .sig-box {
-            border: 1px solid #777777;
-            background-color: #fafafa;
-            min-height: 30px;
-            padding: 3px 8px;
-            border-radius: 2px;
+            border-bottom: 1px solid #000000;
+            background-color: #ffffff;
+            min-height: 24px;
+            padding: 2px 4px;
         }
 
         .typed-signature {
-            font-family: 'Brush Script MT', 'Apple Chancery', 'Segoe Script', cursive, 'Times New Roman';
+            font-family: 'Brush Script MT', 'Apple Chancery', cursive, 'Times New Roman';
             font-size: 14pt;
             font-style: italic;
-            color: #0f2744;
-            line-height: 1.2;
+            color: #000000;
+            line-height: 1.1;
         }
 
         /* Page 2 Elements */
         .page2-header {
             border-bottom: 2px solid #0066cc;
-            padding-bottom: 6px;
-            margin-bottom: 12px;
+            padding-bottom: 5px;
+            margin-bottom: 10px;
         }
 
         .page2-header h2 {
-            font-size: 12pt;
+            font-size: 11pt;
             color: #0066cc;
             margin: 0;
         }
@@ -321,44 +322,44 @@
         .id-grid {
             width: 100%;
             border-collapse: collapse;
-            margin-bottom: 14px;
+            margin-bottom: 10px;
         }
 
         .id-grid td {
             width: 50%;
             vertical-align: top;
-            padding: 0 6px;
+            padding: 0 4px;
         }
 
         .id-card {
             border: 1px solid #cbd5e1;
             border-radius: 4px;
-            padding: 8px;
+            padding: 6px;
             background: #f8fafc;
             text-align: center;
         }
 
         .id-card-title {
             font-weight: bold;
-            font-size: 8pt;
-            margin-bottom: 6px;
+            font-size: 7.5pt;
+            margin-bottom: 4px;
             color: #1e293b;
             text-align: left;
             border-bottom: 1px solid #e2e8f0;
-            padding-bottom: 3px;
+            padding-bottom: 2px;
         }
 
         .id-image-frame {
             background: #ffffff;
             border: 1px dashed #94a3b8;
-            padding: 6px;
-            min-height: 160px;
+            padding: 4px;
+            min-height: 150px;
             text-align: center;
         }
 
         .id-image-frame img {
-            max-width: 280px;
-            max-height: 150px;
+            max-width: 260px;
+            max-height: 140px;
             display: inline-block;
         }
 
@@ -366,15 +367,15 @@
             background: #f0f7ff;
             border: 1px solid #bfdbfe;
             border-radius: 4px;
-            padding: 8px 12px;
-            margin-bottom: 12px;
+            padding: 6px 10px;
+            margin-bottom: 10px;
         }
 
         .admin-audit-title {
             color: #1d4ed8;
             font-weight: bold;
-            font-size: 8pt;
-            margin-bottom: 6px;
+            font-size: 7.5pt;
+            margin-bottom: 4px;
             text-transform: uppercase;
             letter-spacing: 0.5px;
         }
@@ -382,7 +383,7 @@
         .audit-table {
             width: 100%;
             border-collapse: collapse;
-            font-size: 7.5pt;
+            font-size: 7pt;
         }
 
         .audit-table td {
@@ -392,15 +393,15 @@
         .audit-label {
             font-weight: bold;
             color: #475569;
-            width: 120px;
+            width: 110px;
         }
 
         .badge-pill {
             display: inline-block;
-            padding: 2px 8px;
+            padding: 2px 7px;
             border-radius: 10px;
             font-weight: bold;
-            font-size: 7pt;
+            font-size: 6.8pt;
             text-transform: uppercase;
         }
 
@@ -413,24 +414,34 @@
             border: 1px solid #e2e8f0;
             background: #fafafa;
             border-radius: 4px;
-            padding: 8px 12px;
-            font-size: 7pt;
-            line-height: 1.4;
+            padding: 6px 10px;
+            font-size: 6.8pt;
+            line-height: 1.35;
             color: #475569;
         }
 
         .info-reference-box ul {
             margin-left: 14px;
-            margin-top: 3px;
+            margin-top: 2px;
         }
     </style>
 </head>
 <body>
 
 @php
-    $pdfData = $w9Form->pdf_form_data ? (is_array($w9Form->pdf_form_data) ? $w9Form->pdf_form_data : json_decode($w9Form->pdf_form_data, true)) : [];
-    if (!is_array($pdfData)) {
-        $pdfData = [];
+    // Safe extraction of pdf_form_data (handles array, JSON string, or double-encoded string)
+    $rawPdf = $w9Form->pdf_form_data;
+    $pdfData = [];
+    if (is_array($rawPdf)) {
+        $pdfData = $rawPdf;
+    } elseif (is_string($rawPdf) && trim($rawPdf) !== '') {
+        $dec = json_decode($rawPdf, true);
+        if (is_string($dec)) {
+            $dec = json_decode($dec, true);
+        }
+        if (is_array($dec)) {
+            $pdfData = $dec;
+        }
     }
 
     // 1. Legal Name
@@ -439,11 +450,50 @@
     // 2. Business Name
     $businessName = $w9Form->business_name ?: ($pdfData['line2_business'] ?? '');
 
-    // 3a. Tax Classification
+    // 3a. Tax Classification Resolution
     $taxClassification = $w9Form->tax_classification;
     if (!$taxClassification && !empty($pdfData['line3a_tax'])) {
         $taxClassification = is_array($pdfData['line3a_tax']) ? ($pdfData['line3a_tax'][0] ?? '') : $pdfData['line3a_tax'];
     }
+
+    $taxClassLower = strtolower(trim((string) $taxClassification));
+    $rawTax3a = $pdfData['line3a_tax'] ?? [];
+    if (!is_array($rawTax3a)) {
+        $rawTax3a = [$rawTax3a];
+    }
+    $tax3aArray = array_map('strtolower', array_map('trim', array_filter($rawTax3a, 'is_string')));
+
+    // Robust checkbox flags for Line 3a
+    $isIndividual = in_array('individual', $tax3aArray, true)
+        || in_array('sole_proprietor', $tax3aArray, true)
+        || in_array('individual/sole proprietor', $tax3aArray, true)
+        || str_contains($taxClassLower, 'individual')
+        || str_contains($taxClassLower, 'sole');
+
+    $isCCorp = in_array('c_corporation', $tax3aArray, true)
+        || in_array('c corp', $tax3aArray, true)
+        || $taxClassLower === 'c_corporation'
+        || $taxClassLower === 'c_corp';
+
+    $isSCorp = in_array('s_corporation', $tax3aArray, true)
+        || in_array('s corp', $tax3aArray, true)
+        || $taxClassLower === 's_corporation'
+        || $taxClassLower === 's_corp';
+
+    $isPartnership = in_array('partnership', $tax3aArray, true)
+        || $taxClassLower === 'partnership';
+
+    $isTrust = in_array('trust_estate', $tax3aArray, true)
+        || in_array('trust', $tax3aArray, true)
+        || str_contains($taxClassLower, 'trust')
+        || str_contains($taxClassLower, 'estate');
+
+    $isLlc = in_array('llc', $tax3aArray, true)
+        || str_starts_with($taxClassLower, 'limited_liability_company')
+        || $taxClassLower === 'llc';
+
+    $isOther = in_array('other', $tax3aArray, true)
+        || $taxClassLower === 'other';
 
     // LLC code
     $llcCode = '';
@@ -455,8 +505,9 @@
         $llcCode = strtoupper($pdfData['llc_code']);
     }
 
-    // 3b. Foreign partners
-    $hasForeignPartners = !empty($pdfData['line3b']);
+    // 3b. Foreign partners Resolution (Check all variants)
+    $line3bRaw = $pdfData['line3b'] ?? ($pdfData['has_foreign_partners'] ?? ($pdfData['foreign_partners'] ?? false));
+    $hasForeignPartners = ($line3bRaw === true || $line3bRaw === 1 || $line3bRaw === '1' || $line3bRaw === 'true' || $line3bRaw === 'on' || $line3bRaw === 'yes');
 
     // 4. Exemptions
     $exemptPayeeCode = $w9Form->exempt_payee_code ?: ($pdfData['line4_exempt'] ?? '');
@@ -483,7 +534,7 @@
     if (!$taxIdType && $taxIdNumber) {
         $cleanNum = preg_replace('/[^0-9]/', '', $taxIdNumber);
         if (strlen($cleanNum) === 9) {
-            if (in_array($taxClassification, ['c_corporation', 's_corporation', 'partnership'])) {
+            if ($isCCorp || $isSCorp || $isPartnership) {
                 $taxIdType = 'ein';
             } else {
                 $taxIdType = 'ssn';
@@ -527,7 +578,7 @@
 @endphp
 
 <!-- ======================== PAGE 1: SUBSTITUTE FORM W-9 ======================== -->
-<div class="page">
+<div class="document-wrapper">
     <!-- Header -->
     <div class="doc-header">
         <div class="doc-title">Substitute Form W-9</div>
@@ -547,70 +598,67 @@
 
     <!-- Line 1 -->
     <div class="form-line">
-        <div class="col-num">1</div>
-        <div class="col-content">
-            <div class="field-input-box">{{ $fullName }}</div>
-            <div class="field-label">Name of entity/individual</div>
+        <div class="line-number">1</div>
+        <div class="line-content">
+            <div class="line-input-underline">{{ $fullName }}</div>
+            <div class="line-label">Name of entity/individual</div>
         </div>
         <div class="clear"></div>
     </div>
 
     <!-- Line 2 -->
     <div class="form-line">
-        <div class="col-num">2</div>
-        <div class="col-content">
-            <div class="field-input-box">{{ $businessName }}</div>
-            <div class="field-label">Business name/disregarded entity name, if different from above.</div>
+        <div class="line-number">2</div>
+        <div class="line-content">
+            <div class="line-input-underline">{{ $businessName }}</div>
+            <div class="line-label">Business name/disregarded entity name, if different from above.</div>
         </div>
         <div class="clear"></div>
     </div>
 
     <!-- Line 3a -->
     <div class="form-line">
-        <div class="col-num">3a</div>
-        <div class="col-content">
-            <div style="font-size: 7pt; margin-bottom: 2px; line-height: 1.25; color: #111;">
+        <div class="line-number">3a</div>
+        <div class="line-content">
+            <div style="font-size: 6.8pt; margin-bottom: 2px; line-height: 1.2; color: #111;">
                 Check the appropriate box for federal tax classification of the entity/individual whose name is entered on line 1. Check only one of the following seven boxes.
             </div>
 
             <table class="check-table">
                 <tr>
                     <td style="width: 38%;">
-                        <span class="cb-box">{!! $taxClassification === 'individual' ? '&#10003;' : '&nbsp;' !!}</span> Individual/sole proprietor
+                        <span class="cb-box">{!! $isIndividual ? '&#10003;' : '&nbsp;' !!}</span> Individual/sole proprietor
                     </td>
                     <td style="width: 31%;">
-                        <span class="cb-box">{!! $taxClassification === 'c_corporation' ? '&#10003;' : '&nbsp;' !!}</span> C corporation
+                        <span class="cb-box">{!! $isCCorp ? '&#10003;' : '&nbsp;' !!}</span> C corporation
                     </td>
                     <td style="width: 31%;">
-                        <span class="cb-box">{!! $taxClassification === 's_corporation' ? '&#10003;' : '&nbsp;' !!}</span> S corporation
+                        <span class="cb-box">{!! $isSCorp ? '&#10003;' : '&nbsp;' !!}</span> S corporation
                     </td>
                 </tr>
                 <tr>
                     <td>
-                        <span class="cb-box">{!! $taxClassification === 'partnership' ? '&#10003;' : '&nbsp;' !!}</span> Partnership
+                        <span class="cb-box">{!! $isPartnership ? '&#10003;' : '&nbsp;' !!}</span> Partnership
                     </td>
                     <td colspan="2">
-                        <span class="cb-box">{!! $taxClassification === 'trust_estate' ? '&#10003;' : '&nbsp;' !!}</span> Trust/estate
+                        <span class="cb-box">{!! $isTrust ? '&#10003;' : '&nbsp;' !!}</span> Trust/estate
                     </td>
                 </tr>
                 <tr>
                     <td colspan="3" style="padding-top: 1px;">
-                        @php
-                            $isLlc = (strpos($taxClassification ?? '', 'limited_liability_company') === 0 || $taxClassification === 'llc');
-                        @endphp
                         <span class="cb-box">{!! $isLlc ? '&#10003;' : '&nbsp;' !!}</span>
                         <strong>LLC.</strong> Enter the tax classification (C = C corporation, S = S corporation, P = Partnership)
-                        <span style="border-bottom: 1px solid #111; padding: 0 8px; font-weight: bold; font-size: 8pt;">{{ $llcCode ?: ' ' }}</span>
+                        <span style="border-bottom: 1px solid #111; padding: 0 8px; font-weight: bold; font-size: 7.5pt;">{{ $llcCode ?: ' ' }}</span>
                     </td>
                 </tr>
                 <tr>
-                    <td colspan="3" style="font-size: 6.3pt; color: #475569; padding-left: 16px; line-height: 1.15;">
+                    <td colspan="3" style="font-size: 6.2pt; color: #475569; padding-left: 15px; line-height: 1.15;">
                         Note: Check the "LLC" box above and enter the appropriate code for the tax classification of the LLC, unless it is a disregarded entity. A disregarded entity should instead check the appropriate box for the tax classification of its owner.
                     </td>
                 </tr>
                 <tr>
-                    <td colspan="3" style="padding-left: 16px; padding-top: 1px;">
-                        <span class="cb-box">{!! $taxClassification === 'other' ? '&#10003;' : '&nbsp;' !!}</span> Other
+                    <td colspan="3" style="padding-left: 15px; padding-top: 1px;">
+                        <span class="cb-box">{!! $isOther ? '&#10003;' : '&nbsp;' !!}</span> Other
                     </td>
                 </tr>
             </table>
@@ -620,9 +668,9 @@
 
     <!-- Line 3b -->
     <div class="form-line">
-        <div class="col-num">3b</div>
-        <div class="col-content">
-            <div style="font-size: 7pt; margin-bottom: 2px; line-height: 1.2;">
+        <div class="line-number">3b</div>
+        <div class="line-content">
+            <div style="font-size: 6.8pt; margin-bottom: 2px; line-height: 1.2;">
                 If applicable, check this box if you have foreign partners, owners, or beneficiaries.
             </div>
             <div>
@@ -634,20 +682,20 @@
 
     <!-- Line 4 -->
     <div class="form-line">
-        <div class="col-num">4</div>
-        <div class="col-content">
-            <div style="font-size: 7pt; margin-bottom: 2px;">
+        <div class="line-number">4</div>
+        <div class="line-content">
+            <div style="font-size: 6.8pt; margin-bottom: 2px;">
                 <strong>Exemptions:</strong> Exemptions apply only to certain entities. See IRS Form W-9 instructions for details.
             </div>
             <table style="width: 100%; border-collapse: collapse;">
                 <tr>
                     <td style="width: 50%; padding-right: 8px; vertical-align: top;">
-                        <div class="field-input-box">{{ $exemptPayeeCode }}</div>
-                        <div class="field-label">Exempt payee code (if any)</div>
+                        <div class="line-input-underline">{{ $exemptPayeeCode }}</div>
+                        <div class="line-label">Exempt payee code (if any)</div>
                     </td>
                     <td style="width: 50%; padding-left: 8px; vertical-align: top;">
-                        <div class="field-input-box">{{ $fatcaExemptionCode }}</div>
-                        <div class="field-label">Exemption from FATCA reporting code (if any)</div>
+                        <div class="line-input-underline">{{ $fatcaExemptionCode }}</div>
+                        <div class="line-label">Exemption from FATCA reporting code (if any)</div>
                     </td>
                 </tr>
             </table>
@@ -657,20 +705,20 @@
 
     <!-- Line 5 -->
     <div class="form-line">
-        <div class="col-num">5</div>
-        <div class="col-content">
-            <div class="field-input-box">{{ $streetAddress }}</div>
-            <div class="field-label">Address (number, street, apartment, or suite)</div>
+        <div class="line-number">5</div>
+        <div class="line-content">
+            <div class="line-input-underline">{{ $streetAddress }}</div>
+            <div class="line-label">Address (number, street, apartment, or suite)</div>
         </div>
         <div class="clear"></div>
     </div>
 
     <!-- Line 6 -->
     <div class="form-line">
-        <div class="col-num">6</div>
-        <div class="col-content">
-            <div class="field-input-box">{{ $cityStateZip }}</div>
-            <div class="field-label">City, state, and ZIP code</div>
+        <div class="line-number">6</div>
+        <div class="line-content">
+            <div class="line-input-underline">{{ $cityStateZip }}</div>
+            <div class="line-label">City, state, and ZIP code</div>
         </div>
         <div class="clear"></div>
     </div>
@@ -687,33 +735,33 @@
     <table class="tin-table">
         <tr>
             <!-- SSN Column -->
-            <td style="width: 50%; padding-right: 12px; border-right: 1px dashed #cbd5e1;">
-                <div style="font-size: 7.2pt; font-weight: bold; margin-bottom: 3px;">
+            <td style="width: 50%; padding-right: 10px; border-right: 1px dashed #cbd5e1;">
+                <div style="font-size: 7pt; font-weight: bold; margin-bottom: 2px;">
                     <span class="rb-circle">{!! $taxIdType === 'ssn' ? '&bull;' : '&nbsp;' !!}</span>
                     Social security number
                 </div>
                 <table style="border-collapse: collapse; margin-top: 1px;">
                     <tr>
-                        <td class="tin-digit-cell" style="width: 42px;">{{ $taxIdType === 'ssn' ? ($tinParts[0] ?? '') : '' }}</td>
+                        <td class="tin-digit-cell" style="width: 38px;">{{ $taxIdType === 'ssn' ? ($tinParts[0] ?? '') : '' }}</td>
                         <td class="tin-dash">-</td>
-                        <td class="tin-digit-cell" style="width: 32px;">{{ $taxIdType === 'ssn' ? ($tinParts[1] ?? '') : '' }}</td>
+                        <td class="tin-digit-cell" style="width: 28px;">{{ $taxIdType === 'ssn' ? ($tinParts[1] ?? '') : '' }}</td>
                         <td class="tin-dash">-</td>
-                        <td class="tin-digit-cell" style="width: 52px;">{{ $taxIdType === 'ssn' ? ($tinParts[2] ?? '') : '' }}</td>
+                        <td class="tin-digit-cell" style="width: 48px;">{{ $taxIdType === 'ssn' ? ($tinParts[2] ?? '') : '' }}</td>
                     </tr>
                 </table>
             </td>
 
             <!-- EIN Column -->
-            <td style="width: 50%; padding-left: 12px;">
-                <div style="font-size: 7.2pt; font-weight: bold; margin-bottom: 3px;">
+            <td style="width: 50%; padding-left: 10px;">
+                <div style="font-size: 7pt; font-weight: bold; margin-bottom: 2px;">
                     <span class="rb-circle">{!! $taxIdType === 'ein' ? '&bull;' : '&nbsp;' !!}</span>
                     Employer identification number
                 </div>
                 <table style="border-collapse: collapse; margin-top: 1px;">
                     <tr>
-                        <td class="tin-digit-cell" style="width: 36px;">{{ $taxIdType === 'ein' ? ($einParts[0] ?? '') : '' }}</td>
+                        <td class="tin-digit-cell" style="width: 32px;">{{ $taxIdType === 'ein' ? ($einParts[0] ?? '') : '' }}</td>
                         <td class="tin-dash">-</td>
-                        <td class="tin-digit-cell" style="width: 86px;">{{ $taxIdType === 'ein' ? ($einParts[1] ?? '') : '' }}</td>
+                        <td class="tin-digit-cell" style="width: 78px;">{{ $taxIdType === 'ein' ? ($einParts[1] ?? '') : '' }}</td>
                     </tr>
                 </table>
             </td>
@@ -736,14 +784,14 @@
 
         <div class="cert-divider"></div>
 
-        <div style="font-size: 6.5pt; line-height: 1.25; color: #1e293b;">
+        <div style="font-size: 6.3pt; line-height: 1.2; color: #1e293b;">
             <strong>Electronic Signature Certification:</strong> By typing my legal name or drawing my signature below, I electronically sign this Substitute Form W-9. I understand that my electronic signature has the same legal effect as a handwritten signature.
         </div>
 
         <div class="cert-ack-box">
             <span class="cb-box">{!! $w9Form->certification_signed ? '&#10003;' : '&nbsp;' !!}</span>
             <strong>I certify and agree to the statements contained in Part II above.</strong>
-            <div style="font-size: 6.2pt; color: #4b5563; margin-top: 1px; padding-left: 15px;">
+            <div style="font-size: 6pt; color: #4b5563; margin-top: 1px; padding-left: 15px;">
                 If you cannot certify U.S. person status, you may need to complete Form W-8 instead.
             </div>
         </div>
@@ -751,30 +799,30 @@
         <table class="signature-table">
             <tr>
                 <td style="width: 50%;">
-                    <div style="font-size: 7pt; font-weight: bold; margin-bottom: 2px;">Signature Method</div>
-                    <div style="font-size: 7pt;">
+                    <div style="font-size: 6.8pt; font-weight: bold; margin-bottom: 2px;">Signature Method</div>
+                    <div style="font-size: 6.8pt;">
                         <span class="rb-circle">{!! $signatureMethod === 'typed' ? '&bull;' : '&nbsp;' !!}</span> Type Legal Name
                         &nbsp;&nbsp;
                         <span class="rb-circle">{!! $signatureMethod === 'draw' ? '&bull;' : '&nbsp;' !!}</span> Draw Signature
                     </div>
                 </td>
                 <td style="width: 50%;">
-                    <div style="font-size: 7pt; font-weight: bold; margin-bottom: 2px;">Date</div>
-                    <div class="field-input-box" style="padding: 2px 6px;">
+                    <div style="font-size: 6.8pt; font-weight: bold; margin-bottom: 1px;">Date</div>
+                    <div class="line-input-underline" style="padding: 1px 2px;">
                         {{ $w9Form->certification_date ? $w9Form->certification_date->format('m/d/Y') : date('m/d/Y') }}
                     </div>
                 </td>
             </tr>
             <tr>
-                <td colspan="2" style="padding-top: 3px;">
-                    <div style="font-size: 7pt; font-weight: bold; margin-bottom: 2px;">Signature</div>
+                <td colspan="2" style="padding-top: 2px;">
+                    <div style="font-size: 6.8pt; font-weight: bold; margin-bottom: 1px;">Signature</div>
                     <div class="sig-box">
                         @if($isDrawnSignature && $signatureImage)
-                            <img src="{{ $signatureImage }}" alt="Signature" style="max-height: 32px; max-width: 240px; display: block;">
+                            <img src="{{ $signatureImage }}" alt="Signature" style="max-height: 28px; max-width: 220px; display: block;">
                         @elseif($signatureTyped)
                             <div class="typed-signature">{{ $signatureTyped }}</div>
                         @else
-                            <div style="font-size: 7pt; color: #94a3b8; padding-top: 5px;">[Electronically Certified via CartVIP Onboarding]</div>
+                            <div style="font-size: 6.5pt; color: #94a3b8; padding-top: 4px;">[Electronically Certified via CartVIP Onboarding]</div>
                         @endif
                     </div>
                 </td>
@@ -784,17 +832,17 @@
 </div>
 
 <!-- ======================== PAGE 2: VERIFICATION & AUDIT RECORDS ======================== -->
-<div class="page page-break">
+<div class="document-wrapper page-break">
     <div class="page2-header">
         <h2>Government-Issued ID & Submission Audit Records</h2>
-        <div style="font-size: 7.5pt; color: #64748b; margin-top: 2px;">Substitute Form W-9 Verification Attachment</div>
+        <div style="font-size: 7.2pt; color: #64748b; margin-top: 2px;">Substitute Form W-9 Verification Attachment</div>
     </div>
 
     <!-- Government ID Photos Section -->
     <table class="id-grid">
         <tr>
-            <td colspan="2" style="width: 100%; padding: 0 0 6px 0;">
-                <div style="font-size: 7.8pt; color: #334155; margin-bottom: 4px;">
+            <td colspan="2" style="width: 100%; padding: 0 0 5px 0;">
+                <div style="font-size: 7.5pt; color: #334155; margin-bottom: 3px;">
                     <strong>ID Document Type:</strong> {{ ucwords(str_replace('_', ' ', $w9Form->id_document_type ?? 'State ID')) }}
                 </div>
             </td>
@@ -808,7 +856,7 @@
                         @if(!empty($idFrontBase64))
                             <img src="{{ $idFrontBase64 }}" alt="ID Front">
                         @else
-                            <div style="font-size: 7.5pt; color: #94a3b8; padding-top: 60px;">
+                            <div style="font-size: 7.2pt; color: #94a3b8; padding-top: 55px;">
                                 <em>[No Front ID image uploaded or recorded]</em>
                             </div>
                         @endif
@@ -824,7 +872,7 @@
                         @if(!empty($idBackBase64))
                             <img src="{{ $idBackBase64 }}" alt="ID Back">
                         @else
-                            <div style="font-size: 7.5pt; color: #94a3b8; padding-top: 60px;">
+                            <div style="font-size: 7.2pt; color: #94a3b8; padding-top: 55px;">
                                 <em>[No Back ID image uploaded or recorded]</em>
                             </div>
                         @endif
@@ -876,14 +924,14 @@
 
     <!-- Instructions Reference & Privacy Notice -->
     <div class="info-reference-box">
-        <div style="font-weight: bold; color: #0f172a; margin-bottom: 3px; font-size: 7.5pt;">Need Help / Official IRS Instructions</div>
-        <p style="margin-bottom: 4px;">
+        <div style="font-weight: bold; color: #0f172a; margin-bottom: 2px; font-size: 7.2pt;">Need Help / Official IRS Instructions</div>
+        <p style="margin-bottom: 3px;">
             For detailed line-by-line instructions on completing Form W-9, consult official IRS documentation at <strong>IRS.gov/FormW9</strong>. Official resources cover line-by-line requirements, taxpayer identification types (SSN, EIN, ITIN), backup withholding regulations, FATCA reporting codes, and penalties for failure to furnish accurate TIN information.
         </p>
 
-        <div style="border-top: 1px dashed #cbd5e1; margin: 6px 0;"></div>
+        <div style="border-top: 1px dashed #cbd5e1; margin: 4px 0;"></div>
 
-        <div style="font-weight: bold; color: #0f172a; margin-bottom: 2px; font-size: 7.5pt;">Privacy Notice & Data Protection</div>
+        <div style="font-weight: bold; color: #0f172a; margin-bottom: 2px; font-size: 7.2pt;">Privacy Notice & Data Protection</div>
         <p style="margin: 0;">
             Information collected through this Substitute Form W-9 onboarding process is utilized exclusively for identity verification, payment processing, fraud prevention, and federal/state tax reporting compliance. Access to taxpayer identification information and government ID records is strictly restricted to authorized compliance personnel.
         </p>

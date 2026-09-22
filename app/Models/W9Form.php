@@ -46,6 +46,7 @@ class W9Form extends Model
         'certification_signed' => 'boolean',
         'certification_date' => 'datetime',
         'reviewed_at' => 'datetime',
+        'pdf_form_data' => 'array',
     ];
 
     public function affiliate()
