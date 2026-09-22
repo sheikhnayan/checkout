@@ -330,10 +330,31 @@ class W9FormController extends Controller
                 }
             }
 
+            // Safe extraction of pdf_form_data
+            $rawPdf = $w9Form->pdf_form_data;
+            $pdfData = [];
+            if (is_array($rawPdf)) {
+                $pdfData = $rawPdf;
+            } elseif (is_string($rawPdf) && trim($rawPdf) !== '') {
+                $dec = json_decode($rawPdf, true);
+                if (is_string($dec)) {
+                    $dec = json_decode($dec, true);
+                }
+                if (is_array($dec)) {
+                    $pdfData = $dec;
+                }
+            }
+
+            $checkIcon = 'data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAACAAAAAgCAYAAABzenr0AAAACXBIWXMAAA7EAAAOxAGVKw4bAAAAgUlEQVRYhe2VSRKAIAwEB8v/f1k+YMg6uZA+S7pBS4BhuJ3V5Pkkd0eAKO8IOMrZAaocAB5igAnWCZh2zwowyxkBLnl1gFteGRCSA8BbNSjK33BvRCpaetA6NH1imZ2VvC5tgSQp+1YiAZE5ItpdQL+urYLTSaQiPYvb/xHDMLSwAcVEFRqYBR9tAAAAAElFTkSuQmCC';
+            $radioDot = 'data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAACAAAAAgCAYAAABzenr0AAAACXBIWXMAAA7EAAAOxAGVKw4bAAAAbElEQVRYhe2W2w3AIAwDafffmS5AwYmN0gr7H98RiUdrjnN6LmJtV/RlBEbgdG9EAAGH+1GBDBxiIAIMfMm5BeVUVhNQ7H7K+vQElLt/5ZVPwALlAj6Gvop/8RoyErL/QFRky48IEWH6HKcmD6NPDR6ZeggZAAAAAElFTkSuQmCC';
+
             $pdf = \PDF::loadView('w9.pdf', [
                 'w9Form' => $w9Form,
+                'pdfData' => $pdfData,
                 'idFrontBase64' => $idFrontBase64,
                 'idBackBase64' => $idBackBase64,
+                'checkIcon' => $checkIcon,
+                'radioDot' => $radioDot,
             ]);
 
             $pdf->setPaper('letter', 'portrait');

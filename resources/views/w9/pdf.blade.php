@@ -7,7 +7,7 @@
     <style>
         @page {
             size: letter portrait;
-            margin: 6mm 10mm 6mm 10mm;
+            margin: 10mm 18mm 10mm 18mm;
         }
 
         * {
@@ -24,10 +24,10 @@
             background: #ffffff;
         }
 
-        /* Centered Paper Sheet - proportional like the modal, not stretched wide */
+        /* Proportional Document Layout matching the Admin Modal */
         .document-wrapper {
-            width: 575px;
-            margin: 0 auto;
+            width: 100%;
+            margin: 0;
             position: relative;
         }
 
@@ -142,14 +142,18 @@
             height: 11px;
             border: 1.2px solid #000000;
             text-align: center;
-            line-height: 9px;
-            font-size: 8.5pt;
-            font-weight: bold;
-            color: #000000;
-            margin-right: 4px;
+            line-height: 10px;
             vertical-align: middle;
             background-color: #ffffff;
-            font-family: 'DejaVu Sans', sans-serif;
+            margin-right: 4px;
+        }
+
+        .cb-box img {
+            width: 8px;
+            height: 8px;
+            vertical-align: top;
+            margin-top: 1px;
+            display: inline-block;
         }
 
         .rb-circle {
@@ -159,13 +163,18 @@
             border: 1.2px solid #000000;
             border-radius: 50%;
             text-align: center;
-            line-height: 8px;
-            font-size: 10pt;
-            color: #000000;
-            margin-right: 4px;
+            line-height: 10px;
             vertical-align: middle;
             background-color: #ffffff;
-            font-family: 'DejaVu Sans', sans-serif;
+            margin-right: 4px;
+        }
+
+        .rb-circle img {
+            width: 7px;
+            height: 7px;
+            vertical-align: top;
+            margin-top: 2px;
+            display: inline-block;
         }
 
         .check-table {
@@ -429,18 +438,24 @@
 <body>
 
 @php
+    // Embedded Base64 Icons (Ensures 100% crisp rendering across all PDF viewers without font dependencies)
+    $checkIcon = $checkIcon ?? 'data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAACAAAAAgCAYAAABzenr0AAAACXBIWXMAAA7EAAAOxAGVKw4bAAAAgUlEQVRYhe2VSRKAIAwEB8v/f1k+YMg6uZA+S7pBS4BhuJ3V5Pkkd0eAKO8IOMrZAaocAB5igAnWCZh2zwowyxkBLnl1gFteGRCSA8BbNSjK33BvRCpaetA6NH1imZ2VvC5tgSQp+1YiAZE5ItpdQL+urYLTSaQiPYvb/xHDMLSwAcVEFRqYBR9tAAAAAElFTkSuQmCC';
+    $radioDot = $radioDot ?? 'data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAACAAAAAgCAYAAABzenr0AAAACXBIWXMAAA7EAAAOxAGVKw4bAAAAbElEQVRYhe2W2w3AIAwDafffmS5AwYmN0gr7H98RiUdrjnN6LmJtV/RlBEbgdG9EAAGH+1GBDBxiIAIMfMm5BeVUVhNQ7H7K+vQElLt/5ZVPwALlAj6Gvop/8RoyErL/QFRky48IEWH6HKcmD6NPDR6ZeggZAAAAAElFTkSuQmCC';
+
     // Safe extraction of pdf_form_data (handles array, JSON string, or double-encoded string)
     $rawPdf = $w9Form->pdf_form_data;
-    $pdfData = [];
-    if (is_array($rawPdf)) {
-        $pdfData = $rawPdf;
-    } elseif (is_string($rawPdf) && trim($rawPdf) !== '') {
-        $dec = json_decode($rawPdf, true);
-        if (is_string($dec)) {
-            $dec = json_decode($dec, true);
-        }
-        if (is_array($dec)) {
-            $pdfData = $dec;
+    $pdfData = $pdfData ?? [];
+    if (empty($pdfData)) {
+        if (is_array($rawPdf)) {
+            $pdfData = $rawPdf;
+        } elseif (is_string($rawPdf) && trim($rawPdf) !== '') {
+            $dec = json_decode($rawPdf, true);
+            if (is_string($dec)) {
+                $dec = json_decode($dec, true);
+            }
+            if (is_array($dec)) {
+                $pdfData = $dec;
+            }
         }
     }
 
@@ -451,7 +466,7 @@
     $businessName = $w9Form->business_name ?: ($pdfData['line2_business'] ?? '');
 
     // 3a. Tax Classification Resolution
-    $taxClassification = $w9Form->tax_classification;
+    $taxClassification = $taxClassification ?? $w9Form->tax_classification;
     if (!$taxClassification && !empty($pdfData['line3a_tax'])) {
         $taxClassification = is_array($pdfData['line3a_tax']) ? ($pdfData['line3a_tax'][0] ?? '') : $pdfData['line3a_tax'];
     }
@@ -464,12 +479,6 @@
     $tax3aArray = array_map('strtolower', array_map('trim', array_filter($rawTax3a, 'is_string')));
 
     // Robust checkbox flags for Line 3a
-    $isIndividual = in_array('individual', $tax3aArray, true)
-        || in_array('sole_proprietor', $tax3aArray, true)
-        || in_array('individual/sole proprietor', $tax3aArray, true)
-        || str_contains($taxClassLower, 'individual')
-        || str_contains($taxClassLower, 'sole');
-
     $isCCorp = in_array('c_corporation', $tax3aArray, true)
         || in_array('c corp', $tax3aArray, true)
         || $taxClassLower === 'c_corporation'
@@ -495,6 +504,13 @@
     $isOther = in_array('other', $tax3aArray, true)
         || $taxClassLower === 'other';
 
+    $isIndividual = in_array('individual', $tax3aArray, true)
+        || in_array('sole_proprietor', $tax3aArray, true)
+        || in_array('individual/sole proprietor', $tax3aArray, true)
+        || str_contains($taxClassLower, 'individual')
+        || str_contains($taxClassLower, 'sole')
+        || (!$isCCorp && !$isSCorp && !$isPartnership && !$isTrust && !$isLlc && !$isOther);
+
     // LLC code
     $llcCode = '';
     if (strpos($taxClassification ?? '', 'limited_liability_company') === 0) {
@@ -506,7 +522,7 @@
     }
 
     // 3b. Foreign partners Resolution (Check all variants)
-    $line3bRaw = $pdfData['line3b'] ?? ($pdfData['has_foreign_partners'] ?? ($pdfData['foreign_partners'] ?? false));
+    $line3bRaw = $pdfData['line3b'] ?? ($pdfData['has_foreign_partners'] ?? ($pdfData['foreign_partners'] ?? null));
     $hasForeignPartners = ($line3bRaw === true || $line3bRaw === 1 || $line3bRaw === '1' || $line3bRaw === 'true' || $line3bRaw === 'on' || $line3bRaw === 'yes');
 
     // 4. Exemptions
@@ -627,26 +643,26 @@
             <table class="check-table">
                 <tr>
                     <td style="width: 38%;">
-                        <span class="cb-box">{!! $isIndividual ? '&#10003;' : '&nbsp;' !!}</span> Individual/sole proprietor
+                        <span class="cb-box">{!! $isIndividual ? '<img src="' . $checkIcon . '" alt="✓">' : '&nbsp;' !!}</span> Individual/sole proprietor
                     </td>
                     <td style="width: 31%;">
-                        <span class="cb-box">{!! $isCCorp ? '&#10003;' : '&nbsp;' !!}</span> C corporation
+                        <span class="cb-box">{!! $isCCorp ? '<img src="' . $checkIcon . '" alt="✓">' : '&nbsp;' !!}</span> C corporation
                     </td>
                     <td style="width: 31%;">
-                        <span class="cb-box">{!! $isSCorp ? '&#10003;' : '&nbsp;' !!}</span> S corporation
+                        <span class="cb-box">{!! $isSCorp ? '<img src="' . $checkIcon . '" alt="✓">' : '&nbsp;' !!}</span> S corporation
                     </td>
                 </tr>
                 <tr>
                     <td>
-                        <span class="cb-box">{!! $isPartnership ? '&#10003;' : '&nbsp;' !!}</span> Partnership
+                        <span class="cb-box">{!! $isPartnership ? '<img src="' . $checkIcon . '" alt="✓">' : '&nbsp;' !!}</span> Partnership
                     </td>
                     <td colspan="2">
-                        <span class="cb-box">{!! $isTrust ? '&#10003;' : '&nbsp;' !!}</span> Trust/estate
+                        <span class="cb-box">{!! $isTrust ? '<img src="' . $checkIcon . '" alt="✓">' : '&nbsp;' !!}</span> Trust/estate
                     </td>
                 </tr>
                 <tr>
                     <td colspan="3" style="padding-top: 1px;">
-                        <span class="cb-box">{!! $isLlc ? '&#10003;' : '&nbsp;' !!}</span>
+                        <span class="cb-box">{!! $isLlc ? '<img src="' . $checkIcon . '" alt="✓">' : '&nbsp;' !!}</span>
                         <strong>LLC.</strong> Enter the tax classification (C = C corporation, S = S corporation, P = Partnership)
                         <span style="border-bottom: 1px solid #111; padding: 0 8px; font-weight: bold; font-size: 7.5pt;">{{ $llcCode ?: ' ' }}</span>
                     </td>
@@ -658,7 +674,7 @@
                 </tr>
                 <tr>
                     <td colspan="3" style="padding-left: 15px; padding-top: 1px;">
-                        <span class="cb-box">{!! $isOther ? '&#10003;' : '&nbsp;' !!}</span> Other
+                        <span class="cb-box">{!! $isOther ? '<img src="' . $checkIcon . '" alt="✓">' : '&nbsp;' !!}</span> Other
                     </td>
                 </tr>
             </table>
@@ -674,7 +690,7 @@
                 If applicable, check this box if you have foreign partners, owners, or beneficiaries.
             </div>
             <div>
-                <span class="cb-box">{!! $hasForeignPartners ? '&#10003;' : '&nbsp;' !!}</span>
+                <span class="cb-box">{!! $hasForeignPartners ? '<img src="' . $checkIcon . '" alt="✓">' : '&nbsp;' !!}</span>
             </div>
         </div>
         <div class="clear"></div>
@@ -737,7 +753,7 @@
             <!-- SSN Column -->
             <td style="width: 50%; padding-right: 10px; border-right: 1px dashed #cbd5e1;">
                 <div style="font-size: 7pt; font-weight: bold; margin-bottom: 2px;">
-                    <span class="rb-circle">{!! $taxIdType === 'ssn' ? '&bull;' : '&nbsp;' !!}</span>
+                    <span class="rb-circle">{!! $taxIdType === 'ssn' ? '<img src="' . $radioDot . '" alt="•">' : '&nbsp;' !!}</span>
                     Social security number
                 </div>
                 <table style="border-collapse: collapse; margin-top: 1px;">
@@ -754,7 +770,7 @@
             <!-- EIN Column -->
             <td style="width: 50%; padding-left: 10px;">
                 <div style="font-size: 7pt; font-weight: bold; margin-bottom: 2px;">
-                    <span class="rb-circle">{!! $taxIdType === 'ein' ? '&bull;' : '&nbsp;' !!}</span>
+                    <span class="rb-circle">{!! $taxIdType === 'ein' ? '<img src="' . $radioDot . '" alt="•">' : '&nbsp;' !!}</span>
                     Employer identification number
                 </div>
                 <table style="border-collapse: collapse; margin-top: 1px;">
@@ -789,7 +805,7 @@
         </div>
 
         <div class="cert-ack-box">
-            <span class="cb-box">{!! $w9Form->certification_signed ? '&#10003;' : '&nbsp;' !!}</span>
+            <span class="cb-box">{!! $w9Form->certification_signed ? '<img src="' . $checkIcon . '" alt="✓">' : '&nbsp;' !!}</span>
             <strong>I certify and agree to the statements contained in Part II above.</strong>
             <div style="font-size: 6pt; color: #4b5563; margin-top: 1px; padding-left: 15px;">
                 If you cannot certify U.S. person status, you may need to complete Form W-8 instead.
@@ -801,9 +817,9 @@
                 <td style="width: 50%;">
                     <div style="font-size: 6.8pt; font-weight: bold; margin-bottom: 2px;">Signature Method</div>
                     <div style="font-size: 6.8pt;">
-                        <span class="rb-circle">{!! $signatureMethod === 'typed' ? '&bull;' : '&nbsp;' !!}</span> Type Legal Name
+                        <span class="rb-circle">{!! $signatureMethod === 'typed' ? '<img src="' . $radioDot . '" alt="•">' : '&nbsp;' !!}</span> Type Legal Name
                         &nbsp;&nbsp;
-                        <span class="rb-circle">{!! $signatureMethod === 'draw' ? '&bull;' : '&nbsp;' !!}</span> Draw Signature
+                        <span class="rb-circle">{!! $signatureMethod === 'draw' ? '<img src="' . $radioDot . '" alt="•">' : '&nbsp;' !!}</span> Draw Signature
                     </div>
                 </td>
                 <td style="width: 50%;">
