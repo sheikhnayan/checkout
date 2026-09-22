@@ -132,7 +132,7 @@
         text-decoration: none;
         font-size: 0.74rem;
         font-weight: 600;
-        padding: 3px 10px;
+        padding: 3px 8px;
         border-radius: 6px;
         background: rgba(255, 255, 255, 0.08);
         transition: all 0.2s ease;
@@ -149,9 +149,64 @@
     .viewframe-viewport {
         position: relative;
         width: 100%;
-        height: 520px; /* Tall viewframe so the full layout can be viewed! */
+        height: 540px; /* Tall viewframe so the full layout can be viewed! */
         overflow: hidden;
         background: #0b1120;
+    }
+
+    .viewframe-scroll-container {
+        width: 100%;
+        height: 100%;
+        overflow-y: auto;
+        overflow-x: hidden;
+        scrollbar-width: thin;
+        scrollbar-color: rgba(255, 255, 255, 0.3) transparent;
+        position: relative;
+        scroll-behavior: smooth;
+    }
+
+    .viewframe-scroll-container::-webkit-scrollbar {
+        width: 6px;
+    }
+
+    .viewframe-scroll-container::-webkit-scrollbar-track {
+        background: rgba(15, 23, 42, 0.6);
+    }
+
+    .viewframe-scroll-container::-webkit-scrollbar-thumb {
+        background: rgba(255, 255, 255, 0.3);
+        border-radius: 4px;
+    }
+
+    .viewframe-scroll-container::-webkit-scrollbar-thumb:hover {
+        background: rgba(255, 255, 255, 0.5);
+    }
+
+    .viewframe-full-img {
+        width: 100%;
+        height: auto;
+        display: block;
+    }
+
+    .viewframe-scroll-badge {
+        position: absolute;
+        bottom: 12px;
+        left: 12px;
+        background: rgba(15, 23, 42, 0.9);
+        border: 1px solid rgba(255, 255, 255, 0.2);
+        color: #e2e8f0;
+        padding: 5px 12px;
+        border-radius: 8px;
+        font-size: 0.72rem;
+        font-weight: 600;
+        pointer-events: none;
+        transition: opacity 0.3s ease;
+        backdrop-filter: blur(6px);
+        z-index: 3;
+        display: flex;
+        align-items: center;
+        gap: 6px;
+        box-shadow: 0 4px 12px rgba(0, 0, 0, 0.4);
     }
 
     .viewframe-loading-placeholder {
@@ -355,35 +410,56 @@
                     @endif
 
                     <!-- Tall Realtime Viewframe -->
-                    <div class="viewframe-card-container">
+                    <div class="viewframe-card-container" id="vf-card-{{ $key }}">
                         <div class="viewframe-toolbar">
                             <div class="d-flex align-items-center gap-2">
                                 <span class="viewframe-status-dot"></span>
-                                <span class="viewframe-toolbar-title">Live Preview</span>
+                                <span class="viewframe-toolbar-title">Preview</span>
                             </div>
-                            <div>
-                                <a href="{{ $template['preview_url'] }}" target="_blank" class="viewframe-toolbar-link" title="Open Fullpage Preview in New Tab">
-                                    <i class="fas fa-external-link-alt"></i> Full Screen
+                            <div class="d-flex align-items-center gap-2">
+                                <div class="btn-group btn-group-sm" role="group">
+                                    <button type="button" class="btn btn-xs btn-primary active btn-vf-screenshot px-2 py-0" style="font-size: 0.7rem;" onclick="setViewframeView('{{ $key }}', 'screenshot')">
+                                        <i class="fas fa-image me-1"></i>Full View
+                                    </button>
+                                    <button type="button" class="btn btn-xs btn-outline-secondary text-white btn-vf-live px-2 py-0" style="font-size: 0.7rem;" onclick="setViewframeView('{{ $key }}', 'live')">
+                                        <i class="fas fa-desktop me-1"></i>Interactive
+                                    </button>
+                                </div>
+                                <a href="{{ $template['preview_url'] }}" target="_blank" class="viewframe-toolbar-link" title="Open Full Screen in New Tab">
+                                    <i class="fas fa-external-link-alt"></i>
                                 </a>
                             </div>
                         </div>
                         <div class="viewframe-viewport">
-                            <div class="viewframe-loading-placeholder">
-                                <div class="spinner-border spinner-border-sm text-warning" role="status"></div>
-                                <span>Loading realtime {{ $template['name'] }}...</span>
+                            <!-- Scrollable Full-Length Screenshot View -->
+                            <div class="viewframe-screenshot-view viewframe-scroll-container" onscroll="var b = this.querySelector('.viewframe-scroll-badge'); if(b) b.style.opacity = '0';">
+                                <img src="{{ $template['image'] }}" alt="{{ $template['name'] }} Preview" class="viewframe-full-img" loading="lazy">
+                                <div class="viewframe-scroll-badge">
+                                    <i class="fas fa-arrows-alt-v text-warning"></i>
+                                    <span>Scroll to explore full layout</span>
+                                </div>
                             </div>
-                            <div class="viewframe-scaler">
-                                <iframe 
-                                    src="{{ $template['preview_url'] }}" 
-                                    class="viewframe-iframe" 
-                                    loading="lazy"
-                                    onload="var p = this.closest('.viewframe-viewport').querySelector('.viewframe-loading-placeholder'); if(p) p.style.display='none';"
-                                    title="Realtime preview of {{ $template['name'] }} for {{ $data->name }}">
-                                </iframe>
+
+                            <!-- Live Interactive Scaled Iframe View -->
+                            <div class="viewframe-live-view" style="display: none; width: 100%; height: 100%;">
+                                <div class="viewframe-loading-placeholder">
+                                    <div class="spinner-border spinner-border-sm text-warning" role="status"></div>
+                                    <span>Loading interactive {{ $template['name'] }}...</span>
+                                </div>
+                                <div class="viewframe-scaler">
+                                    <iframe 
+                                        data-src="{{ $template['preview_url'] }}" 
+                                        class="viewframe-iframe" 
+                                        loading="lazy"
+                                        onload="var p = this.closest('.viewframe-live-view').querySelector('.viewframe-loading-placeholder'); if(p) p.style.display='none';"
+                                        title="Interactive preview of {{ $template['name'] }} for {{ $data->name }}">
+                                    </iframe>
+                                </div>
                             </div>
-                            <a href="{{ $template['preview_url'] }}" target="_blank" class="viewframe-hover-expand-btn" title="Open live checkout in a new window">
-                                <i class="fas fa-search-plus"></i>
-                                <span>Open Fullscreen</span>
+
+                            <a href="{{ $template['preview_url'] }}" target="_blank" class="viewframe-hover-expand-btn" title="Open live checkout in full window">
+                                <i class="fas fa-expand me-1"></i>
+                                <span>Fullscreen</span>
                             </a>
                         </div>
                     </div>
@@ -474,13 +550,52 @@
         });
     }
 
+    window.setViewframeView = function(key, mode) {
+        var card = document.getElementById('vf-card-' + key);
+        if (!card) return;
+        var screenshotBox = card.querySelector('.viewframe-screenshot-view');
+        var liveBox = card.querySelector('.viewframe-live-view');
+        var btnScreenshot = card.querySelector('.btn-vf-screenshot');
+        var btnLive = card.querySelector('.btn-vf-live');
+
+        if (mode === 'live') {
+            if (screenshotBox) screenshotBox.style.display = 'none';
+            if (liveBox) {
+                liveBox.style.display = 'block';
+                var iframe = liveBox.querySelector('iframe');
+                if (iframe && !iframe.getAttribute('src') && iframe.getAttribute('data-src')) {
+                    iframe.setAttribute('src', iframe.getAttribute('data-src'));
+                }
+            }
+            if (btnScreenshot) {
+                btnScreenshot.classList.remove('active', 'btn-primary');
+                btnScreenshot.classList.add('btn-outline-secondary');
+            }
+            if (btnLive) {
+                btnLive.classList.add('active', 'btn-primary');
+                btnLive.classList.remove('btn-outline-secondary');
+            }
+            resizeLiveViewframes();
+        } else {
+            if (liveBox) liveBox.style.display = 'none';
+            if (screenshotBox) screenshotBox.style.display = 'block';
+            if (btnScreenshot) {
+                btnScreenshot.classList.add('active', 'btn-primary');
+                btnScreenshot.classList.remove('btn-outline-secondary');
+            }
+            if (btnLive) {
+                btnLive.classList.remove('active', 'btn-primary');
+                btnLive.classList.add('btn-outline-secondary');
+            }
+        }
+    };
+
     window.addEventListener('resize', resizeLiveViewframes);
     window.addEventListener('load', resizeLiveViewframes);
     document.addEventListener('DOMContentLoaded', function() {
         resizeLiveViewframes();
         setTimeout(resizeLiveViewframes, 100);
         setTimeout(resizeLiveViewframes, 400);
-        setTimeout(resizeLiveViewframes, 1000);
     });
 })();
 </script>
