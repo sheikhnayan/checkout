@@ -911,7 +911,7 @@
         <div style="margin-top: 12px; padding: 12px; background: #f0fdf4; border-left: 3px solid #22c55e; border-radius: 4px; font-size: 10px; line-height: 1.4;">
             <div class="checkbox-item">
                 <input type="checkbox" disabled {{ $w9Form->certification_signed ? 'checked' : '' }}>
-                <label>☐ I certify and agree to the statements contained in Part II above.</label>
+                <label>I certify and agree to the statements contained in Part II above.</label>
             </div>
             <small style="display: block; margin-top: 6px; color: #666;">If you cannot certify U.S. person status, you may need to complete Form W-8 instead.</small>
         </div>

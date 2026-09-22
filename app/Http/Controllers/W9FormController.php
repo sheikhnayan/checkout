@@ -297,14 +297,48 @@ class W9FormController extends Controller
 
     public function downloadPdf($id)
     {
-        $w9Form = W9Form::with(['affiliate', 'entertainer'])->findOrFail($id);
+        $w9Form = W9Form::with(['affiliate.user', 'entertainer.user', 'reviewedBy'])->findOrFail($id);
 
         if (!auth()->user()->isAdmin()) {
             abort(403, 'Unauthorized');
         }
 
         try {
-            $pdf = \PDF::loadView('w9.admin-modal', ['w9Form' => $w9Form]);
+            // Encode ID front image to base64 if available on disk
+            $idFrontBase64 = null;
+            if (!empty($w9Form->id_front_image)) {
+                $frontPath = storage_path('app/public/' . $w9Form->id_front_image);
+                if (!file_exists($frontPath)) {
+                    $frontPath = public_path('storage/' . $w9Form->id_front_image);
+                }
+                if (file_exists($frontPath) && is_file($frontPath)) {
+                    $mime = mime_content_type($frontPath) ?: 'image/jpeg';
+                    $idFrontBase64 = 'data:' . $mime . ';base64,' . base64_encode(file_get_contents($frontPath));
+                }
+            }
+
+            // Encode ID back image to base64 if available on disk
+            $idBackBase64 = null;
+            if (!empty($w9Form->id_back_image)) {
+                $backPath = storage_path('app/public/' . $w9Form->id_back_image);
+                if (!file_exists($backPath)) {
+                    $backPath = public_path('storage/' . $w9Form->id_back_image);
+                }
+                if (file_exists($backPath) && is_file($backPath)) {
+                    $mime = mime_content_type($backPath) ?: 'image/jpeg';
+                    $idBackBase64 = 'data:' . $mime . ';base64,' . base64_encode(file_get_contents($backPath));
+                }
+            }
+
+            $pdf = \PDF::loadView('w9.pdf', [
+                'w9Form' => $w9Form,
+                'idFrontBase64' => $idFrontBase64,
+                'idBackBase64' => $idBackBase64,
+            ]);
+
+            $pdf->setPaper('letter', 'portrait');
+            $pdf->setOption(['isRemoteEnabled' => true, 'isHtml5ParserEnabled' => true]);
+
             $filename = 'W-9_' . preg_replace('/[^a-z0-9]/i', '_', $w9Form->full_name ?: 'form') . '_' . now()->format('Y-m-d_H-i-s') . '.pdf';
             return $pdf->download($filename);
         } catch (\Exception $e) {
